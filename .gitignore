@@ -207,3 +207,12 @@ fabric.properties
 .idea/**/markdown-navigator/
 
 # End of https://www.gitignore.io/api/django,pycharm
+
+colors.scheme.xml
+databaseDrivers.xml
+debugger.xml
+editor.codeinsight.xml
+filetypes.xml
+jdk.table.xml
+updates.xml
+vcs.xml
