@@ -1,9 +1,48 @@
-# proyecto_is2
+# Sistema Administrador de items de proyecto
 
-    Para escribir pruebas unitarias:
+## Proyecto de Ingenieria de Software II - Primer Periodo del Año 2020
 
-        La funcion ejemplo es la siguiente
+### Autores:
+
+   Marcos Elias Riveros Romero
+   
+   Hugo Javier Fleitas Bustamante
+   
+   Marcelo Nicolas Perez Britez
+   
+   Luis anibal Perez Miranda
+
+
+### Estandar para documentar el codigo
+
+```python
+
+def dividir(a,b):
+   """Esta función calcula el cociente entre dos números.
+
+    Args:
+       a (number): El dividendo
+       b (number): El divisor
+   
+    Retorna:
+       El resutado de la división (number). 
         
+
+    Lanza:
+       ZeroDivisionError
+    
+    Como usar esta función: 
+      >> print(dividir(5,2))
+      2.5
+  """
+  
+  def 
+  return a+b 
+```
+
+### Estandar para escribir pruebas unitarias
+    1. Para escribir pruebas unitarias:
+    La funcion ejemplo es la siguiente
             def dividir(a,b):
 	            return a/b
 	        
@@ -31,9 +70,9 @@
 	    Para este ejemplo el valor de retorno coincide con el valor esperado.
 	    
 	    
-    Para correr pruebas unitarias:
+    2. Para correr pruebas unitarias:
         
         Se escribe el comando "pytest" dentro del proyecto y se analiza todos los archvos con el prefijo
         "test_" en ese directorio y empezara a correr nuestras pruebas
         Si no tiene el prefijo "test_" se tiene que poner despues de pytest el archivo donde se escribieron
-        las pruebas, Ej: "pytest pruebas.py"
+        las pruebas, Ej: "pytest pruebas.py
