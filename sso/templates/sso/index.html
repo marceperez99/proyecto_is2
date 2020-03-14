@@ -1,18 +1,8 @@
 {% extends 'base.html'%}
 {% load socialaccount %}
 {% providers_media_js %}
-{% block title %}Google Registration{%endblock title%}
+{% block title %}Menu Principal{%endblock title%}
 {% block content %}
-<!--  {% if user.is_authenticated %}-->
-  <div clas="card">
-    <div class="card-header row">
-      <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}"  height="42" width="42"/>
-      <h4>&nbsp User: {{ user.username }}</h4>
-    </div>
-    <div class="card-body">
-      <h2>Bienvenido/a, {{ user.socialaccount_set.all.0.extra_data.name }} !</h2>
-    </div>
-  </div>
-<!--  {% else %}-->
-<!--  {% endif %}-->
+{% include 'navBar.html' %}
+
 {% endblock content %}

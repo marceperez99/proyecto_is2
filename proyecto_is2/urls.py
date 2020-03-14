@@ -23,8 +23,9 @@ from django.views.generic import TemplateView # <--
 from sso.views import index_view
 
 urlpatterns = [
-    path('login/', TemplateView.as_view(template_name="sso/index.html"), name='login'), # <--
+    path('', index_view, name='index'),
+    path('login/', TemplateView.as_view(template_name="sso/login.html"), name='login'), # <--
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), # <--
-    path('', index_view, name='index'),
+
 ]
