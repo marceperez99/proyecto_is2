@@ -9,6 +9,7 @@ verify_ssl = true
 django = "*"
 pytest = "*"
 psycopg2 = "*"
+sphinx = "*"
 
 [requires]
 python_version = "3.6"
