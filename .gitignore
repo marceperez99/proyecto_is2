@@ -219,3 +219,8 @@ vcs.xml
 _linux/
 codestyles
 inspection
+/.idea/dataSources.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/proyecto_is2.iml
