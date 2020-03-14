@@ -20,12 +20,10 @@ from django.urls import path
 from django.urls import path, include # <--
 from django.views.generic import TemplateView # <--
 
-from sso.views import index_view
 
 urlpatterns = [
-    path('', index_view, name='index'),
+    path('', include('sso.urls')),
     path('login/', TemplateView.as_view(template_name="sso/login.html"), name='login'), # <--
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), # <--
-
 ]
