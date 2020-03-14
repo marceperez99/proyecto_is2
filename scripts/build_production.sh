@@ -10,19 +10,18 @@ fi
 
 #Creacion de directorios
 PROYECT_NAME="proyecto_is2"
-BASE_DIR="/home"
+BASE_DIR="/var/www"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
 APACHE_DIR="/etc/apache2/sites-available"
 cd $BASE_DIR
 
 #Creacion de directorios del sistema
-echo $PROYECT_NAME/{site,django,auth}
 mkdir -p $PROYECT_NAME/{site/{logs,public},django,auth}
 #creacion del entorno virtual
 cd $PROYECT_NAME
 #Creacion y activacion del entorno virtual
 virtualenv venv -p python3
-source venv/bin/activate
+
 #Descarga de codigo fuente
 #TODO: desmarcar cuando se haya enviado todo a git el codigo
 #git clone $GIT_URL
