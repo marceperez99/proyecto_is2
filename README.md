@@ -70,7 +70,7 @@ def dividir(a,b):
 	    Para este ejemplo el valor de retorno coincide con el valor esperado.
 	    
 	    
-    2. Para correr pruebas unitarias:
+    2. Para correr pruebas unitarias::
         
         Se escribe el comando "pytest" dentro del proyecto y se analiza todos los archvos con el prefijo
         "test_" en ese directorio y empezara a correr nuestras pruebas
