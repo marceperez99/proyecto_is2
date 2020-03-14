@@ -1,16 +1,8 @@
+{% extends 'base.html'%}
 {% load socialaccount %}
 {% providers_media_js %}
-<html>
-  <head>
-    <title>Google Registration</title>
-    <!-- <meta name="google-signin-scope" content="profile email"> -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <!-- <meta name="google-signin-client_id" content="347886323853-r72mjg1utuabev2f73ngef3tg2nqluth.apps.googleusercontent.com"> -->
-    <!-- <script src="https://apis.google.com/js/platform.js" async defer></script> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-  </head>
-  <body>
+{% block title %}Google Registration{%endblock title%}
+{% block content %}
   {% if user.is_authenticated %}
   <!-- <h1>My Google Login Project </h1> -->
   <div clas="card">
@@ -26,7 +18,7 @@
   <!-- <div class="row col col-sm-4 mx-auto justify-content-md-center align-items-end" style="height:40%;"></divclass>
     <h1>SAIP</h1>
   </div> -->
-  <div class="row col col-sm-4" style="height:30%;"></divclass>
+  <div class="row col col-sm-4" style="height:30%;">
   </div>
   <div class="col col-sm-4 mx-auto justify-content-md-center align-items-end">
     <div class="card text-center" style="height:40%;">
@@ -35,15 +27,11 @@
       </div>
       <div class="card-body d-flex align-items-center justify-content-center">
         <a href="{% provider_login_url 'google' %}">
-          <button><i class="fab fa-google"></i> SingIn or Register</button>
+          <button class="btn btn-primary"><i class="fab fa-google"></i> SingIn or Register</button>
         </a>
       </div>
     </div>
   </div>
-
   <!-- font-size:60px; -->
-
   {% endif %}
-
-  </body>
-</html>
+{% endblock content %}
