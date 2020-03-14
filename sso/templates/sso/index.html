@@ -3,8 +3,7 @@
 {% providers_media_js %}
 {% block title %}Google Registration{%endblock title%}
 {% block content %}
-  {% if user.is_authenticated %}
-  <!-- <h1>My Google Login Project </h1> -->
+<!--  {% if user.is_authenticated %}-->
   <div clas="card">
     <div class="card-header row">
       <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}"  height="42" width="42"/>
@@ -14,24 +13,6 @@
       <h2>Bienvenido/a, {{ user.socialaccount_set.all.0.extra_data.name }} !</h2>
     </div>
   </div>
-  {% else %}
-  <!-- <div class="row col col-sm-4 mx-auto justify-content-md-center align-items-end" style="height:40%;"></divclass>
-    <h1>SAIP</h1>
-  </div> -->
-  <div class="row col col-sm-4" style="height:30%;">
-  </div>
-  <div class="col col-sm-4 mx-auto justify-content-md-center align-items-end">
-    <div class="card text-center" style="height:40%;">
-      <div class="card-header">
-        <h1>SAIP</h1>
-      </div>
-      <div class="card-body d-flex align-items-center justify-content-center">
-        <a href="{% provider_login_url 'google' %}">
-          <button class="btn btn-primary"><i class="fab fa-google"></i> SingIn or Register</button>
-        </a>
-      </div>
-    </div>
-  </div>
-  <!-- font-size:60px; -->
-  {% endif %}
+<!--  {% else %}-->
+<!--  {% endif %}-->
 {% endblock content %}

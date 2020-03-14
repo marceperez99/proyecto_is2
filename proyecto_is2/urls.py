@@ -20,9 +20,11 @@ from django.urls import path
 from django.urls import path, include # <--
 from django.views.generic import TemplateView # <--
 
+from sso.views import index_view
 
 urlpatterns = [
-     path('', TemplateView.as_view(template_name="sso/index.html")), # <--
+    path('login/', TemplateView.as_view(template_name="sso/index.html"), name='login'), # <--
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), # <--
+    path('', index_view, name='index'),
 ]
