@@ -7,5 +7,6 @@ from django.views.generic import TemplateView # <--
 urlpatterns = [
     path('', views.index_view, name='index'),
     path('accounts/', include('allauth.urls')),
-    path('login/', views.login_view, name='login'),  # <--
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout')# <--
 ]
