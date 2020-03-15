@@ -7,6 +7,7 @@ def index_view(request):
 # Create your views here.
 
 def login_view(request):
+
     contexto = None
     if(request.user.is_authenticated):
         return redirect('index')
