@@ -27,5 +27,14 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
+    """
+    Vista que se encarga del cierre de sesion del usuario. Una vez echo esto redirige a la pantalla de inicio de sesion
+
+     Args:
+        request (HttpRequest)
+
+    Retorna:
+        HttpResponse
+    """
     logout(request)
     return redirect('login')
