@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.test import Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-
 from http import HTTPStatus
+import pytest
 
 # Create your tests here.
 def test_index_usuario_no_autenticado():
