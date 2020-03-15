@@ -1,10 +1,15 @@
-..automodule:: proyecto_is3.sso.models
+.. index:: Single Sign on
+
+Single Sign on
+*******************
+Aplicación que maneja el inicio de sesión al sistema.
+
+Vistas
+=========
+.. automodule:: sso.views
     :members:
-.. automodule:: proyecto_is2.sso.views
-   :members:
 
-
-
-
-
-
+Modelos
+==========
+.. automodule:: sso.models
+    :members:
