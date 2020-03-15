@@ -11,8 +11,7 @@ Documentación
    :caption: Contenido:
 
    modules/aboutSAIP.rst
-   views/sso.rst
-
+   modules/sso/sso.rst
 
 Tablas e indices
 ==================

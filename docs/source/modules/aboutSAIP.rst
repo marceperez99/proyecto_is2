@@ -4,9 +4,8 @@ Sistema Administrador de items de proyecto
 ***********************************************
 
 Proyecto de Ingenieria de Software II - Primer Periodo del Año 2020
-=========================================================================
 
-Autores:
+Autores
 ############
 
 * Marcos Elias Riveros Romero       - @macrosriv
@@ -17,7 +16,7 @@ Autores:
 
 * Luis anibal Perez Miranda         - @lapm95
 
-Descripción:
+Descripción
 ##############
 Oh god i wish this was just a lorem ipsum text! Oh god i wish this was just a lorem ipsum text!
 Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!
