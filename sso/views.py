@@ -6,3 +6,6 @@ def index_view(request):
     return render(request, 'sso/index.html', context=contexto)
 # Create your views here.
 
+def login_view(request):
+    contexto = {'user' : request.usSer}
+    return render(request, 'sso/login.html',context = contexto)
