@@ -4,5 +4,114 @@
 {% block title %}Menu Principal{%endblock title%}
 {% block content %}
 {% include 'navBar.html' %}
+  <style>
+    [data-toggle="collapse"] .fa:before {
+      content: "\f077";
+      color: White;
+    }
 
+    [data-toggle="collapse"].collapsed .fa:before {
+      content: "\f078";
+      color: White;
+    }
+  </style>
+
+  <div class="container col col-sm-12 bg-light" style="margin-top:30px;">
+    <div id="list_projects">
+
+        <div class="card" style="margin:10px">
+          <div class="card-header bg-dark text-white" id="header_project_1">
+            <div class="row">
+              <div class="col-auto mr-auto">
+                Proyecto 1
+              </div>
+              <div>
+                <button class="btn btn-danger btn-sm">
+                  <i class="fas fa-eye"></i>
+                  &nbsp Visualizar
+                </button>
+              </div>
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project1" aria-expanded="false" aria-controls="list_projects">
+                <i class="fa" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div id="collapse_project1" class="collapse" aria-labelledby="header_project_1" data-parent="#list_projects">
+            <div class="card-body row">
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
+              <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
+              <div class="col col-sm-10"><p>00/00/0000</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
+              <div class="col col-sm-10"><p>0</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
+              <div class="col col-sm-10"><p>Creador Salinas</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin:10px">
+          <div class="card-header bg-dark text-white" id="header_project_2">
+            <div class="row">
+              <div class="col-auto mr-auto">
+                Proyecto 2
+              </div>
+              <div>
+                <button class="btn btn-danger btn-sm">
+                  <i class="fas fa-eye"></i>
+                  &nbsp Visualizar
+                </button>
+              </div>
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project2" aria-expanded="false" aria-controls="list_projects">
+                <i class="fa" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div id="collapse_project2" class="collapse" aria-labelledby="header_project_2" data-parent="#list_projects">
+            <div class="card-body row">
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
+              <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
+              <div class="col col-sm-10"><p>00/00/0000</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
+              <div class="col col-sm-10"><p>0</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
+              <div class="col col-sm-10"><p>Creador Salinas</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin:10px">
+          <div class="card-header bg-dark text-white" id="header_project_3">
+            <div class="row">
+              <div class="col-auto mr-auto">
+                Proyecto 3
+              </div>
+              <div>
+                <button class="btn btn-danger btn-sm">
+                  <i class="fas fa-eye"></i>
+                  &nbsp Visualizar
+                </button>
+              </div>
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project3" aria-expanded="false" aria-controls="list_projects">
+                <i class="fa" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div id="collapse_project3" class="collapse" aria-labelledby="header_project_3" data-parent="#list_projects">
+            <div class="card-body row">
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
+              <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
+              <div class="col col-sm-10"><p>00/00/0000</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
+              <div class="col col-sm-10"><p>0</p></div>
+              <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
+              <div class="col col-sm-10"><p>Creador Salinas</p></div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
 {% endblock content %}
