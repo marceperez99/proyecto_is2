@@ -22,3 +22,15 @@ def test_index_usuario_autenticado():
     #Prueba de funcionalidad
     response = client.get(reverse('index'))
     assert response.status_code == HTTPStatus.OK
+
+@pytest.mark.django_db
+def test_logout():
+
+    user = User.objects.create(username='testing')
+    user.set_password('12345')
+    user.save()
+    client = Client()
+    client.login(username='testing', password='12345')
+
+    response = client.get(reverse('logout'))
+    assert response.status_code == HTTPStatus.FOUND
