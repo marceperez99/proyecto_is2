@@ -11,7 +11,7 @@ pytest = "*"
 psycopg2 = "*"
 sphinx = "*"
 django-allauth = "*"
-django-pytest = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.6"
