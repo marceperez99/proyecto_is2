@@ -80,8 +80,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+#'django.contrib.auth.backends.ModelBackend',
 AUTHENTICATION_BACKENDS = (
- 'django.contrib.auth.backends.ModelBackend',
+ 'proyecto_is2.usuario.auth_backend.ProxiedModelBackend'
  'allauth.account.auth_backends.AuthenticationBackend',
 )
 
