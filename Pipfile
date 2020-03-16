@@ -8,6 +8,10 @@ verify_ssl = true
 [packages]
 django = "*"
 pytest = "*"
+psycopg2 = "*"
+sphinx = "*"
+django-allauth = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.6"
