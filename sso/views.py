@@ -27,8 +27,10 @@ def login_view(request):
     """
     contexto = None
     if(request.user.is_authenticated):
+        print(request.user.first_name)
         return redirect('index')
     else:
+
         return render(request, 'sso/login.html',context = contexto)
 
 @login_required
