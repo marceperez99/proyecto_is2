@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # <--
     'sso',  # <--
     'usuario',
+    'GestionDeProyecto',
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
