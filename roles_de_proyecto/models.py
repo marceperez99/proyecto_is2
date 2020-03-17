@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.db import models
 
 
@@ -21,6 +21,7 @@ class RolDeProyecto(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.CharField(max_length=200)
     permisos = models.ManyToManyField(Permission)
+    #creador = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         permissions = [('ps_crear_rp', 'Crear Rol de Proyecto'),
@@ -46,4 +47,4 @@ class RolDeProyecto(models.Model):
         returna: bool
         """
         #TODO: Falta agregar la logica de esta seccion
-        return True
+        return False
