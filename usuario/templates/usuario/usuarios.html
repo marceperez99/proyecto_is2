@@ -5,7 +5,7 @@
 
 <ul>
 {% for usuario in lista_usuario %}
-    {{usuario.username}} {usuario.email}}<br>
+    <a href = "{% url 'usuario' usuario.id %}"> {{usuario.username}} </a>{{usuario.email}}<br>
     {% empty %}
         No hay usuarios para mostrar.
 {% endfor %}
