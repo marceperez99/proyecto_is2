@@ -24,12 +24,18 @@
         {% endif %}
         <div class="row">
             <h3 class="col-8">Rol de Proyecto</h3>
-            <div class="col-4 d-flex ">
-                <!-- TODO cada una de estas dos opciones debe tener su condicion para mostrarse -->
-                <a href="{% url 'editar_rol_de_proyecto' rol.id %}" class="btn btn-success mx-auto">Editar Rol</a>
-                <!-- TODO falta poner el link a la eliminacion -->
-                <a href="{% url 'login' %}" onclick="confirmar_eliminacion()" class="btn btn-danger mr-auto">Eliminar Rol</a>
-            </div>
+
+            <!-- TODO cada una de estas dos opciones debe tener su condicion para mostrarse -->
+            <div class="mx-auto col-2"><a href="{% url 'editar_rol_de_proyecto' rol.id %}" class="btn btn-success ml-auto">Editar Rol</a></div>
+                    <!-- TODO falta poner el link a la eliminacion -->
+            <form method="POST" class="col-2" action="{% url 'eliminar_rol_de_proyecto' rol.id %}">
+                {% csrf_token %}
+                <input type="submit" onclick="confirmar_eliminacion()" class="btn btn-danger mr-auto"
+                       {% if rol.es_utilizado %}disabled{% endif %} value="Eliminar Rol"/>
+            </form>
+
+
+
         </div>
 
         <hr>

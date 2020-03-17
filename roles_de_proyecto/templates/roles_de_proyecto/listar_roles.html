@@ -17,7 +17,7 @@
         <div class="row">
             <h3 class="col-9">Roles de Proyecto</h3>
             <!-- Falta agregar condicion para que esta opcion no se muestre si no se tiene el permiso -->
-            <div class="col-3 "><a href="#" class="btn btn-success">Crear Nuevo Rol</a></div>
+            <div class="col-3 "><a href="{% url 'nuevo_rol_de_proyecto' %}" class="btn btn-success">Crear Nuevo Rol</a></div>
 
         </div>
             <hr>
@@ -43,10 +43,10 @@
                                 {{rol.nombre}}
                             </div>
                             <div>
-                                <button class="btn btn-danger btn-sm">
+                                <a href="{% url 'rol_de_proyecto' rol.id %}" class="btn btn-danger btn-sm">
                                     <i class="fas fa-eye"></i>
                                     &nbsp Visualizar
-                                </button>
+                                </a>
                             </div>
                             <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_rol_{{rol.id}}" aria-expanded="false" aria-controls="lista_roles">
                                 <i class="fa" aria-hidden="true"></i>

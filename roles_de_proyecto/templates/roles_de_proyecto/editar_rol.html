@@ -2,8 +2,8 @@
 {% load crispy_forms_tags %}
 {% block title %} Editar Rol de Proyecto {% endblock %}
 {% block content %}{% include 'navBar.html' %}
-    <div class="container my-3"><a href="#">Proyecto</a> > <a href="#">Fase</a> > <a href="3">Editar Usuario</a></div>
-<div class="container">
+
+<div class="container mt-3">
         {% if form.errors %}
         {% for field in form %}
             {% for error in field.errors %}

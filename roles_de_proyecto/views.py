@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
@@ -60,9 +61,11 @@ def editar_rol_de_proyecto_view(request, id_rol):
             messages.success(request, 'Rol de Proyecto modificado exitosamente')
             return redirect('rol_de_proyecto', id_rol=id_rol)
 
-        contexto = {'user': request.user, 'form' : form}
+        contexto = {'user': request.user, 'form': form}
     else:
-        contexto = {'user': request.user, 'form' : NewRolDeProyectoForm(instance=rol)}
+        contexto = {'user': request.user,
+                    'form': NewRolDeProyectoForm(instance=rol, initial={'permisos': [r.id for r in rol.get_permisos()]})
+                    }
 
     return render(request, 'roles_de_proyecto/editar_rol.html', contexto)
 
@@ -114,14 +117,28 @@ def rol_de_proyecto_view(request, id_rol):
 
         HttpResponse
     """
-    rol = get_object_or_404(RolDeProyecto,id=id_rol)
+    rol = get_object_or_404(RolDeProyecto, id=id_rol)
     contexto = {
         'user': request.user,
         'rol': {
             'id': rol.id,
             'nombre': rol.nombre,
             'descripcion': rol.descripcion,
+            'es_utilizado': rol.es_utilizado(),
             'permisos': [p.name for p in rol.permisos.all()]
         }
     }
     return render(request, 'roles_de_proyecto/ver_rol.html', contexto)
+
+
+def eliminar_rol_de_proyecto_view(request, id_rol):
+    rol = get_object_or_404(RolDeProyecto, pk=id_rol)
+    if request.method == 'POST':
+        if rol.es_utilizado():
+            messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
+            return redirect('rol_de_proyecto', id_rol=id_rol)
+        else:
+            rol.delete()
+            return redirect('listar_roles')
+    else:
+        return HttpResponseNotFound('<h1>No se puede acceder a esta pagina.</h1>')
