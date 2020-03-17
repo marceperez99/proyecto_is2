@@ -1,7 +1,50 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+
+from roles_de_proyecto.models import RolDeProyecto
 from .forms import NewRolDeProyectoForm
-# Create your views here.
+
+
+@login_required
+#TODO falta incluir el permiso de sistema de que puede ver esto
+def listar_roles_de_proyecto_view(request):
+    """
+    Vista que meustra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
+
+    Args:
+
+     request: HttpRequest
+
+    Retorna:
+
+     HttpResponse
+    """
+    contexto = {'user': request.user,
+                'roles': [
+                    {'id':rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
+                     'permisos': [p.name for p in rol.get_permisos()]
+                     }
+                    for rol in RolDeProyecto.objects.all()
+                    ]
+                }
+
+    return render(request, 'roles_de_proyecto/listar_roles.html', contexto)
+
+@login_required
+def editar_rol_de_proyecto_view(request, id_rol):
+    """
+    Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
+    :return:
+    """
+    contexto = {'user': request.user}
+    rol = get_object_or_404(RolDeProyecto, pk=id_rol)
+    if request.method == 'POST':
+        pass
+    else:
+        form = NewRolDeProyectoForm(instance=rol)
+        contexto['form'] = form
+        return render(request, 'roles_de_proyecto/editar_rol.html', contexto)
+
 
 @login_required
 #TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
@@ -25,13 +68,13 @@ def nuevo_rol_de_proyecto_view(request):
     HttpResponse
     """
     contexto={'user':request.user}
-    if(request.method == 'POST'):
+    if request.method == 'POST':
         form = NewRolDeProyectoForm(request.POST)
-        if(form.is_valid()):
+        if form.is_valid():
             form.save()
 
         return redirect('nuevo_rol_de_proyecto')
     else:
         contexto['form'] = NewRolDeProyectoForm()
 
-        return render(request,'roles_de_proyecto/nuevo_rol.html',context=contexto)
+        return render(request, 'roles_de_proyecto/nuevo_rol.html', context=contexto)

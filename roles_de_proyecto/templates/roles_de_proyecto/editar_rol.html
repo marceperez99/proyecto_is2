@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %} Editar Rol de Proyecto {% endblock %}
+{% block content %}{% include 'navBar.html' %}
+    <div class="container my-3"><a href="#">Proyecto</a> > <a href="#">Fase</a> > <a href="3">Editar Usuario</a></div>
+<div class="container">
+    <h3>Editar Rol de Proyecto</h3>
+    <hr>
+    <form method="POST" class="col-12 col-md-8 mx-auto">
+        {{ form|crispy }}
+        <input type="submit" value="Editar Rol" class="btn btn-primary">
+    </form>
+
+</div>
+{% endblock %}
