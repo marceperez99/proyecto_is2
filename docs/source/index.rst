@@ -12,6 +12,7 @@ Documentación
 
    modules/aboutSAIP.rst
    modules/sso/sso.rst
+   modules/usuario/usuario.rst
 
 Tablas e indices
 ==================

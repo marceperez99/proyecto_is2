@@ -5,10 +5,11 @@ from usuario.models import Usuario
 @login_required
 def index_view(request):
 
-    """
-    Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el menú pricipal
+    """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el menú pricipal
+
     Args:
         request (HttpRequest Object): respuesta del request
+
     Retorna:
         El HttpResponse de la Vista a mostrarse
     """

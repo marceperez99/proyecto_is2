@@ -5,6 +5,10 @@ from django.contrib.auth.backends import ModelBackend
 
 
 class Usuario(User):
+    """
+    Modelo proxy que extiende el modelo User de Django.
+
+    """
     class Meta:
         proxy = True
 
