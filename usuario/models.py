@@ -11,7 +11,3 @@ class Usuario(User):
     """
     class Meta:
         proxy = True
-
-    #metodo de prueba
-    def introducir(self):
-        return "Hola, mi nombre es {}\n".format(self.first_name)

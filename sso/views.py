@@ -14,11 +14,9 @@ def index_view(request):
         El HttpResponse de la Vista a mostrarse
     """
     contexto = {'user': request.user}
-    usuario = Usuario.objects.get(pk = request.user.id)
-    print(usuario.introducir())
     return render(request, 'sso/index.html', context=contexto)
 # Create your views here.
-0
+
 def login_view(request):
     """
     Vista que muestra la pantalla de inicio de sesión. Si el usuario ya ha iniciado sesión, este es redirigido a la pantalla principal del sistema.
@@ -41,8 +39,10 @@ def login_view(request):
 def logout_view(request):
     """
     Vista que se encarga del cierre de sesion del usuario. Una vez echo esto redirige a la pantalla de inicio de sesion
-     Args:
+
+    Args:
         request (HttpRequest)
+
     Retorna:
         HttpResponse
     """
