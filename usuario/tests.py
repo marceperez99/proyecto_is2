@@ -28,3 +28,15 @@ def test_ver_usuario_no_existente():
 
     response = client.get(reverse('usuario', args=(user.id+1,)))
     assert response.status_code == HTTPStatus.NOT_FOUND, 'El sistema muestra información de un usuario no existente.'
+
+
+@pytest.mark.django_db
+def test_ver_usuarios():
+    user = User.objects.create(username='testing')
+    user.set_password('12345')
+    user.save()
+    client = Client()
+    client.login(username='testing', password='12345')
+
+    response = client.get(reverse('usuarios'))
+    assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la lista de usuarios'
