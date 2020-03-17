@@ -7,7 +7,7 @@ from .models import Usuario
 def usuarios_view(request):
     lista_usuario = list(Usuario.objects.all())
     contexto = {'lista_usuario': lista_usuario, 'user': request.user}
-    return render(request,'usuario/usuarios.html',context=contexto)
+    return render(request, 'usuario/usuarios.html', context=contexto)
 
 
 def usuario_view(request, id_usuario):
