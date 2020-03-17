@@ -1,0 +1,7 @@
+<ul>
+{% for usuario in lista_usuario %}
+    {{usuario.username}} {usuario.email}}<br>d
+    {% empty %}
+        No hay usuarios para mostrar
+{% endfor %}
+</ul>
