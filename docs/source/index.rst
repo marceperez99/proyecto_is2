@@ -12,7 +12,9 @@ Documentación
 
    modules/aboutSAIP.rst
    modules/sso/sso.rst
+   modules/usuario/usuario.rst
    modules/roles_de_proyecto/roles_de_proyecto.rst
+    
 
 Tablas e indices
 ==================
