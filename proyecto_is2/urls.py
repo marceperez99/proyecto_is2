@@ -20,7 +20,11 @@ from django.urls import path, include # <--
 
 urlpatterns = [
     path('', include('sso.urls')),
+    path('accounts/', include('allauth.urls')), # <--
+    path('roles_de_proyecto/',include('roles_de_proyecto.urls')),
+    path('', include('usuario.urls')),
+
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('', include('usuario.urls')),
+    
 ]
