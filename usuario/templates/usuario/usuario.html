@@ -1,0 +1,13 @@
+{% extends 'base.html'%}
+{% block title %}Menu Principal{%endblock title%}
+{% block content %}
+{% include 'navBar.html' %}
+
+
+<b>Nombre:</b> {{usuario.first_name}}<br>
+<b>Apellido:</b> {{usuario.last_name}}<br>
+<b>Nombre de usuario:</b> {{usuario.username}}<br>
+<b>Correo:</b> {{usuario.email}}<br>
+
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html'%}
+{% block title %}Menu Principal{%endblock title%}
+{% block content %}
+{% include 'navBar.html' %}
+
+<ul>
+{% for usuario in lista_usuario %}
+    <a href = "{% url 'usuario' usuario.id %}"> {{usuario.username}} </a>{{usuario.email}}<br>
+    {% empty %}
+        No hay usuarios para mostrar.
+{% endfor %}
+</ul>
+
+{% endblock %}

@@ -11,12 +11,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # <--
+    
     'sso',  # <--
+    'roles_de_proyecto',
+    'usuario',
+    'gestion_de_proyecto',
+    'gestion_de_fase',
 
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
     'allauth.socialaccount.providers.google',  # <--
+    'crispy_forms',
+
 ]
 
 MIDDLEWARE = [
@@ -80,6 +87,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 AUTHENTICATION_BACKENDS = (
  'django.contrib.auth.backends.ModelBackend',
  'allauth.account.auth_backends.AuthenticationBackend',
@@ -101,3 +109,5 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 LOGIN_URL = '/login/'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
