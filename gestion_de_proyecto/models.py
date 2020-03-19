@@ -29,7 +29,12 @@ class Participante(models.Model):
 
     Modelo que relaciona describe un usuario como participante de un proyecto y su rol dentro de este
 
+    Atributos:
+        - proyecto: Proyecto
+        - usuario: User
+        - rol: RolDeProyecto
     """
-    proyecto = models.ForeignKey(Proyecto)
-    usuario = models.ForeignKey(User)
-    rol = models.ForeignKey(RolDeProyecto)
+    proyecto = models.ForeignKey(Proyecto,on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User,on_delete=models.CASCADE)
+    rol = models.ForeignKey(RolDeProyecto,on_delete=models.CASCADE)
+

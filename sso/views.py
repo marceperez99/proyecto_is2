@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-import reversion
+
 
 from usuario.models import Usuario
-reversion.views.create_revision(manage_manually=False, using=None, atomic=True, request_creates_revision=None)
 @login_required
 def index_view(request):
 
