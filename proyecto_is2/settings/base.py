@@ -11,13 +11,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # <--
+    
     'sso',  # <--
+    'roles_de_proyecto',
     'usuario',
     'gestion_de_proyecto',
+
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
     'allauth.socialaccount.providers.google',  # <--
+    'crispy_forms',
+
 ]
 
 MIDDLEWARE = [
@@ -103,3 +108,5 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 LOGIN_URL = '/login/'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

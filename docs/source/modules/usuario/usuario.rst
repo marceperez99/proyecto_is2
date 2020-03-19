@@ -1,4 +1,5 @@
 .. index:: Usuario
+
 Usuario
 *******************
 Aplicación que extiende el modelo User de Django.
