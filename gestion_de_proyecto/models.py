@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from roles_de_proyecto.models import RolDeProyecto
 # Create your models here.
 
 
@@ -22,6 +23,18 @@ class Proyecto(models.Model):
     creador = models.ForeignKey(User, on_delete=models.CASCADE)
     fechaCreacion = models.DateField(verbose_name="Fecha de Creacion")
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
-    #participantes = models.ForeignKey('Participante') ??
-    #participaComo ??
-    #fases = models.ManyToManyField('Fase')
+
+class Participante(models.Model):
+    """
+
+    Modelo que relaciona describe un usuario como participante de un proyecto y su rol dentro de este
+
+    Atributos:
+        - proyecto: Proyecto
+        - usuario: User
+        - rol: RolDeProyecto
+    """
+    proyecto = models.ForeignKey(Proyecto,on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User,on_delete=models.CASCADE)
+    rol = models.ForeignKey(RolDeProyecto,on_delete=models.CASCADE)
+
