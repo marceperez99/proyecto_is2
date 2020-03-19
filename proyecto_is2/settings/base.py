@@ -15,7 +15,8 @@ INSTALLED_APPS = [
     'sso',  # <--
     'roles_de_proyecto',
     'usuario',
-  
+    'gestion_de_proyecto',
+
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
