@@ -5,6 +5,7 @@ from .models import Usuario
 
 # Create your views here.
 @login_required
+
 def usuarios_view(request):
     """
     Vista que muestra la lista de usuarios del sistema.

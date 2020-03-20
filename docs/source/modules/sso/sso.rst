@@ -13,3 +13,8 @@ Modelos
 ==========
 .. automodule:: sso.models
     :members:
+
+Pruebas unitarias
+==========================0
+.. automodule:: sso.tests
+    :members:
