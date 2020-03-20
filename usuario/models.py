@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.auth.backends import ModelBackend
-# Create your models here.
 
+
+# Create your models here.
 
 class Usuario(User):
     """
@@ -11,3 +11,4 @@ class Usuario(User):
     """
     class Meta:
         proxy = True
+
