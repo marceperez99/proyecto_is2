@@ -6,7 +6,7 @@ from gestion_de_fase.models import Fase
 #/poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id
 #/poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id/editar
 #/#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
-tipo_de_item/proyecto_id/fase_id
+#tipo_de_item/proyecto_id/fase_id
 
 def tipo_de_item_view(request,proyecto_id,fase_id):
     """
