@@ -8,8 +8,9 @@ from gestion_de_fase.models import Fase
 class TipoDeItem(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
-    creador = models.ForeignKey(User, on_delete=models.SET_NULL)
+    creador = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField()
 
 
 class AtributoBinario(models.Model):
@@ -41,7 +42,7 @@ class AtributoBooleano(models.Model):
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):
-        return self.valor
+        return self.requerido
 
 
 class AtributoNumerico(models.Model):
