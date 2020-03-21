@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Asignar Rol de Proyecto{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <h3>Asignar Rol de Proyecto</h3>
+        <form action="">
+            {{ nuevo_participante_form|crispy }}
+            <input type="submit">
+        </form>
+        <form action="">
+            {{ seleccionar_permisos_form|crispy }}
+            <input type="submit">
+        </form>
+    </div>
+{% endblock %}
