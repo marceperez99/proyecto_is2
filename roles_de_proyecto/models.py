@@ -1,6 +1,8 @@
 from django.contrib.auth.models import Permission, User
 from django.db import models
 
+from gestion_de_fase.models import Fase
+
 
 class RolDeProyecto(models.Model):
     """
@@ -32,6 +34,15 @@ class RolDeProyecto(models.Model):
     def __str__(self):
         return self.nombre
 
+    def asignar_permisos(self,permisos):
+        """
+        TODO falta hacer
+        :param permisos:
+        :return:
+        """
+        for permiso in permisos:
+            self.permisos.add(permiso)
+
     def get_permisos(self):
         """
         Metodo que retorna una lista de todos los permisos que incluye este Rol de Proyecto.
@@ -48,3 +59,20 @@ class RolDeProyecto(models.Model):
         """
         #TODO: Falta agregar la logica de esta seccion
         return False
+
+
+class PermisosPorFase(models.Model):
+    fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
+    permisos = models.ManyToManyField(Permission)
+
+    def __str__(self):
+        return f'{self.fase}: {self.permisos}'
+
+    def asignar_permisos_de_proyecto(self,permisos):
+        """
+        Metodo que recibe como parametro una lista de permisos a asignar a un usuario en una fase
+        :param permisos:
+        :return:
+        """
+        for permiso in permisos:
+            self.permisos.add(permiso)

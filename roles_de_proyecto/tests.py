@@ -5,8 +5,40 @@ from django.contrib.auth.models import Permission, User
 from django.test import Client
 from django.urls import reverse
 
+from gestion_de_fase.models import Fase
+from gestion_de_proyecto.models import Proyecto, Participante
 from .models import RolDeProyecto
+from datetime import datetime
+@pytest.fixture
+def usuario():
+    user = User(username='user_test', email='test@admin.com')
+    user.set_password('password123')
+    user.save()
+    return user
 
+@pytest.fixture
+def rol_de_proyecto():
+    rol = RolDeProyecto(nombre='Desarrollador',descripcion='Descripcion del rol')
+    rol.save()
+    rol.asignar_permisos([p for p in Permission.objects.filter(codename__startswith='pp_')])
+    return rol
+
+@pytest.fixture
+def proyecto(usuario,rol_de_proyecto):
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fechaCreacion=datetime.today(),
+                        creador=usuario)
+
+    fase = Fase(nombre='Analisis', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase.save()
+    fase = Fase(nombre='Desarrollo', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase.save()
+    fase = Fase(nombre='Pruebas', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase.save()
+
+    participante = Participante(proyecto=proyecto, usuario=usuario)
+    participante.save()
+
+    proyecto.save()
 @pytest.mark.django_db
 def test_vista_crear_rol_usuario_loggeado():
     """
