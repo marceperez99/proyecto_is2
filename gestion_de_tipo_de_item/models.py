@@ -8,6 +8,7 @@ from gestion_de_fase.models import Fase
 class TipoDeItem(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
+    prefijo = models.CharField(max_length = 20)
     creador = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
@@ -49,11 +50,11 @@ class AtributoNumerico(models.Model):
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_digitos = models.IntegerField(
-        validators=[MinValueValidator(0, "La maxima cantidad de digitos debe ser un numero mayor o igual a 0"),
-                    MaxValueValidator(20, "El maximo numero de digitos permitidos es 20")])
+        validators=[MinValueValidator(0, "La máxima cantidad de digitos debe ser un numero mayor o igual a 0"),
+                    MaxValueValidator(20, "El máximo numero de digitos permitidos es 20")])
     max_decimales = models.IntegerField(
-        validators=[MinValueValidator(0, "La maxima cantidad de digitos decimales debe ser un numero mayor o igual a 0"),
-                    MaxValueValidator(20, "El maximo numero de digitos decimales permitidos es 20")])
+        validators=[MinValueValidator(0, "La máxima cantidad de digitos decimales debe ser un numero mayor o igual a 0"),
+                    MaxValueValidator(20, "El máximo numero de digitos decimales permitidos es 20")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):
