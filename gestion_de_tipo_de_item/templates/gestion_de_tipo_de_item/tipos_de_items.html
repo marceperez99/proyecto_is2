@@ -1,0 +1,15 @@
+{% extends 'base.html'%}
+{% block title %}Menu Principal{%endblock title%}
+{% block content %}
+{% include 'navBar.html' %}
+
+<br>
+{% for tipo_de_item in lista_tipo_de_item %}
+    <b>{{tipo_de_item.nombre}}</b></br>
+    {{tipo_de_item.descripcion}}<br>
+    {% empty %}
+        No hay tipos de items para mostrar.
+{% endfor %}
+</ul>
+
+{% endblock %}

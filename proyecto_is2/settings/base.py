@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'usuario',
     'gestion_de_proyecto',
     'gestion_de_fase',
+    'gestion_de_tipo_de_item',
 
     'allauth',  # <--
     'allauth.account',  # <--
