@@ -13,6 +13,8 @@ class TipoDeItem(models.Model):
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
 
+    def __str__(self):
+        return self.nombre
 
 class AtributoBinario(models.Model):
     nombre = models.CharField(max_length=100)
