@@ -11,12 +11,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # <--
-    
+
     'sso',  # <--
     'roles_de_proyecto',
     'usuario',
     'gestion_de_proyecto',
     'gestion_de_fase',
+
 
     'allauth',  # <--
     'allauth.account',  # <--
@@ -34,6 +35,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'reversion.middleware.RevisionMiddleware',
 ]
 
 ROOT_URLCONF = 'proyecto_is2.urls'
