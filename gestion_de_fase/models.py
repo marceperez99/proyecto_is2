@@ -15,3 +15,9 @@ class Fase(models.Model):
 
     def __str__(self):
         return self.nombre
+    class Meta:
+        permissions = [
+            ('pp_crear_fase', 'Crear Fase dentro de Proyecto'),
+            ('pp_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
+            ('pp_f_cerrar_fase', 'Cerrar Fase de Proyecto'),
+        ]
