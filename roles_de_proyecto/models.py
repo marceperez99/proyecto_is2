@@ -71,7 +71,7 @@ class RolDeProyecto(models.Model):
         TODO
         :return:
         """
-        return self.permisos.filter(codename__startswith='pp_').filter(codename__istartswith='pp_f_')
+        return self.permisos.filter(codename__startswith='pp_').filter(codename__regex=r'pp_[^f_]')
 
     def get_pp_por_fase(self):
         """
@@ -95,8 +95,16 @@ class PermisosPorFase(models.Model):
         :param permisos:
         :return:
         """
-        for permiso in permisos:
+        if isinstance(permisos, list):
+            for permiso in permisos:
+                if isinstance(permiso, str):
+                    permiso = Permission.objects.get(codename=permiso)
+                self.permisos.add(permiso)
+        elif isinstance(permisos, str):
+            permiso = Permission.objects.get(codename=permisos)
             self.permisos.add(permiso)
+        else:
+            raise Exception('Tipo de dato inesperado')
 
     def tiene_pp(self, permiso):
         """TODO"""

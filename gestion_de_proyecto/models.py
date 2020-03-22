@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+from gestion_de_fase.models import Fase
 from roles_de_proyecto.models import RolDeProyecto, PermisosPorFase
 
 
@@ -102,6 +104,21 @@ class Participante(models.Model):
             ('pp_desasignar_rp_a_participante', 'Desasignar Rol de Proyecto a Participante'),
         ]
 
+    def asignar_permisos_de_proyecto(self, permisos_por_fase):
+        """TODO"""
+        for fase in permisos_por_fase.keys():
+            if isinstance(fase, str):
+                fase_obj = Fase.objects.get(id=fase)
+            elif isinstance(fase, Fase):
+                fase_obj = fase
+            else:
+                raise Exception('Objeto recibido no valido')
+
+            pp_por_fase = PermisosPorFase(fase=fase_obj)
+            pp_por_fase.save()
+            pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
+            self.permisos_por_fase.add(pp_por_fase)
+
     def asignar_rol_de_proyecto(self, rol, permisos_por_fase):
         """
         Metodo que asigna a un participante de un proyecto un conjunto de permisos
@@ -109,13 +126,18 @@ class Participante(models.Model):
         :param permisos_por_fase:
         :return:
         """
-        for fase in permisos_por_fase.keys():
-            pp_por_fase = PermisosPorFase(fase=fase)
-            pp_por_fase.save()
-            pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
-            self.permisos_por_fase.add(pp_por_fase)
+        self.asignar_permisos_de_proyecto(permisos_por_fase)
         self.rol = rol
         self.save()
+
+    def tiene_rol(self):
+        """
+        TODO
+        :return:
+        """
+        assert (self.rol is not None and not self.permisos_por_fase.all().exists()) \
+               or (self.rol is None and self.permisos_por_fase.all().exists())
+        return self.rol is not None
 
     def tiene_pp(self, permiso):
         """

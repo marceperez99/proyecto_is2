@@ -15,18 +15,36 @@ def nuevo_proyecto_view(request):
 
 
 def nuevo_participante_view(request, id_proyecto):
+    """
+    TODO: falta filtrar todos los usuarios que no son participantes de proyecto
+    :param request:
+    :param id_proyecto:
+    :return:
+    """
     proyecto = get_object_or_404(Proyecto, id=id_proyecto)
     contexto = {
         'user': request.user,
         'proyecto': proyecto,
     }
-    print(request.GET.keys())
+    print(request.GET)
     if len(request.GET.keys()) == 0:
-        contexto['nuevo_participante_form'] = NuevoParticipanteForm()
+        form = NuevoParticipanteForm()
+        form.usuario.queryset = User
+        contexto['nuevo_participante_form'] = form
     else:
-        rol = RolDeProyecto.objects.get(id=request.GET['rol'])
-        usuario = User.objects.get(id=request.GET['usuario'])
-        contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(proyecto, rol)
-        pass
+        if request.method == 'POST':
+            print(request.POST)
+            form = NuevoParticipanteForm(request.GET)
+            if form.is_valid():
+                participante = form.save(commit=False)
+                participante.proyecto = proyecto
+                participante.save()
+                permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if fase.startswith('f_')}
+                print(permisos_por_fase)
+                participante.asignar_permisos_de_proyecto(permisos_por_fase)
+        else:
+            rol = RolDeProyecto.objects.get(id=request.GET['rol'])
+            usuario = User.objects.get(id=request.GET['usuario'])
+            contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(usuario, proyecto, rol)
 
     return render(request, 'gestion_de_proyecto/nuevo_participante.html', contexto)
