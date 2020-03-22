@@ -21,6 +21,7 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('.'))
 import django
+import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath('../..'))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proyecto_is2.settings.dev_settings")
@@ -36,7 +37,7 @@ django.setup()
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.ifconfig']
+    'sphinx.ext.ifconfig','sphinx_rtd_theme']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -88,7 +89,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

@@ -6,9 +6,24 @@ from gestion_de_fase.models import Fase
 
 # Create your models here.
 class TipoDeItem(models.Model):
+    """
+    Modelo que representa una instancia de un tipo de item.
+
+    Atributos:
+
+        nombre: string\n
+        descripcion: string\n
+        prefijo: string\n
+        creador: User\n
+        fase: Fase\n
+        fecha_creacion: date\n
+
+    Metodos:
+
+    """
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
-    prefijo = models.CharField(max_length = 20)
+    prefijo = models.CharField(max_length=20)
     creador = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
@@ -17,10 +32,20 @@ class TipoDeItem(models.Model):
         return self.nombre
 
 class AtributoBinario(models.Model):
+    """
+    Modelo que representa la definición de un atributo dinamico del tipo binario asociado a un tipo de item
+
+    Atributos:
+
+        nombre: string\n
+        requerido: boolean\n
+        max_tamaño: int\n
+        tipo_de_item: TipoDeItem\n
+    """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_tamaño = models.IntegerField(
-        validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1")])
+        validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):
@@ -28,6 +53,16 @@ class AtributoBinario(models.Model):
 
 
 class AtributoCadena(models.Model):
+    """
+       Modelo que representa la definición de un atributo dinamico del tipo Cadena asociado a un tipo de item
+
+       Atributos:
+
+           nombre: string\n
+           requerido: boolean\n
+           max_longitud: int\n
+           tipo_de_item: TipoDeItem\n
+       """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_longitud = models.IntegerField(
@@ -40,6 +75,15 @@ class AtributoCadena(models.Model):
 
 
 class AtributoBooleano(models.Model):
+    """
+       Modelo que representa la definición de un atributo dinamico del tipo Booleano asociado a un tipo de item
+
+       Atributos:
+
+           nombre: string\n
+           requerido: boolean\n
+           tipo_de_item: TipoDeItem\n
+       """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
@@ -49,6 +93,17 @@ class AtributoBooleano(models.Model):
 
 
 class AtributoNumerico(models.Model):
+    """
+       Modelo que representa la definición de un atributo dinamico del tipo Númerico asociado a un tipo de item
+
+       Atributos:
+
+           nombre: string\n
+           requerido: boolean\n
+           max_digitos: int\n
+           max_decimales: int\n
+           tipo_de_item: TipoDeItem\n
+       """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_digitos = models.IntegerField(
@@ -64,6 +119,15 @@ class AtributoNumerico(models.Model):
 
 
 class AtributoFecha(models.Model):
+    """
+       Modelo que representa la definición de un atributo dinamico del tipo Fecha asociado a un tipo de item
+
+       Atributos:
+
+           nombre: string\n
+           requerido: boolean\n
+           tipo_de_item: TipoDeItem\n
+       """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)

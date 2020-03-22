@@ -1,8 +1,11 @@
-.. index:: gestion_de_tipo_de_items
+.. index:: Gestión de tipo de item
 
 Tipos de items
 *******************
-Aplicación que extiende el modelo User de Django.
+Aplicacion que gestiona los tipos de items del sistema.\n
+Permite la creación, eliminación e importación de estos en un proyecto.\n
+Es posible definir atributos dinamicos dentro para un tipo de item e indicar si estos seran requeridos o no.
+
 
 Vistas
 =========

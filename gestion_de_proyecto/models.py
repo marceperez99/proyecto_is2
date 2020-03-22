@@ -146,8 +146,10 @@ class Participante(models.Model):
         """
         Metodo que retorna True
             TODO
+
         :param permiso:
         :return:
+
         """
         return self.rol.tiene_pp(permiso)
 
