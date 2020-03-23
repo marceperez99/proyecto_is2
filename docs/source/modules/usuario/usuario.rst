@@ -14,7 +14,7 @@ Modelos
 .. automodule:: usuario.models
     :members:
 
-Pruebas unitarias
-=====================
+Pruebas Unitarias
+=======================
 .. automodule:: usuario.tests
     :members:
