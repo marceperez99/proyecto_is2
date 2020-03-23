@@ -33,6 +33,6 @@ class SeleccionarPermisosForm(forms.Form):
                 choices=[(pp.codename, pp.name) for pp in rol.get_pp_por_fase()],
                 label=f'Fase {fase.nombre}'
             )
-            self.usuario = usuario
-            self.permisos_de_proyecto = list(rol.get_pp_por_proyecto())
-            self.rol = rol
+        self.usuario = usuario
+        self.permisos_de_proyecto = list(rol.get_pp_por_proyecto())
+        self.rol = rol
