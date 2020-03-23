@@ -27,7 +27,7 @@ class Proyecto(models.Model):
     nombre = models.CharField(max_length=50)
     descripcion = models.TextField(max_length=400)
     creador = models.ForeignKey(User, on_delete=models.CASCADE)
-    fechaCreacion = models.DateField(verbose_name="Fecha de Creacion")
+    fecha_creacion = models.DateTimeField(verbose_name="Fecha de Creacion")
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     def __str__(self):

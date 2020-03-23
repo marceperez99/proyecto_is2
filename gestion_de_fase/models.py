@@ -10,8 +10,8 @@ class Fase(models.Model):
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto',on_delete=models.CASCADE,null=True)
     #items = models.ForeignKey('Item', on_delete=models.CASCADE)
     #lineaBase = models.ForeignKey('LineaBase', on_delete=models.CASCADE, verbose_name="Linea Base")
-    faseCerrada = models.BooleanField(verbose_name="Fase Cerrada")
-    puedeCerrarse = models.BooleanField(verbose_name="Puede Cerrarse")
+    fase_cerrada = models.BooleanField(verbose_name="Fase Cerrada")
+    puede_cerrarse = models.BooleanField(verbose_name="Puede Cerrarse")
 
     def __str__(self):
         return self.nombre
