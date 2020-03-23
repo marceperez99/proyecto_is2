@@ -6,6 +6,7 @@ from .models import Usuario
 
 # Create your views here.
 @login_required
+
 def usuarios_view(request):
     """
     Vista que muestra la lista de usuarios del sistema.
@@ -31,6 +32,7 @@ def usuario_view(request, usuario_id):
     Requiere los siguientes permisos del sistema:
         -Visualizar usuarios del sistema
     """
+
     usuario = get_object_or_404(User, pk=usuario_id)
     contexto = {'usuario': usuario, 'user': request.user}
     return render(request, 'usuario/usuario.html', context=contexto)
