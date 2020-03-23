@@ -16,7 +16,9 @@ INSTALLED_APPS = [
     'roles_de_sistema',
     'roles_de_proyecto',
     'usuario',
-  
+    'gestion_de_proyecto',
+    'gestion_de_fase',
+
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
