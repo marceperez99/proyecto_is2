@@ -8,9 +8,9 @@
         {% if nuevo_participante_form %}
             <h3>Agregar participante a Proyecto</h3>
             <hr>
-            <form action="">
+            <form action="" class="col-10 mx-auto">
                 {{ nuevo_participante_form|crispy }}
-                <input type="submit">
+                <input type="submit" value="Seleccionar Usuario" class="btn btn-primary bg-color-accent col-6 offset-3">
             </form>
         {% endif %}
 
@@ -43,7 +43,7 @@
                 Fase del Proyecto.</p>
 
                 <div class="col-12"><hr>{{ seleccionar_permisos_form|crispy }}</div>
-                <input type="submit" value="Guardar" class="mx-auto btn btn-primary">
+                <input type="submit" value="Guardar" class="btn btn-primary bg-color-accent col-6 offset-3">
             </form>
         {% endif %}
     </div>

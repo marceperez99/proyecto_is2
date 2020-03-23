@@ -37,7 +37,7 @@ def nuevo_participante_view(request, proyecto_id):
         form = NuevoParticipanteForm(proyecto=proyecto)
         contexto['nuevo_participante_form'] = form
     else:
-        if any(arg not in request.GET for arg in ['rol', 'usuario']):
+        if any(arg not in request.GET.keys() for arg in ['rol', 'usuario']):
             raise Http404('No se pasaron los argumentos correctos a la URL')
         if request.method == 'POST':
             form = NuevoParticipanteForm(request.GET)
