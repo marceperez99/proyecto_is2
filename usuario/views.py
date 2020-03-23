@@ -20,7 +20,7 @@ def usuarios_view(request):
 
 
 @login_required
-def usuario_view(request, usuario_id):
+def usuario_view(request, id_usuario):
     """
     Vista que permite ver la información publica de un usuario.
 
@@ -30,6 +30,6 @@ def usuario_view(request, usuario_id):
     Requiere los siguientes permisos del sistema:
         -Visualizar usuarios del sistema
     """
-    usuario = get_object_or_404(Usuario, pk=usuario_id)
+    usuario = get_object_or_404(Usuario, pk=id_usuario)
     contexto = {'usuario': usuario, 'user': request.user}
     return render(request, 'usuario/usuario.html', context=contexto)

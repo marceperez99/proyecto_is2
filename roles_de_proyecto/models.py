@@ -1,7 +1,5 @@
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission
 from django.db import models
-
-from gestion_de_fase.models import Fase
 
 
 class RolDeProyecto(models.Model):
@@ -36,9 +34,10 @@ class RolDeProyecto(models.Model):
 
     def asignar_permisos(self, permisos):
         """
-        TODO falta hacer
-        :param permisos:
-        :return:
+        Metodo que asigna un conjunto de permisos de proyecto al rol.
+
+        Args:
+            permisos: lista de objetos del tipo Permission.
         """
         for permiso in permisos:
             self.permisos.add(permiso)
@@ -53,37 +52,49 @@ class RolDeProyecto(models.Model):
 
     def es_utilizado(self):
         """
-        Metodo que retorna True si existe algun usuario utilizando este Rol de Proyecto en algun Proyecto, False en caso contrario.
+        Metodo que verifica si el Rol de Proyecto esta siendo utilizado en algun Proyecto.
 
-        returna: bool
+        Retorna:
+            True si el rol esta asignado a un participante de un proyecto.\n
+            False en caso contrario.
         """
-        #TODO: Falta agregar la logica de esta seccion
-        return False
+        return self.participante_set.all().exists()
 
     def tiene_pp(self, permiso):
-        """TODO"""
+        """
+        Metodo que verifica si un Rol tiene un permiso de proyecto.
+
+        :param permiso:
+        :return:
+        """
         return self.permisos.filter(codename=permiso).exists()
 
     def get_pp_por_proyecto(self):
         """
         Metodo que retorna todos los permisos de proyecto que son aplicables al proyecto en general
         asignados a un Rol de Proyecto.
-        TODO
-        :return:
+
+        Retorna:
+            QuerySet: QuerySet con todos los permisos aplicables a nivel de Proyecto.
         """
         return self.permisos.filter(codename__startswith='pp_').filter(codename__regex=r'pp_[^f_]')
 
     def get_pp_por_fase(self):
         """
         Metodo que retorna todos los permisos de proyecto que son aplicables solo dentro de una fase de un proyecto.
-        TODO
-        :return:
+
+        Retorna:
+            QuerySet: QuerySet con todos los permisos aplicables dentro de una fase de un Proyecto
         """
         return self.permisos.filter(codename__startswith='pp_f_')
 
 
 class PermisosPorFase(models.Model):
-    fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
+    """
+    Modelo que representa la relacion entre una fase de un Proyecto y los Permisos de Proyecto asignados
+    a un Participante de un Proyecto.
+    """
+    fase = models.ForeignKey('gestion_de_fase.Fase', on_delete=models.CASCADE)
     permisos = models.ManyToManyField(Permission)
 
     def __str__(self):
@@ -91,9 +102,10 @@ class PermisosPorFase(models.Model):
 
     def asignar_permisos_de_proyecto(self, permisos):
         """
-        Metodo que recibe como parametro una lista de permisos a asignar a un usuario en una fase
-        :param permisos:
-        :return:
+        Metodo que recibe como parametro una lista de permisos a asignar a un usuario en una fase.
+
+        Args:
+            permisos: lista de Permisos de Proyecto a asignar al Rol.
         """
         if isinstance(permisos, list):
             for permiso in permisos:
@@ -107,5 +119,14 @@ class PermisosPorFase(models.Model):
             raise Exception('Tipo de dato inesperado')
 
     def tiene_pp(self, permiso):
-        """TODO"""
+        """
+        Metodo que verifica si el objeto PermisoPorFase tiene un determinado Permiso de Proyecto
+
+        Args:
+            permiso: codename de Permiso de Proyecto.
+
+        Retorna:
+            True si el objeto PermisoPorFase tiene el Permiso de Proyecto.\n
+            False en caso contrario.
+        """
         return self.permisos.filter(codename=permiso).exists()
