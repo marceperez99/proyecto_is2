@@ -25,6 +25,6 @@ urlpatterns = [
     path('', include('usuario.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    #path('proyecto/',include('gestion_de_proyecto.urls')),
+    path('proyecto/', include('gestion_de_proyecto.urls')),
 
 ]

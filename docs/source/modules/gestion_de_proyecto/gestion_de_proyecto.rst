@@ -1,6 +1,6 @@
 .. index:: Gestion de Proyecto
 
-Gestion de Proyecto
+Proyectos
 *******************
 
 Módulo de encargado de la gestión de un proyecto.
@@ -11,10 +11,15 @@ Los permisos de Proyecto incluidos en un Rol ...
 
 Vistas
 =========
-.. automodule:: roles_de_proyecto.views
+.. automodule:: gestion_de_proyecto.views
     :members:
 
 Modelos
 ==========
-.. automodule:: roles_de_proyecto.models
+.. automodule:: gestion_de_proyecto.models
+    :members:
+
+Pruebas Unitarias
+==================
+.. automodule:: gestion_de_proyecto.tests
     :members:
