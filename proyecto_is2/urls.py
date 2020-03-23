@@ -22,6 +22,7 @@ urlpatterns = [
     path('', include('sso.urls')),
     path('accounts/', include('allauth.urls')), # <--
     path('roles_de_proyecto/',include('roles_de_proyecto.urls')),
+    path('roles_de_sistema/',include('roles_de_sistema.urls')),
     path('', include('usuario.urls')),
 
     path('admin/', admin.site.urls),
