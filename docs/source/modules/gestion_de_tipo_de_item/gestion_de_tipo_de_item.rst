@@ -2,9 +2,11 @@
 
 Tipos de items
 *******************
-Aplicacion que gestiona los tipos de items del sistema.\n
-Permite la creación, eliminación e importación de estos en un proyecto.\n
-Es posible definir atributos dinamicos dentro para un tipo de item e indicar si estos seran requeridos o no.
+Aplicacion que gestiona los tipos de items del sistema.
+
+Permite la creación, eliminación e importación de estos en un proyecto.
+
+Es posible definir atributos dinamicos para un tipo de item e indicar si estos seran requeridos o no.
 
 
 Vistas
