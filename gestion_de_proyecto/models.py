@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from gestion_de_fase.models import Fase
 from roles_de_proyecto.models import PermisosPorFase
 
+from datetime import datetime
+
 
 class EstadoDeProyecto:
     """
@@ -27,7 +29,7 @@ class Proyecto(models.Model):
     nombre = models.CharField(max_length=50)
     descripcion = models.TextField(max_length=400)
     creador = models.ForeignKey(User, on_delete=models.CASCADE)
-    fecha_creacion = models.DateTimeField(verbose_name="Fecha de Creacion")
+    fecha_creacion = models.DateTimeField(verbose_name="Fecha de Creacion", default=datetime.today())
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     def __str__(self):
