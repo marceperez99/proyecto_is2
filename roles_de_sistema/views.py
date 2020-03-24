@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -96,7 +97,13 @@ def nuevo_rol_de_sistema_view(request):
     if request.method == 'POST':
         form = NewRolDeSistemaForm(request.POST)
         if form.is_valid():
-            form.save()
+            rol = form.save()
+            group = Group(name=rol.nombre)
+            print(rol.get_permisos())
+            group.save()
+            group.permissions.set(rol.get_permisos())
+
+
         return redirect('nuevo_rol_de_sistema')
     else:
         contexto['form'] = NewRolDeSistemaForm()
