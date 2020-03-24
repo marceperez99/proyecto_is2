@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from gestion_de_fase.models import Fase
 from roles_de_proyecto.models import PermisosPorFase
-
-from datetime import datetime
 
 
 class EstadoDeProyecto:
@@ -26,11 +25,17 @@ class Proyecto(models.Model):
     """
         Modelo para la clase proyecto
     """
-    nombre = models.CharField(max_length=50)
-    descripcion = models.TextField(max_length=400)
-    creador = models.ForeignKey(User, on_delete=models.CASCADE)
-    fecha_creacion = models.DateTimeField(verbose_name="Fecha de Creacion", default=datetime.today())
+    nombre = models.CharField(max_length=15)
+    descripcion = models.CharField(max_length=50)
+    gerente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    creador = models.ForeignKey(User, related_name='proyectos_creador', on_delete=models.CASCADE, null=True)
+    fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion",default=timezone.now)
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
+
+    class Meta:
+        permissions = [('ps_crear_pry', 'Crear Proyecto'),
+                       ('ps_cancelar_pry', 'Cancelar Proyecto'),
+                       ('ps_ver_pry', 'Visualizar lista de todos los Proyectos guardados en el Sistema')]
 
     def __str__(self):
         return self.nombre

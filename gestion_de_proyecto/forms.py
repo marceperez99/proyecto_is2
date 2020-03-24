@@ -1,8 +1,13 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from gestion_de_proyecto.models import Participante
+from .models import Proyecto, Participante
 
+
+class ProyectoForm(forms.ModelForm):
+    class Meta:
+        model = Proyecto
+        fields = ('nombre', 'descripcion', 'gerente')
 
 class NuevoParticipanteForm(forms.ModelForm):
 
