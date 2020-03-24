@@ -8,6 +8,7 @@ class Fase(models.Model):
     """
     nombre = models.CharField(max_length=100)
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto',on_delete=models.CASCADE,null=True)
+    descripcion = models.CharField(max_length=300)
     #items = models.ForeignKey('Item', on_delete=models.CASCADE)
     #lineaBase = models.ForeignKey('LineaBase', on_delete=models.CASCADE, verbose_name="Linea Base")
     fase_cerrada = models.BooleanField(verbose_name="Fase Cerrada")
