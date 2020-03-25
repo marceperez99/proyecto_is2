@@ -20,3 +20,15 @@ class Fase(models.Model):
             ('pp_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
             ('pp_f_cerrar_fase', 'Cerrar Fase de Proyecto'),
         ]
+
+    def posicionar_fase(self):
+        if self.fase_anterior is None:
+            if Fase.objects.all().filter(fase_anterior__isnull=True).exclude(id=self.id).filter(proyecto=self.proyecto).exists():
+                fase_segunda = Fase.objects.all().filter(fase_anterior__isnull=True).exclude(id=self.id).filter(proyecto=self.proyecto)[0]
+                fase_segunda.fase_anterior = self
+                fase_segunda.save()
+        else:
+            if Fase.objects.all().filter(fase_anterior=self.fase_anterior).exclude(id=self.id).filter(proyecto=self.proyecto).exists():
+                fase_derecha = Fase.objects.all().filter(fase_anterior=self.fase_anterior).exclude(id=self.id).filter(proyecto=self.proyecto)[0]
+                fase_derecha.fase_anterior = self
+                fase_derecha.save()

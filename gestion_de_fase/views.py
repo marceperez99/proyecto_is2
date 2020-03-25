@@ -17,10 +17,7 @@ def nueva_fase_view(request, proyecto_id):
             nuevaFase.fase_cerrada = False
             nuevaFase.puede_cerrarse = False
             nuevaFase.save()
-
-            fase_posterior = Fase.objects.get()
-
-
+            nuevaFase.posicionar_fase()
             return redirect('index')
     else:
         form = NuevaFaseForm(proyecto=proyecto)
