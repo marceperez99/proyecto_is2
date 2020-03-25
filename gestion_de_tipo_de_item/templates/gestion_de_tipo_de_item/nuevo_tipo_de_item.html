@@ -1,0 +1,14 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% block title %}Menu Principal{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container">
+        <form action="">
+            {{form|crispy}}
+        </form>
+    </div>
+
+
+
+{% endblock %}
