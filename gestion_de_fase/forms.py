@@ -4,20 +4,19 @@ from gestion_de_fase.models import Fase
 
 class NuevaFaseForm(forms.ModelForm):
     """
-    Form que se usa para la creacion de una fase, se usan solo las fases del proyecto en donde se trabaja
+    Form que se usa para la creacion de una fase.
 
     Clase Padre: forms.ModelForm
 
-    Agrs:
-
-        nombre: models.CharField
-
-        descripcion: models.CharField
-
-        fase_anterior: models.ForeignKey
     """
 
     def __init__(self,*args,proyecto=None,**kwargs):
+        """
+            Metodo que se usa para incluir solo las fases del proyecto en donde se trabaja
+
+            Args:
+
+        """
         super(NuevaFaseForm, self).__init__(*args,**kwargs)
         self.fields['fase_anterior'].queryset=Fase.objects.all().filter(proyecto=proyecto)
         self.fields['fase_anterior'].required=False
