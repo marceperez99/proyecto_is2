@@ -3,6 +3,31 @@ from django.db import models
 # Create your models here.
 
 class Fase(models.Model):
+    """
+    Clase Fase del sistema. Esta clase sirve además como modelo para la creación de la Base de Datos.
+
+    Clase Padre: models.Model
+
+    Atributos:
+
+        nombre: models.CharField
+
+        proyecto: models.ForeignKey
+
+        descripcion: models.CharField
+
+        fase_anterior:  models.ForeignKey
+
+        items = models.ForeignKey
+
+        lineaBase = models.ForeignKey
+
+        fase_cerrada = models.BooleanField
+
+        puede_cerrarse = models.BooleanField
+
+        permisos: models.ManyToManyField, representa la relacion de un rol con los permisos que incluye.
+    """
     nombre = models.CharField(max_length=100)
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto', on_delete=models.CASCADE,null=True)
     descripcion = models.CharField(max_length=300)
@@ -22,6 +47,13 @@ class Fase(models.Model):
         ]
 
     def posicionar_fase(self):
+        """
+        Metodo que sirve para el posicionamiento de una nueva fase dento del proyecto, lo posiona correctamente
+        al inicio o al medio de las fases que ya existen
+
+        Agrs:
+            fase: fase recien creada
+        """
         if self.fase_anterior is None:
             if Fase.objects.all().filter(fase_anterior__isnull=True).exclude(id=self.id).filter(proyecto=self.proyecto).exists():
                 fase_segunda = Fase.objects.all().filter(fase_anterior__isnull=True).exclude(id=self.id).filter(proyecto=self.proyecto)[0]
