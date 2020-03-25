@@ -1,13 +1,29 @@
 {% extends 'base.html'%}
-{% block title %}Menu Principal{%endblock title%}
+{% block title %}Perfil de Usuario{%endblock title%}
 {% block content %}
-{% include 'navBar.html' %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12 col-sm-5">Perfil de Usuario</h3>
+            <div class="col-12 col-sm-7">
+                <div class="row">
+                    <a href="#"
+                       class="btn btn-primary bg-color-accent mx-auto ml-sm-auto mr-sm-0 col-10 col-sm-4">
+                        Asignar Rol de Sistema
+                    </a>
+                </div>
 
-
-<b>Nombre:</b> {{usuario.first_name}}<br>
-<b>Apellido:</b> {{usuario.last_name}}<br>
-<b>Nombre de usuario:</b> {{usuario.username}}<br>
-<b>Correo:</b> {{usuario.email}}<br>
-
+            </div>
+            <hr class="col-12">
+            <img src="{{ usuario.socialaccount_set.all.0.get_avatar_url }}" class="col-10 mx-auto col-sm-2 rounded-circle">
+            <div class="col-12 col-sm-10 mt-3 row">
+                <h5 class="col-4 ">Nombre:</h5><span class="col-8 lead">{{usuario.first_name}}</span>
+                <h5 class="col-4">Apellido:</h5><span class="col-8 lead">{{usuario.last_name}}</span>
+                <h5 class="col-4">Nombre de usuario:</h5><span class="col-8 lead">{{usuario.username}}</span>
+                <h5 class="col-4">Correo:</h5><span class="col-8 lead">{{usuario.email}}</span>
+            </div>
+            <hr class="col-12">
+        </div>
+    </div>
 
 {% endblock %}
