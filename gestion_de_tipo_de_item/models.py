@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from gestion_de_fase.models import Fase
-
+from django.utils.timezone import timezone
 
 # Create your models here.
 class TipoDeItem(models.Model):
@@ -30,6 +30,12 @@ class TipoDeItem(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+
+
+
+
 
 class AtributoBinario(models.Model):
     """
@@ -69,6 +75,7 @@ class AtributoCadena(models.Model):
         validators=[MinValueValidator(0, "La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
                     MaxValueValidator(500, "La longlitud maxima de la cadena es 500")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
+
 
     def es_requerido(self):
         return self.valor

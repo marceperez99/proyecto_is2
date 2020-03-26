@@ -3,6 +3,7 @@ from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
+from django.utils import timezone
 
 
 # Create your views here.
@@ -33,20 +34,51 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
     if request.method == 'POST':
-        #tipo_de_item_form = TipoDeItemForm(request.POST)
-        #tipo de item = tipo_de_item_form.save(commit=False)
-        #tipo_de_item.
+        tipo_de_item_form = TipoDeItemForm(request.POST)
+        if tipo_de_item_form.is_valid():
+            tipo_de_item = tipo_de_item_form.save(commit=False)
+            # tipo_de_item.
 
-        #Lista de atributos dinamicos
-        atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
-        #Se filtran todos los atributos dinamicos
-        atributos_de_items = {key: request.POST[key] for key in request.POST if key.startswith("atr_")}
-        for atributo in atributos_de_items.keys():
-            partes = atributo.split("_",maxsplit=2)
-            print(partes)
-            atributos_dinamicos[int(partes[1])-1][partes[2]] = atributos_de_items[atributo]
+            # Lista de atributos dinamicos
+            atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
+            # Se filtran todos los atributos dinamicos
+            atributos_de_items = {key: request.POST[key] for key in request.POST if key.startswith("atr_")}
+            for atributo in atributos_de_items.keys():
+                partes = atributo.split("_", maxsplit=2)
+                print(partes)
+                atributos_dinamicos[int(partes[1]) - 1][partes[2]] = atributos_de_items[atributo]
+            forms = []
+            print(atributos_dinamicos)
+            for atributo in atributos_dinamicos:
+                print(atributo)
+                if 'tipo' not in atributo.keys():
+                    continue
+                if atributo['tipo'] == 'cadena':
+                    forms.append(AtributoCadenaForm(atributo))
+                elif atributo['tipo'] == 'numerico':
+                    forms.append(AtributoNumericoForm(atributo))
+                elif atributo['tipo'] == 'booleano':
+                    forms.append(AtributoBooleanoForm(atributo))
+                elif atributo['tipo'] == 'fecha':
+                    forms.append(AtributoFechaForm(atributo))
+                elif atributo['tipo'] == 'archivo':
+                    forms.append(AtributoArchivoForm(atributo))
+            all_valid = True
+            for form in forms:
+                all_valid = all_valid and form.is_valid()
+            # if all( [ form.is_valid() for form in forms ] )
 
-        print(atributos_dinamicos)
+            if all_valid:
+                # TODO: poner cosas en tipo de item
+                tipo_de_item.fase = Fase.objects.get(pk=fase_id)
+                tipo_de_item.creador = request.user
+                tipo_de_item.fecha_creacion = timezone.now()
+                tipo_de_item.save()
+
+                for form in forms:
+                    atributo = form.save(commit=False)
+                    atributo.tipo_de_item = tipo_de_item
+                    atributo.save()
     else:
         form = TipoDeItemForm()
         form_cadena = AtributoCadenaForm()
