@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
-from gestion_de_tipo_de_item.forms import TipoDeItemForm
+from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
+    AtributoNumericoForm, AtributoFechaForm
 
 
 # Create your views here.
@@ -32,8 +33,35 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
     if request.method == 'POST':
-        pass
+        #tipo_de_item_form = TipoDeItemForm(request.POST)
+        #tipo de item = tipo_de_item_form.save(commit=False)
+        #tipo_de_item.
+
+        #Lista de atributos dinamicos
+        atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
+        #Se filtran todos los atributos dinamicos
+        atributos_de_items = {key: request.POST[key] for key in request.POST if key.startswith("atr_")}
+        for atributo in atributos_de_items.keys():
+            partes = atributo.split("_",maxsplit=2)
+            print(partes)
+            atributos_dinamicos[int(partes[1])-1][partes[2]] = atributos_de_items[atributo]
+
+        print(atributos_dinamicos)
     else:
         form = TipoDeItemForm()
-        contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'form': form}
+        form_cadena = AtributoCadenaForm()
+        form_archivo = AtributoArchivoForm()
+        form_booleano = AtributoBooleanoForm()
+        form_numerico = AtributoNumericoForm()
+        form_fecha = AtributoFechaForm()
+        contexto = {'user': request.user,
+                    'proyecto': proyecto,
+                    'fase': fase,
+                    'form': form,
+                    'form_archivo': form_archivo,
+                    'form_numerico': form_numerico,
+                    'form_booleano': form_booleano,
+                    'form_fecha': form_fecha,
+                    'form_cadena': form_cadena
+                    }
         return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)

@@ -44,7 +44,7 @@ class AtributoBinario(models.Model):
     """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
-    max_tamaño = models.IntegerField(
+    max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo",
         validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
@@ -65,7 +65,7 @@ class AtributoCadena(models.Model):
        """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
-    max_longitud = models.IntegerField(
+    max_longitud = models.IntegerField(verbose_name='Longitud Maxima',
         validators=[MinValueValidator(0, "La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
                     MaxValueValidator(500, "La longlitud maxima de la cadena es 500")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
@@ -106,10 +106,10 @@ class AtributoNumerico(models.Model):
        """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
-    max_digitos = models.IntegerField(
+    max_digitos = models.IntegerField(verbose_name='Maxima cantidad de digitos',
         validators=[MinValueValidator(0, "La máxima cantidad de digitos debe ser un numero mayor o igual a 0"),
                     MaxValueValidator(20, "El máximo numero de digitos permitidos es 20")])
-    max_decimales = models.IntegerField(
+    max_decimales = models.IntegerField(verbose_name='Maxima cantidad de posiciones decimales',
         validators=[MinValueValidator(0, "La máxima cantidad de digitos decimales debe ser un numero mayor o igual a 0"),
                     MaxValueValidator(20, "El máximo numero de digitos decimales permitidos es 20")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
