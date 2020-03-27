@@ -1,4 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
@@ -79,6 +81,8 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
                     atributo = form.save(commit=False)
                     atributo.tipo_de_item = tipo_de_item
                     atributo.save()
+
+        return redirect('tipos_de_item', proyecto_id = proyecto_id,fase_id=fase_id)
     else:
         form = TipoDeItemForm()
         form_cadena = AtributoCadenaForm()
