@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Participantes-{{proyecto.nombre}} {% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+   {% for participante in lista_participante %}
+    {{ participante.usuario.firstname }} </br>
+    {{ participante.usuario.lastname }} </br>
+    {{ participante.rol.nombre }} </br>
+
+    {% empty %}
+        No hay partipantes para mostrar.
+    {% endfor %}
+{% endblock %}
