@@ -3,12 +3,14 @@
 {% block title %}Participantes-{{proyecto.nombre}} {% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
+     {{ gerente.first_name }} </br>
+    {{ gerente.last_name }} </br>
+    Gerente </br>
    {% for participante in lista_participante %}
-    {{ participante.usuario.firstname }} </br>
-    {{ participante.usuario.lastname }} </br>
+    {% if partipante.rol is not None %}}
+    {{ participante.usuario.first_name }} </br>
+    {{ participante.usuario.last_name }} </br>
     {{ participante.rol.nombre }} </br>
-
-    {% empty %}
-        No hay partipantes para mostrar.
+    {% endif %}
     {% endfor %}
 {% endblock %}

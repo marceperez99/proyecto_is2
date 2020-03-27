@@ -109,6 +109,21 @@ class Proyecto(models.Model):
         """
         return self.get_participante(usuario).tiene_pp_por_fase(fase, permiso)
 
+    def eliminar_participante(self, usuario):
+        """
+
+
+        """
+        if self.participante_set.objects.filter(usuario=usuario, rol__isnull=False).exists():
+            assert len(self.participante_set.objects.filter(usuario=usuario, rol__isnull=False)) == 1, "El sistema es " \
+                                                                                              "inconsistente, " \
+                                                                                              "Dos participantes " \
+                                                                                              "activos referencian al" \
+                                                                                              " mismo usuario "
+            participante = self.participante_set.objects.get(usuario=usuario, rol__isnull=False)
+            participante.rol = None
+            participante.save()
+
 
 class Participante(models.Model):
     """
