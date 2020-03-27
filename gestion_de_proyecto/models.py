@@ -25,8 +25,8 @@ class Proyecto(models.Model):
     """
         Modelo para la clase proyecto
     """
-    nombre = models.CharField(max_length=15)
-    descripcion = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=101)
+    descripcion = models.CharField(max_length=401)
     gerente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     creador = models.ForeignKey(User, related_name='proyectos_creador', on_delete=models.CASCADE, null=True)
     fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion",default=timezone.now)
@@ -62,11 +62,17 @@ class Proyecto(models.Model):
 
     def get_fases(self):
         """
-        Metodo que retorna todas las fases del Proyecto.\n
+        Metodo que retorna todas las fases del Proyecto en orden
+        segun el campo fase_anterior.\n
         Retorna:\n
-            QuerySet: objeto con todas las fases del Proyecto
+            Lista: lista de fases del proyecto en orden
         """
-        return self.fase_set.all()
+        ultima_fase = Fase.objects.all().filter(fase__isnull=True)[0]
+        lista = []
+        while ultima_fase is not None:
+            lista.insert(0, ultima_fase)
+            ultima_fase = ultima_fase.fase_anterior
+        return lista
 
     def asignar_rol_de_proyecto(self, usuario, rol, permisos_por_fase):
         """
