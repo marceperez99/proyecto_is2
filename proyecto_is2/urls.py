@@ -1,4 +1,6 @@
-"""proyecto_is2 URL Configuration
+"""
+
+proyecto_is2 URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -12,6 +14,7 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
 from django.contrib import admin
 from django.urls import path, include # <--
@@ -22,9 +25,10 @@ urlpatterns = [
     path('', include('sso.urls')),
     path('accounts/', include('allauth.urls')), # <--
     path('roles_de_proyecto/',include('roles_de_proyecto.urls')),
+    path('roles_de_sistema/',include('roles_de_sistema.urls')),
     path('', include('usuario.urls')),
+    path('proyecto/<int:proyecto_id>/fase/<int:fase_id>/',include('gestion_de_tipo_de_item.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    #path('proyecto/',include('gestion_de_proyecto.urls')),
-
+    path('proyecto/', include('gestion_de_proyecto.urls')),
 ]

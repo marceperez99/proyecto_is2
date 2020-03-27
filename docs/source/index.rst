@@ -13,8 +13,9 @@ Documentación
    modules/aboutSAIP.rst
    modules/sso/sso.rst
    modules/usuario/usuario.rst
+   modules/gestion_de_proyecto/gestion_de_proyecto.rst
    modules/roles_de_proyecto/roles_de_proyecto.rst
-    
+   modules/gestion_de_tipo_de_item/gestion_de_tipo_de_item.rst
 
 Tablas e indices
 ==================

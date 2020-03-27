@@ -1,3 +1,4 @@
+{% load static %}
 <html>
   <head>
       <title>{% block title %}{% endblock title %}</title>
@@ -12,8 +13,9 @@
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
       integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
-      crossorigin="anonymous"
-    />
+      crossorigin="anonymous"/>
+      <link rel="stylesheet" href="{% static 'css/colors.css' %}">
+      <!-- <link rel="stylesheet" href="{% static 'css/styles.css' %}"> -->
     <!-- <meta name="google-signin-scope" content="profile email"> -->
     <!-- <meta name="google-signin-client_id" content="347886323853-r72mjg1utuabev2f73ngef3tg2nqluth.apps.googleusercontent.com"> -->
       <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
@@ -21,7 +23,13 @@
       <!-- <script src="https://kit.fontawesome.com/a076d05399.js"></script> -->
   </head>
   <body>
-    {% block content %}
-    {% endblock %}
+        {% block content %}
+        {% endblock %}
+        <footer>
+            <div class="container">
+                <hr class="col-12 mx-auto">
+                <p class="text-muted mx-auto">Creadores Hugo Fleitas, Marcos Riveros, Luis Perez, Marcelo Perez.</p>
+            </div>
+        </footer>
   </body>
 </html>
