@@ -57,10 +57,20 @@ def editar_rol_de_sistema_view(request, id_rol):
     if request.method == 'POST':
         form = NewRolDeSistemaForm(request.POST, instance=rol)
 
-        if form.is_valid():# and not rol.es_utilizado():
-            form.save()
+        if form.is_valid() and not rol.es_utilizado():
+            rs = form.save()
+            grupo = Group.objects.get(name=rol.nombre)
+            grupo.permissions.clear()
+            grupo.permissions.set(rs.get_permisos())
+            grupo.name = rs.nombre
+            grupo.save()
             messages.success(request, 'Rol de Sistema modificado exitosamente')
             return redirect('rol_de_sistema', id_rol=id_rol)
+        else:
+            if not form.is_valid():
+                messages.error(request, "El formulario no es valido")
+            if rol.es_utilizado():
+                messages.error(request, "No se Pudo asignar el rol porque existe un usuario con dicho rol")
 
         contexto = {'user': request.user, 'form': form}
     else:
@@ -145,7 +155,7 @@ def eliminar_rol_de_sistema_view(request, id_rol):
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
             return redirect('rol_de_sistema', id_rol=id_rol)
         else:
-            rol.delete()
+            rol.eliminar_rs()
             return redirect('listar_roles')
     else:
         return HttpResponseNotFound('<h1>No se puede acceder a esta pagina.</h1>')
