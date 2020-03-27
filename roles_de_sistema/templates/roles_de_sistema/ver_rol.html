@@ -29,7 +29,13 @@
             <div class="mx-auto col-12 col-md-5">
                 <div class="row">
                     <div class="col-12 col-md-5 ml-auto">
-                        <a href="{% url 'editar_rol_de_sistema' rol.id %}" class="btn col-12 text-white bg-color-accent  btn-primary">Editar Rol</a>
+                        <a href="{% if rol.es_utilizado %}{%else%}{% url 'editar_rol_de_sistema' rol.id %}{%endif%}"
+                           class="btn col-12 text-white bg-color-accent btn-primary"
+                           {% if rol.es_utilizado %}
+                           data-toggle="tooltip" data-placement="bottom" title="Este Rol es utilizado por algún Usuario"
+                           {%endif%}>
+                            Editar Rol
+                        </a>
                     </div>
                     <!-- TODO falta poner el link a la eliminacion -->
                     <form method="POST" class="col-12 col-md-5" action="{% url 'eliminar_rol_de_sistema' rol.id %}">

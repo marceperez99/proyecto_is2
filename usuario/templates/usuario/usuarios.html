@@ -7,6 +7,7 @@
     <hr class="col-12 col-md-11 mx-auto">
     <div id="list_projects" class="col-12 col-md-11 mx-auto">
         {% for usuario in lista_usuario %}
+        {% if usuario.username != "admin" %}
         <div class="card m-2">
             <div class="card-header bg-light text-white">
                 <div class="row">
@@ -14,7 +15,7 @@
                         {{usuario.get_full_name}}
                     </div>
                     <div>
-                        <a href="{% url 'usuario' usuario.id %}">
+                        <a href="{% url 'pefil_de_usuario' usuario.id %}">
                             <button class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                 <i class="fas fa-eye"></i>
                                 &nbsp Visualizar
@@ -24,6 +25,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% empty %}
         No hay usuarios para mostrar.
         {% endfor %}
