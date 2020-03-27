@@ -13,8 +13,3 @@ Modelos
 ==========
 .. automodule:: usuario.models
     :members:
-
-Pruebas Unitarias
-=======================
-.. automodule:: usuario.tests
-    :members:

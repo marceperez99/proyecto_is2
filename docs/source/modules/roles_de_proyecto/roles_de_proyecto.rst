@@ -17,8 +17,3 @@ Modelos
 ==========
 .. automodule:: roles_de_proyecto.models
     :members:
-
-Pruebas Unitarias
-==================
-.. automodule:: roles_de_proyecto.tests
-    :members:

@@ -17,7 +17,10 @@ Autores
 * Luis anibal Perez Miranda         - @lapm95
 
 Descripción
-###############
-Sistema web que permite la administración de los items relacionados a un proyecto a los usuarios autenticados por medio de una cuenta de google.
-
-Los usuarios pueden definir proyectos y dentro de estos pueden definirse fases y tipos de items asociados a cada fase.
+##############
+Oh god i wish this was just a lorem ipsum text! Oh god i wish this was just a lorem ipsum text!
+Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!
+Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!
+Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!
+Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!
+Oh god i wish this was just a lorem ipsum text!Oh god i wish this was just a lorem ipsum text!

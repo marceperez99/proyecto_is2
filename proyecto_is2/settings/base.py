@@ -11,15 +11,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # <--
-
+    
     'sso',  # <--
-    'roles_de_sistema',
     'roles_de_proyecto',
     'usuario',
     'gestion_de_proyecto',
     'gestion_de_fase',
-    'gestion_de_tipo_de_item',
-
 
     'allauth',  # <--
     'allauth.account',  # <--
@@ -89,10 +86,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    os.path.join(BASE_DIR, "docs", "build"),
-]
+
 
 AUTHENTICATION_BACKENDS = (
  'django.contrib.auth.backends.ModelBackend',

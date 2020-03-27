@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-
-
 from usuario.models import Usuario
 @login_required
 def index_view(request):
