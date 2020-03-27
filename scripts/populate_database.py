@@ -5,39 +5,36 @@ from gestion_de_tipo_de_item.models import *
 from gestion_de_fase.models import *
 from django.db.models.functions.datetime import datetime
 from django.contrib.auth.models import User
-
-
-
+from django.utils import timezone
 Proyecto.objects.all().delete()
 Fase.objects.all().delete()
 TipoDeItem.objects.all().delete()
-#Usuario 1 y 2 tienen que ser gerentes de proyecto
-user_1 = User.objects.get(pk = 1)
-user_2 = User.objects.get(pk = 4)
+# Usuario 1 y 2 tienen que ser gerentes de proyecto
+user_1 = User.objects.get(pk=2)
+user_2 = User.objects.get(pk=3)
 
 p1 = Proyecto()
 p1.nombre = "Proyecto de Ingenieria de Software"
 p1.descripcion = "Sistema administrador de items de proyectos.\nContempla la creación de proyectos, la definición de sus fases, creación de tipos de items e items de proyecto."
 p1.creador = user_1
-p1.fecha_creacion = datetime.today()
+p1.fecha_creacion = timezone.now()
 p1.estado = "En Configuración"
 p1.save()
-
 
 p2 = Proyecto()
 p2.nombre = "Chatiin"
 p2.descripcion = "Sistema de mensajeria movil que utiliza el modelo cliente servidor."
 p2.creador = user_2
-p2.fecha_creacion = datetime.today()
+p2.fecha_creacion = timezone.now()
 p2.estado = "En Configuración"
 p2.save()
 
 p3 = Proyecto()
 p3.nombre = "Collapsar"
 p3.descripcion = "Sistema de transferencia de archivos entre computadoras conectadas por una red local por medio del " \
-                "sistema de portapapeles de linux. "
+                 "sistema de portapapeles de linux. "
 p3.creador = user_1
-p3.fecha_creacion = datetime.today()
+p3.fecha_creacion = timezone.now()
 p3.estado = "En Configuración"
 p3.save()
 
@@ -138,7 +135,7 @@ t1.descripcion = "Especificación de un requerimiento funcional."
 t1.prefijo = "RF"
 t1.creador = user_1
 t1.fase = f1
-t1.fecha_creacion = datetime.today()
+t1.fecha_creacion = timezone.now()
 t1.save()
 
 t2 = TipoDeItem()
@@ -147,7 +144,7 @@ t2.descripcion = "Especificación de un requerimiento no funcional."
 t2.prefijo = "RNF"
 t2.creador = user_1
 t2.fase = f1
-t2.fecha_creacion = datetime.today()
+t2.fecha_creacion = timezone.now()
 t2.save()
 
 t3 = TipoDeItem()
@@ -156,7 +153,7 @@ t3.descripcion = "Especificación de un caso de uso del sistema."
 t3.prefijo = "CU"
 t3.creador = user_2
 t3.fase = f2
-t3.fecha_creacion = datetime.today()
+t3.fecha_creacion = timezone.now()
 t3.save()
 
 abin = AtributoBinario()
