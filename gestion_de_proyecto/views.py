@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
+from django.core.checks import messages
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from gestion_de_proyecto.forms import ProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm
+from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm,NuevoParticipanteForm, SeleccionarPermisosForm
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
-from .models import Proyecto
+from .models import Proyecto, EstadoDeProyecto
 
 
 # Create your views here.
@@ -30,7 +31,7 @@ def nuevo_proyecto_view(request):
             proyecto = form.save(commit=False)
             proyecto.creador = request.user
             proyecto.fechaDeCreacion = timezone.now()
-            proyecto.estado = "En Configuracion"
+            proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
             return redirect('index')
     else:
@@ -54,6 +55,27 @@ def visualizar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     contexto = {'user': request.user, 'proyecto': proyecto}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
+
+
+def editar_proyecto_view(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    form = EditarProyectoForm(request.POST or None, instance=proyecto)
+    if request.method == 'POST':
+        proyecto = form.save(commit=False)
+        proyecto.save()
+        return redirect('index')
+    return render(request, 'gestion_de_proyecto/editar_proyecto.html', {'formulario': form})
+
+
+def cancelar_proyecto_view(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    if request.method == 'POST':
+        if proyecto.cancelar():
+            proyecto.save()
+        else:
+            messages.error(request, 'No se puede cancelar un proyecto en estado "Finalizado".')
+        return redirect('index')
+    return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
 
 
 @pp_requerido('pp_agregar_participante')
