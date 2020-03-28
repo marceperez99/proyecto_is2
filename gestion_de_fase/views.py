@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, redirect
 from gestion_de_fase.forms import NuevaFaseForm
+from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto
 
 # Create your views here.
@@ -35,4 +36,14 @@ def nueva_fase_view(request, proyecto_id):
             return redirect('index')
     else:
         form = NuevaFaseForm(proyecto=proyecto)
+    return render(request, 'gestion_de_fase/nueva_fase.html', {'formulario': form})
+
+
+def editar_fase_view(request, proyecto_id, fase_id):
+    fase = get_object_or_404(Fase, id=fase_id)
+    form = NuevaFaseForm(request.POST or None, instance=fase)
+    if request.method == 'POST':
+        if form.is_valid():
+            fase.save()
+            Fase.posicionar_fase()
     return render(request, 'gestion_de_fase/nueva_fase.html', {'formulario': form})
