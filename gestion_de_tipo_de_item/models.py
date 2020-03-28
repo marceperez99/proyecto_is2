@@ -50,7 +50,7 @@ class AtributoBinario(models.Model):
     """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
-    max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo",
+    max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo (MB)",
         validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
