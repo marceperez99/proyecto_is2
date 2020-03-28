@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Asignar Rol de Proyecto{% endblock %}
+{% block title %}Ver participante{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
-    {{ participante.usuario.firstname }} </br>
-    {{ participante.usuario.lastname }} </br>
+    {{ participante.usuario.first_name }} </br>
+    {{ participante.usuario.last_name }} </br>
     {{ participante.rol.nombre }} </br>
     {{participante.rol.descripcion}} </br>
     <!-- TODO: visualizar permisos por fase -->
     <!-- TODO: cambiar rol de proyecto -->
-    <button type="button" class="btn btn-primary bg-color-danger col-3 mx-auto">
+    <a href = "{% url 'eliminar_participante' proyecto.id participante.id %}" class="btn btn-primary bg-color-danger col-3 mx-auto">
         Eliminar Participante
-    </button>
+    </a>
 {% endblock %}

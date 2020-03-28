@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Participantes-{{proyecto.nombre}} {% endblock %}
+{% block title %}Participantes {{proyecto.nombre}} {% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
-     {{ gerente.first_name }} </br>
-    {{ gerente.last_name }} </br>
+     {{ gerente.first_name }}
+    {{ gerente.last_name }}
     Gerente </br>
    {% for participante in lista_participante %}
-    {% if partipante.rol is not None %}}
-    {{ participante.usuario.first_name }} </br>
-    {{ participante.usuario.last_name }} </br>
+    {% if participante.rol is not None %}
+    {{ participante.usuario.first_name }}
+    {{ participante.usuario.last_name }}
     {{ participante.rol.nombre }} </br>
     {% endif %}
     {% endfor %}

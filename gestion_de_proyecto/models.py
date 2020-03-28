@@ -120,10 +120,10 @@ class Proyecto(models.Model):
 
 
         """
-        if self.participante_set.objects.filter(usuario=usuario, rol__isnull=False).exists():
+        if self.participante_set.filter(usuario=usuario, rol__isnull=False).exists():
             mensaje = "El sistema es inconsistente: 2 participantes activos hacen referencia al mismo usuario."
-            assert len(self.participante_set.objects.filter(usuario=usuario, rol__isnull=False)) == 1, mensaje
-            participante = self.participante_set.objects.get(usuario=usuario, rol__isnull=False)
+            assert len(self.participante_set.filter(usuario=usuario, rol__isnull=False)) == 1, mensaje
+            participante = self.participante_set.get(usuario=usuario, rol__isnull=False)
             participante.rol = None
             participante.save()
 

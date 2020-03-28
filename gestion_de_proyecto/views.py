@@ -10,6 +10,7 @@ from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
 from .models import Proyecto
 
+
 # Create your views here.
 
 def nuevo_proyecto_view(request):
@@ -43,14 +44,17 @@ def nuevo_proyecto_view(request):
 def participantes_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.get_participantes()
-    contexto = {'user': request.user, 'lista_participante': lista_participante, 'gerente': proyecto.gerente}
+
+    contexto = {'user': request.user, 'lista_participante': lista_participante,'proyecto':proyecto, 'gerente': proyecto.gerente}
     return render(request, 'gestion_de_proyecto/partipantes.html', context=contexto)
 
 
 def participante_view(request, proyecto_id, participante_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     participante = get_object_or_404(proyecto.participante_set, pk=participante_id)
-    contexto = {'user': request.user, 'participante': participante, }
+    if participante.rol is None:
+        raise Http404()
+    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto}
     return render(request, 'gestion_de_proyecto/participante.html', context=contexto)
 
 
@@ -63,6 +67,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
         return redirect('participantes', proyecto_id=proyecto_id)
     contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario}
     return render(request, 'gestion_de_proyecto/eliminar_participante.html', context=contexto)
+
 
 def visualizar_proyecto_view(request, proyecto_id):
     """
@@ -117,7 +122,7 @@ def nuevo_participante_view(request, proyecto_id):
                 permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
                                      fase.startswith('f_')}
                 participante.asignar_permisos_de_proyecto(permisos_por_fase)
-                #TODO cambiar a donde dirige este redirect
+                # TODO cambiar a donde dirige este redirect
                 return redirect('index')
         else:
             rol = RolDeProyecto.objects.get(id=request.GET['rol'])
