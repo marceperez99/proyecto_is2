@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Visualizar Proyecto{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <h3>{{ proyecto.nombre }}</h3>
+        <hr>
+        <div class="row">
+            <div class="col-12 col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        Fases del Proyecto
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Nombre de Fase
+                                    </th>
+                                    <th>
+                                        Estado
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fase in proyecto.get_fases %}
+                                    <tr>
+                                        <td>
+                                            {{ fase.nombre }}
+                                        </td>
+                                        <td>
+                                            {% if fase.fase_cerrada %}
+                                                <h4><span class="badge badge-primary">
+                                                    Cerrada
+                                                </span></h4>
+                                            {% else %}
+                                                <h4><span class="badge badge-primary">
+                                                    Abierta
+                                                </span></h4>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Info del Proyecto
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

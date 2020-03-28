@@ -1,8 +1,8 @@
-from django.forms import ModelForm
+from django import forms
 from .models import TipoDeItem, AtributoCadena, AtributoBooleano, AtributoFecha, AtributoNumerico, AtributoBinario
 
 
-class TipoDeItemForm(ModelForm):
+class TipoDeItemForm(forms.ModelForm):
     """
     nombre: string\n
         descripcion: string\n
@@ -19,24 +19,41 @@ class TipoDeItemForm(ModelForm):
         fields = ['nombre', 'descripcion', 'prefijo']
 
 
-class AtributoCadenaForm(ModelForm):
+class AtributoCadenaForm(forms.ModelForm):
+    tipo = forms.CharField(widget=forms.HiddenInput, initial='cadena')
+
     class Meta:
         model = AtributoCadena
-        fields = ['nombre','requerido','max_longitud']
-class AtributoArchivoForm(ModelForm):
+        fields = ['nombre', 'requerido', 'max_longitud']
+
+
+class AtributoArchivoForm(forms.ModelForm):
+    tipo = forms.CharField(widget=forms.HiddenInput, initial='archivo')
+
     class Meta:
         model = AtributoBinario
-        fields = ['nombre','requerido','max_tamaño']
-class AtributoNumericoForm(ModelForm):
+        fields = ['nombre', 'requerido', 'max_tamaño']
+
+
+class AtributoNumericoForm(forms.ModelForm):
+    tipo = forms.CharField(widget=forms.HiddenInput, initial='numerico')
+
     class Meta:
         model = AtributoNumerico
-        fields = ['nombre','requerido','max_digitos','max_decimales']
-class AtributoFechaForm(ModelForm):
+        fields = ['nombre', 'requerido', 'max_digitos', 'max_decimales']
+
+
+class AtributoFechaForm(forms.ModelForm):
+    tipo = forms.CharField(widget=forms.HiddenInput, initial='fecha')
+
     class Meta:
         model = AtributoFecha
-        fields = ['nombre','requerido']
-class AtributoBooleanoForm(ModelForm):
+        fields = ['nombre', 'requerido']
+
+
+class AtributoBooleanoForm(forms.ModelForm):
+    tipo = forms.CharField(widget=forms.HiddenInput, initial='booleano')
+
     class Meta:
         model = AtributoBooleano
-        fields = ['nombre','requerido']
-
+        fields = ['nombre', 'requerido']

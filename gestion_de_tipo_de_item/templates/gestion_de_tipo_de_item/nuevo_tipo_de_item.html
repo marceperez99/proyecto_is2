@@ -4,13 +4,11 @@
 {% block title %}Menu Principal{%endblock title%}
 {% block content %}
     <script>
-        let atributos = {
-            cadena: "{% with campo=form_cadena|crispy %}{{ campo|escapejs }}{% endwith %}",
-            numerico:"{% with campo=form_numerico|crispy %}{{ campo|escapejs }}{% endwith %}",
-            archivo: "{% with campo=form_archivo|crispy %}{{ campo|escapejs }}{% endwith %}",
-            booleano: "{% with campo=form_booleano|crispy %}{{ campo|escapejs }}{% endwith %}",
-            fecha: "{% with campo=form_fecha|crispy %}{{ campo|escapejs }}{% endwith %}"
-        }
+        let atributos ={
+            {% for tipo, form in tipos_de_atributo_forms.items %}
+            {{tipo}}:"{% with campo=form|crispy %}{{ campo|escapejs }}{% endwith %}",
+            {% endfor %}
+        };
     </script>
     {% include 'navBar.html' %}
     <div class="container mt-3">
@@ -35,47 +33,23 @@
                     Agregar Atributo
                 </button>
                  <hr class="col-12">
+                {%for atributo in atributos_seleccionados %}
+                    <div id="atr_" class="col-10 mx-auto border rounded p-3 my-3">
+                        <div class='row'>
+                            <h5 class='col-11'>Atributo</h5>
+                            <a href='#' class='text-color-danger col-1'><i class='fas fa-trash-alt'></i></a><hr>
+                        </div>
+                        {{atributo|crispy}}
+                    </div>
+
+                {% endfor %}
             </div>
             <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Guardar Tipo de Item">
         </form>
     </div>
 
     <script>
-        let contador_atr=1;
-        function agregar_atributo() {
-            let nro_atrib = contador_atr;
-            let nuevo_atributo = $("<div>" +atributos[ $("#seleccionar_atr").val() ] +"</div>");
-            nuevo_atributo.prepend(
-                //Se agrega el titulo de la seccion
-                $("<div class='row'></div>")
-                    .append($("<h5 class='col-11'>"+$("#seleccionar_atr option:selected").text()+"</h5>"))
-                    .append(
-                        //Se agrega el boton de eliminar tipo de item
-                        $("<a href='#' class='text-color-danger col-1'><i class='fas fa-trash-alt'></i></a><hr>")
-                        .click(event=>{
-                            event.preventDefault();
-                            $("#atr_"+nro_atrib).remove();
-                        })
-                    )
-            );
-            nuevo_atributo.attr("id","atr_"+nro_atrib).attr("class","col-10 mx-auto border rounded p-3 my-3");
-            nuevo_atributo.append( $("<input type='hidden' value='"+$("#seleccionar_atr").val()+"'>")
-                .attr("name","atr_"+nro_atrib+"_tipo") )
-            $("#atributos_dinamicos").append(nuevo_atributo);
-            //Se cambian los nombres de los inputs
-            $("#atr_"+nro_atrib+" input[name=nombre]").attr("name","atr_"+nro_atrib+"_nombre");
-            $("#atr_"+nro_atrib+" input[name=requerido").attr("name","atr_"+nro_atrib+"_requerido");
-            $("#atr_"+nro_atrib+" input[name=max_longitud").attr("name","atr_"+nro_atrib+"_max_longitud");
-            $("#atr_"+nro_atrib+" input[name=max_digitos").attr("name","atr_"+nro_atrib+"_max_digitos");
-            $("#atr_"+nro_atrib+" input[name=max_tamaño").attr("name","atr_"+nro_atrib+"_max_tamaño");
-            $("#atr_"+nro_atrib+" input[name=max_decimales").attr("name","atr_"+nro_atrib+"_max_decimales");
-            $("#cont_atr").attr("value",nro_atrib);
-            contador_atr++;
-        }
 
-        function eliminar_atributo(id_atributo){
-            console.log("hola");
-            $("#atributos_dinamicos atr_"+id_atributo).remove();
-        }
     </script>
+    <script src="{% static 'gestion_de_tipo_de_item/js/scripts.js' }} %}"></script>
 {% endblock %}

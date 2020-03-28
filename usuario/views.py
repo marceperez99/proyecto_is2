@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Usuario
+from django.contrib import messages
 
 from .forms import AsignarRolDeProyectoForm
 
@@ -58,6 +59,9 @@ def usuario_asignar_rol_view(request, usuario_id):
         if form.is_valid():
             print(form.cleaned_data.get('Rol'))
             usuario.asignar_rol_a_usuario(form.cleaned_data.get('Rol'))
+            return redirect('pefil_de_usuario', usuario_id=usuario.id)
+        else:
+            messages.error(request, "No se pudo asignar Rol de Sistema")
     else:
         form = AsignarRolDeProyectoForm(usuario=usuario)
 

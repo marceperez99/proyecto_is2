@@ -19,6 +19,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include  # <--
 
+
 urlpatterns = [
     path('', include('sso.urls')),
     path('accounts/', include('allauth.urls')),  # <--
@@ -29,4 +30,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('proyecto/', include('gestion_de_proyecto.urls')),
+    path('proyecto/<int:proyecto_id>/fase/',include('gestion_de_fase.urls')),
 ]
