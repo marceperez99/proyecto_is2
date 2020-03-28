@@ -57,6 +57,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
                 all_valid = all_valid and form.is_valid()
 
             if all_valid:
+                # TODO: Sobrecargar el save del form.
                 guardar_tipo_de_item(tipo_de_item, fase, request.user)
                 guardar_atributos(atributos_forms, tipo_de_item)
 
