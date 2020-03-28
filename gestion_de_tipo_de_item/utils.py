@@ -46,3 +46,56 @@ def construir_atributos(request):
         partes = atributo.split("_", maxsplit=2)
         atributos_dinamicos[int(partes[1]) - 1][partes[2]] = atributos_de_items[atributo]
     return atributos_dinamicos
+
+
+def recolectar_atributos(tipo_de_item):
+    atributos_dinamicos = []
+    atributos_texto = tipo_de_item.atributocadena_set.all()
+    for atributo in atributos_texto:
+        diccionario = {}
+        diccionario.update(tipo='cadena')
+        diccionario.update(nombre=atributo.nombre)
+        diccionario.update(max_longitud=str(atributo.max_longitud))
+        if atributo.requerido:
+            diccionario.update(requerido='on')
+        atributos_dinamicos.append(diccionario)
+
+    atributos_numerico = tipo_de_item.atributonumerico_set.all()
+    for atributo in atributos_numerico:
+        diccionario = {}
+        diccionario.update(tipo='numerico')
+        diccionario.update(nombre=atributo.nombre)
+        diccionario.update(max_digitos=str(atributo.max_digitos))
+        diccionario.update(max_decimales =str(atributo.max_decimales))
+        if atributo.requerido:
+            diccionario.update(requerido='on')
+        atributos_dinamicos.append(diccionario)
+
+    atributos_archivo = tipo_de_item.atributobinario_set.all()
+    for atributo in atributos_archivo:
+        diccionario = {}
+        diccionario.update(tipo='archivo')
+        diccionario.update(nombre=atributo.nombre)
+        diccionario.update(max_tamaño=str(atributo.max_tamaño))
+        if atributo.requerido:
+            diccionario.update(requerido='on')
+        atributos_dinamicos.append(diccionario)
+
+    atributos_fecha = tipo_de_item.atributofecha_set.all()
+    for atributo in atributos_fecha:
+        diccionario = {}
+        diccionario.update(tipo='fecha')
+        diccionario.update(nombre=atributo.nombre)
+        if atributo.requerido:
+            diccionario.update(requerido='on')
+        atributos_dinamicos.append(diccionario)
+
+    atributos_booleano = tipo_de_item.atributobooleano_set.all()
+    for atributo in atributos_booleano:
+        diccionario = {}
+        diccionario.update(tipo='booleano')
+        diccionario.update(nombre=atributo.nombre)
+        if atributo.requerido:
+            diccionario.update(requerido='on')
+        atributos_dinamicos.append(diccionario)
+    return atributos_dinamicos

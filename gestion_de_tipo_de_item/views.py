@@ -2,12 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
-    AtributoNumericoForm, AtributoFechaForm, ImportarTipoDeItemForm
+    AtributoNumericoForm, AtributoFechaForm
 from django.utils import timezone
 
 from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
-    construir_atributos
+    construir_atributos, recolectar_atributos
 
 
 # Create your views here.
@@ -73,9 +73,16 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
         if tipo_de_item_id is None:
             contexto['form'] = TipoDeItemForm()
         else:
-            instancia = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-            contexto['form'] = TipoDeItemForm(request.POST or None, instance =instancia)
-            #contexto['atributos_seleccionados'] = atributos_forms
+            tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance =tipo_de_item)
+            #TODO: mañantipoa
+            #Construye un diccionario a partir de la lista de atributos
+
+            atributos_dinamicos = recolectar_atributos(tipo_de_item)
+            print(atributos_dinamicos)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+            print(atributos_forms)
+            contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
 

@@ -63,12 +63,3 @@ class AtributoBooleanoForm(forms.ModelForm):
         model = AtributoBooleano
         fields = ['nombre', 'requerido']
 
-#Might delete this
-class ImportarTipoDeItemForm(forms.Form):
-
-    def __init__(self, fase, *args, **kwargs):
-        super(ImportarTipoDeItemForm, self).__init__(*args, **kwargs)
-        self.fase = fase
-        text = 'Seleccione un tipo de item'
-        self.fields['tipo_de_item'] = forms.ModelChoiceField(TipoDeItem.objects.exclude(fase=self.fase),
-                                                             empty_label=text)
