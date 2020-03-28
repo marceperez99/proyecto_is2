@@ -83,7 +83,8 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
                     atributo = form.save(commit=False)
                     atributo.tipo_de_item = tipo_de_item
                     atributo.save()
-                return redirect('index')
+                return redirect('tipos_de_item', proyecto_id=proyecto_id, fase_id=fase_id)
+
             else:
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
