@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Asignar Rol de Proyecto{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    <form method='POST'> {% csrf_token %}
+        <h1>El participante {{usuario.first_name}} {{usuario.last_name}} con rol de proyecto {{participante.rol.nombre}} sera eliminado del proyecto {{proyecto.nombre}}.</h1>
+        <p><input type='submit' value='Confirmo'> <a href ='../'>Cancelar</a></p>
+    </form>
+
+
+{% endblock %}
