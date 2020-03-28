@@ -12,13 +12,17 @@ from django.utils import timezone
 # /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id/editar
 # /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
 # tipo_de_item/proyecto_id/fase_id
+from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+
 
 def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
 
-    contexto = {'user': request.user,'tipo_de_item': tipo_de_item}
+    contexto = {'user': request.user,
+                'tipo_de_item': get_dict_tipo_de_item(tipo_de_item)
+                }
 
     return render(request, 'gestion_de_tipo_de_item/ver_tipo_de_item.html', contexto)
 
