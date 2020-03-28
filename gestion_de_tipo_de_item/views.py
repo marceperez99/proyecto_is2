@@ -4,6 +4,8 @@ from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
 from django.utils import timezone
+from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
+    construir_atributos
 
 
 # Create your views here.
@@ -46,43 +48,18 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
         tipo_de_item_form = TipoDeItemForm(request.POST)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
-            # Lista de atributos dinamicos
-            atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
-            # Se filtran todos los atributos dinamicos
-            atributos_de_items = {key: request.POST[key] for key in request.POST if key.startswith("atr_")}
-            # se crea una lista con todos los atributos dinamicos
-            for atributo in atributos_de_items.keys():
-                partes = atributo.split("_", maxsplit=2)
-                atributos_dinamicos[int(partes[1]) - 1][partes[2]] = atributos_de_items[atributo]
-            atributos_forms = []
-            for atributo in atributos_dinamicos:
-                if 'tipo' not in atributo.keys():
-                    continue
-                if atributo['tipo'] == 'cadena':
-                    atributos_forms.append(AtributoCadenaForm(atributo))
-                elif atributo['tipo'] == 'numerico':
-                    atributos_forms.append(AtributoNumericoForm(atributo))
-                elif atributo['tipo'] == 'booleano':
-                    atributos_forms.append(AtributoBooleanoForm(atributo))
-                elif atributo['tipo'] == 'fecha':
-                    atributos_forms.append(AtributoFechaForm(atributo))
-                elif atributo['tipo'] == 'archivo':
-                    atributos_forms.append(AtributoArchivoForm(atributo))
+            atributos_dinamicos = construir_atributos(request)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+
             all_valid = True
             # Se validan todos los forms
             for form in atributos_forms:
                 all_valid = all_valid and form.is_valid()
 
             if all_valid:
-                # TODO: poner cosas en tipo de item
-                tipo_de_item.fase = Fase.objects.get(pk=fase_id)
-                tipo_de_item.creador = request.user
-                tipo_de_item.fecha_creacion = timezone.now()
-                tipo_de_item.save()
-                for form in atributos_forms:
-                    atributo = form.save(commit=False)
-                    atributo.tipo_de_item = tipo_de_item
-                    atributo.save()
+                guardar_tipo_de_item(tipo_de_item, fase, request.user)
+                guardar_atributos(atributos_forms, tipo_de_item)
+
                 return redirect('index')
             else:
                 contexto['form'] = tipo_de_item_form
