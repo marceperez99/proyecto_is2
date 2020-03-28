@@ -1,5 +1,6 @@
 .bg-color-primary{
     background: #173f5f;
+    background: #2980B9;
 }
 .bg-color-secondary{
     background: #819595;
@@ -10,7 +11,9 @@
 .bg-color-danger{
     background: #ed553b;
 }
-
+.bg-color-grey{
+    background: #cfd8dc;
+}
 .text-color-danger{
     color: #ed553b;
 }

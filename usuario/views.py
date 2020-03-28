@@ -1,6 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
+
+from gestion_de_proyecto.models import Proyecto
+from roles_de_proyecto.models import RolDeProyecto
+from roles_de_sistema.models import RolDeSistema
 from .models import Usuario
 from django.contrib import messages
 
@@ -9,7 +13,6 @@ from .forms import AsignarRolDeProyectoForm
 
 # Create your views here.
 @login_required
-
 def usuarios_view(request):
     """
     Vista que muestra la lista de usuarios del sistema.
@@ -67,3 +70,14 @@ def usuario_asignar_rol_view(request, usuario_id):
 
     contexto = {'usuario': usuario, 'user': request.user, 'form': form}
     return render(request, 'usuario/asignar_rs.html', contexto)
+
+
+@login_required
+def panel_de_administracion_view(request):
+    contexto = {'user': request.user,
+                'usuarios': User.objects.all(),
+                'proyectos':Proyecto.objects.all(),
+                'roles_de_proyecto': RolDeProyecto.objects.all(),
+                'roles_de_sistema': RolDeSistema.objects.all()
+                }
+    return render(request, 'usuario/panel_de_administracion.html', contexto)

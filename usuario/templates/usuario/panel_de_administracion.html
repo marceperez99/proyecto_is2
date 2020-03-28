@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Administracion{% endblock %}
+
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">Panel de Administracion</h3>
+            <hr class="col-12">
+            <div class="col-12 p-1">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <h4 class="mt-1 col-auto">Proyectos del Sistema</h4>
+                            <a href="#" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Proyectos</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover border rounded">
+                            <thead class="text-center">
+                                <tr>
+                                    <th>Nombre</th><th>Gerente</th><th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for proyecto in proyectos %}
+                                    <tr>
+                                        <td>{{ proyecto.nombre }}</td>
+                                        <td>{{ proyecto.gerente.get_full_name }}</td>
+                                        <td class="text-center"><h5><span class="badge badge-info">{{ proyecto.estado }}</span></h5></td>
+                                    </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 p-2 my-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <h4 class="mt-1 col-auto">Roles de Sistema</h4>
+                            <a href="#" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Sistema</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover border rounded">
+                            <thead  class="text-center">
+                            <tr>
+                                <th>Nombre</th><th>Accion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for rol in roles_de_sistema %}
+                                <tr>
+                                    <td>{{ rol.nombre }}</td>
+                                    <td class="text-right"><a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                        &nbsp Visualizar
+                                    </a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 p-2 my-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <h4 class="mt-1 col-auto">Roles de Proyecto</h4>
+                            <a href="#" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Proyecto</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover border rounded">
+                            <thead  class="text-center">
+                            <tr>
+                                <th>Nombre</th><th>Accion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for rol in roles_de_proyecto %}
+                                <tr>
+                                    <td>{{ rol.nombre }}</td>
+                                    <td class="text-right"><a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                        &nbsp Visualizar
+                                    </a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
