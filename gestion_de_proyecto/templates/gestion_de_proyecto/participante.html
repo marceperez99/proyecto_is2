@@ -9,6 +9,7 @@
     {{participante.rol.descripcion}} </br>
     <!-- TODO: visualizar permisos por fase -->
     <!-- TODO: cambiar rol de proyecto -->
+    <!-- TODO: solo mostrar eliminar si tiene el permiso -->
     <a href = "{% url 'eliminar_participante' proyecto.id participante.id %}" class="btn btn-primary bg-color-danger col-3 mx-auto">
         Eliminar Participante
     </a>
