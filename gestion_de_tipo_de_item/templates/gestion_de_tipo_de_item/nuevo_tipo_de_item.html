@@ -1,10 +1,10 @@
 {% extends 'base.html'%}
 {% load crispy_forms_tags %}
 {% load static %}
-{% block title %}Menu Principal{%endblock title%}
+{% block title %}Nuevo Tipo de Item{%endblock title%}
 {% block content %}
     <script>
-        let atributos ={
+        let atributos = {
             {% for tipo, form in tipos_de_atributo_forms.items %}
             {{tipo}}:"{% with campo=form|crispy %}{{ campo|escapejs }}{% endwith %}",
             {% endfor %}

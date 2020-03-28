@@ -69,3 +69,8 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
         contexto['form'] = TipoDeItemForm()
 
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
+
+def importar_tipo_de_item_view(request,proyecto_id,fase_id):
+
+
+

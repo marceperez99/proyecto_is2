@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import Form
+from django.shortcuts import get_object_or_404
 
+from gestion_de_fase.models import Fase
 from .models import TipoDeItem, AtributoCadena, AtributoBooleano, AtributoFecha, AtributoNumerico, AtributoBinario
 
 
@@ -59,3 +61,10 @@ class AtributoBooleanoForm(forms.ModelForm):
     class Meta:
         model = AtributoBooleano
         fields = ['nombre', 'requerido']
+
+class ImportarTipoDeItemForm(forms.Form):
+
+
+    def __init__(self,proyecto_id,fase_id):
+        self.fase = get_object_or_404(Fase,id = fase_id)
+        self.tipo_de_items = forms.ModelChoiceField(TipoDeItem.objects.all().exclude(fase=self.fase))
