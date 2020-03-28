@@ -15,7 +15,7 @@
         <form method="POST" class="mx-auto col-12 col-md-10 row">
             {% csrf_token %}
             <h3 class="col-auto">Nuevo Tipo de Item</h3>
-            <a href = "www.google.com" class="btn btn-primary bg-color-accent ml-auto">Importar Tipo de Item</a>
+            <a href = "{% url 'importar_tipo_de_item' proyecto.id fase.id %}" class="btn btn-primary bg-color-accent ml-auto">Importar Tipo de Item</a>
             <hr class="col-12">
             <div class="col-12">
                 {{form|crispy}}

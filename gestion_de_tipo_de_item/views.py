@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
-    AtributoNumericoForm, AtributoFechaForm
+    AtributoNumericoForm, AtributoFechaForm, ImportarTipoDeItemForm
 from django.utils import timezone
+
+from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
     construir_atributos
 
@@ -31,7 +33,7 @@ def tipo_de_item_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
 
-def nuevo_tipo_de_item_view(request, proyecto_id, fase_id,instancia = None):
+def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
     TODO: comentar
     """
@@ -44,11 +46,10 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id,instancia = None):
                                             'booleano': AtributoBooleanoForm(), 'numerico': AtributoNumericoForm(),
                                             'fecha': AtributoFechaForm()}
                 }
+
     if request.method == 'POST':
-        if instancia is None:
-            tipo_de_item_form = TipoDeItemForm(request.POST or None)
-        else:
-            tipo_de_item_form = TipoDeItemForm(request.POST or None,instance = instancia)
+
+        tipo_de_item_form = TipoDeItemForm(request.POST or None)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
             atributos_dinamicos = construir_atributos(request)
@@ -69,19 +70,19 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id,instancia = None):
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
     else:
-        contexto['form'] = TipoDeItemForm()
-
+        if tipo_de_item_id is None:
+            contexto['form'] = TipoDeItemForm()
+        else:
+            instancia = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance =instancia)
+            #contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
 
 def importar_tipo_de_item_view(request, proyecto_id, fase_id):
-    proyecto = get_object_or_404(Proyecto, proyecto_id)
-    fase = get_object_or_404(Fase, fase_id)
-    form = TipoDeItemForm(fase)
+    proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
+    fase = get_object_or_404(Fase, pk=fase_id)
+    lista_tipo_de_item = TipoDeItem.objects.exclude(fase=fase)
 
-    if request.method == 'POST':
-        pass
-
-    contexto = {'user': request.user, 'form':form}
-    return render(request,'gestion_de_tipo_de_item/importar_tipo_de_item.html',context=contexto)
-
+    contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'proyecto': proyecto, 'fase': fase}
+    return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)

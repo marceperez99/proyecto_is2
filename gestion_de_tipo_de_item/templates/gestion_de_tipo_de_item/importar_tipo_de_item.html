@@ -1,12 +1,21 @@
 {% extends 'base.html'%}
-{% block title %}Menu Principal{%endblock title%}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Importar Tipo De Item{%endblock title%}
 {% block content %}
     {% include 'navBar.html' %}
 
-    Tipo de item:
-    <form action="" method="POST"> {% csrf_token %}
-        {{form|crispy}}
-    <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Importar tipo de item">
+
+    <form  method="POST"> {% csrf_token %}
+     {% for tipo_de_item in lista_tipo_de_item %}
+        {{tipo_de_item.nombre}}
+        <a href = "{% url 'nuevo_tipo_de_item_importar' proyecto.id fase.id tipo_de_item.id %}" class="btn btn-primary bg-color-accent ml-auto">Importar</a>
+        <br>
+        {% empty %}}
+            No hay tipos de items para importar
+      {% endfor %}
+</select>
+
     </form>
 
 
