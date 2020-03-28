@@ -54,6 +54,7 @@ def editar_fase_view(request, proyecto_id, fase_id):
             return redirect('index')
     return render(request, 'gestion_de_fase/editar_fase.html', {'formulario': form})
 
+
 def eliminar_fase_view(request, proyecto_id, fase_id):
     fase = get_object_or_404(Fase, id=fase_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
