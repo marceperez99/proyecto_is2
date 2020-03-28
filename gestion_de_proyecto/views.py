@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 import datetime
 from django.utils import timezone
 from gestion_de_proyecto.forms import ProyectoForm
-from .models import Proyecto
+from .models import Proyecto, Participante
 
 
 # Create your views here.
@@ -42,5 +42,6 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
         proyecto.eliminar_participante(usuario)
+        return redirect('participantes', proyecto_id=proyecto_id)
     contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario}
-    return render(request, 'gestion_de_proyecto/eliminar_participante.html', context = contexto)
+    return render(request, 'gestion_de_proyecto/eliminar_participante.html', context=contexto)
