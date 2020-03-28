@@ -42,6 +42,18 @@ def nuevo_proyecto_view(request):
 
 
 def participantes_view(request, proyecto_id):
+    """
+    Vista que muestra la siguiente información de los participantes de un proyecto:
+        - Nombres y Apellidos.
+        - Nombre del rol asignado dentro del proyecto.
+
+    Argumentos:
+        request: HttpRequest
+        proyecto_id: int identificador único de un proyecto.
+
+    Retorna:
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.get_participantes()
 
@@ -50,6 +62,23 @@ def participantes_view(request, proyecto_id):
 
 
 def participante_view(request, proyecto_id, participante_id):
+    """
+    Vista que muestra la siguiente información de un participante de proyecto:
+        - Nombres y Apellidos.
+        - Nombre del rol de proyecto asignado.
+        - Descripción del rol de proyecto asignado.
+        - Permisos contemplados en el rol asignados a cada fase del proyecto.
+
+    En caso de que el id corresponda a un participante eliminado o inexistente se redirige a una pagina 404.
+    En caso de que el usuario tenga permiso de eliminar participantes dentro del proyecto, se visualiza la opción de eliminar.
+    Argumentos:
+        request: HttpRequest
+        proyecto_id: int identificador único de un proyecto.
+        participante_id: int identificador único de un participante a visualizar.
+
+    Retorna:
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     participante = get_object_or_404(proyecto.participante_set, pk=participante_id)
     if participante.rol is None:
@@ -59,6 +88,20 @@ def participante_view(request, proyecto_id, participante_id):
 
 
 def eliminar_participante_view(request, proyecto_id, participante_id):
+    """
+    Vista que solicita confirmación del usuario para eliminar un participante de proyecto.
+    En caso de confirmar la eliminación del participante, regresa a la pagina de visualización de participantes del proyecto.
+    En caso de cancelar la eliminación de participante, regresa a la pagina de visualización del participante.
+
+    Argumentos:
+        request: HttpRequest
+        proyecto_id : int identificador único de un proyecto.
+        participante_id: int identificador único de un participante a eliminar.
+
+    Retorna:
+        HttpResponse
+
+    """
     participante = get_object_or_404(Participante, id=participante_id)
     usuario = participante.usuario
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
