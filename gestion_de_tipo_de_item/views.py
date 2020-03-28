@@ -31,7 +31,7 @@ def tipo_de_item_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
 
-def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
+def nuevo_tipo_de_item_view(request, proyecto_id, fase_id,instancia = None):
     """
     TODO: comentar
     """
@@ -45,7 +45,10 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
                                             'fecha': AtributoFechaForm()}
                 }
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST)
+        if instancia is None:
+            tipo_de_item_form = TipoDeItemForm(request.POST or None)
+        else:
+            tipo_de_item_form = TipoDeItemForm(request.POST or None,instance = instancia)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
             atributos_dinamicos = construir_atributos(request)
@@ -70,7 +73,15 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
 
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
-def importar_tipo_de_item_view(request,proyecto_id,fase_id):
 
+def importar_tipo_de_item_view(request, proyecto_id, fase_id):
+    proyecto = get_object_or_404(Proyecto, proyecto_id)
+    fase = get_object_or_404(Fase, fase_id)
+    form = TipoDeItemForm(fase)
 
+    if request.method == 'POST':
+        pass
+
+    contexto = {'user': request.user, 'form':form}
+    return render(request,'gestion_de_tipo_de_item/importar_tipo_de_item.html',context=contexto)
 

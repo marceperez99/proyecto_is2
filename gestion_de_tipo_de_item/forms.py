@@ -17,7 +17,8 @@ class TipoDeItemForm(forms.ModelForm):
 
 
     """
-    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows":5, "cols":20}))
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
+
     class Meta:
         model = TipoDeItem
         fields = ['nombre', 'descripcion', 'prefijo']
@@ -62,9 +63,10 @@ class AtributoBooleanoForm(forms.ModelForm):
         model = AtributoBooleano
         fields = ['nombre', 'requerido']
 
+
 class ImportarTipoDeItemForm(forms.Form):
 
-
-    def __init__(self,proyecto_id,fase_id):
-        self.fase = get_object_or_404(Fase,id = fase_id)
-        self.tipo_de_items = forms.ModelChoiceField(TipoDeItem.objects.all().exclude(fase=self.fase))
+    def __init__(self, fase, *args, **kwargs):
+        super(ImportarTipoDeItemForm, self).__init__()
+        self.fase = fase
+        self.tipo_de_items = forms.ModelChoiceField(TipoDeItem.objects.all().exclude(fase=self.fase), empty_label='Seleccione un tipo de item')

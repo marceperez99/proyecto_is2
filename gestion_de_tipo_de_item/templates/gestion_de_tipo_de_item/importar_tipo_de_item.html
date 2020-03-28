@@ -1,0 +1,13 @@
+{% extends 'base.html'%}
+{% block title %}Menu Principal{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+
+    Tipo de item:
+    <form action="" method="POST"> {% csrf_token %}
+        {{form|crispy}}
+    <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Importar tipo de item">
+    </form>
+
+
+{% endblock %}
