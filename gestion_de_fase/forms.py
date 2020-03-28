@@ -19,7 +19,7 @@ class FaseForm(forms.ModelForm):
         """
         super(FaseForm, self).__init__(*args,**kwargs)
         self.fields['fase_anterior'].required=False
-        if kwargs['instance'] is not None:
+        if 'instace' in kwargs.keys():
             self.fields['fase_anterior'].queryset=Fase.objects.all().filter(proyecto=proyecto).exclude(id=kwargs['instance'].id)
         else:
             self.fields['fase_anterior'].queryset = Fase.objects.all().filter(proyecto=proyecto)
