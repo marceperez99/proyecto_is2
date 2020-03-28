@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import Form
+
 from .models import TipoDeItem, AtributoCadena, AtributoBooleano, AtributoFecha, AtributoNumerico, AtributoBinario
 
 
@@ -13,7 +15,7 @@ class TipoDeItemForm(forms.ModelForm):
 
 
     """
-
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows":5, "cols":20}))
     class Meta:
         model = TipoDeItem
         fields = ['nombre', 'descripcion', 'prefijo']
