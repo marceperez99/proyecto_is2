@@ -66,7 +66,7 @@ def recolectar_atributos(tipo_de_item):
         diccionario.update(tipo='numerico')
         diccionario.update(nombre=atributo.nombre)
         diccionario.update(max_digitos=str(atributo.max_digitos))
-        diccionario.update(max_decimales =str(atributo.max_decimales))
+        diccionario.update(max_decimales=str(atributo.max_decimales))
         if atributo.requerido:
             diccionario.update(requerido='on')
         atributos_dinamicos.append(diccionario)
@@ -99,6 +99,7 @@ def recolectar_atributos(tipo_de_item):
             diccionario.update(requerido='on')
         atributos_dinamicos.append(diccionario)
     return atributos_dinamicos
+
 
 def get_dict_tipo_de_item(tipo):
     """

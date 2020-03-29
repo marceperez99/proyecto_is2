@@ -1,7 +1,8 @@
 .. index:: Acerca del Proyecto
 
-Sistema Administrador de items de proyecto
+Acerca del Sistema
 ***********************************************
+Sistema Administrador de items de proyecto
 
 Proyecto de Ingenieria de Software II - Primer Periodo del Año 2020
 
