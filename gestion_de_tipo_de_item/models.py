@@ -55,9 +55,9 @@ class AtributoBinario(models.Model):
     """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
-    max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo",
-                                     validators=[MinValueValidator(1,
-                                                                   "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
+    max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo (MB)",
+        validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
+
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):
@@ -78,8 +78,7 @@ class AtributoCadena(models.Model):
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_longitud = models.IntegerField(verbose_name='Longitud Maxima',
-                                       validators=[MinValueValidator(0,
-                                                                     "La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
+                                       validators=[MinValueValidator(0,"La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
                                                    MaxValueValidator(500, "La longlitud maxima de la cadena es 500")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
