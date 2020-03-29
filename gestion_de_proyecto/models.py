@@ -133,6 +133,22 @@ class Proyecto(models.Model):
             self.estado = EstadoDeProyecto.CANCELADO
         return True
 
+
+    def iniciar(self):
+        """
+        Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
+        cambia su estado de "En Configuracion" a "Iniciado"\n
+        Retorna:\n
+            True: si cambio a estado "Iniciado"
+            False: si el proyecto aun no tiene fases
+        """
+        if self.get_fases():
+            self.estado = EstadoDeProyecto.INICIADO
+            return True
+        else:
+            return False
+
+
     def eliminar_participante(self, usuario):
         """
 
