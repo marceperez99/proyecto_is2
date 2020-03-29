@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% block title %}Eliminar Fase{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3>Eliminar Fase</h3>
+            <hr class="col-12">
+            <form method="POST" class="col-12 col-md-10 mx-auto row">
+                {% csrf_token %}
+                <h2 class="mb-5">Estas seguro que desea eliminar la Fase "{{ fase }}" del Proyecto "{{ proyecto }}"</h2>
+                <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-3 mx-auto">Confirmar</button>
+                <a class="btn btn-danger bg-color-danger col-8 col-md-3 mx-auto" href="{% url 'index' %}">Cancelar</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

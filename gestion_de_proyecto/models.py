@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
@@ -13,23 +14,23 @@ class EstadoDeProyecto:
         CONFIGURACION = En Configuracion\n
         INICIADO = Iniciado\n
         FINALIZADO = Finalizado\n
-        CANCELADO = Finalizado\n
+        CANCELADO = Cancelado\n
     """
     CONFIGURACION = "En Configuración"
     INICIADO = "Iniciado"
     FINALIZADO = "Finalizado"
-    CANCELADO = "Finalizado"
+    CANCELADO = "Cancelado"
 
 
 class Proyecto(models.Model):
     """
         Modelo para la clase proyecto
     """
-    nombre = models.CharField(max_length=101)
-    descripcion = models.CharField(max_length=401)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=400)
     gerente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     creador = models.ForeignKey(User, related_name='proyectos_creador', on_delete=models.CASCADE, null=True)
-    fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion",default=timezone.now)
+    fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion", default=timezone.now)
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     class Meta:
@@ -50,7 +51,7 @@ class Proyecto(models.Model):
             Participante
 
         """
-        return self.participante_set.get(usuario=usuario)
+        return get_object_or_404(self.participante_set, usuario=usuario)
 
     def get_participantes(self):
         """
@@ -67,7 +68,7 @@ class Proyecto(models.Model):
         Retorna:\n
             Lista: lista de fases del proyecto en orden
         """
-        ultima_fase = Fase.objects.all().filter(fase__isnull=True)[0]
+        ultima_fase = self.fase_set.all().filter(fase__isnull=True)[0]
         lista = []
         while ultima_fase is not None:
             lista.insert(0, ultima_fase)
@@ -113,6 +114,36 @@ class Proyecto(models.Model):
             False en caso contrario.
         """
         return self.get_participante(usuario).tiene_pp_por_fase(fase, permiso)
+
+    def cancelar(self):
+        """
+        Metodo de la clase proyecto que verifica si un proyecto no este en en estado finalizado,
+        si este se encuentra en otro estado, lo pone en estado "Cancelado".\n
+        Args:
+            proyecto: Proyecto\n
+        Retorna:
+            True: si el proyecto se encuentra en estado "En Configuracion" o "iniciado".\n
+            False: si el proyecto ya se encuentra en estado "Finalizado".\n
+
+
+        """
+        if self.estado == EstadoDeProyecto.FINALIZADO:
+            return False
+        else:
+            self.estado = EstadoDeProyecto.CANCELADO
+        return True
+
+    def eliminar_participante(self, usuario):
+        """
+
+
+        """
+        if self.participante_set.filter(usuario=usuario, rol__isnull=False).exists():
+            mensaje = "El sistema es inconsistente: 2 participantes activos hacen referencia al mismo usuario."
+            assert len(self.participante_set.filter(usuario=usuario, rol__isnull=False)) == 1, mensaje
+            participante = self.participante_set.get(usuario=usuario, rol__isnull=False)
+            participante.rol = None
+            participante.save()
 
 
 class Participante(models.Model):

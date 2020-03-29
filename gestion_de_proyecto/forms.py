@@ -9,6 +9,13 @@ class ProyectoForm(forms.ModelForm):
         model = Proyecto
         fields = ('nombre', 'descripcion', 'gerente')
 
+
+class EditarProyectoForm(forms.ModelForm):
+    class Meta:
+        model = Proyecto
+        fields = ('nombre', 'descripcion')
+
+
 class NuevoParticipanteForm(forms.ModelForm):
 
     def __init__(self, *args, proyecto=None, **kwargs):

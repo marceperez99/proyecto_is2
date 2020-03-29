@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %} Tipo de Item {% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">Tipo de Item</h3>
+            <hr class="col-12">
+            <h6 class="col-3">Nombre:</h6><p class=" col-8">{{ tipo_de_item.nombre }}</p>
+            <h6 class="col-3">Descripcion:</h6><p class=" col-8">{{ tipo_de_item.descripcion }}</p>
+            <hr class="col-12">
+            <div class=" col-12 p-0">
+                <h4 class="col-12">Atributos del Tipo de Item</h4>
+                <div class="row">
+                    <div class="card mt-2 col-10 p-0 mx-auto">
+                        <h5 class="card-header bg-color-primary text-white">Nombre</h5>
+                        <div class="card-body pb-0 row">
+                            <h6 class="col-3">Tipo:</h6><p class=" col-8">Texto</p>
+                        </div>
+                    </div>
+                    <div class="card mt-2 col-10 p-0 mx-auto">
+                        <h5 class="card-header bg-color-primary text-white">Descripcion</h5>
+                        <div class="card-body pb-0 row">
+                            <h6 class="col-3">Tipo:</h6><p class=" col-8">Texto</p>
+                        </div>
+                    </div>
+                    <div class="card mt-2 col-10 p-0 mx-auto">
+                        <h5 class="card-header bg-color-primary text-white">Costo</h5>
+                        <div class="card-body pb-0 row">
+                            <h6 class="col-3">Tipo:</h6><p class=" col-8">Texto</p>
+                        </div>
+                    </div>
+
+                    {% for atributo in tipo_de_item.atributos_dinamicos %}
+                        <div class="card mt-2 col-10 p-0 mx-auto">
+                            <h5 class="card-header bg-color-primary text-white">{{atributo.nombre}}</h5>
+                            <div class="card-body pb-0 row">
+                                <h6 class="col-3">Tipo:</h6><p class=" col-8">{{atributo.tipo}}</p>
+                                <h6 class="col-3">Campo Requerido:</h6><p class=" col-8">{{atributo.requerido}}</p>
+                                <!-- Se muestra el campo  -->
+                                {% if atributo.max_longitud %}
+                                    <h6 class="col-3">Cantidad Maxima de Caracteres:</h6><p class=" col-8">{{atributo.max_longitud}}</p>
+                                {% endif %}
+                                {% if atributo.max_tamaño %}
+                                    <h6 class="col-3">Tamaño Maximo del Archivo(en GB):</h6><p class=" col-8">{{atributo.max_tamaño}}</p>
+                                {% endif %}
+                                {% if atributo.max_digitos %}
+                                    <h6 class="col-3">Cantidad Maxima de Digitos del Numero:</h6><p class=" col-8">{{atributo.max_digitos}}</p>
+                                {% endif %}
+                                {% if atributo.max_decimales %}
+                                    <h6 class="col-3">Cantidad Maxima de Decimales del Numero:</h6><p class=" col-8">{{atributo.max_decimales}}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
