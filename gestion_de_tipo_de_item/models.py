@@ -11,15 +11,12 @@ class TipoDeItem(models.Model):
     Modelo que representa una instancia de un tipo de item.
 
     Atributos:
-
         nombre: string\n
         descripcion: string\n
         prefijo: string\n
         creador: User\n
         fase: Fase\n
         fecha_creacion: date\n
-
-    Metodos:
 
     """
     nombre = models.CharField(max_length=100)
@@ -53,7 +50,6 @@ class AtributoBinario(models.Model):
     Modelo que representa la definición de un atributo dinámico del tipo archivo asociado a un tipo de item
 
     Atributos:
-
         nombre: string\n
         requerido: boolean\n
         max_tamaño: int\n
@@ -76,11 +72,10 @@ class AtributoCadena(models.Model):
        Modelo que representa la definición de un atributo dinámico del tipo Cadena asociado a un tipo de item
 
        Atributos:
-
-           nombre: string\n
-           requerido: boolean\n
-           max_longitud: int\n
-           tipo_de_item: TipoDeItem\n
+            nombre: string\n
+            requerido: boolean\n
+            max_longitud: int\n
+            tipo_de_item: TipoDeItem\n
        """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
@@ -98,7 +93,6 @@ class AtributoBooleano(models.Model):
        Modelo que representa la definición de un atributo dinámico del tipo Booleano asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            tipo_de_item: TipoDeItem\n
@@ -116,7 +110,6 @@ class AtributoNumerico(models.Model):
        Modelo que representa la definición de un atributo dinámico del tipo Númerico asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            max_digitos: int\n
@@ -146,7 +139,6 @@ class AtributoFecha(models.Model):
        Modelo que representa la definición de un atributo dinámico del tipo Fecha asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            tipo_de_item: TipoDeItem\n
