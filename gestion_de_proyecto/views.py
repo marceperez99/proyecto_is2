@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.checks import messages
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm
 from roles_de_proyecto.decorators import pp_requerido
@@ -36,7 +37,13 @@ def nuevo_proyecto_view(request):
             return redirect('index')
     else:
         form = ProyectoForm()
-    return render(request, 'gestion_de_proyecto/nuevo_proyecto.html', {'formulario': form})
+    contexto = {'formulario': form,
+                'breadcrumb': {'pagina_actual': 'Nuevo Proyecto',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}]
+                               }
+                }
+
+    return render(request, 'gestion_de_proyecto/nuevo_proyecto.html', contexto)
 
 
 def participantes_view(request, proyecto_id):
@@ -55,7 +62,13 @@ def participantes_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.get_participantes()
 
-    contexto = {'user': request.user, 'lista_participante': lista_participante,'proyecto':proyecto, 'gerente': proyecto.gerente}
+    contexto = {'user': request.user,
+                'lista_participante': lista_participante,
+                'proyecto': proyecto,
+                'gerente': proyecto.gerente,
+                'breadcrumb': {'pagina_actual': 'Participantes',
+                               'links': [{'Panel de Administracion': reverse('panel_de_control')}]}
+                }
     return render(request, 'gestion_de_proyecto/partipantes.html', context=contexto)
 
 
@@ -124,7 +137,9 @@ def visualizar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    contexto = {'user': request.user, 'proyecto': proyecto}
+    contexto = {'user': request.user,
+                'proyecto': proyecto,
+                'breadcrumb': {'pagina_actual': proyecto.nombre}}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
 

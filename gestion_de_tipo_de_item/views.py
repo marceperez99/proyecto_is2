@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
@@ -8,7 +10,6 @@ from django.utils import timezone
 from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
     construir_atributos, recolectar_atributos
-
 
 # Create your views here.
 
@@ -25,7 +26,16 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
     tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
 
     contexto = {'user': request.user,
-                'tipo_de_item': get_dict_tipo_de_item(tipo_de_item)
+                'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
+                'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': '#'},
+                                         {'nombre': 'Tipos de Item',
+                                          'url': reverse('tipos_de_item', args=(proyecto.id, fase.id))},
+                                         ]
+                               }
                 }
 
     return render(request, 'gestion_de_tipo_de_item/ver_tipo_de_item.html', contexto)
@@ -42,7 +52,14 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     contexto = {'user': request.user,
                 'proyecto': proyecto,
                 'fase': fase,
-                'lista_tipo_de_item': lista_tipo_de_item}
+                'lista_tipo_de_item': lista_tipo_de_item,
+                'breadcrumb': {'pagina_actual': 'Tipos de Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': '#'}]
+                               }
+                }
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
 
@@ -87,9 +104,9 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['form'] = TipoDeItemForm()
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-            contexto['form'] = TipoDeItemForm(request.POST or None, instance =tipo_de_item)
-            #TODO: mañantipoa
-            #Construye un diccionario a partir de la lista de atributos
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance=tipo_de_item)
+            # TODO: mañantipoa
+            # Construye un diccionario a partir de la lista de atributos
 
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
             print(atributos_dinamicos)

@@ -53,7 +53,7 @@
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h4 class="mt-1 col-auto text-white">Roles de Sistema</h4>
-                            <a href="#" class="btn text-white ml-auto mr-2 bg-color-accent">Crear Rol de Sistema</a>
+                            <a href="{% url 'listar_roles_de_sistema' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Sistema</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -85,7 +85,7 @@
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h4 class="mt-1 col-auto text-white">Roles de Proyecto</h4>
-                            <a href="#" class="btn text-white ml-auto mr-2 bg-color-accent">Crear Rol de Proyecto</a>
+                            <a href="{% url 'listar_roles_de_proyecto' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Proyecto</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -100,7 +100,7 @@
                                 {% for rol in roles_de_proyecto %}
                                     <tr>
                                         <td>{{ rol.nombre }}</td>
-                                        <td class="text-right"><a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                        <td class="text-right"><a href="{% url 'rol_de_proyecto' rol.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                             <i class="fas fa-eye"></i>
                                             &nbsp Visualizar
                                         </a></td>
