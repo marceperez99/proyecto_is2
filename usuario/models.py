@@ -18,5 +18,6 @@ class Usuario(User):
             self.groups.all().delete()
         rs = RolDeSistema.objects.get(id=rs_id)
         print(rs.nombre)
-        group = Group.objects.get(name=rs.nombre)
+        group = Group(name=rs.nombre)
+        group.save()
         self.groups.add(group)

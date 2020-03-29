@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission, User, Group
 from django.db import models
 
 
@@ -48,5 +48,19 @@ class RolDeSistema(models.Model):
 
         returna: bool
         """
-        #TODO: Falta agregar la logica de esta seccion
-        return False
+        group = Group.objects.get(name=self.nombre)
+        return group.user_set.all().exists()
+
+    def eliminar_rs(self):
+        """
+        Metodo que retorna True si el rol d sistema fue eliminado con exito, False en caso contrario
+
+        :return: bool
+        """
+        group = Group.objects.get(name=self.nombre)
+        if self.es_utilizado():
+            return False
+        else:
+            group.delete()
+            self.delete()
+            return True
