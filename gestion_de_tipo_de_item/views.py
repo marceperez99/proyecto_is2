@@ -21,6 +21,7 @@ from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 
 def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
+    Vista que permite visualizar el nombre, la descripción, y los atributos de un tipo de item
 
     Argumentos:
         request: HttpRequest
@@ -29,7 +30,7 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
-    tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
+    tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_de_item_id)
 
     contexto = {'user': request.user,
                 'tipo_de_item': get_dict_tipo_de_item(tipo_de_item)
