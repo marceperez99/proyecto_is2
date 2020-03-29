@@ -42,6 +42,19 @@ def nueva_fase_view(request, proyecto_id):
 
 
 def editar_fase_view(request, proyecto_id, fase_id):
+    """
+    Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
+    desea cambiar, los cambia.
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra los datos que tiene la fase con la
+    posibilidad de editarlos.
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos cambiados y se guardan en la BD
+
+    Args:\n
+        request: HttpRequest.
+        fase_id: int identificador unico de la fase que se quiere ver. \n
+    Retorna:\n
+        HttpResponse
+    """
     fase = get_object_or_404(Fase, id=fase_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     form = FaseForm(request.POST or None, instance=fase, proyecto=proyecto)
@@ -56,6 +69,17 @@ def editar_fase_view(request, proyecto_id, fase_id):
 
 
 def eliminar_fase_view(request, proyecto_id, fase_id):
+    """
+    Muestra una vista al usuario para que confirme la eliminacion de una fase.
+    Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme la elimincion de una fase.
+    Si el metodo Http con el que se realizo la peticion fue POST se procede a eliminar la fase.
+
+    Args:\n
+        request: HttpRequest.
+        proyecto_id: int identificador unico del Proyecto que se quiere ver. \n
+    Retorna:\n
+        HttpResponse
+    """
     fase = get_object_or_404(Fase, id=fase_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':

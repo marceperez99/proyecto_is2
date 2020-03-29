@@ -129,6 +129,19 @@ def visualizar_proyecto_view(request, proyecto_id):
 
 
 def editar_proyecto_view(request, proyecto_id):
+    """
+    Vista que muestra al usuario los datos actuales del proyecto que se pueden modificar, si el usuario
+    desea cambiar, los cambia.
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra los datos que tiene el proyecto con la
+    posibilidad de editarlos.
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos cambiados y se guardan en la BD
+
+    Args:\n
+        request: HttpRequest.
+        proyecto_id: int identificador unico del Proyecto que se quiere ver. \n
+    Retorna:\n
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     form = EditarProyectoForm(request.POST or None, instance=proyecto)
     if request.method == 'POST':
@@ -139,6 +152,17 @@ def editar_proyecto_view(request, proyecto_id):
 
 
 def cancelar_proyecto_view(request, proyecto_id):
+    """
+    Muestra una vista al usuario para que confirme la cancelacion del proyecto
+    Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme la cancelacion del proyecto
+    Si el metodo Http con el que se realizo la peticion fue POST se procede a cambiar el estado del proyecto a "Cancelado"
+
+    Args:\n
+        request: HttpRequest.
+        proyecto_id: int identificador unico del Proyecto que se quiere ver. \n
+    Retorna:\n
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
         if proyecto.cancelar():

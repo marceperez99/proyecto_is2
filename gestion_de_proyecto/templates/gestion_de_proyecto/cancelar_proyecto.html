@@ -1,16 +1,16 @@
 {% extends 'base.html'%}
 {% load crispy_forms_tags %}
-{% block title %}Editar Proyecto{%endblock title%}
+{% block title %}Cancelar Proyecto{%endblock title%}
 {% block content %}
     {% include 'navBar.html' %}
     <div class="container mt-3">
         <div class="row">
-            <h3>Editar Proyecto</h3>
+            <h3>Cancelar Proyecto</h3>
             <hr class="col-12">
             <form method="POST" class="col-12 col-md-10 mx-auto row">
                 {% csrf_token %}
-                <h2 class="mb-5">Seguro que quiere eliminar el Proyecto "{{ proyecto }}"</h2>
-                <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Guardar Cambios</button>
+                <h2 class="mb-5">Seguro que quiere cancelar el Proyecto "{{ proyecto }}"</h2>
+                <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Aceptar</button>
                 <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="#">Cancelar</a>
             </form>
         </div>
