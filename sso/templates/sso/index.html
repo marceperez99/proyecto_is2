@@ -15,84 +15,68 @@
 
     }
   </style>
-    <div class="row">
-        <div class="col-12 col-md-8">
-            <div class="container row mt-3 mx-auto">
-                <h3 class="mx-auto">Bienvenido al Sistema, {{user.get_full_name}}</h3>
-                <hr class="col-12 col-md-11 mx-auto">
-                <div id="list_projects" class="col-12 col-md-11 mx-auto">
-                    <h4>Lista de Proyecto en los que participa</h4>
-                    <div class="card m-2">
-                        <div class="card-header bg-light text-white" id="header_project_1">
-                            <div class="row">
-                                <div class="col-auto text-dark mr-auto">
-                                    Proyecto 1
+    <div class="container  col-12 mt-3 mx-auto">
+        <div class="row">
+            <div class="col-12 col-md-8">
+                <div class="container row mt-3 mx-auto">
+                    <h3 class="mx-auto">Bienvenido al Sistema, {{user.get_full_name}}</h3>
+                    <hr class="col-12 col-md-11 ml-auto">
+                    <div id="list_projects" class="col-12 col-md-11 ml-auto">
+                        <h4 class="mb-3">Proyectos en los que participa</h4>
+                        {% for proyecto in proyectos %}
+                            <div class="card m-2">
+                                <div class="card-header bg-color-primary text-white" id="header_project_{{ proyecto.id }}">
+                                    <div class="row">
+                                        <div class="col-auto text-white mr-auto">
+                                            {{proyecto.nombre}}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                                &nbsp Visualizar
+                                            </a>
+                                        </div>
+                                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project{{ proyecto.id }}" aria-expanded="false" aria-controls="list_projects">
+                                            <i class="fa  text-white" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <button class="btn bg-color-accent text-white font-weight-bold  btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                        &nbsp Visualizar
-                                    </button>
+                                <div id="collapse_project{{ proyecto.id }}" class="collapse" aria-labelledby="header_project_{{ proyecto.id }}" data-parent="#list_projects">
+                                    <div class="card-body row">
+                                        <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
+                                        <div class="col col-sm-10"><p>{{proyecto.descripcion}}</p></div>
+                                        <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
+                                        <div class="col col-sm-10"><p>00/00/0000</p></div>
+                                        <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
+                                        <div class="col col-sm-10"><p>0</p></div>
+                                        <div class="col col-sm-2"><p style="text-decoration: underline;">Gerente del Proyecto:</p></div>
+                                        <div class="col col-sm-10"><p>{{proyecto.gerente}}</p></div>
+                                    </div>
                                 </div>
-                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project1" aria-expanded="false" aria-controls="list_projects">
-                                    <i class="fa text-dark" aria-hidden="true"></i>
-                                </button>
                             </div>
-                        </div>
-                        <div id="collapse_project1" class="collapse" aria-labelledby="header_project_1" data-parent="#list_projects">
-                            <div class="card-body row">
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
-                                <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
-                                <div class="col col-sm-10"><p>00/00/0000</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
-                                <div class="col col-sm-10"><p>0</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
-                                <div class="col col-sm-10"><p>Creador Salinas</p></div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
-
-                    <div class="card m-2">
-                        <div class="card-header bg-light text-white" id="header_project_1">
-                            <div class="row">
-                                <div class="col-auto text-dark mr-auto">
-                                    Proyecto 1
-                                </div>
-                                <div>
-                                    <button class="btn bg-color-accent text-white font-weight-bold  btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                        &nbsp Visualizar
-                                    </button>
-                                </div>
-                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_project1" aria-expanded="false" aria-controls="list_projects">
-                                    <i class="fa text-dark" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="collapse_project1" class="collapse" aria-labelledby="header_project_1" data-parent="#list_projects">
-                            <div class="card-body row">
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
-                                <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
-                                <div class="col col-sm-10"><p>00/00/0000</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
-                                <div class="col col-sm-10"><p>0</p></div>
-                                <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
-                                <div class="col col-sm-10"><p>Creador Salinas</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-    </div>
-        <div class="d-none d-md-block col-md-4">
-            <div class="ml-2 mr-5 card mt-4">
-                <div class="card-header bg-white"><b>Notificaciones</b></div>
-                <div class="card-body p-0">
-                    <div class="alert-info col-12 p-2">No hay notificaciones</div>
                 </div>
             </div>
+            <div class="d-none d-md-block col-md-3 mt-3 row">
+                <!-- Contenido lateral -->
+                <div class="col-12 mx-auto border rounded bg-white">
+                    <div class="row">
+                        <img class="rounded-circle col-5 mx-auto my-3" src="{{ user.socialaccount_set.all.0.get_avatar_url }}" />
+                        <div class="col-12 mt-3 text-center  h5">{{ user.get_full_name }}</div>
+                        <hr class="col-10">
+                        <div class="col-12 text-center h6">Rol de Sistema: Administrador{{user.groups.all.0}}</div>
+                    </div>
+                </div>
+                <div class=" card mt-4">
+                    <div class="card-header bg-white"><b>Notificaciones</b></div>
+                    <div class="card-body p-0">
+                        <div class="alert-info col-12 p-2">No hay notificaciones</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-  </div>
+    </div>
+
 {% endblock content %}

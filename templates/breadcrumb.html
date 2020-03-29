@@ -1,0 +1,9 @@
+<nav class="container mt-2" aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light col-12">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Menu Principal</a></li>
+        {% for item in breadcrumb.links %}
+            <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.nombre }}</a></li>
+        {% endfor %}
+        <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.pagina_actual }}</li>
+    </ol>
+</nav>
