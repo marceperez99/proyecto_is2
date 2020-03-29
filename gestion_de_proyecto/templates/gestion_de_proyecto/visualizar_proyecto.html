@@ -3,6 +3,7 @@
 {% block title %}Visualizar Proyecto{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <h3>{{ proyecto.nombre }}</h3>
         <hr>
@@ -13,15 +14,11 @@
                         Fases del Proyecto
                     </div>
                     <div class="card-body">
-                        <table class="table">
+                        <table class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>
-                                        Nombre de Fase
-                                    </th>
-                                    <th>
-                                        Estado
-                                    </th>
+                                    <th>Nombre de Fase</th>
+                                    <th>Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,9 +33,9 @@
                                                     Cerrada
                                                 </span></h4>
                                             {% else %}
-                                                <h4><span class="badge badge-primary">
+                                                <h5><span class="badge badge-primary">
                                                     Abierta
-                                                </span></h4>
+                                                </span></h5>
                                             {% endif %}
                                         </td>
                                     </tr>
