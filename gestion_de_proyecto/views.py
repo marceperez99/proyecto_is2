@@ -1,5 +1,6 @@
+from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.checks import messages
+
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -171,6 +172,17 @@ def cancelar_proyecto_view(request, proyecto_id):
             messages.error(request, 'No se puede cancelar un proyecto en estado "Finalizado".')
         return redirect('index')
     return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
+
+#@pp_requerido('g_pp_iniciar_proyecto')
+def iniciar_proyecto_view(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    if request.method == 'POST':
+        if proyecto.iniciar():
+            proyecto.save()
+        else:
+            messages.error(request, 'No se puede iniciar el proyecto.')
+        return redirect('index')
+    return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
 
 @pp_requerido('pp_agregar_participante')
