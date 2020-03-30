@@ -1,4 +1,4 @@
-from datetime import timezone
+
 
 import pytest
 from django.contrib.auth.models import User, Permission
@@ -6,10 +6,13 @@ from django.test import TestCase, Client
 
 
 # Create your tests here.
+from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
+from gestion_de_tipo_de_item.utils import recolectar_atributos, get_dict_tipo_de_item
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -37,21 +40,21 @@ def rol_de_proyecto():
 
 @pytest.fixture
 def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fechaCreacion=datetime.today(),
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
                         creador=usuario)
     proyecto.save()
-    fase = Fase(nombre='Analisis', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
-    fase = Fase(nombre='Desarrollo', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
-    fase = Fase(nombre='Pruebas', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.save()
     return proyecto
 
 @pytest.fixture
-def tipo_de_item(proyecto):
+def tipo_de_item(usuario,proyecto):
     tipo_de_item = TipoDeItem()
     tipo_de_item.nombre = "Requerimiento Funcional"
     tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
@@ -88,6 +91,7 @@ def atributos(tipo_de_item):
     adate.nombre = "Fecha de Cierre"
     adate.requerido = True
     adate.tipo_de_item = tipo_de_item
+    adate.save()
 
     anum = AtributoNumerico()
     anum.nombre = "Costo del caso de uso"
@@ -101,6 +105,7 @@ def atributos(tipo_de_item):
     abool.nombre = "Cierto"
     abool.requerido = True
     abool.tipo_de_item = tipo_de_item
+    adate.save()
 
     atributos.append(abin)
     atributos.append(acad)
@@ -108,5 +113,10 @@ def atributos(tipo_de_item):
     atributos.append(adate)
     atributos.append(anum)
     return atributos
+
 @pytest.mark.django_db
-def test_importar_tipo_de_item(cliente_loggeado,atributos):
+def test_recolectar_atributos(cliente_loggeado,atributos,tipo_de_item):
+    recolectar_atributos(tipo_de_item)
+
+
+    assert True == False

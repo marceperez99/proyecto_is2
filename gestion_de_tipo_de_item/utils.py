@@ -11,14 +11,36 @@ def guardar_atributos(atributos_forms, tipo_de_item):
         atributo.save()
 
 
-def guardar_tipo_de_item(tipo_de_item, fase, user):
+def guardar_tipo_de_item(tipo_de_item, fase, usuario):
+    """
+    Función utilitaria que dada un tipo de item, una fase y un user guarda el tipo de item relacionandolo con la fase
+    y al usuario como su creador.
+
+    Argumentos:
+        tipo_de_item: TipoDeItem\n
+        fase: Fase\n
+        usuario: Usuario\n
+
+    Retorna:
+        None
+    """
     tipo_de_item.fase = fase
-    tipo_de_item.creador = user
+    tipo_de_item.creador = usuario
     tipo_de_item.fecha_creacion = timezone.now()
     tipo_de_item.save()
 
 
 def atributo_form_handler(atributos_dinamicos):
+    """
+    Función utilitaria que dada una lista de atibutos representados como un diccionario contruye un form adecuado
+    para cada atributo.
+
+    Argumentos:
+        atributos_dinamicos: lista[] de diccionarios Atributo
+
+    Retorna
+        atributos_forms: lista[] de forms para cada atributo.
+    """
     atributos_forms = []
     for atributo in atributos_dinamicos:
         if 'tipo' not in atributo.keys():
@@ -37,6 +59,9 @@ def atributo_form_handler(atributos_dinamicos):
 
 
 def construir_atributos(request):
+    """
+    TODO: Marcelo comentame esto.
+    """
     # Lista de atributos dinamicos
     atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
     # Se filtran todos los atributos dinamicos
@@ -49,6 +74,25 @@ def construir_atributos(request):
 
 
 def recolectar_atributos(tipo_de_item):
+    """
+    Función utilitaria que dado un TipoDeItem construye un lista con todos los atributos relacionados a este tipo de item.
+
+    Argumentos:
+        tipo_de_item: TipoDeItem
+
+    Retorna:
+        atributos_dinamicos: lista[] de diccionarios para cada atributo
+
+
+    >>> print(recolectar_atributos(tipo1))
+    [
+        {'tipo': 'cadena', 'nombre': 'Descripción', 'max_longitud': '400', 'requerido': 'on'},
+        {'tipo': 'numerico', 'nombre': 'Costo del caso de uso', 'max_digitos': '2', 'max_decimales': '2'},
+        {'tipo': 'archivo', 'nombre': 'Diagrama del caso de uso', 'max_tamaño': '5'},
+        {'tipo': 'fecha', 'nombre': 'Fecha de Cierre', 'requerido': 'on'}
+    ]
+
+    """
     atributos_dinamicos = []
     atributos_texto = tipo_de_item.atributocadena_set.all()
     for atributo in atributos_texto:
@@ -104,8 +148,7 @@ def recolectar_atributos(tipo_de_item):
 def get_dict_tipo_de_item(tipo):
     """
     Funcion que toma un tipo de item y retorna un diccionario con todos los datos del tipo de item
-    :param tipo:
-    :return:
+    TODO: marcelo
     """
     atributos = {'nombre': tipo.nombre, 'descripcion': tipo.descripcion, 'atributos_dinamicos': []}
 
