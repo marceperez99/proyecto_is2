@@ -162,7 +162,14 @@ class Proyecto(models.Model):
 
     def eliminar_participante(self, usuario):
         """
+        Método que permite eliminar un participante de un proyecto.
+        Realiza un borrado lógico asignandole un valor nulo al rol de este participante
 
+        Argumentos:
+            usuario: User usuario al que se desea desvincular de un proyecto.
+
+        Retorna:
+            None
 
         """
         if self.participante_set.filter(usuario=usuario, rol__isnull=False).exists():

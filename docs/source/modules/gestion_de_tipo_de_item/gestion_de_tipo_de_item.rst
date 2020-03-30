@@ -19,7 +19,13 @@ Modelos
 .. automodule:: gestion_de_tipo_de_item.models
     :members:
 
+Funciones utilitarias
+=======================
+.. automodule:: gestion_de_tipo_de_item.utils
+    :members:
+
 Pruebas Unitarias
 =======================
 .. automodule:: gestion_de_tipo_de_item.tests
     :members:
+

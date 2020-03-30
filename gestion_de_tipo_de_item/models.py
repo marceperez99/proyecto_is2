@@ -11,15 +11,12 @@ class TipoDeItem(models.Model):
     Modelo que representa una instancia de un tipo de item.
 
     Atributos:
-
         nombre: string\n
         descripcion: string\n
         prefijo: string\n
         creador: User\n
         fase: Fase\n
         fecha_creacion: date\n
-
-    Metodos:
 
     """
     nombre = models.CharField(max_length=100)
@@ -33,6 +30,12 @@ class TipoDeItem(models.Model):
         return self.nombre
 
     def get_atributos(self):
+        """
+        Método que consigue la lista completa de atributos dinámico
+
+        Retorna:
+            atributos: lista[] atributos dinámicos asociados a este tipo de item.
+        """
         atributos = []
         atributos += list(self.atributocadena_set.all())
         atributos += list(self.atributonumerico_set.all())
@@ -44,15 +47,15 @@ class TipoDeItem(models.Model):
 
 class AtributoBinario(models.Model):
     """
-    Modelo que representa la definición de un atributo dinamico del tipo binario asociado a un tipo de item
+    Modelo que representa la definición de un atributo dinámico del tipo archivo asociado a un tipo de item
 
     Atributos:
-
         nombre: string\n
         requerido: boolean\n
         max_tamaño: int\n
         tipo_de_item: TipoDeItem\n
     """
+
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo (MB)",
@@ -66,14 +69,13 @@ class AtributoBinario(models.Model):
 
 class AtributoCadena(models.Model):
     """
-       Modelo que representa la definición de un atributo dinamico del tipo Cadena asociado a un tipo de item
+       Modelo que representa la definición de un atributo dinámico del tipo Cadena asociado a un tipo de item
 
        Atributos:
-
-           nombre: string\n
-           requerido: boolean\n
-           max_longitud: int\n
-           tipo_de_item: TipoDeItem\n
+            nombre: string\n
+            requerido: boolean\n
+            max_longitud: int\n
+            tipo_de_item: TipoDeItem\n
        """
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
@@ -88,10 +90,9 @@ class AtributoCadena(models.Model):
 
 class AtributoBooleano(models.Model):
     """
-       Modelo que representa la definición de un atributo dinamico del tipo Booleano asociado a un tipo de item
+       Modelo que representa la definición de un atributo dinámico del tipo Booleano asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            tipo_de_item: TipoDeItem\n
@@ -106,10 +107,9 @@ class AtributoBooleano(models.Model):
 
 class AtributoNumerico(models.Model):
     """
-       Modelo que representa la definición de un atributo dinamico del tipo Númerico asociado a un tipo de item
+       Modelo que representa la definición de un atributo dinámico del tipo Númerico asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            max_digitos: int\n
@@ -136,10 +136,9 @@ class AtributoNumerico(models.Model):
 
 class AtributoFecha(models.Model):
     """
-       Modelo que representa la definición de un atributo dinamico del tipo Fecha asociado a un tipo de item
+       Modelo que representa la definición de un atributo dinámico del tipo Fecha asociado a un tipo de item
 
        Atributos:
-
            nombre: string\n
            requerido: boolean\n
            tipo_de_item: TipoDeItem\n

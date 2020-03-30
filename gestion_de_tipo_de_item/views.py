@@ -17,10 +17,18 @@ from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_ite
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 
 
-def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
+def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
+    """
+    Vista que permite visualizar el nombre, la descripción, y los atributos de un tipo de item
+
+    Argumentos:
+        request: HttpRequest
+        proyecto_id: int id que identifica unicamente a un proyecto.
+        fase_id: int id que identifica unicamente a una fase
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
-    tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
+    tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_de_item_id)
 
     contexto = {'user': request.user,
                 'proyecto': proyecto,
@@ -43,8 +51,15 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
 
 def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
-    Vista que permite visualizar los tipos de items dentro de una fase de un proyecto
+    Vista que permite visualizar los tipos de items asociados a una fase de un proyecto.
 
+    Argumentos:
+        request: HttpRequest.
+        proyecto_id: int id que identifica unicamente a un proyecto.
+        fase_id: int id que identifica unicamente a una fase.
+
+    Retorna:
+        HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
@@ -66,7 +81,19 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
 
 def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
-    TODO: comentar
+    Vista que muestra la pantalla de creación de un nuevo tipo de item.\n
+    Se habilita la opción de importar tipo de item a los usuarios con permiso de proyecto importar tipo de item.
+    Permite agregar nuevos atributos al tipo de item.
+
+    Argumentos:
+        request: HttpRequest
+        proyecto_id: int id que identica unicamente a un proyecto del sistema.
+        fase_id: int id que identifica unicamente a una fase del sistema.
+        tipo_de_item: int id que identifica unicamente una tipo de item. (solo si se esta importando un tipo de item)
+
+    Retorna:
+        HttpReponse
+
     """
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
@@ -102,7 +129,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
                 all_valid = all_valid and form.is_valid()
 
             if all_valid:
-                # TODO: Sobrecargar el save del form.
+
                 guardar_tipo_de_item(tipo_de_item, fase, request.user)
                 guardar_atributos(atributos_forms, tipo_de_item)
 
@@ -115,10 +142,8 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['form'] = TipoDeItemForm()
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-            contexto['form'] = TipoDeItemForm(request.POST or None, instance=tipo_de_item)
-            # TODO: mañantipoa
-            # Construye un diccionario a partir de la lista de atributos
-
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance =tipo_de_item)
+            #Construye un diccionario a partir de la lista de atributos
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
             print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
@@ -128,6 +153,18 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
 
 
 def importar_tipo_de_item_view(request, proyecto_id, fase_id):
+    """
+    Vista que permite seleccionar un tipo de item del sistema para copiar sus atributos a un nuevo tipo de item para
+    su modificación y creación.
+
+    Argumentos:
+        request: HttpRequest.
+        proyecto_id: int id que identifica unicamente a un proyecto del sistema.
+        fase_id: int id que identifica unicamente a una fase del sistema.
+
+    Retorna:
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(Fase, pk=fase_id)
     lista_tipo_de_item = [get_dict_tipo_de_item(tipo) for tipo in TipoDeItem.objects.exclude(fase=fase)]
