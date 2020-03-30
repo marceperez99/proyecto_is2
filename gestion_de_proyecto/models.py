@@ -34,9 +34,10 @@ class Proyecto(models.Model):
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     class Meta:
-        permissions = [('ps_crear_pry', 'Crear Proyecto'),
-                       ('ps_cancelar_pry', 'Cancelar Proyecto'),
-                       ('ps_ver_pry', 'Visualizar lista de todos los Proyectos guardados en el Sistema')]
+        permissions = [('ps_crear_proyecto', 'Crear Proyecto'),
+                       ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
+                       ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
+                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto')]
 
     def __str__(self):
         return self.nombre
@@ -141,6 +142,22 @@ class Proyecto(models.Model):
         else:
             self.estado = EstadoDeProyecto.CANCELADO
         return True
+
+
+    def iniciar(self):
+        """
+        Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
+        cambia su estado de "En Configuracion" a "Iniciado"\n
+        Retorna:\n
+            True: si cambio a estado "Iniciado"
+            False: si el proyecto aun no tiene fases
+        """
+        if self.fase_set.exists():
+            self.estado = EstadoDeProyecto.INICIADO
+            return True
+        else:
+            return False
+
 
     def eliminar_participante(self, usuario):
         """
