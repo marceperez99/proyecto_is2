@@ -54,6 +54,15 @@ class Proyecto(models.Model):
         """
         return get_object_or_404(self.participante_set, usuario=usuario)
 
+    def get_gerente(self):
+        """
+        Metodo que retorna el objeto User del gerente del Proyecto
+
+        Retorna:
+            User: gerente del Proyecto.
+        """
+        return self.gerente
+
     def get_participantes(self):
         """
         Metodo que retorna todos los participantes del proyecto.\n
@@ -207,7 +216,7 @@ class Participante(models.Model):
             pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
             self.permisos_por_fase.add(pp_por_fase)
 
-    def asignar_rol_de_proyecto(self, rol, permisos_por_fase):
+    def asignar_rol_de_proyecto(self, rol, permisos_por_fase={}):
         """
         Metodo que asigna a un participante un rol de proyecto y un conjunto de permisos por cada fase del proyecto
 
@@ -216,7 +225,8 @@ class Participante(models.Model):
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
         """
-        self.asignar_permisos_de_proyecto(permisos_por_fase)
+        if permisos_por_fase != {}:
+            self.asignar_permisos_de_proyecto(permisos_por_fase)
         self.rol = rol
         self.save()
 
@@ -228,8 +238,7 @@ class Participante(models.Model):
             True si el participante cuenta con un rol asignado.\n
             False en caso contrario.
         """
-        assert (self.rol is not None and not self.permisos_por_fase.all().exists()) \
-               or (self.rol is None and self.permisos_por_fase.all().exists())
+        assert (self.rol is None and not self.permisos_por_fase.all().exists()) or (self.rol is not None)
         return self.rol is not None
 
     def tiene_pp(self, permiso):
@@ -243,7 +252,7 @@ class Participante(models.Model):
             True si el usuario cuenta con el permiso de proyecto.\n
             False en caso contrario.
         """
-        return self.rol.tiene_pp(permiso)
+        return self.proyecto.get_gerente().id == self.usuario.id or (self.tiene_rol() and self.rol.tiene_pp(permiso))
 
     def tiene_pp_en_fase(self, fase, permiso):
         """
@@ -257,6 +266,8 @@ class Participante(models.Model):
             True si el usuario cuenta con el permiso de proyecto.\n
             False en caso contrario.
         """
+        if not self.tiene_rol():
+            return False
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):

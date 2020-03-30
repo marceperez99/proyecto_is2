@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from http import HTTPStatus
 import pytest
 
+
 # Create your tests here.
 @pytest.mark.django_db
 def test_ver_usuario_existente():
@@ -27,7 +28,7 @@ def test_ver_usuario_existente():
     client = Client()
     client.login(username='testing', password='12345')
 
-    response = client.get(reverse('usuario', args=(user.id,)))
+    response = client.get(reverse('perfil_de_usuario', args=(user.id,)))
     assert response.status_code == HTTPStatus.OK, 'No se puede acceder a \'/usuarios/id\' para un usuario existente.'
 
 
@@ -52,8 +53,7 @@ def test_ver_usuario_no_existente():
     client = Client()
     client.login(username='testing', password='12345')
 
-
-    response = client.get(reverse('usuario', args=(user.id+1,)))
+    response = client.get(reverse('perfil_de_usuario', args=(user.id + 1,)))
     assert response.status_code == HTTPStatus.NOT_FOUND, 'El sistema muestra información de un usuario no existente.'
 
 

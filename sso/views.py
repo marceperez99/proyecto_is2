@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 
-
+from gestion_de_proyecto.models import Proyecto
 from usuario.models import Usuario
 @login_required
 def index_view(request):
@@ -15,7 +15,7 @@ def index_view(request):
     Retorna:
         El HttpResponse de la Vista a mostrarse
     """
-    contexto = {'user': request.user}
+    contexto = {'user': request.user, 'proyectos':Proyecto.objects.all()}
     return render(request, 'sso/index.html', context=contexto)
 # Create your views here.
 
