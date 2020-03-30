@@ -88,7 +88,7 @@ def test_cancelar_proyecto_en_configuracion(usuario, rol_de_proyecto):
         No se pudo Cancelar el Proyecto.\n
 
     """
-    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=datetime.today(),
+    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
     proyecto_prueba.save()
     proyecto_prueba.cancelar()
@@ -104,7 +104,7 @@ def test_cancelar_proyecto_iniciado(usuario, rol_de_proyecto):
         No se pudo Cancelar el Proyecto.\n
 
     """
-    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=datetime.today(),
+    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.INICIADO)
     proyecto_prueba.save()
     proyecto_prueba.cancelar()
@@ -122,7 +122,7 @@ def test_cancelar_proyecto_finalizado(usuario, rol_de_proyecto):
         No se pudo Cancelar un Proyecto con estado "Finalizado".\n
 
     """
-    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=datetime.today(),
+    proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.FINALIZADO)
     proyecto_prueba.save()
     proyecto_prueba.cancelar()
