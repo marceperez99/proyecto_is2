@@ -123,3 +123,59 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 
     contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'proyecto': proyecto, 'fase': fase}
     return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)
+
+def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
+    """
+
+    """
+
+    proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
+
+    contexto = {'user': request.user,
+                'proyecto': proyecto,
+                'fase': fase,
+                'tipos_de_atributo_forms': {'cadena': AtributoCadenaForm(), 'archivo': AtributoArchivoForm(),
+                                            'booleano': AtributoBooleanoForm(), 'numerico': AtributoNumericoForm(),
+                                            'fecha': AtributoFechaForm()}
+                }
+
+    if request.method == 'POST':
+
+        tipo_de_item_form = TipoDeItemForm(request.POST or None)
+        if tipo_de_item_form.is_valid():
+            tipo_de_item = tipo_de_item_form.save(commit=False)
+            atributos_dinamicos = construir_atributos(request)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+
+            all_valid = True
+            # Se validan todos los forms
+            for form in atributos_forms:
+                all_valid = all_valid and form.is_valid()
+
+            if all_valid:
+                # TODO: Sobrecargar el save del form.
+                guardar_tipo_de_item(tipo_de_item, fase, request.user)
+                guardar_atributos(atributos_forms, tipo_de_item)
+
+                return redirect('tipos_de_item', proyecto_id=proyecto_id, fase_id=fase_id)
+            else:
+                contexto['form'] = tipo_de_item_form
+                contexto['atributos_seleccionados'] = atributos_forms
+    else:
+        if tipo_de_item_id is None:
+            contexto['form'] = TipoDeItemForm()
+        else:
+            tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance=tipo_de_item)
+            # TODO: mañantipoa
+            # Construye un diccionario a partir de la lista de atributos
+
+            atributos_dinamicos = recolectar_atributos(tipo_de_item)
+            print(atributos_dinamicos)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+            print(atributos_forms)
+            contexto['atributos_seleccionados'] = atributos_forms
+    return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
+
+
