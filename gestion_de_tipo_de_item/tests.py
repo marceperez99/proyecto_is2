@@ -1,9 +1,6 @@
-
-
 import pytest
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase, Client
-
 
 # Create your tests here.
 from django.utils import timezone
@@ -30,6 +27,7 @@ def cliente_loggeado(usuario):
     client.login(username='user_test', password='password123')
     return client
 
+
 @pytest.fixture
 def rol_de_proyecto():
     rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
@@ -53,8 +51,9 @@ def proyecto(usuario, rol_de_proyecto):
     participante.save()
     return proyecto
 
+
 @pytest.fixture
-def tipo_de_item(usuario,proyecto):
+def tipo_de_item(usuario, proyecto):
     tipo_de_item = TipoDeItem()
     tipo_de_item.nombre = "Requerimiento Funcional"
     tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
@@ -65,9 +64,6 @@ def tipo_de_item(usuario,proyecto):
     tipo_de_item.fecha_creacion = timezone.now()
     tipo_de_item.save()
     return tipo_de_item
-
-
-
 
 
 @pytest.fixture
@@ -105,7 +101,7 @@ def atributos(tipo_de_item):
     abool.nombre = "Cierto"
     abool.requerido = True
     abool.tipo_de_item = tipo_de_item
-    adate.save()
+    abool.save()
 
     atributos.append(abin)
     atributos.append(acad)
@@ -114,9 +110,20 @@ def atributos(tipo_de_item):
     atributos.append(anum)
     return atributos
 
+
 @pytest.mark.django_db
-def test_recolectar_atributos(cliente_loggeado,atributos,tipo_de_item):
-    recolectar_atributos(tipo_de_item)
+def test_recolectar_atributos(cliente_loggeado, atributos, tipo_de_item):
+    """
+    Prueba unitaria que verifica que todos los atributos relacionados a un tipo de item sean recolectados
+    y cargados en la lista que retorna la función utilitaria recolectar_atributos()
 
+    Resultado esperado:
+        Todos los atributos son devueltos por la función.
 
-    assert True == False
+    Mensaje de Error:
+        La función recolectar_atributos() no consigue todos los atributos del tipo de item.
+
+    """
+    lista_atributos = recolectar_atributos(tipo_de_item)
+    assert len(lista_atributos) == len(atributos), "La función recolectar_atributos no consigue todos los atributos del tipo de item."
+
