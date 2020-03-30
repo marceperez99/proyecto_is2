@@ -78,11 +78,12 @@ class Proyecto(models.Model):
         Retorna:\n
             Lista: lista de fases del proyecto en orden
         """
-        ultima_fase = self.fase_set.all().filter(fase__isnull=True)[0]
         lista = []
-        while ultima_fase is not None:
-            lista.insert(0, ultima_fase)
-            ultima_fase = ultima_fase.fase_anterior
+        if self.fase_set.all().filter(fase__isnull=True).exists():
+            ultima_fase = self.fase_set.all().filter(fase__isnull=True)[0]
+            while ultima_fase is not None:
+                lista.insert(0, ultima_fase)
+                ultima_fase = ultima_fase.fase_anterior
         return lista
 
     def asignar_rol_de_proyecto(self, usuario, rol, permisos_por_fase):
