@@ -4,8 +4,6 @@ from django.contrib.auth.models import User, Permission
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
 from django.test import TestCase, Client
-
-# Create your tests here.
 from roles_de_proyecto.models import RolDeProyecto
 
 

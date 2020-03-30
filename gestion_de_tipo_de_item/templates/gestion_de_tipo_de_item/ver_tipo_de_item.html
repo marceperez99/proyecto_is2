@@ -2,9 +2,11 @@
 {% block title %} Tipo de Item {% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row">
             <h3 class="col-12">Tipo de Item</h3>
+            <a href = "{% url 'editar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}" class="btn btn-primary bg-color-accent ml-auto">Editar Tipo de Item</a>
             <hr class="col-12">
             <h6 class="col-3">Nombre:</h6><p class=" col-8">{{ tipo_de_item.nombre }}</p>
             <h6 class="col-3">Descripcion:</h6><p class=" col-8">{{ tipo_de_item.descripcion }}</p>
@@ -53,12 +55,8 @@
                             </div>
                         </div>
                     {% endfor %}
-
                 </div>
-
             </div>
         </div>
-
     </div>
-
 {% endblock %}

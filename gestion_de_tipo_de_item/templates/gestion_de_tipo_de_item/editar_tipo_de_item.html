@@ -1,7 +1,7 @@
 {% extends 'base.html'%}
 {% load crispy_forms_tags %}
 {% load static %}
-{% block title %}Nuevo Tipo de Item{%endblock title%}
+{% block title %}Editar Tipo de Item{%endblock title%}
 {% block content %}
     <script>
         let atributos = {
@@ -15,8 +15,7 @@
     <div class="container mt-3">
         <form method="POST" class="mx-auto col-12 col-md-10 row">
             {% csrf_token %}
-            <h3 class="col-auto">Nuevo Tipo de Item</h3>
-            <a href = "{% url 'importar_tipo_de_item' proyecto.id fase.id %}" class="btn btn-primary bg-color-accent ml-auto">Importar Tipo de Item</a>
+            <h3 class="col-auto">Editar Tipo de Item</h3>
             <hr class="col-12">
             <div class="col-12">
                 {{form|crispy}}
@@ -46,7 +45,8 @@
 
                 {% endfor %}
             </div>
-            <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Guardar Tipo de Item">
+            <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Guardar Cambios">
+            <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="../">Cancelar</a>
         </form>
     </div>
 

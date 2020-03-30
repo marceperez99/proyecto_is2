@@ -34,9 +34,10 @@ class Proyecto(models.Model):
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     class Meta:
-        permissions = [('ps_crear_pry', 'Crear Proyecto'),
-                       ('ps_cancelar_pry', 'Cancelar Proyecto'),
-                       ('ps_ver_pry', 'Visualizar lista de todos los Proyectos guardados en el Sistema')]
+        permissions = [('ps_crear_proyecto', 'Crear Proyecto'),
+                       ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
+                       ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
+                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto')]
 
     def __str__(self):
         return self.nombre
@@ -53,6 +54,15 @@ class Proyecto(models.Model):
         """
         return get_object_or_404(self.participante_set, usuario=usuario)
 
+    def get_gerente(self):
+        """
+        Metodo que retorna el objeto User del gerente del Proyecto
+
+        Retorna:
+            User: gerente del Proyecto.
+        """
+        return self.gerente
+
     def get_participantes(self):
         """
         Metodo que retorna todos los participantes del proyecto.\n
@@ -68,11 +78,12 @@ class Proyecto(models.Model):
         Retorna:\n
             Lista: lista de fases del proyecto en orden
         """
-        ultima_fase = self.fase_set.all().filter(fase__isnull=True)[0]
         lista = []
-        while ultima_fase is not None:
-            lista.insert(0, ultima_fase)
-            ultima_fase = ultima_fase.fase_anterior
+        if self.fase_set.all().filter(fase__isnull=True).exists():
+            ultima_fase = self.fase_set.all().filter(fase__isnull=True)[0]
+            while ultima_fase is not None:
+                lista.insert(0, ultima_fase)
+                ultima_fase = ultima_fase.fase_anterior
         return lista
 
     def asignar_rol_de_proyecto(self, usuario, rol, permisos_por_fase):
@@ -132,6 +143,22 @@ class Proyecto(models.Model):
         else:
             self.estado = EstadoDeProyecto.CANCELADO
         return True
+
+
+    def iniciar(self):
+        """
+        Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
+        cambia su estado de "En Configuracion" a "Iniciado"\n
+        Retorna:\n
+            True: si cambio a estado "Iniciado"
+            False: si el proyecto aun no tiene fases
+        """
+        if self.fase_set.exists():
+            self.estado = EstadoDeProyecto.INICIADO
+            return True
+        else:
+            return False
+
 
     def eliminar_participante(self, usuario):
         """
@@ -197,7 +224,7 @@ class Participante(models.Model):
             pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
             self.permisos_por_fase.add(pp_por_fase)
 
-    def asignar_rol_de_proyecto(self, rol, permisos_por_fase):
+    def asignar_rol_de_proyecto(self, rol, permisos_por_fase={}):
         """
         Metodo que asigna a un participante un rol de proyecto y un conjunto de permisos por cada fase del proyecto
 
@@ -206,7 +233,8 @@ class Participante(models.Model):
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
         """
-        self.asignar_permisos_de_proyecto(permisos_por_fase)
+        if permisos_por_fase != {}:
+            self.asignar_permisos_de_proyecto(permisos_por_fase)
         self.rol = rol
         self.save()
 
@@ -218,8 +246,7 @@ class Participante(models.Model):
             True si el participante cuenta con un rol asignado.\n
             False en caso contrario.
         """
-        assert (self.rol is not None and not self.permisos_por_fase.all().exists()) \
-               or (self.rol is None and self.permisos_por_fase.all().exists())
+        assert (self.rol is None and not self.permisos_por_fase.all().exists()) or (self.rol is not None)
         return self.rol is not None
 
     def tiene_pp(self, permiso):
@@ -233,7 +260,7 @@ class Participante(models.Model):
             True si el usuario cuenta con el permiso de proyecto.\n
             False en caso contrario.
         """
-        return self.rol.tiene_pp(permiso)
+        return self.proyecto.get_gerente().id == self.usuario.id or (self.tiene_rol() and self.rol.tiene_pp(permiso))
 
     def tiene_pp_en_fase(self, fase, permiso):
         """
@@ -247,6 +274,8 @@ class Participante(models.Model):
             True si el usuario cuenta con el permiso de proyecto.\n
             False en caso contrario.
         """
+        if not self.tiene_rol():
+            return False
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):

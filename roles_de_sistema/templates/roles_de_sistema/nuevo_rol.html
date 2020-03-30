@@ -4,15 +4,13 @@
 {% block title %}Nuevo Rol de Sistema{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <div class="container mt-3">
-
         <h3>Crear Nuevo Rol de Sistema</h3><hr>
-        <form method="POST" class="col-12 col-md-8 mx-auto">
+        <form method="POST" class="col-12 col-md-8 mx-auto border rounded bg-white p-4">
             {% csrf_token %}
             {{ form|crispy }}
-
             <button class="btn btn-primary bg-color-accent col-12" type="submit">Crear</button>
-
         </form>
 
     </div>

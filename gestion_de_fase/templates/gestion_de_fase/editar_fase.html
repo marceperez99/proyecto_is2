@@ -3,6 +3,7 @@
 {% block title %}Editar Fase{%endblock title%}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row">
             <h3>Editar una Fase</h3>
@@ -11,7 +12,7 @@
                 {% csrf_token %}
                 <div class="col-12 col-md-10 mx-auto">{{ formulario|crispy }}</div>
                 <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Guardar Cambios</button>
-                <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="'#'">Cancelar</a>
+                <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="../">Cancelar</a>
             </form>
         </div>
     </div>

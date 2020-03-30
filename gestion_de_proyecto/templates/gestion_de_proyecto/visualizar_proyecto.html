@@ -3,43 +3,42 @@
 {% block title %}Visualizar Proyecto{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <h3>{{ proyecto.nombre }}</h3>
         <hr>
         <div class="row">
             <div class="col-12 col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        Fases del Proyecto
+                    <div class="card-header bg-color-primary text-white">
+                        <div class="row">
+                            <div class="col-auto my-auto">Fases del Proyecto</div>
+                            <div class="ml-auto">
+                                <a href="{% url 'listar_fases' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent mr-2">Gestionar Fases</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <table class="table">
+                        <table class="table border rounded">
                             <thead>
-                                <tr>
-                                    <th>
-                                        Nombre de Fase
-                                    </th>
-                                    <th>
-                                        Estado
-                                    </th>
-                                </tr>
+                                <tr><th>Nombre de Fase</th><th>Estado</th><th></th></tr>
                             </thead>
                             <tbody>
                                 {% for fase in proyecto.get_fases %}
                                     <tr>
+                                        <td class="py-auto">{{ fase.nombre }}</td>
                                         <td>
-                                            {{ fase.nombre }}
+                                            <h5 class="my-auto">
+                                                {% if fase.fase_cerrada %}
+                                                    <span class="badge badge-success">Cerrada</span>
+                                                {% else %}
+                                                    <span class="badge badge-primary">Abierta</span>
+                                                {% endif %}
+                                            </h5>
                                         </td>
                                         <td>
-                                            {% if fase.fase_cerrada %}
-                                                <h4><span class="badge badge-primary">
-                                                    Cerrada
-                                                </span></h4>
-                                            {% else %}
-                                                <h4><span class="badge badge-primary">
-                                                    Abierta
-                                                </span></h4>
-                                            {% endif %}
+                                            <a href="{% url 'visualizar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent py-1 text-white">
+                                                <i class="fas fa-eye"></i> Visualizar</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -50,8 +49,36 @@
             </div>
             <div class="col-12 col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        Info del Proyecto
+                    <div class="card-header bg-color-primary text-white">Informacion del Proyecto</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">Nombre:</div><div class="col-8">{{ proyecto.nombre }}</div>
+                            <div class="col-4">Gerente:</div><div class="col-8">{{ proyecto.gerente.get_full_name }}</div>
+                            <div class="col-4">Estado:</div>
+                            <div class="col-8"><h5>
+                                {% if proyecto.estado == 'En Configuración' %}
+                                   <span class="badge badge-secondary">{{proyecto.estado}}</span>
+                                    {% elif proyecto.estado == 'Iniciado' %}
+                                    <span class="badge badge-primary">{{proyecto.estado}}</span>
+                                {% elif proyecto.estado == 'Finalizado' %}
+                                    <span class="badge badge-success">{{proyecto.estado}}</span>
+                                {% else %}
+                                    <span class="badge badge-danger">{{proyecto.estado}}</span>
+                                {% endif %}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card my-3">
+                    <div class="card-header bg-color-primary text-white">Participantes</div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">{{proyecto.gerente.get_full_name}}</li>
+                            {% for participante in proyecto.participante_set.all %}
+                                <li class="list-group-item">{{participante.usuario.get_full_name}}</li>
+                            {% endfor %}
+
+                        </ul>
                     </div>
                 </div>
             </div>
