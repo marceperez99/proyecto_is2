@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Fases del Proyecto{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-auto">Fases del Proyecto</h3>
+            {% if proyecto.estado == 'En Configuración' %}
+                <div class=" ml-auto">
+                    <a href="{% url 'nueva_fase' proyecto.id %}" class="btn btn-primary bg-color-accent border-0">Agregar Fase</a>
+                </div>
+            {% endif %}
+            <hr class="col-12">
+            {% for fase in proyecto.get_fases %}
+                <div class="card my-1 bg-color-primary text-white col-10 mx-auto px-3 py-2">
+                    <div class="row">
+                        <div class="col-auto my-auto">{{fase.nombre}}</div>
+                        <div class="ml-auto mr-3">
+                            <a href="{% url 'visualizar_fase' proyecto.id fase.id %}"
+                               class="btn btn-primary border-0 bg-color-accent">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+        </div>
+    </div>
+{% endblock %}
