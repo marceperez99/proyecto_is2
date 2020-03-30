@@ -70,7 +70,13 @@
                     </div>
                 </div>
                 <div class="card my-3">
-                    <div class="card-header bg-color-primary text-white">Participantes</div>
+                    <div class="card-header bg-color-primary text-white">
+                        <div class="row">
+                            <div class="col-auto my-auto">Participantes</div>
+                            <div class="ml-auto mr-2">
+                                <a href="{% url 'participantes' proyecto.id %}" class="btn border-0 btn-primary bg-color-accent">Gestionar Participantes</a>
+                            </div></div>
+                    </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">{{proyecto.gerente.get_full_name}}</li>

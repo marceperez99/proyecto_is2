@@ -37,7 +37,8 @@ class Proyecto(models.Model):
         permissions = [('ps_crear_proyecto', 'Crear Proyecto'),
                        ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
                        ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
-                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto')]
+                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
+                       ('pp_ver_proyecto', 'Visualizar Proyecto')]
 
     def __str__(self):
         return self.nombre
@@ -201,6 +202,20 @@ class Participante(models.Model):
             ('pp_desasignar_rp_a_participante', 'Desasignar Rol de Proyecto a Participante'),
         ]
 
+    def get_pp_por_fase(self):
+        """
+        TODO
+        :return:
+        """
+        pp_por_fase = {}
+        for fase in self.proyecto.get_fases():
+            if self.permisos_por_fase.filter(fase=fase).exists():
+                pp_por_fase[fase] = self.permisos_por_fase.get(fase=fase).permisos.all()
+            else:
+                pp_por_fase[fase] = []
+
+        return pp_por_fase
+
     def asignar_permisos_de_proyecto(self, permisos_por_fase):
         """
         Metodo que asigna a un participante de un proyecto un conjunto de permisos por cada fase del proyecto.
@@ -219,10 +234,11 @@ class Participante(models.Model):
             else:
                 raise Exception('Objeto recibido no valido')
 
-            pp_por_fase = PermisosPorFase(fase=fase_obj)
-            pp_por_fase.save()
-            pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
-            self.permisos_por_fase.add(pp_por_fase)
+            if permisos_por_fase[fase]:
+                pp_por_fase = PermisosPorFase(fase=fase_obj)
+                pp_por_fase.save()
+                pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
+                self.permisos_por_fase.add(pp_por_fase)
 
     def asignar_rol_de_proyecto(self, rol, permisos_por_fase={}):
         """

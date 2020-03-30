@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Permission
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -105,7 +106,8 @@ def nuevo_rol_de_proyecto_view(request):
     if request.method == 'POST':
         form = NewRolDeProyectoForm(request.POST)
         if form.is_valid():
-            form.save()
+            rol = form.save()
+            rol.permisos.add(Permission.objects.get(codename='pp_ver_proyecto'))
         return redirect('nuevo_rol_de_proyecto')
     else:
         contexto['form'] = NewRolDeProyectoForm()

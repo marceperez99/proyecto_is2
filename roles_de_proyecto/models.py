@@ -100,6 +100,13 @@ class PermisosPorFase(models.Model):
     def __str__(self):
         return f'{self.fase}: {self.permisos}'
 
+    def get_permisos(self):
+        """
+        TODO: falta comentar
+        :return:
+        """
+        return self.permisos.all()
+
     def asignar_permisos_de_proyecto(self, permisos):
         """
         Metodo que recibe como parametro una lista de permisos a asignar a un usuario en una fase.
