@@ -1,11 +1,55 @@
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from gestion_de_fase.forms import FaseForm
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto
 
 
-# Create your views here.
+def visualizar_fase_view(request, proyecto_id, fase_id):
+    """
+    Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
+    Args:
+        request: objeto HttpRequest recibido por el servidor.\n
+        proyecto_id: int, identificador unico del proyecto.\n
+        fase_id: int, identificador unico de la fase que pertenece al proyecto.\n
+    Retorna:
+        HttpResponse: pagina web correspondiente a la visualizacion de la fase solicitada
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    contexto = {
+        'user': request.user,
+        'proyecto': proyecto,
+        'fase': fase,
+        'breadcrumb': {
+            'pagina_actual': fase.nombre,
+            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                      {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto_id,))}]
+        }
+    }
+    return render(request, 'gestion_de_fase/visualizar_fase.html', contexto)
+
+
+def listar_fase_view(request, proyecto_id):
+    """
+    Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
+    proyecto.\n
+    Args:
+        request: objeto HttpRequest recibido por el servidor,\n
+        proyecto_id: int, identificador unico del proyecto.
+    Retorna:
+        HttpResponse: objeto HttpResponse con la pagina web correspondiente a la lista de Fases de un Proyecto.
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    contexto = {
+        'proyecto': proyecto,
+        'breadcrumb': {
+            'pagina_actual': 'Fases',
+            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]
+        }
+    }
+    return render(request, 'gestion_de_fase/listar_fases.html', contexto)
 
 
 def nueva_fase_view(request, proyecto_id):
@@ -38,7 +82,14 @@ def nueva_fase_view(request, proyecto_id):
             return redirect('index')
     else:
         form = FaseForm(proyecto=proyecto)
-    return render(request, 'gestion_de_fase/nueva_fase.html', {'formulario': form})
+    contexto = {'formulario': form,
+                'breadcrumb': {
+                    'pagina_actual': 'Nueva Fase',
+                    'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                              {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto_id,))}]
+                }
+                }
+    return render(request, 'gestion_de_fase/nueva_fase.html', contexto)
 
 
 def editar_fase_view(request, proyecto_id, fase_id):
@@ -65,7 +116,16 @@ def editar_fase_view(request, proyecto_id, fase_id):
             fase.posicionar_fase()
             # Todo falta pone la url correcta
             return redirect('index')
-    return render(request, 'gestion_de_fase/editar_fase.html', {'formulario': form})
+    contexto = {
+        'formulario': form,
+        'breadcrumb': {
+            'pagina_actual': 'Editar',
+            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                      {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto_id,))},
+                      {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto_id, fase_id))}]
+        }
+    }
+    return render(request, 'gestion_de_fase/editar_fase.html', contexto)
 
 
 def eliminar_fase_view(request, proyecto_id, fase_id):

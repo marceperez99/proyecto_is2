@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Visualizar Fase{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12 col-md-8">{{ fase.nombre }}</h3>
+            <div class="col-12 col-md-4 text-right">
+                {% if proyecto.estado == 'En Configuración' %}
+                    <a href="{% url 'editar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Editar Fase</a>
+                    <a href="{% url 'eliminar_fase' proyecto.id fase.id %}" class="btn btn-danger border-0 bg-color-danger">Eliminar Fase</a>
+                {% elif proyecto.estado == 'Iniciado' %}
+                    <a href="#" class="btn btn-primary border-0 bg-color-accent">Cerrar Fase</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-12 col-md-8">
+                <div class="card mb-3">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <span class="col-12 col-md-8 my-auto text-white">Items de la Fase</span>
+                                <div class="col-12 col-md-4 text-right">
+                                    <a href="#" class="btn border-0 btn-primary bg-color-accent">Gestionar Items</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if fase.item_set %}
+                                <table class="table border rounded">
+                                    <thead>
+                                    <tr><th>Nombre de Item</th><th>Tipo de Item</th><th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Nombre de Item</td>
+                                        <td>Requerimiento Funcional</td>
+                                        <td>
+                                            <a href="#" class="btn bg-color-accent text-white">
+                                                <i class="fas fa-eye"></i> Visualizar</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <h5>Aún no se han creado Items dentro de la Fase.</h5>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                <div class="card my-3">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <span class="col-12 col-md-8 my-auto text-white">Líneas Base</span>
+                                <div class="col-12 col-md-4 text-right">
+                                    <a href="#" class="btn border-0 btn-primary bg-color-accent">Gestionar Líneas Base</a>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="card-body">
+                        {% if fase.lineasbase_set %}
+                            <table class="table border rounded">
+                                <thead>
+                                <tr><th>Nombre de Item</th><th>Tipo de Item</th><th></th></tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Nombre de Item</td>
+                                    <td>Requerimiento Funcional</td>
+                                    <td>
+                                        <a href="#" class="btn bg-color-accent text-white">
+                                            <i class="fas fa-eye"></i> Visualizar</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <h5>Aún no se han generado Líneas Base dentro de la Fase.</h5>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header bg-color-primary text-white">Informacion de la Fase</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">Nombre:</div><div class="col-7">{{ fase.nombre }}</div>
+                            <div class="col-5">Estado:</div>
+                            <div class="col-7">
+                                <h5>{% if fase.fase_cerrada %}
+                                        <span class="badge badge-success">Cerrada</span>
+                                    {% else %}
+                                        <span class="badge badge-info">Abierta</span>
+                                    {% endif %}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card my-3">
+                    <div class="card-header bg-color-primary text-white">
+                        <div class="row">
+                            <p class="col-auto my-auto">Tipos de Item</p>
+                            <a href="{% url 'tipos_de_item' proyecto.id fase.id %}"
+                               class="btn btn-primary border-0 bg-color-accent p-1 ml-auto mr-2">
+                                Gestionar Tipos
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for tipo in fase.tipodeitem_set.all %}
+                                <li onclick="location.href='{% url 'tipo_de_item' proyecto.id fase.id tipo.id %}';" class="list-group-item list-group-item-action">{{tipo}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
