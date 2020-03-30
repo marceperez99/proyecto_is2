@@ -25,6 +25,12 @@ def cliente_loggeado(usuario):
     client.login(username='user_test', password='password123')
     return client
 
+@pytest.fixture
+def gerente():
+    user = User(username='gerente', email='gerente@gmail.com')
+    user.set_password('password123')
+    user.save()
+    return user
 
 @pytest.fixture
 def rol_de_proyecto():
@@ -35,15 +41,15 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
-def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fechaCreacion=datetime.today(),
-                        creador=usuario)
+def proyecto(usuario,gerente, rol_de_proyecto):
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.today(),
+                        creador=usuario, gerente=gerente)
     proyecto.save()
-    fase = Fase(nombre='Analisis', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
-    fase = Fase(nombre='Desarrollo', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
-    fase = Fase(nombre='Pruebas', proyecto=proyecto, faseCerrada=False, puedeCerrarse=False)
+    fase = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.save()

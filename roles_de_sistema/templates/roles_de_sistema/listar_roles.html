@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block title %}Roles de Sistema {% endblock %}
-{% block content %}{% include 'navBar.html' %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
     <style>
         [data-toggle="collapse"] .fa:before {
             content: "\f077";

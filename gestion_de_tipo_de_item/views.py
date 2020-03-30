@@ -1,10 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
 from django.utils import timezone
 
+from gestion_de_tipo_de_item.models import TipoDeItem
+from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
+    construir_atributos, recolectar_atributos
 
 # Create your views here.
 
@@ -12,9 +17,31 @@ from django.utils import timezone
 # /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id/editar
 # /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
 # tipo_de_item/proyecto_id/fase_id
+from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 
 
-def tipo_de_item_view(request, proyecto_id, fase_id):
+def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
+
+    contexto = {'user': request.user,
+                'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
+                'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': '#'},
+                                         {'nombre': 'Tipos de Item',
+                                          'url': reverse('tipos_de_item', args=(proyecto.id, fase.id))},
+                                         ]
+                               }
+                }
+
+    return render(request, 'gestion_de_tipo_de_item/ver_tipo_de_item.html', contexto)
+
+
+def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     Vista que permite visualizar los tipos de items dentro de una fase de un proyecto
 
@@ -25,11 +52,18 @@ def tipo_de_item_view(request, proyecto_id, fase_id):
     contexto = {'user': request.user,
                 'proyecto': proyecto,
                 'fase': fase,
-                'lista_tipo_de_item': lista_tipo_de_item}
+                'lista_tipo_de_item': lista_tipo_de_item,
+                'breadcrumb': {'pagina_actual': 'Tipos de Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': '#'}]
+                               }
+                }
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
 
-def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
+def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
     TODO: comentar
     """
@@ -42,53 +76,50 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id):
                                             'booleano': AtributoBooleanoForm(), 'numerico': AtributoNumericoForm(),
                                             'fecha': AtributoFechaForm()}
                 }
+
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST)
+
+        tipo_de_item_form = TipoDeItemForm(request.POST or None)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
-            # Lista de atributos dinamicos
-            atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
-            # Se filtran todos los atributos dinamicos
-            atributos_de_items = {key: request.POST[key] for key in request.POST if key.startswith("atr_")}
-            # se crea una lista con todos los atributos dinamicos
-            for atributo in atributos_de_items.keys():
-                partes = atributo.split("_", maxsplit=2)
-                atributos_dinamicos[int(partes[1]) - 1][partes[2]] = atributos_de_items[atributo]
-            atributos_forms = []
-            for atributo in atributos_dinamicos:
-                if 'tipo' not in atributo.keys():
-                    continue
-                if atributo['tipo'] == 'cadena':
-                    atributos_forms.append(AtributoCadenaForm(atributo))
-                elif atributo['tipo'] == 'numerico':
-                    atributos_forms.append(AtributoNumericoForm(atributo))
-                elif atributo['tipo'] == 'booleano':
-                    atributos_forms.append(AtributoBooleanoForm(atributo))
-                elif atributo['tipo'] == 'fecha':
-                    atributos_forms.append(AtributoFechaForm(atributo))
-                elif atributo['tipo'] == 'archivo':
-                    atributos_forms.append(AtributoArchivoForm(atributo))
+            atributos_dinamicos = construir_atributos(request)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+
             all_valid = True
             # Se validan todos los forms
             for form in atributos_forms:
                 all_valid = all_valid and form.is_valid()
 
             if all_valid:
-                # TODO: poner cosas en tipo de item
-                tipo_de_item.fase = Fase.objects.get(pk=fase_id)
-                tipo_de_item.creador = request.user
-                tipo_de_item.fecha_creacion = timezone.now()
-                tipo_de_item.save()
-                for form in atributos_forms:
-                    atributo = form.save(commit=False)
-                    atributo.tipo_de_item = tipo_de_item
-                    atributo.save()
-                return redirect('tipos_de_item', proyecto_id=proyecto_id, fase_id=fase_id)
+                # TODO: Sobrecargar el save del form.
+                guardar_tipo_de_item(tipo_de_item, fase, request.user)
+                guardar_atributos(atributos_forms, tipo_de_item)
 
+                return redirect('tipos_de_item', proyecto_id=proyecto_id, fase_id=fase_id)
             else:
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
     else:
-        contexto['form'] = TipoDeItemForm()
+        if tipo_de_item_id is None:
+            contexto['form'] = TipoDeItemForm()
+        else:
+            tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+            contexto['form'] = TipoDeItemForm(request.POST or None, instance=tipo_de_item)
+            # TODO: mañantipoa
+            # Construye un diccionario a partir de la lista de atributos
 
+            atributos_dinamicos = recolectar_atributos(tipo_de_item)
+            print(atributos_dinamicos)
+            atributos_forms = atributo_form_handler(atributos_dinamicos)
+            print(atributos_forms)
+            contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
+
+
+def importar_tipo_de_item_view(request, proyecto_id, fase_id):
+    proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
+    fase = get_object_or_404(Fase, pk=fase_id)
+    lista_tipo_de_item = TipoDeItem.objects.exclude(fase=fase)
+
+    contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'proyecto': proyecto, 'fase': fase}
+    return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)

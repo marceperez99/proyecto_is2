@@ -1,7 +1,8 @@
 {% extends 'base.html'%}
-{% block title %}Menu Principal{%endblock title%}
+{% block title %}Tipo de item{%endblock title%}
 {% block content %}
     {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
 <style>
     [data-toggle="collapse"] .fa:before {
       content: "\f077";
@@ -19,10 +20,11 @@
             <div class="col-10 mx-auto" id="lista_tipos">
                 {% for tipo_de_item in lista_tipo_de_item %}
                     <div class="card col-12 my-3 p-0">
-                        <div class="card-header" id="header_tipo_{{forloop.counter}}">
+                        <div class="card-header bg-white" id="header_tipo_{{forloop.counter}}">
                             <div class="row">
                                 <div class="col-auto text-dark mr-auto font-weight-bold">{{tipo_de_item.nombre}}</div>
-                                <a class="btn bg-color-accent text-white font-weight-bold btn-sm" href="#">
+                                <a class="btn bg-color-accent text-white font-weight-bold btn-sm"
+                                   href="{% url 'tipo_de_item' proyecto.id fase.id tipo_de_item.id %}">
                                     <i class="fas fa-eye"></i>
                                     &nbsp Visualizar
                                 </a>

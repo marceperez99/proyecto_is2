@@ -3,13 +3,14 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.urls import reverse
 
 from roles_de_sistema.models import RolDeSistema
 from .forms import NewRolDeSistemaForm
 
 
 @login_required
-#TODO falta incluir el permiso de sistema de que puede ver esto
+# TODO falta incluir el permiso de sistema de que puede ver esto
 def listar_roles_de_sistema_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Sistema que existen dentro del Sistema.
@@ -24,17 +25,21 @@ def listar_roles_de_sistema_view(request):
     """
     contexto = {'user': request.user,
                 'roles': [
-                    {'id':rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
+                    {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
                      }
                     for rol in RolDeSistema.objects.all()
-                    ]
+                ],
+                'breadcrumb': {'pagina_actual': 'Roles de Sistema',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}]
+                               }
                 }
 
     return render(request, 'roles_de_sistema/listar_roles.html', contexto)
 
+
 @login_required
-#TODO requiere que se indique que requiere un permiso de sistema
+# TODO requiere que se indique que requiere un permiso de sistema
 def editar_rol_de_sistema_view(request, id_rol):
     """
     Vista que permite al usuario editar un Rol de Sistema guardado dentro del sistema.
@@ -77,12 +82,16 @@ def editar_rol_de_sistema_view(request, id_rol):
         contexto = {'user': request.user,
                     'form': NewRolDeSistemaForm(instance=rol, initial={'permisos': [r.id for r in rol.get_permisos()]})
                     }
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Editar',
+                              'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                        {'nombre': 'Roles de Sistema', 'url': reverse('listar_roles_de_sistema')},
+                                        {'nombre': rol.nombre, 'url': reverse('rol_de_sistema',args= (rol.id,))}]
+                              }
     return render(request, 'roles_de_sistema/editar_rol.html', contexto)
 
 
 @login_required
-#TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de sistema
+# TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de sistema
 def nuevo_rol_de_sistema_view(request):
     """
     Vista que permite a un usuario crear un nuevo Rol de Sistema dentro del sistema.
@@ -102,7 +111,12 @@ def nuevo_rol_de_sistema_view(request):
 
     HttpResponse
     """
-    contexto = {'user': request.user}
+    contexto = {'user': request.user,
+                'breadcrumb': {'pagina_actual': 'Nuevo Rol de Sistema',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                         {'nombre': 'Roles de Sistema', 'url': reverse('listar_roles_de_sistema')}]
+                               }
+                }
 
     if request.method == 'POST':
         form = NewRolDeSistemaForm(request.POST)
@@ -113,12 +127,12 @@ def nuevo_rol_de_sistema_view(request):
             group.save()
             group.permissions.set(rol.get_permisos())
 
-
         return redirect('nuevo_rol_de_sistema')
     else:
         contexto['form'] = NewRolDeSistemaForm()
 
         return render(request, 'roles_de_sistema/nuevo_rol.html', context=contexto)
+
 
 def rol_de_sistema_view(request, id_rol):
     """"
@@ -143,12 +157,18 @@ def rol_de_sistema_view(request, id_rol):
             'descripcion': rol.descripcion,
             'es_utilizado': rol.es_utilizado(),
             'permisos': [p.name for p in rol.permisos.all()]
-        }
+        },
+        'breadcrumb': {'pagina_actual': rol.nombre,
+                       'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                 {'nombre': 'Roles de Sistema', 'url': reverse('listar_roles_de_sistema')}]
+                       }
+
     }
     return render(request, 'roles_de_sistema/ver_rol.html', contexto)
 
 
 def eliminar_rol_de_sistema_view(request, id_rol):
+    #TODO: Marcos, falta comentar
     rol = get_object_or_404(RolDeSistema, pk=id_rol)
     if request.method == 'POST':
         if rol.es_utilizado():

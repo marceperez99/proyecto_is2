@@ -2,13 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.urls import reverse
 
 from roles_de_proyecto.models import RolDeProyecto
 from .forms import NewRolDeProyectoForm
 
 
 @login_required
-#TODO falta incluir el permiso de sistema de que puede ver esto
+# TODO falta incluir el permiso de sistema de que puede ver esto
 def listar_roles_de_proyecto_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
@@ -23,17 +24,21 @@ def listar_roles_de_proyecto_view(request):
     """
     contexto = {'user': request.user,
                 'roles': [
-                    {'id':rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
+                    {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
                      }
                     for rol in RolDeProyecto.objects.all()
-                    ]
+                ],
+                'breadcrumb': {'pagina_actual': 'Roles de Proyecto',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}, ]
+                               }
                 }
 
     return render(request, 'roles_de_proyecto/listar_roles.html', contexto)
 
+
 @login_required
-#TODO requiere que se indique que requiere un permiso de sistema
+# TODO requiere que se indique que requiere un permiso de sistema
 def editar_rol_de_proyecto_view(request, id_rol):
     """
     Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
@@ -56,7 +61,7 @@ def editar_rol_de_proyecto_view(request, id_rol):
     if request.method == 'POST':
         form = NewRolDeProyectoForm(request.POST, instance=rol)
 
-        if form.is_valid():# and not rol.es_utilizado():
+        if form.is_valid():  # and not rol.es_utilizado():
             form.save()
             messages.success(request, 'Rol de Proyecto modificado exitosamente')
             return redirect('rol_de_proyecto', id_rol=id_rol)
@@ -71,7 +76,7 @@ def editar_rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
-#TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
+# TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
     Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema.
@@ -91,7 +96,11 @@ def nuevo_rol_de_proyecto_view(request):
 
     HttpResponse
     """
-    contexto = {'user': request.user}
+    contexto = {'user': request.user,
+                'breadcrumb': {'pagina_actual': 'Nuevo Rol de Proyecto',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                         {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')}]
+                               }}
 
     if request.method == 'POST':
         form = NewRolDeProyectoForm(request.POST)
@@ -102,6 +111,7 @@ def nuevo_rol_de_proyecto_view(request):
         contexto['form'] = NewRolDeProyectoForm()
 
         return render(request, 'roles_de_proyecto/nuevo_rol.html', context=contexto)
+
 
 def rol_de_proyecto_view(request, id_rol):
     """"
@@ -126,7 +136,11 @@ def rol_de_proyecto_view(request, id_rol):
             'descripcion': rol.descripcion,
             'es_utilizado': rol.es_utilizado(),
             'permisos': [p.name for p in rol.permisos.all()]
-        }
+        },
+        'breadcrumb': {'pagina_actual': rol.nombre,
+                       'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                 {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')}]
+                       }
     }
     return render(request, 'roles_de_proyecto/ver_rol.html', contexto)
 

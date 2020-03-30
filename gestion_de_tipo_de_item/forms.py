@@ -1,4 +1,8 @@
 from django import forms
+from django.forms import Form
+from django.shortcuts import get_object_or_404
+
+from gestion_de_fase.models import Fase
 from .models import TipoDeItem, AtributoCadena, AtributoBooleano, AtributoFecha, AtributoNumerico, AtributoBinario
 
 
@@ -13,6 +17,7 @@ class TipoDeItemForm(forms.ModelForm):
 
 
     """
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
     class Meta:
         model = TipoDeItem
@@ -57,3 +62,4 @@ class AtributoBooleanoForm(forms.ModelForm):
     class Meta:
         model = AtributoBooleano
         fields = ['nombre', 'requerido']
+
