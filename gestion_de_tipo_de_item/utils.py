@@ -106,7 +106,7 @@ def get_dict_tipo_de_item(tipo):
     :param tipo:
     :return:
     """
-    atributos = {'nombre': tipo.nombre, 'descripcion': tipo.descripcion, 'atributos_dinamicos': []}
+    atributos = {'id': tipo.id, 'nombre': tipo.nombre, 'descripcion': tipo.descripcion, 'atributos_dinamicos': []}
 
     for atributo in tipo.atributocadena_set.all():
         atributos['atributos_dinamicos'].append({

@@ -26,6 +26,8 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_id):
     tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_id)
 
     contexto = {'user': request.user,
+                'proyecto': proyecto,
+                'fase': fase,
                 'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
                 'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
                                'links': [{'nombre': proyecto.nombre,
@@ -124,11 +126,12 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'proyecto': proyecto, 'fase': fase}
     return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)
 
+
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-
+    TODO: comentar
     """
-
+    #Aca se verifica que no existan item de este tipo
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
 
@@ -141,7 +144,6 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 }
 
     if request.method == 'POST':
-
         tipo_de_item_form = TipoDeItemForm(request.POST or None)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
@@ -157,6 +159,8 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 # TODO: Sobrecargar el save del form.
                 guardar_tipo_de_item(tipo_de_item, fase, request.user)
                 guardar_atributos(atributos_forms, tipo_de_item)
+                tipo_de_item = TipoDeItem.objects.get(id=tipo_de_item_id)
+                tipo_de_item.delete()
 
                 return redirect('tipos_de_item', proyecto_id=proyecto_id, fase_id=fase_id)
             else:
@@ -176,6 +180,6 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
             atributos_forms = atributo_form_handler(atributos_dinamicos)
             print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
-    return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
+    return render(request, 'gestion_de_tipo_de_item/editar_tipo_de_item.html', context=contexto)
 
 
