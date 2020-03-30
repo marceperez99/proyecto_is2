@@ -39,11 +39,11 @@ def pp_requerido_en_fase(permiso_de_proyecto):
     """
 
     def decorador(view):
-        def inner(request, proyecto_id, id_fase):
+        def inner(request, proyecto_id, fase_id, *args, **kwargs):
             participante = Participante.objects.filter(proyecto=proyecto_id).get(usuario=request.user)
 
-            if participante.tiene_pp_en_fase(id_fase, permiso_de_proyecto):
-                return view(request, proyecto_id, id_fase)
+            if participante.tiene_pp_en_fase(fase_id, permiso_de_proyecto):
+                return view(request, proyecto_id, fase_id)
             else:
                 return redirect('pp_insuficientes', id_proyecto=proyecto_id)
 
