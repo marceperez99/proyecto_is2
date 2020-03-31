@@ -32,8 +32,11 @@
                             <h6>Fase: {{ fase }}</h6>
                             {% for pp in permisos %}
                                 <p>&emsp;&emsp; {{ pp.name }}</p>
+                            {% empty %}
+                                <p>&emsp;&emsp; El usuario no tiene Permisos en esta Fase</p>
                             {% endfor %}
                         </div>
+
                     {% endfor %}
                 </div>
             </div>

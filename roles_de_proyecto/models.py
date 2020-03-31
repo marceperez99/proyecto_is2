@@ -30,7 +30,7 @@ class RolDeProyecto(models.Model):
                        ('ps_ver_rp', 'Visualizar Rol de Proyecto')]
 
     def __str__(self):
-        return f'{self.nombre}: {self.permisos}'
+        return self.nombre
 
     def asignar_permisos(self, permisos):
         """
