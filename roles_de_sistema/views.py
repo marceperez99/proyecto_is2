@@ -119,7 +119,7 @@ def nuevo_rol_de_sistema_view(request):
             rol = form.save()
             rol.save()
 
-        return redirect('nuevo_rol_de_sistema')
+        return redirect('listar_roles_de_sistema')
     else:
         contexto['form'] = NewRolDeSistemaForm()
 
