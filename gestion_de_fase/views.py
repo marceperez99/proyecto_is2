@@ -78,8 +78,7 @@ def nueva_fase_view(request, proyecto_id):
             nuevaFase.puede_cerrarse = False
             nuevaFase.save()
             nuevaFase.posicionar_fase()
-            # Todo falta pone la url correcta
-            return redirect('index')
+            return redirect('listar_fases', proyecto.id)
     else:
         form = FaseForm(proyecto=proyecto)
     contexto = {'formulario': form,
