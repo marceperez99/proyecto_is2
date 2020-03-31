@@ -130,6 +130,9 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     participante = get_object_or_404(Participante, id=participante_id)
     usuario = participante.usuario
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    comite = Comite.objects.get(proyecto = proyecto)
+    if comite.es_miembro(participante):
+        return redirect('participante_view',proyecto_id = proyecto_id, participante_id = participante_id)
     if request.method == 'POST':
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)

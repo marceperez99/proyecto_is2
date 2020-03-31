@@ -304,3 +304,9 @@ class Participante(models.Model):
 class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
     miembros = models.ManyToManyField(Participante)
+
+    def es_miembro(self,participante)
+        if self.miembros.get(id = participante.id).exists():
+            return True
+        else:
+            return False
