@@ -19,3 +19,9 @@ class Usuario(User):
         print(rs.nombre)
         group = Group.objects.get(name=rs.nombre)
         self.groups.add(group)
+
+    def desasignar_rol_a_usuario(self):
+        self.groups.clear()
+
+    def tiene_rs(self):
+        return self.groups.all().exists()
