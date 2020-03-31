@@ -12,6 +12,8 @@ urlpatterns = [
     path('<int:proyecto_id>/permisos_insuficientes', views.pp_insuficientes, name='pp_insuficientes'),
     path('<int:proyecto_id>/participante/<int:participante_id>/', views.participante_view,
          name='participante'),
+    path('<int:proyecto_id>/participante/<int:participante_id>/asignar_rol_de_proyecto',
+         views.asignar_rol_de_proyecto_view, name='asignar_rol_de_proyecto'),
     path('<int:proyecto_id>/participante/', views.participantes_view, name='participantes'),
     path('<int:proyecto_id>/participante/<int:participante_id>/eliminar', views.eliminar_participante_view,
          name='eliminar_participante'),
