@@ -146,7 +146,6 @@ class Proyecto(models.Model):
             self.estado = EstadoDeProyecto.CANCELADO
         return True
 
-
     def iniciar(self):
         """
         Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
@@ -155,12 +154,13 @@ class Proyecto(models.Model):
             True: si cambio a estado "Iniciado"
             False: si el proyecto aun no tiene fases
         """
-        if self.fase_set.exists():
+        comite = Comite.objects.get(proyecto=self)
+        numero_de_miembros = comite.miembros.all().count()
+        if self.fase_set.exists() and numero_de_miembros > 1 and numero_de_miembros % 2 == 1:
             self.estado = EstadoDeProyecto.INICIADO
             return True
         else:
             return False
-
 
     def eliminar_participante(self, usuario):
         """
@@ -203,6 +203,8 @@ class Participante(models.Model):
             ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
         ]
 
+    def __str__(self):
+        return self.usuario.get_full_name()
     def get_pp_por_fase(self):
         """
         Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
@@ -305,3 +307,14 @@ class Participante(models.Model):
             return self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
+
+
+class Comite(models.Model):
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
+    miembros = models.ManyToManyField(Participante)
+
+    def es_miembro(self,participante):
+        if self.miembros.get(id = participante.id).exists():
+            return True
+        else:
+            return False

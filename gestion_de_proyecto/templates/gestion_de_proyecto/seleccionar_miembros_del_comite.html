@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Definir Comite de Cambios{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method ="POST" action=""> {% csrf_token %}
+        {{ form | crispy }}
+        <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-5 mx-auto">Asignar al comite de cambio</button>
+    </form>
+
+
+
+{% endblock %}
