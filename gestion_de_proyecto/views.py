@@ -8,7 +8,7 @@ from django.utils import timezone
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
-from .models import Proyecto, EstadoDeProyecto, Participante
+from .models import Proyecto, EstadoDeProyecto, Participante, Comite
 
 
 # Create your views here.
@@ -35,6 +35,8 @@ def nuevo_proyecto_view(request):
             proyecto.fechaDeCreacion = timezone.now()
             proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
+            comite = Comite(proyecto = proyecto)
+            comite.save()
             return redirect('index')
     else:
         form = ProyectoForm()
