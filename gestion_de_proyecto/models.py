@@ -202,6 +202,8 @@ class Participante(models.Model):
             ('pp_desasignar_rp_a_participante', 'Desasignar Rol de Proyecto a Participante'),
         ]
 
+    def __str__(self):
+        return self.usuario.get_full_name()
     def get_pp_por_fase(self):
         """
         TODO

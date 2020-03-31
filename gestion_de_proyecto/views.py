@@ -313,11 +313,16 @@ def pp_insuficientes(request, *args, **kwargs):
 
 
 def seleccionar_miembros_del_comite_view(request, proyecto_id):
-
-    proyecto = get_object_or_404(Proyecto,id = proyecto_id)
-    form = SeleccionarMiembrosDelComiteForm(proyecto)
-    contexto = {'user': request.user,'form':form}
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    comite = get_object_or_404(Comite, proyecto=proyecto)
+    form = SeleccionarMiembrosDelComiteForm(proyecto, instance=comite)
+    contexto = {'user': request.user, 'form': form}
     if request.method == 'POST':
-        pass
-
+        form = SeleccionarMiembrosDelComiteForm(proyecto, request.POST, instance=comite)
+        if form.is_valid():
+            comite.miembros.clear()
+            for participante in form.cleaned_data['miembros']:
+                comite.miembros.add(participante)
+            comite.save()
+            return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
     return render(request, 'gestion_de_proyecto/seleccionar_miembros_del_comite.html', context=contexto)

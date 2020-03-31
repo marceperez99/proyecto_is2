@@ -55,7 +55,7 @@ class SeleccionarPermisosForm(forms.Form):
 
 
 class SeleccionarMiembrosDelComiteForm(forms.ModelForm):
-    miembros = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
+    #
 
     class Meta:
         model = Comite
@@ -64,3 +64,4 @@ class SeleccionarMiembrosDelComiteForm(forms.ModelForm):
     def __init__(self, proyecto, *args, **kwargs):
         super(SeleccionarMiembrosDelComiteForm, self).__init__(*args, **kwargs)
         self.fields['miembros'].queryset = proyecto.participante_set.all()
+        self.fields['miembros'].widget=forms.CheckboxSelectMultiple()
