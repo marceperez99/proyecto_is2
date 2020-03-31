@@ -6,6 +6,7 @@ from gestion_de_fase.models import *
 from django.db.models.functions.datetime import datetime
 from django.contrib.auth.models import User
 from django.utils import timezone
+
 Proyecto.objects.all().delete()
 Fase.objects.all().delete()
 TipoDeItem.objects.all().delete()
@@ -21,6 +22,7 @@ p1.fecha_creacion = timezone.now()
 p1.estado = "En Configuración"
 p1.gerente = user_1
 p1.save()
+Participante.objects.create(proyecto=p1, usuario=user_1)
 
 p2 = Proyecto()
 p2.nombre = "Chatiin"
@@ -30,6 +32,7 @@ p2.fecha_creacion = timezone.now()
 p2.estado = "En Configuración"
 p2.gerente = user_2
 p2.save()
+Participante.objects.create(proyecto=p2, usuario=user_2)
 
 p3 = Proyecto()
 p3.nombre = "Collapsar"
@@ -40,6 +43,7 @@ p3.fecha_creacion = timezone.now()
 p3.estado = "En Configuración"
 p3.gerente = user_1
 p3.save()
+Participante.objects.create(proyecto=p3, usuario=user_1)
 
 f1 = Fase()
 f1.fase_cerrada = False
@@ -136,7 +140,6 @@ f12.nombre = "Front-End"
 f12.proyecto = p2
 f12.fase_anterior = f11
 f12.save()
-
 
 f13 = Fase()
 f13.fase_cerrada = False
