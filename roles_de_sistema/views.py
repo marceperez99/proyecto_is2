@@ -64,6 +64,7 @@ def editar_rol_de_sistema_view(request, id_rol):
 
         if form.is_valid() and not rol.es_utilizado():
             rs = form.save()
+            rs.save()
             messages.success(request, 'Rol de Sistema modificado exitosamente')
             return redirect('rol_de_sistema', id_rol=id_rol)
         else:
@@ -117,8 +118,9 @@ def nuevo_rol_de_sistema_view(request):
         form = NewRolDeSistemaForm(request.POST)
         if form.is_valid():
             rol = form.save()
+            rol.save()
 
-        return redirect('nuevo_rol_de_sistema')
+        return redirect('listar_roles_de_sistema')
     else:
         contexto['form'] = NewRolDeSistemaForm()
 
