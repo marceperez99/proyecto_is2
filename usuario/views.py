@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 
 from gestion_de_proyecto.models import Proyecto
 from roles_de_proyecto.models import RolDeProyecto
@@ -23,7 +24,10 @@ def usuarios_view(request):
 
     """
     lista_usuario = list(User.objects.all())
-    contexto = {'lista_usuario': lista_usuario, 'user': request.user}
+    contexto = {'lista_usuario': lista_usuario, 'user': request.user,
+                'breadcrumb': {'pagina_actual': 'Usuarios',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}]},
+                }
     return render(request, 'usuario/usuarios.html', context=contexto)
 
 
@@ -39,8 +43,12 @@ def usuario_view(request, usuario_id):
         -Visualizar usuarios del sistema
     """
 
-    usuario = get_object_or_404(User, pk=usuario_id)
-    contexto = {'usuario': usuario, 'user': request.user}
+    usuario = get_object_or_404(Usuario, pk=usuario_id)
+
+    contexto = {'usuario': usuario, 'user': request.user,
+                'breadcrumb': {'pagina_actual': usuario.get_full_name(),
+                               'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')}]}
+                }
     return render(request, 'usuario/usuario.html', context=contexto)
 
 
@@ -75,7 +83,7 @@ def usuario_asignar_rol_view(request, usuario_id):
 @login_required
 def panel_de_administracion_view(request):
     contexto = {'user': request.user,
-                'usuarios': User.objects.all(),
+                'usuarios': Usuario.objects.all(),
                 'proyectos': Proyecto.objects.all(),
                 'roles_de_proyecto': RolDeProyecto.objects.all(),
                 'roles_de_sistema': RolDeSistema.objects.all(),

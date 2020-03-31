@@ -2,7 +2,8 @@
 {% block title %}Perfil de Usuario{%endblock title%}
 {% block content %}
     {% include 'navBar.html' %}
-    <div class="container mt-3">
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3 ">
         <div class="row">
             <h3 class="col-12 col-sm-5">Perfil de Usuario</h3>
             <div class="col-12 col-sm-7">
@@ -12,17 +13,41 @@
                         Asignar Rol de Sistema
                     </a>
                 </div>
-
-            </div>
-            <hr class="col-12">
+        </div>
+        </div>
+        <div class="row bg-white mt-3 p-3 border rounded">
             <img src="{{ usuario.socialaccount_set.all.0.get_avatar_url }}" class="col-10 mx-auto col-sm-2 rounded-circle">
             <div class="col-12 col-sm-10 mt-3 row">
                 <h5 class="col-4 ">Nombre:</h5><span class="col-8 lead">{{usuario.first_name}}</span>
                 <h5 class="col-4">Apellido:</h5><span class="col-8 lead">{{usuario.last_name}}</span>
-                <h5 class="col-4">Nombre de usuario:</h5><span class="col-8 lead">{{usuario.username}}</span>
+
                 <h5 class="col-4">Correo:</h5><span class="col-8 lead">{{usuario.email}}</span>
             </div>
-            <hr class="col-12">
+            <hr class="col-10">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-11 mx-auto">
+                        <div class="row">
+                            <h5 class="col-4">Rol de Sistema</h5>
+                            {% if usuario.get_rol_de_sistema is not None %}
+                                <div class="col-6">
+                                    {{ usuario.get_rol_de_sistema.nombre }}
+                                </div>
+                                <h5 class="col-4">Permisos asignados</h5>
+                                <div class="col-6">
+                                    {% for ps in usuario.get_rol_de_sistema.permisos.all %}
+                                        <p>{{ ps.name }}</p>
+                                    {% endfor %}
+
+                                </div>
+                            {% else %}
+                                <div class="col-6">El Usuario no tiene un Rol asignado en el Sistema.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
