@@ -204,8 +204,13 @@ class Participante(models.Model):
 
     def get_pp_por_fase(self):
         """
-        TODO
-        :return:
+        Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
+        proyecto que el usuario tiene asignado en la fase correspondiente.
+
+            Retorna:
+                dict: diccionario con la estructura.
+                    { Fase: [Permission, ...] }
+
         """
         pp_por_fase = {}
         for fase in self.proyecto.get_fases():
