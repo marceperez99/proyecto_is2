@@ -149,5 +149,12 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
         fase.delete()
         # Todo falta pone la url correcta
         return redirect('listar_fases', proyecto.id)
-    contexto = {'fase': fase, 'proyecto': proyecto}
+    contexto = {'fase': fase, 'proyecto': proyecto,
+                'breadcrumb': {
+                    'pagina_actual': 'Eliminar',
+                    'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                              {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto_id,))},
+                              {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto_id, fase_id))}]
+                }
+                }
     return render(request, 'gestion_de_fase/eliminar_fase.html', contexto)
