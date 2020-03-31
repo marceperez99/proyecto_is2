@@ -91,7 +91,7 @@
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">{{proyecto.gerente.get_full_name}}</li>
-                            {% for participante in proyecto.participante_set.all %}
+                            {% for participante in lista_participante %}
                                 <li class="list-group-item">{{participante.usuario.get_full_name}}</li>
                             {% endfor %}
 

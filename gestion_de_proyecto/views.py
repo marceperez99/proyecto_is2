@@ -155,9 +155,10 @@ def visualizar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    lista_participante = proyecto.participante_set.all().exclude(usuario = proyecto.gerente)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
-                'breadcrumb': {'pagina_actual': proyecto.nombre}}
+                'breadcrumb': {'pagina_actual': proyecto.nombre},'lista_participante':lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
 
