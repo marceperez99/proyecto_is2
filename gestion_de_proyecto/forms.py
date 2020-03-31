@@ -28,8 +28,9 @@ class NuevoParticipanteForm(forms.ModelForm):
             for user in User.objects.all():
                 if not proyecto.participante_set.all().filter(usuario=user).exists():
                     usuarios.append(user.id)
-                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True) \
-                        .exclude(id=proyecto.gerente.id).exists():
+
+                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True)\
+                        .exclude(usuario=proyecto.gerente).exists():
                     if user not in usuarios:
                         usuarios.append(user.id)
             self.fields['usuario'].queryset = User.objects.all().filter(pk__in=usuarios)

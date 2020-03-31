@@ -38,6 +38,7 @@ class Proyecto(models.Model):
                        ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
                        ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
                        ('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
+                       ('g_pp_cancelar_proyecto', 'Cancelar Proyecto'),
                        ('pp_ver_proyecto', 'Visualizar Proyecto')]
 
     def __str__(self):
@@ -196,18 +197,23 @@ class Participante(models.Model):
 
     class Meta:
         permissions = [
+            ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
             ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
             ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
             ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
-            ('pp_desasignar_rp_a_participante', 'Desasignar Rol de Proyecto a Participante'),
         ]
 
     def __str__(self):
         return self.usuario.get_full_name()
     def get_pp_por_fase(self):
         """
-        TODO
-        :return:
+        Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
+        proyecto que el usuario tiene asignado en la fase correspondiente.
+
+            Retorna:
+                dict: diccionario con la estructura.
+                    { Fase: [Permission, ...] }
+
         """
         pp_por_fase = {}
         for fase in self.proyecto.get_fases():
@@ -298,7 +304,7 @@ class Participante(models.Model):
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
-            return self.pp_por_fase.get(fase=fase).tiene_pp(permiso)
+            return self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
 

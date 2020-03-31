@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 
 class Fase(models.Model):
     """
@@ -39,10 +38,13 @@ class Fase(models.Model):
 
     def __str__(self):
         return self.nombre
+
     class Meta:
         permissions = [
-            ('pp_crear_fase', 'Crear Fase dentro de Proyecto'),
-            ('pp_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
+            ('g_pp_crear_fase', 'Crear Fase dentro de Proyecto'),
+            ('g_pp_editar_fase', 'Editar Fase dentro de Proyecto'),
+            ('g_pp_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
+            ('pp_f_ver_fase', 'Visualizar Fase dentro de Proyecto'),
             ('pp_f_cerrar_fase', 'Cerrar Fase de Proyecto'),
         ]
 

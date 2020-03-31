@@ -65,7 +65,7 @@
                         <img class="rounded-circle col-5 mx-auto my-3" src="{{ user.socialaccount_set.all.0.get_avatar_url }}" />
                         <div class="col-12 mt-3 text-center  h5">{{ user.get_full_name }}</div>
                         <hr class="col-10">
-                        <div class="col-12 text-center h6">Rol de Sistema: Administrador{{user.groups.all.0}}</div>
+                        <div class="col-12 text-center h6">Rol de Sistema:{{user.groups.all.0}}</div>
                     </div>
                 </div>
                 <div class=" card mt-4">
