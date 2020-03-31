@@ -64,6 +64,7 @@ def editar_rol_de_sistema_view(request, id_rol):
 
         if form.is_valid() and not rol.es_utilizado():
             rs = form.save()
+            rs.save()
             messages.success(request, 'Rol de Sistema modificado exitosamente')
             return redirect('rol_de_sistema', id_rol=id_rol)
         else:

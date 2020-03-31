@@ -35,6 +35,7 @@ class RolDeSistema(models.Model):
         super(RolDeSistema, self).save(*args, **kwargs)
         if Group.objects.filter(name=self.nombre).exists():
             group = Group.objects.get(name=self.nombre)
+            group.permissions.clear()
         else:
             group = Group(name=self.nombre)
             group.save()
