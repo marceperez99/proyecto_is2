@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from .models import Proyecto, Participante
+from .models import Proyecto, Participante, Comite
 
 
 class ProyectoForm(forms.ModelForm):
@@ -28,7 +28,7 @@ class NuevoParticipanteForm(forms.ModelForm):
             for user in User.objects.all():
                 if not proyecto.participante_set.all().filter(usuario=user).exists():
                     usuarios.append(user.id)
-                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True)\
+                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True) \
                         .exclude(id=proyecto.gerente.id).exists():
                     if user not in usuarios:
                         usuarios.append(user.id)
@@ -52,3 +52,15 @@ class SeleccionarPermisosForm(forms.Form):
         self.usuario = usuario
         self.permisos_de_proyecto = list(rol.get_pp_por_proyecto())
         self.rol = rol
+
+
+class SeleccionarMiembrosDelComiteForm(forms.ModelForm):
+    miembros = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = Comite
+        fields = ['miembros']
+
+    def __init__(self, proyecto, *args, **kwargs):
+        super(SeleccionarMiembrosDelComiteForm, self).__init__(*args, **kwargs)
+        self.fields['miembros'].queryset = proyecto.participante_set.all()

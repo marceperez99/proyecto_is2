@@ -5,7 +5,8 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm
+from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
+    SeleccionarMiembrosDelComiteForm
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
 from .models import Proyecto, EstadoDeProyecto, Participante, Comite
@@ -130,9 +131,9 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     participante = get_object_or_404(Participante, id=participante_id)
     usuario = participante.usuario
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    comite = Comite.objects.get(proyecto = proyecto)
+    comite = get_object_or_404(Comite, proyecto=proyecto)
     if comite.es_miembro(participante):
-        return redirect('participante_view',proyecto_id = proyecto_id, participante_id = participante_id)
+        return redirect('participante_view', proyecto_id=proyecto_id, participante_id=participante_id)
     if request.method == 'POST':
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)
@@ -309,3 +310,14 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
 
 def pp_insuficientes(request, *args, **kwargs):
     return render(request, 'gestion_de_proyecto/pp_insuficientes.html', context={'user': request.user})
+
+
+def seleccionar_miembros_del_comite_view(request, proyecto_id):
+
+    proyecto = get_object_or_404(Proyecto,id = proyecto_id)
+    form = SeleccionarMiembrosDelComiteForm(proyecto)
+    contexto = {'user': request.user,'form':form}
+    if request.method == 'POST':
+        pass
+
+    return render(request, 'gestion_de_proyecto/seleccionar_miembros_del_comite.html', context=contexto)
