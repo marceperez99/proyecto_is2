@@ -3,14 +3,43 @@
 {% block title %}Participantes {{proyecto.nombre}} {% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
-     {{ gerente.first_name }}
-    {{ gerente.last_name }}
-    Gerente </br>
-   {% for participante in lista_participante %}
-    {% if participante.rol is not None %}
-    {{ participante.usuario.first_name }}
-    {{ participante.usuario.last_name }}
-    {{ participante.rol.nombre }} </br>
-    {% endif %}
-    {% endfor %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-6">Participantes del Proyecto</h3>
+            <div class="col-6 text-right">
+                <a href="{% url 'nuevo_participante' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Agregar Participante</a>
+            </div>
+            <hr class="col-12">
+            <div class="col-10 border bg-white p-3 mx-auto">
+                <table class="table">
+                    <thead>
+                        <tr><th>Nombre</th><th>Apellido</th><th>Rol de Proyecto</th><th>Accion</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{gerente.first_name}}</td>
+                            <td>{{gerente.last_name}}</td>
+                            <td>Gerente de Proyecto</td>
+                        </tr>
+                        {% for participante in lista_participante %}
+                            {% if participante.rol is not None %}
+                                <tr>
+                                    <td>{{ participante.usuario.first_name }}</td>
+                                    <td>{{ participante.usuario.last_name }}</td>
+                                    <td>{{ participante.rol.nombre }} </td>
+                                    <td><a href="{% url 'participante' proyecto.id participante.id %}"
+                                           class="btn btn-primary bg-color-accent border-0 ">
+                                        <i class="fas fa-eye"></i> Visualizar</a></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
 {% endblock %}

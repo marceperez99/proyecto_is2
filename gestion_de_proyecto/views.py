@@ -68,7 +68,8 @@ def participantes_view(request, proyecto_id):
                 'proyecto': proyecto,
                 'gerente': proyecto.gerente,
                 'breadcrumb': {'pagina_actual': 'Participantes',
-                               'links': [{'Panel de Administracion': reverse('panel_de_control')}]}
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]}
                 }
     return render(request, 'gestion_de_proyecto/partipantes.html', context=contexto)
 
@@ -95,7 +96,18 @@ def participante_view(request, proyecto_id, participante_id):
     participante = get_object_or_404(proyecto.participante_set, pk=participante_id)
     if participante.rol is None:
         raise Http404()
-    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto}
+
+    print(participante.get_pp_por_fase())
+    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto,
+                'rol_de_proyecto': {'pp_por_proyecto': participante.rol.get_pp_por_proyecto(),
+                                    'pp_por_fase': participante.get_pp_por_fase()},
+                'breadcrumb': {'pagina_actual': participante.usuario.get_full_name(),
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                         {'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                                         {'nombre': 'Participantes',
+                                          'url': reverse('participantes', args=(proyecto_id,))}]}
+                }
     return render(request, 'gestion_de_proyecto/participante.html', context=contexto)
 
 
@@ -188,7 +200,8 @@ def cancelar_proyecto_view(request, proyecto_id):
         return redirect('index')
     return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
 
-#@pp_requerido('g_pp_iniciar_proyecto')
+
+# @pp_requerido('g_pp_iniciar_proyecto')
 def iniciar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
@@ -241,7 +254,12 @@ def nuevo_participante_view(request, proyecto_id):
             rol = RolDeProyecto.objects.get(id=request.GET['rol'])
             usuario = User.objects.get(id=request.GET['usuario'])
             contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(usuario, proyecto, rol)
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Nuevo Participante',
+                              'links': [{'nombre': proyecto.nombre,
+                                         'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                        {'nombre': 'Participantes',
+                                         'url': reverse('participantes', args=(proyecto_id,))}]
+                              }
     return render(request, 'gestion_de_proyecto/nuevo_participante.html', contexto)
 
 
