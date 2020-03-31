@@ -145,7 +145,6 @@ class Proyecto(models.Model):
             self.estado = EstadoDeProyecto.CANCELADO
         return True
 
-
     def iniciar(self):
         """
         Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
@@ -159,7 +158,6 @@ class Proyecto(models.Model):
             return True
         else:
             return False
-
 
     def eliminar_participante(self, usuario):
         """
@@ -299,3 +297,8 @@ class Participante(models.Model):
             return self.pp_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
+
+
+class Comite(models.Model):
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
+    miembros = models.ManyToManyField(Participante)
