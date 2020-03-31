@@ -26,8 +26,8 @@ class Proyecto(models.Model):
     """
         Modelo para la clase proyecto
     """
-    nombre = models.CharField(max_length=101)
-    descripcion = models.CharField(max_length=401)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=400)
     gerente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     creador = models.ForeignKey(User, related_name='proyectos_creador', on_delete=models.CASCADE, null=True)
     fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion", default=timezone.now)
