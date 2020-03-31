@@ -117,6 +117,7 @@ def nuevo_rol_de_sistema_view(request):
         form = NewRolDeSistemaForm(request.POST)
         if form.is_valid():
             rol = form.save()
+            rol.save()
 
         return redirect('nuevo_rol_de_sistema')
     else:
