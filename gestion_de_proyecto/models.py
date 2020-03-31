@@ -249,6 +249,7 @@ class Participante(models.Model):
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
         """
+        self.permisos_por_fase.clear()
         if permisos_por_fase != {}:
             self.asignar_permisos_de_proyecto(permisos_por_fase)
         self.rol = rol

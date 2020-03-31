@@ -102,8 +102,7 @@ def participante_view(request, proyecto_id, participante_id):
                 'rol_de_proyecto': {'pp_por_proyecto': participante.rol.get_pp_por_proyecto(),
                                     'pp_por_fase': participante.get_pp_por_fase()},
                 'breadcrumb': {'pagina_actual': participante.usuario.get_full_name(),
-                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
-                                         {'nombre': proyecto.nombre,
+                               'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
                                          {'nombre': 'Participantes',
                                           'url': reverse('participantes', args=(proyecto_id,))}]}
@@ -243,13 +242,21 @@ def nuevo_participante_view(request, proyecto_id):
             form = NuevoParticipanteForm(request.GET)
             if form.is_valid():
                 participante = form.save(commit=False)
-                participante.proyecto = proyecto
-                participante.save()
+                rol = participante.rol
+                # Si ya existe una instancia de la clase Participante con el usuario en cuestion se obtiene ese objeto
+                if proyecto.participante_set.all().filter(usuario=participante.usuario).exists():
+                    participante = proyecto.participante_set.get(usuario=participante.usuario)
+                else:
+                    # En caso contrario se incluyen los campos faltantes y se guarda el objeto participante
+                    # obtenido del formulario
+                    participante.proyecto = proyecto
+                    participante.save()
                 permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
                                      fase.startswith('f_')}
-                participante.asignar_permisos_de_proyecto(permisos_por_fase)
-                # TODO cambiar a donde dirige este redirect
-                return redirect('index')
+                # Se asigna el rol de proyecto con los permisos correspondientes
+                participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+
+                return redirect('participantes', proyecto_id)
         else:
             rol = RolDeProyecto.objects.get(id=request.GET['rol'])
             usuario = User.objects.get(id=request.GET['usuario'])
@@ -261,6 +268,38 @@ def nuevo_participante_view(request, proyecto_id):
                                          'url': reverse('participantes', args=(proyecto_id,))}]
                               }
     return render(request, 'gestion_de_proyecto/nuevo_participante.html', contexto)
+
+
+def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
+    """
+    Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
+
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = get_object_or_404(proyecto.participante_set, id=participante_id)
+    contexto = {
+        'user': request.user,
+        'proyecto': proyecto,
+        'participante': participante,
+        'roles_de_proyecto': RolDeProyecto.objects.all(),
+        'breadcrumb': {'pagina_actual': 'Asignar Rol de Proyecto',
+                       'links': [
+                           {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                           {'nombre': 'Participantes', 'url': reverse('participantes', args=(proyecto.id,))},
+                           {'nombre': participante.usuario.get_full_name(),
+                            'url': reverse('participante', args=(proyecto_id, participante_id))}]
+                       }
+    }
+    if 'rol_de_proyecto' in request.GET.keys():
+        rol = get_object_or_404(RolDeProyecto, id=request.GET['rol_de_proyecto'])
+        contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(participante.usuario, proyecto, rol)
+    if request.method == 'POST':
+        permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
+                             fase.startswith('f_')}
+        rol = get_object_or_404(RolDeProyecto, id=request.POST['rol'])
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+        return redirect('participante', proyecto.id, participante.id)
+    return render(request, 'gestion_de_proyecto/asignar_rol_de_proyecto.html', contexto)
 
 
 def pp_insuficientes(request, *args, **kwargs):
