@@ -113,8 +113,7 @@ def editar_fase_view(request, proyecto_id, fase_id):
             fase = form.save(commit=False)
             fase.save()
             fase.posicionar_fase()
-            # Todo falta pone la url correcta
-            return redirect('index')
+            return redirect('listar_fases', proyecto.id)
     contexto = {
         'formulario': form,
         'breadcrumb': {
