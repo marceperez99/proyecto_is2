@@ -57,7 +57,7 @@
                             <div class="col-4">Estado:</div>
                             <div class="col-8"><h5>
                                 {% if proyecto.estado == 'En Configuración' %}
-                                   <span class="badge badge-secondary">{{proyecto.estado}}</span>
+                                   <span class="badge badge-warning">{{proyecto.estado}}</span>
                                     {% elif proyecto.estado == 'Iniciado' %}
                                     <span class="badge badge-primary">{{proyecto.estado}}</span>
                                 {% elif proyecto.estado == 'Finalizado' %}

@@ -30,13 +30,61 @@
                                     <tr>
                                         <td>{{ proyecto.nombre }}</td>
                                         <td>{{ proyecto.gerente.get_full_name }}</td>
-                                        <td class="text-center"><h5><span class="badge badge-success">{{ proyecto.estado }}</span></h5></td>
+                                        <td class="text-center">
+                                            <h5>
+                                                {% if proyecto.estado == 'En Configuración' %}
+                                                    <span class="badge badge-warning">
+                                                    {% elif proyecto.estado == 'Iniciado' %}
+                                                    <span class="badge badge-primary">
+                                                    {% elif proyecto.estado == 'Finalizado'%}
+                                                    <span class="badge badge-success">
+                                                    {% else %}
+                                                    <span class="badge badge-danger">
+                                                {% endif %}{{ proyecto.estado }}</span>
+                                            </h5></td>
                                         <td class="text-right">
-                                            <a href="#" class="btn btn-outline-secondary text-black">
+                                            <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn btn-outline-secondary text-black">
                                                 <i class="fas fa-eye"></i> Visualizar
                                             </a>
-                                            <a href="#" class="btn btn-outline-danger font-weight-bold">
-                                                <i class="fas fa-times"></i> Cancelar
+                                            {% if proyecto.estado != 'Cancelado' and proyecto.estado != 'Finalizado'  %}
+                                                <a href="#" class="btn btn-outline-danger font-weight-bold">
+                                                    <i class="fas fa-times"></i> Cancelar
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-color-primary">
+                        <div class="row">
+                            <h4 class="mt-1 col-auto text-white">Usuarios del Sistema</h4>
+                            <a href="{% url 'usuarios' %}" class="btn text-white ml-auto mr-2 mb-2 bg-color-accent">Gestionar Usuarios</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover border rounded">
+                                <thead class="text-center">
+                                <tr>
+                                    <th>Nombre</th><th>Rol de Sistema</th><th>Accion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for usuario in usuarios %}
+                                    <tr>
+                                        <td>{{ usuario.get_full_name }}</td>
+                                        <td class="text-center">{{ usuario.get_rol_de_sistema.nombre }}</td>
+                                        <td class="text-center"><h5><span class="badge badge-success">{{ proyecto.estado }}</span></h5></td>
+                                        <td class="text-right">
+                                            <a href="{% url 'perfil_de_usuario' usuario.id %}" class="btn btn-outline-secondary text-black">
+                                                <i class="fas fa-eye"></i> Visualizar
                                             </a>
                                         </td>
                                     </tr>
