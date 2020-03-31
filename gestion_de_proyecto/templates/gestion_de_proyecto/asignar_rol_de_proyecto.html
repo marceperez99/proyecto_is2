@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Asignar Rol de Proyecto{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">Asignar Rol de Proyecto</h3>
+            <hr class="col-12">
+            <div class="col-10 mx-auto border rounded p-3 bg-white">
+                <div class="row">
+                    <h5 class="col-4 my-3">Usuario</h5><div class="col-8 my-3">{{ participante.usuario.get_full_name }}</div>
+                    <hr class="col-10">
+                    {% if seleccionar_permisos_form %}
+                            <h5 class="col-5 mt-3">Rol de Proyecto: {{ seleccionar_permisos_form.rol.nombre }}</h5>
+                            <div class="col-auto ml-auto mt-3"><a href="{% url 'asignar_rol_de_proyecto' proyecto.id participante.id %} "
+                                                     class="col-auto btn btn-primary bg-color-accent border-0">Elegir otro Rol</a></div>
+                            <div class="col-12 px-3 px-sm-5 py-3 mb-3">
+                                <h6 class="">Permisos de Proyecto</h6>
+                                <p class="text-muted  mx-auto">Estos son los Permisos de Proyecto independientes de las fases del Proyecto</p>
+                                <hr>
+                                <ul class="">
+                                    {% for permiso in seleccionar_permisos_form.permisos_de_proyecto %}
+                                        <li>{{ permiso.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <form method="POST" class="row px-3 px-sm-5 py-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="rol" value="{{ seleccionar_permisos_form.rol.id }}">
+                                <h5 class="col-12">Seleccionar Permisos de Proyecto por Fase</h5>
+                                <div class="col-12"><hr>{{ seleccionar_permisos_form|crispy }}</div>
+                                <p class="col-12 text-muted">Atención: al asignar un nuevo rol al usuario los permisos que este
+                                tenía asignado anteriormente seran sobreescritos.</p>
+                                <input type="submit" class="col-auto ml-auto btn btn-primary bg-color-accent border-0" value="Asignar Rol">
+                                <a href="{% url 'participante' proyecto.id participante.id %}" class="col-auto mr-auto ml-3 btn btn-danger">Cancelar</a>
+                            </form>
+                            {% else %}
+                            <form class="col-12 row mt-3">
+                                <h5 class="col-12 text-center mb-3">Seleccione un Rol de Proyecto a Asignar al Usuario</h5>
+                                <p class="text-muted col-12">Seleccione el Rol de Proyecto que desea asignar al Usuario</p>
+                                <select class="col-5 ml-auto mr-2" name="rol_de_proyecto" id="rol_de_proyecto_select">
+                                    {% for rol in roles_de_proyecto %}
+                                        <option value="{{ rol.id }}">{{ rol.nombre }}</option>
+                                    {% endfor %}
+                                    <input type="submit" value="Seleccionar Rol" class="btn btn-primary border-0 bg-color-accent mr-auto">
+                                </select>
+                            </form>
+                        {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

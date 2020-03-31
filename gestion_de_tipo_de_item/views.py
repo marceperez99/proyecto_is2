@@ -15,6 +15,7 @@ from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_ite
 # /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
 # tipo_de_item/proyecto_id/fase_id
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+from roles_de_proyecto.decorators import pp_requerido_en_fase
 
 
 def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
@@ -78,7 +79,7 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
                 }
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
-
+@pp_requerido_en_fase('pp_f_crear_tipo_de_item')
 def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
     Vista que muestra la pantalla de creación de un nuevo tipo de item.\n
@@ -151,7 +152,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
-
+@pp_requerido_en_fase("pp_f_importar_tipo_de_item")
 def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     Vista que permite seleccionar un tipo de item del sistema para copiar sus atributos a un nuevo tipo de item para
@@ -188,6 +189,7 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)
 
 
+@pp_requerido_en_fase('pp_f_editar_tipo_de_item')
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     TODO: comentar

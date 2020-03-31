@@ -30,7 +30,7 @@ class RolDeProyecto(models.Model):
                        ('ps_ver_rp', 'Visualizar Rol de Proyecto')]
 
     def __str__(self):
-        return f'{self.nombre}: {self.permisos}'
+        return self.nombre
 
     def asignar_permisos(self, permisos):
         """
@@ -99,6 +99,13 @@ class PermisosPorFase(models.Model):
 
     def __str__(self):
         return f'{self.fase}: {self.permisos}'
+
+    def get_permisos(self):
+        """
+        TODO: falta comentar
+        :return:
+        """
+        return self.permisos.all()
 
     def asignar_permisos_de_proyecto(self, permisos):
         """

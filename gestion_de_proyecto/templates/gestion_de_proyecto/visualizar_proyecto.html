@@ -5,7 +5,18 @@
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
-        <h3>{{ proyecto.nombre }}</h3>
+        <div class="row">
+            <h3 class="col-auto">{{ proyecto.nombre }}</h3>
+            <div class="ml-auto">
+                {% if proyecto.estado == 'En Configuración' %}
+                    <a href="{% url 'iniciar_proyecto' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Iniciar Proyecto</a>
+                {% endif %}
+                {% if proyecto.estado == 'En Configuración' or proyecto.estado == 'Iniciado' %}
+                    <a href="{% url 'cancelar_proyecto' proyecto.id %}" class="btn btn-danger border-0 bg-color-danger">Cancelar Proyecto</a>
+                {% endif %}
+
+            </div>
+        </div>
         <hr>
         <div class="row">
             <div class="col-12 col-md-8">
@@ -57,7 +68,7 @@
                             <div class="col-4">Estado:</div>
                             <div class="col-8"><h5>
                                 {% if proyecto.estado == 'En Configuración' %}
-                                   <span class="badge badge-secondary">{{proyecto.estado}}</span>
+                                   <span class="badge badge-warning">{{proyecto.estado}}</span>
                                     {% elif proyecto.estado == 'Iniciado' %}
                                     <span class="badge badge-primary">{{proyecto.estado}}</span>
                                 {% elif proyecto.estado == 'Finalizado' %}
@@ -70,11 +81,17 @@
                     </div>
                 </div>
                 <div class="card my-3">
-                    <div class="card-header bg-color-primary text-white">Participantes</div>
+                    <div class="card-header bg-color-primary text-white">
+                        <div class="row">
+                            <div class="col-auto my-auto">Participantes</div>
+                            <div class="ml-auto mr-2">
+                                <a href="{% url 'participantes' proyecto.id %}" class="btn border-0 btn-primary bg-color-accent">Gestionar Participantes</a>
+                            </div></div>
+                    </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">{{proyecto.gerente.get_full_name}}</li>
-                            {% for participante in proyecto.participante_set.all %}
+                            {% for participante in lista_participante %}
                                 <li class="list-group-item">{{participante.usuario.get_full_name}}</li>
                             {% endfor %}
 

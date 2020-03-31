@@ -3,14 +3,44 @@
 {% block title %}Ver participante{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
-    {{ participante.usuario.first_name }} </br>
-    {{ participante.usuario.last_name }} </br>
-    {{ participante.rol.nombre }} </br>
-    {{participante.rol.descripcion}} </br>
-    <!-- TODO: visualizar permisos por fase -->
-    <!-- TODO: cambiar rol de proyecto -->
-    <!-- TODO: solo mostrar eliminar si tiene el permiso -->
-    <a href = "{% url 'eliminar_participante' proyecto.id participante.id %}" class="btn btn-primary bg-color-danger col-3 mx-auto">
-        Eliminar Participante
-    </a>
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <h3 class="col-auto">Participante de Proyecto</h3>
+                    <a href="{% url 'asignar_rol_de_proyecto' proyecto.id participante.id %}"
+                       class="btn btn-primary ml-auto mr-2 bg-color-accent boder-0">Asignar Rol de Proyecto</a>
+                    <a href="{% url 'eliminar_participante' proyecto.id participante.id %}"
+                       class="btn btn-danger border-0  bg-color-danger">Eliminar Participante</a>
+                </div>
+            </div>
+            <hr class="col-12">
+            <div class="col-10 mx-auto bg-white border rounded p-3">
+                <div class="row">
+                    <h5 class="col-4 my-2">Nombre del Participante</h5><div class="col-8 my-2">{{participante.usuario.get_full_name}}</div>
+                    <h5 class="col-4 my-2">Rol de Proyecto Asignado</h5><div class="col-8 my-2">{{ participante.rol.nombre }}</div>
+                    <hr class="col-10 mx-auto">
+                    <h5 class="col-12">Permisos de Proyecto a nivel de Proyecto</h5>
+                    {% for pp in rol_de_proyecto.pp_por_proyecto %}
+                        <div class="col-11 mx-auto">{{pp.name}}</div>
+                    {% endfor %}
+                    <hr class="col-10">
+                    <h5 class="col-12">Permisos de Proyecto a nivel de Fase</h5>
+                    {% for fase, permisos in rol_de_proyecto.pp_por_fase.items %}
+                        <div class="col-12">
+                            <h6>Fase: {{ fase }}</h6>
+                            {% for pp in permisos %}
+                                <p>&emsp;&emsp; {{ pp.name }}</p>
+                            {% empty %}
+                                <p>&emsp;&emsp; El usuario no tiene Permisos en esta Fase</p>
+                            {% endfor %}
+                        </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

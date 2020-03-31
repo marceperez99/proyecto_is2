@@ -5,10 +5,11 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm
+from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
+    SeleccionarMiembrosDelComiteForm
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
-from .models import Proyecto, EstadoDeProyecto, Participante
+from .models import Proyecto, EstadoDeProyecto, Participante, Comite
 
 
 # Create your views here.
@@ -35,6 +36,8 @@ def nuevo_proyecto_view(request):
             proyecto.fechaDeCreacion = timezone.now()
             proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
+            comite = Comite(proyecto=proyecto)
+            comite.save()
             return redirect('index')
     else:
         form = ProyectoForm()
@@ -68,7 +71,8 @@ def participantes_view(request, proyecto_id):
                 'proyecto': proyecto,
                 'gerente': proyecto.gerente,
                 'breadcrumb': {'pagina_actual': 'Participantes',
-                               'links': [{'Panel de Administracion': reverse('panel_de_control')}]}
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]}
                 }
     return render(request, 'gestion_de_proyecto/partipantes.html', context=contexto)
 
@@ -95,7 +99,17 @@ def participante_view(request, proyecto_id, participante_id):
     participante = get_object_or_404(proyecto.participante_set, pk=participante_id)
     if participante.rol is None:
         raise Http404()
-    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto}
+
+    print(participante.get_pp_por_fase())
+    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto,
+                'rol_de_proyecto': {'pp_por_proyecto': participante.rol.get_pp_por_proyecto(),
+                                    'pp_por_fase': participante.get_pp_por_fase()},
+                'breadcrumb': {'pagina_actual': participante.usuario.get_full_name(),
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                                         {'nombre': 'Participantes',
+                                          'url': reverse('participantes', args=(proyecto_id,))}]}
+                }
     return render(request, 'gestion_de_proyecto/participante.html', context=contexto)
 
 
@@ -117,6 +131,9 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     participante = get_object_or_404(Participante, id=participante_id)
     usuario = participante.usuario
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    comite = get_object_or_404(Comite, proyecto=proyecto)
+    if comite.es_miembro(participante):
+        return redirect('participante_view', proyecto_id=proyecto_id, participante_id=participante_id)
     if request.method == 'POST':
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)
@@ -138,9 +155,10 @@ def visualizar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    lista_participante = proyecto.participante_set.all().exclude(usuario = proyecto.gerente)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
-                'breadcrumb': {'pagina_actual': proyecto.nombre}}
+                'breadcrumb': {'pagina_actual': proyecto.nombre},'lista_participante':lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
 
@@ -188,7 +206,8 @@ def cancelar_proyecto_view(request, proyecto_id):
         return redirect('index')
     return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
 
-#@pp_requerido('g_pp_iniciar_proyecto')
+
+# @pp_requerido('g_pp_iniciar_proyecto')
 def iniciar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
@@ -230,20 +249,81 @@ def nuevo_participante_view(request, proyecto_id):
             form = NuevoParticipanteForm(request.GET)
             if form.is_valid():
                 participante = form.save(commit=False)
-                participante.proyecto = proyecto
-                participante.save()
-                permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
+                rol = participante.rol
+                # Si ya existe una instancia de la clase Participante con el usuario en cuestion se obtiene ese objeto
+                if proyecto.participante_set.all().filter(usuario=participante.usuario).exists():
+                    participante = proyecto.participante_set.get(usuario=participante.usuario)
+                else:
+                    # En caso contrario se incluyen los campos faltantes y se guarda el objeto participante
+                    # obtenido del formulario
+                    participante.proyecto = proyecto
+                    participante.save()
+                permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                                      fase.startswith('f_')}
-                participante.asignar_permisos_de_proyecto(permisos_por_fase)
-                # TODO cambiar a donde dirige este redirect
-                return redirect('index')
+                # Se asigna el rol de proyecto con los permisos correspondientes
+                participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+
+                return redirect('participantes', proyecto_id)
         else:
             rol = RolDeProyecto.objects.get(id=request.GET['rol'])
             usuario = User.objects.get(id=request.GET['usuario'])
             contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(usuario, proyecto, rol)
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Nuevo Participante',
+                              'links': [{'nombre': proyecto.nombre,
+                                         'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                        {'nombre': 'Participantes',
+                                         'url': reverse('participantes', args=(proyecto_id,))}]
+                              }
     return render(request, 'gestion_de_proyecto/nuevo_participante.html', contexto)
+
+
+def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
+    """
+    Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
+
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = get_object_or_404(proyecto.participante_set, id=participante_id)
+    contexto = {
+        'user': request.user,
+        'proyecto': proyecto,
+        'participante': participante,
+        'roles_de_proyecto': RolDeProyecto.objects.all(),
+        'breadcrumb': {'pagina_actual': 'Asignar Rol de Proyecto',
+                       'links': [
+                           {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                           {'nombre': 'Participantes', 'url': reverse('participantes', args=(proyecto.id,))},
+                           {'nombre': participante.usuario.get_full_name(),
+                            'url': reverse('participante', args=(proyecto_id, participante_id))}]
+                       }
+    }
+    if 'rol_de_proyecto' in request.GET.keys():
+        rol = get_object_or_404(RolDeProyecto, id=request.GET['rol_de_proyecto'])
+        contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(participante.usuario, proyecto, rol)
+    if request.method == 'POST':
+        permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
+                             fase.startswith('f_')}
+        rol = get_object_or_404(RolDeProyecto, id=request.POST['rol'])
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+        return redirect('participante', proyecto.id, participante.id)
+    return render(request, 'gestion_de_proyecto/asignar_rol_de_proyecto.html', contexto)
 
 
 def pp_insuficientes(request, *args, **kwargs):
     return render(request, 'gestion_de_proyecto/pp_insuficientes.html', context={'user': request.user})
+
+
+def seleccionar_miembros_del_comite_view(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    comite = get_object_or_404(Comite, proyecto=proyecto)
+    form = SeleccionarMiembrosDelComiteForm(proyecto, instance=comite)
+    contexto = {'user': request.user, 'form': form}
+    if request.method == 'POST':
+        form = SeleccionarMiembrosDelComiteForm(proyecto, request.POST, instance=comite)
+        if form.is_valid():
+            comite.miembros.clear()
+            for participante in form.cleaned_data['miembros']:
+                comite.miembros.add(participante)
+            comite.save()
+            return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
+    return render(request, 'gestion_de_proyecto/seleccionar_miembros_del_comite.html', context=contexto)

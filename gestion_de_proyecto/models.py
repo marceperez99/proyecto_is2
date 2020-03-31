@@ -37,7 +37,9 @@ class Proyecto(models.Model):
         permissions = [('ps_crear_proyecto', 'Crear Proyecto'),
                        ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
                        ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
-                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto')]
+                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
+                       ('g_pp_cancelar_proyecto', 'Cancelar Proyecto'),
+                       ('pp_ver_proyecto', 'Visualizar Proyecto')]
 
     def __str__(self):
         return self.nombre
@@ -144,7 +146,6 @@ class Proyecto(models.Model):
             self.estado = EstadoDeProyecto.CANCELADO
         return True
 
-
     def iniciar(self):
         """
         Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
@@ -153,12 +154,13 @@ class Proyecto(models.Model):
             True: si cambio a estado "Iniciado"
             False: si el proyecto aun no tiene fases
         """
-        if self.fase_set.exists():
+        comite = Comite.objects.get(proyecto=self)
+        numero_de_miembros = comite.miembros.all().count()
+        if self.fase_set.exists() and numero_de_miembros > 1 and numero_de_miembros % 2 == 1:
             self.estado = EstadoDeProyecto.INICIADO
             return True
         else:
             return False
-
 
     def eliminar_participante(self, usuario):
         """
@@ -195,11 +197,32 @@ class Participante(models.Model):
 
     class Meta:
         permissions = [
+            ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
             ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
             ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
             ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
-            ('pp_desasignar_rp_a_participante', 'Desasignar Rol de Proyecto a Participante'),
         ]
+
+    def __str__(self):
+        return self.usuario.get_full_name()
+    def get_pp_por_fase(self):
+        """
+        Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
+        proyecto que el usuario tiene asignado en la fase correspondiente.
+
+            Retorna:
+                dict: diccionario con la estructura.
+                    { Fase: [Permission, ...] }
+
+        """
+        pp_por_fase = {}
+        for fase in self.proyecto.get_fases():
+            if self.permisos_por_fase.filter(fase=fase).exists():
+                pp_por_fase[fase] = self.permisos_por_fase.get(fase=fase).permisos.all()
+            else:
+                pp_por_fase[fase] = []
+
+        return pp_por_fase
 
     def asignar_permisos_de_proyecto(self, permisos_por_fase):
         """
@@ -219,10 +242,11 @@ class Participante(models.Model):
             else:
                 raise Exception('Objeto recibido no valido')
 
-            pp_por_fase = PermisosPorFase(fase=fase_obj)
-            pp_por_fase.save()
-            pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
-            self.permisos_por_fase.add(pp_por_fase)
+            if permisos_por_fase[fase]:
+                pp_por_fase = PermisosPorFase(fase=fase_obj)
+                pp_por_fase.save()
+                pp_por_fase.asignar_permisos_de_proyecto(permisos_por_fase[fase])
+                self.permisos_por_fase.add(pp_por_fase)
 
     def asignar_rol_de_proyecto(self, rol, permisos_por_fase={}):
         """
@@ -233,6 +257,7 @@ class Participante(models.Model):
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
         """
+        self.permisos_por_fase.clear()
         if permisos_por_fase != {}:
             self.asignar_permisos_de_proyecto(permisos_por_fase)
         self.rol = rol
@@ -279,6 +304,17 @@ class Participante(models.Model):
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
-            return self.pp_por_fase.get(fase=fase).tiene_pp(permiso)
+            return self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
+
+
+class Comite(models.Model):
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
+    miembros = models.ManyToManyField(Participante)
+
+    def es_miembro(self,participante):
+        if self.miembros.get(id = participante.id).exists():
+            return True
+        else:
+            return False

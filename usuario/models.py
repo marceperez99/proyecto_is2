@@ -25,3 +25,17 @@ class Usuario(User):
 
     def tiene_rs(self):
         return self.groups.all().exists()
+
+    def get_rol_de_sistema(self):
+        """
+        Metodo que retorna el rol de Sistema que tiene asignado el usuairo.
+
+        Retorna:
+            RolDeSistema: objeto con los datos del rol de sistema asignado al usuario.
+        """
+        assert self.groups.all().count() in [0, 1], 'El usuario tiene mas de un rol de sistema asignado'
+        if self.groups.all().count() == 1:
+            rol = self.groups.all()[0]
+            return RolDeSistema.objects.get(nombre=rol.name)
+        return None
+
