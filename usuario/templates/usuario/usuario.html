@@ -4,12 +4,33 @@
     {% include 'navBar.html' %}
     <div class="container mt-3">
         <div class="row">
-            <h3 class="col-12 col-sm-5">Perfil de Usuario</h3>
+            {% if rs_asignado %}
+            <div class="alert alert-danger col-12" hidden="true">
+                <div class="text-center">
+                    Si desea desasignar el Rol de Sistema <strong>"{{nombre_rs}}"</strong> al Usuario, presione
+                    <form method="POST" hidden>
+                        {% csrf_token %}
+                        <input type="text" name="eliminar" value="1" hidden/>
+                        <input id="idaqui" type="submit" class="btn btn-dark m-0 p-0" value="aquí"/>
+                    </form>
+                    <label for="idaqui"><strong><u>aquí</u></strong></label>
+                    <button type="button" class="close" onclick="$('.alert').prop('hidden',true).change()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            <h3 class="col-12 col-sm-5 mr-auto">Perfil de Usuario</h3>
             <div class="col-12 col-sm-7">
-                <div class="row">
+                <div class="row justify-content-end">
+                    {% if rs_asignado %}
+                    <button type="button" class="btn btn-danger" onclick="$('.alert').prop('hidden',false).change()">
+                        Desasignar Rol de Sistema
+                    </button>
+                    {% endif %}
                     <a href="{%url 'asignar_rol_de_sistema' usuario.id%}"
-                       class="btn btn-primary bg-color-accent mx-auto ml-sm-auto mr-sm-0 col-10 col-sm-4">
-                        Asignar Rol de Sistema
+                       class="btn btn-primary bg-color-accent ml-1">
+                        {% if rs_asignado %}Cambiar{% else %}Asignar{% endif %} Rol de Sistema
                     </a>
                 </div>
 
