@@ -19,12 +19,18 @@ class TipoDeItem(models.Model):
         fecha_creacion: date\n
 
     """
-    nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=400)
+    nombre = models.CharField(max_length=101)
+    descripcion = models.CharField(max_length=401)
     prefijo = models.CharField(max_length=20)
     creador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
+
+    class Meta:
+        permissions = [('pp_f_crear_tipo_de_item', 'Crear tipo de ítem'),
+                       ('pp_f_eliminar_tipo_de_item', 'Eliminar tipo de ítem'),
+                       ('pp_f_editar_tipo_de_item', 'Editar tipo de ítem'),
+                       ('pp_f_importar_tipo_de_item', 'Importar tipo de ítem')]
 
     def __str__(self):
         return self.nombre
@@ -59,7 +65,8 @@ class AtributoBinario(models.Model):
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_tamaño = models.IntegerField(verbose_name="Tamaño Máximo (MB)",
-        validators=[MinValueValidator(1, "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
+                                     validators=[MinValueValidator(1,
+                                                                   "El tamaño maximo para el archivo debe ser mayor o igual a 1MB")])
 
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
@@ -80,7 +87,8 @@ class AtributoCadena(models.Model):
     nombre = models.CharField(max_length=100)
     requerido = models.BooleanField()
     max_longitud = models.IntegerField(verbose_name='Longitud Maxima',
-                                       validators=[MinValueValidator(0,"La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
+                                       validators=[MinValueValidator(0,
+                                                                     "La longitud maxima de la cadena debe ser un numero mayor o igual a 0"),
                                                    MaxValueValidator(500, "La longlitud maxima de la cadena es 500")])
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
