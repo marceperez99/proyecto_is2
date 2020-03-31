@@ -46,11 +46,11 @@
                                         <div class="col col-sm-2"><p style="text-decoration: underline;">Descripción:</p></div>
                                         <div class="col col-sm-10"><p>{{proyecto.descripcion}}</p></div>
                                         <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
-                                        <div class="col col-sm-10"><p>00/00/0000</p></div>
+                                        <div class="col col-sm-10"><p>{{proyecto.fecha_de_creacion}}</p></div>
                                         <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
-                                        <div class="col col-sm-10"><p>0</p></div>
-                                        <div class="col col-sm-2"><p style="text-decoration: underline;">Gerente del Proyecto:</p></div>
-                                        <div class="col col-sm-10"><p>{{proyecto.gerente}}</p></div>
+                                        <div class="col col-sm-10"><p>{{proyecto.fase_set.all.count}}</p></div>
+                                        <div class="col col-sm-2"><p style="text-decoration: bold;">Gerente del Proyecto:</p></div>
+                                        <div class="col col-sm-10"><p>{{proyecto.gerente.first_name}} {{proyecto.gerente.last_name}}</p></div>
                                     </div>
                                 </div>
                             </div>
