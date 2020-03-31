@@ -35,7 +35,7 @@ def nuevo_proyecto_view(request):
             proyecto.fechaDeCreacion = timezone.now()
             proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
-            comite = Comite(proyecto = proyecto)
+            comite = Comite(proyecto=proyecto)
             comite.save()
             return redirect('index')
     else:

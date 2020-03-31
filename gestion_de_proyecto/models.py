@@ -153,7 +153,9 @@ class Proyecto(models.Model):
             True: si cambio a estado "Iniciado"
             False: si el proyecto aun no tiene fases
         """
-        if self.fase_set.exists():
+        comite = Comite.objects.get(proyecto=self)
+        numero_de_miembros = comite.miembros.all().count()
+        if self.fase_set.exists() and numero_de_miembros > 1 and numero_de_miembros % 2 == 1:
             self.estado = EstadoDeProyecto.INICIADO
             return True
         else:
