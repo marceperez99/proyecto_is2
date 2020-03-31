@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
@@ -42,13 +42,16 @@ def usuario_view(request, usuario_id):
     Requiere los siguientes permisos del sistema:
         -Visualizar usuarios del sistema
     """
-
     usuario = get_object_or_404(Usuario, pk=usuario_id)
-
-    contexto = {'usuario': usuario, 'user': request.user,
-                'breadcrumb': {'pagina_actual': usuario.get_full_name(),
-                               'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')}]}
-                }
+    grupo = None
+    if request.method == 'POST':
+        usuario.desasignar_rol_a_usuario()
+    else:
+        for g in usuario.groups.all():
+            grupo = g.name
+    contexto = {'usuario': usuario, 'user': request.user, 'rs_asignado': usuario.tiene_rs(), 'nombre_rs': grupo,
+               'breadcrumb': {'pagina_actual': usuario.get_full_name(),
+                               'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')}]}}
     return render(request, 'usuario/usuario.html', context=contexto)
 
 
@@ -70,7 +73,7 @@ def usuario_asignar_rol_view(request, usuario_id):
         if form.is_valid():
             print(form.cleaned_data.get('Rol'))
             usuario.asignar_rol_a_usuario(form.cleaned_data.get('Rol'))
-            return redirect('pefil_de_usuario', usuario_id=usuario.id)
+            return redirect('perfil_de_usuario', usuario_id=usuario.id)
         else:
             messages.error(request, "No se pudo asignar Rol de Sistema")
     else:

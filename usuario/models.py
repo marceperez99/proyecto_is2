@@ -14,13 +14,17 @@ class Usuario(User):
         proxy = True
 
     def asignar_rol_a_usuario(self, rs_id):
-        if self.groups.all().exists():
-            self.groups.all().delete()
+        self.groups.clear()
         rs = RolDeSistema.objects.get(id=rs_id)
         print(rs.nombre)
-        group = Group(name=rs.nombre)
-        group.save()
+        group = Group.objects.get(name=rs.nombre)
         self.groups.add(group)
+
+    def desasignar_rol_a_usuario(self):
+        self.groups.clear()
+
+    def tiene_rs(self):
+        return self.groups.all().exists()
 
     def get_rol_de_sistema(self):
         """
@@ -34,3 +38,4 @@ class Usuario(User):
             rol = self.groups.all()[0]
             return RolDeSistema.objects.get(nombre=rol.name)
         return None
+
