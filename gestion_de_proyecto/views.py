@@ -251,7 +251,7 @@ def nuevo_participante_view(request, proyecto_id):
                     # obtenido del formulario
                     participante.proyecto = proyecto
                     participante.save()
-                permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
+                permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                                      fase.startswith('f_')}
                 # Se asigna el rol de proyecto con los permisos correspondientes
                 participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
@@ -294,7 +294,7 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
         rol = get_object_or_404(RolDeProyecto, id=request.GET['rol_de_proyecto'])
         contexto['seleccionar_permisos_form'] = SeleccionarPermisosForm(participante.usuario, proyecto, rol)
     if request.method == 'POST':
-        permisos_por_fase = {fase[2:]: request.POST[fase] for fase in request.POST.keys() if
+        permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                              fase.startswith('f_')}
         rol = get_object_or_404(RolDeProyecto, id=request.POST['rol'])
         participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
