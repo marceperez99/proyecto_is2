@@ -38,7 +38,7 @@ def nuevo_proyecto_view(request):
             proyecto.save()
             comite = Comite(proyecto=proyecto)
             comite.save()
-            return redirect('index')
+            return redirect('panel_de_control')
     else:
         form = ProyectoForm()
     contexto = {'formulario': form,
