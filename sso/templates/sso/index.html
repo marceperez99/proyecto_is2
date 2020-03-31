@@ -43,14 +43,14 @@
                                 </div>
                                 <div id="collapse_project{{ proyecto.id }}" class="collapse" aria-labelledby="header_project_{{ proyecto.id }}" data-parent="#list_projects">
                                     <div class="card-body row">
-                                        <div class="col col-sm-2"><p>Descripción:</p></div>
-                                        <div class="col col-sm-10"><p>{{proyecto.descripcion}}</p></div>
-                                        <div class="col col-sm-2"><p>Fecha de Creación:</p></div>
-                                        <div class="col col-sm-10"><p>{{proyecto.fecha_de_creacion}}</p></div>
-                                        <div class="col col-sm-2"><p>Cantidad de Fases:</p></div>
-                                        <div class="col col-sm-10"><p>{{proyecto.fase_set.all.count}}</p></div>
-                                        <div class="col col-sm-2"><p>Gerente del Proyecto:</p></div>
-                                        <div class="col col-sm-10"><p>{{proyecto.gerente.first_name}} {{proyecto.gerente.last_name}}</p></div>
+                                        <div class="col col-sm-3"><p>Descripción:</p></div>
+                                        <div class="col col-sm-9"><p>{{proyecto.descripcion}}</p></div>
+                                        <div class="col col-sm-3"><p>Fecha de Creación:</p></div>
+                                        <div class="col col-sm-9"><p>{{proyecto.fecha_de_creacion}}</p></div>
+                                        <div class="col col-sm-3"><p>Cantidad de Fases:</p></div>
+                                        <div class="col col-sm-9"><p>{{proyecto.fase_set.all.count}}</p></div>
+                                        <div class="col col-sm-3"><p>Gerente del Proyecto:</p></div>
+                                        <div class="col col-sm-9"><p>{{proyecto.gerente.first_name}} {{proyecto.gerente.last_name}}</p></div>
                                     </div>
                                 </div>
                             </div>
