@@ -116,7 +116,8 @@
                                 {% for rol in roles_de_sistema %}
                                     <tr>
                                         <td>{{ rol.nombre }}</td>
-                                        <td class="text-right"><a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                        <td class="text-right"><a href="{% url 'rol_de_sistema' rol.id %}"
+                                                                  class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                             <i class="fas fa-eye"></i>
                                             &nbsp Visualizar
                                         </a></td>
