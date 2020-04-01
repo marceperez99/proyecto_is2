@@ -40,16 +40,19 @@ class Proyecto(models.Model):
         """
         Metodo que retorna el objeto Participante asociado al proyecto y que contenga el usuario
         pasado como parametro.\n
-        Args:\n
+        Argumentos:
             usuario: objeto User\n
-        Retorna:\n
+        Retorna:
             Participante
 
         """
         if self.gerente.id == usuario.id:
             return self.participante_set.get(usuario=usuario)
         else:
+          if self.participante_set.get(usuario=usuario, rol__isnull=False).exists():
             return self.participante_set.get(usuario=usuario, rol__isnull=False)
+          else:
+            return None
 
     def get_gerente(self):
         """
