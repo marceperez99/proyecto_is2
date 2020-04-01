@@ -109,7 +109,8 @@ class Proyecto(models.Model):
             permisos_por_fase: Diccionario con las fases del proyecto y el conjunto de permisos de proyecto
             a asignar al usuario en cada fase respectivamente.
         """
-        participante = self.get_participante(usuario)
+        assert self.participante_set.filter(usuario=usuario).exists() is True, 'No existe el participante en el proyecto'
+        participante = self.participante_set.get(usuario=usuario)
         participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
 
     def tiene_permiso_de_proyecto(self, usuario, permiso):
