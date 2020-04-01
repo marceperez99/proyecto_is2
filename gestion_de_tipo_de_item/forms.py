@@ -33,8 +33,8 @@ class TipoDeItemForm(forms.ModelForm):
         fases = self.proyecto.get_fases()
         for fase in fases:
             tipos = fase.tipodeitem_set.all()
-            for tipo in tipos and not self.tipo_de_item == tipo:
-                if tipo.prefijo == prefijo:
+            for tipo in tipos:
+                if tipo.prefijo == prefijo and not self.tipo_de_item == tipo:
                     raise forms.ValidationError('El prefijo debe ser único dentro del proyecto')
         return prefijo
 
