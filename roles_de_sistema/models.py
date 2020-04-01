@@ -52,8 +52,11 @@ class RolDeSistema(models.Model):
             group = Group(name=self.nombre)
             group.save()
 
+        group.permissions.add(Permission.objects.get(codename='pu_acceder_sistema'))
+
         for permiso in self.permisos.all():
             group.permissions.add(permiso)
+
 
     def __str__(self):
         return self.nombre
@@ -70,7 +73,7 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si existe algun usuario utilizando este Rol de Sistema en algun Sistema, False en caso contrario.
 
-        returna: bool
+        retorna: bool
         """
         group = Group.objects.get(name=self.nombre)
         return group.user_set.all().exists()
@@ -79,7 +82,7 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si el rol d sistema fue eliminado con exito, False en caso contrario
 
-        :return: bool
+        retorna: bool
         """
         group = Group.objects.get(name=self.nombre)
         if self.es_utilizado():
