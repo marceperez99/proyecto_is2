@@ -68,7 +68,19 @@ class Proyecto(models.Model):
         Retorna:\n
             QuerySet: objeto con todos los participantes del Proyecto.
         """
-        return self.participante_set.all()
+        participantes = [self.participante_set.get(usuario=self.gerente)]
+        participantes.extend(list(self.participante_set.all().filter(rol__isnull=False)))
+
+        return participantes
+
+    def get_comite_de_cambios(self):
+        """
+        Metodo que retorna el Comite de Cambios asociado al Proyecto.
+            Retorna:
+                 Comite: objeto Comite del proyecto
+        """
+        assert self.comite_set.all().count() == 1, 'El Proyecto no tiene un Comite asociado'
+        return self.comite_set.all()[0]
 
     def get_fases(self):
         """
@@ -202,6 +214,20 @@ class Participante(models.Model):
 
     def __str__(self):
         return self.usuario.get_full_name()
+
+    def get_rol_nombre(self):
+        """
+        Metodo que retorna el nombre del Rol de Proyecto que tiene asignado un participante dentro del Proyecto.
+
+            Retorna:
+                string: nombre del rol de Proyecto que tiene asignado el usuario dentro del proyecto,
+                retorna 'Gerente de Proyecto' si el participante es el Gerente de este proyecto.
+        """
+        if self.rol is not None:
+            return self.rol.nombre
+        else:
+            return 'Gerente de Proyecto' if self.usuario == self.proyecto.gerente else None
+
     def get_pp_por_fase(self):
         """
         Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
@@ -310,8 +336,8 @@ class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
     miembros = models.ManyToManyField(Participante)
 
-    def es_miembro(self,participante):
-        if self.miembros.get(id = participante.id).exists():
+    def es_miembro(self, participante):
+        if self.miembros.get(id=participante.id).exists():
             return True
         else:
             return False
