@@ -8,5 +8,6 @@ urlpatterns = [
     path('', views.index_view, name='index'),
     path('accounts/', include('allauth.urls')),
     path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout')
+    path('logout/', views.logout_view, name='logout'),
+    path('sin_permiso/', views.sin_permiso, name='sin_permiso'),
 ]
