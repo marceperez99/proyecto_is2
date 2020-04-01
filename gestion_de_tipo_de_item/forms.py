@@ -23,6 +23,20 @@ class TipoDeItemForm(forms.ModelForm):
         model = TipoDeItem
         fields = ['nombre', 'descripcion', 'prefijo']
 
+    def __init__(self, *args,proyecto=None, **kwargs):
+        super(TipoDeItemForm, self).__init__(*args, **kwargs)
+        self.proyecto = proyecto
+
+    def clean_prefijo(self):
+        prefijo = self.cleaned_data.get('prefijo')
+        fases = self.proyecto.get_fases()
+        for fase in fases:
+            tipos = fase.tipodeitem_set.all()
+            for tipo in tipos:
+                if tipo.prefijo == prefijo:
+                    raise forms.ValidationError('El prefijo debe ser único dentro del proyecto')
+        return prefijo
+
 
 class AtributoCadenaForm(forms.ModelForm):
     tipo = forms.CharField(widget=forms.HiddenInput, initial='cadena')
@@ -62,4 +76,3 @@ class AtributoBooleanoForm(forms.ModelForm):
     class Meta:
         model = AtributoBooleano
         fields = ['nombre', 'requerido']
-

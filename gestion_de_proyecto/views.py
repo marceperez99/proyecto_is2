@@ -39,6 +39,8 @@ def nuevo_proyecto_view(request):
             proyecto.fechaDeCreacion = timezone.now()
             proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
+            participante = Participante(usuario=proyecto.gerente, proyecto=proyecto)
+            participante.save()
             comite = Comite(proyecto=proyecto)
             comite.save()
             return redirect('panel_de_control')
