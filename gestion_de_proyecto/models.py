@@ -46,7 +46,10 @@ class Proyecto(models.Model):
             Participante
 
         """
-        return get_object_or_404(self.participante_set, usuario=usuario)
+        if self.gerente.id == usuario.id:
+            return self.participante_set.get(usuario=usuario)
+        else:
+            return self.participante_set.get(usuario=usuario, rol__isnull=False)
 
     def get_gerente(self):
         """
@@ -316,7 +319,7 @@ class Participante(models.Model):
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
-            return self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
+            return self.permisos_por_fase.filter(fase=fase).exists() and self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
 
