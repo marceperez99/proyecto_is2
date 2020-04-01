@@ -4,6 +4,14 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
+    {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-danger">
+                            {{ message }}</div>
+                {% endif %}
+                {% endfor %}
+        {% endif %}
     <div class="container mt-3">
         <div class="row">
             <h3 class="col-auto">{{ proyecto.nombre }}</h3>
