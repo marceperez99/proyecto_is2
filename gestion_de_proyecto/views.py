@@ -232,7 +232,7 @@ def iniciar_proyecto_view(request, proyecto_id):
             proyecto.save()
         else:
             messages.error(request, 'No se puede iniciar el proyecto.')
-        return redirect('index')
+        return redirect('visualizar_proyecto', proyecto_id)
     return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
 
