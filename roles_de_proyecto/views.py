@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,6 +10,7 @@ from .forms import NewRolDeProyectoForm
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 # TODO falta incluir el permiso de sistema de que puede ver esto
 def listar_roles_de_proyecto_view(request):
     """
@@ -39,6 +40,7 @@ def listar_roles_de_proyecto_view(request):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 # TODO requiere que se indique que requiere un permiso de sistema
 def editar_rol_de_proyecto_view(request, id_rol):
     """
@@ -77,6 +79,7 @@ def editar_rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 # TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
@@ -115,6 +118,8 @@ def nuevo_rol_de_proyecto_view(request):
         return render(request, 'roles_de_proyecto/nuevo_rol.html', context=contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def rol_de_proyecto_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Proyecto.
@@ -147,6 +152,8 @@ def rol_de_proyecto_view(request, id_rol):
     return render(request, 'roles_de_proyecto/ver_rol.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def eliminar_rol_de_proyecto_view(request, id_rol):
     rol = get_object_or_404(RolDeProyecto, pk=id_rol)
     if request.method == 'POST':

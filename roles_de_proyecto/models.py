@@ -23,12 +23,6 @@ class RolDeProyecto(models.Model):
     permisos = models.ManyToManyField(Permission)
     #creador = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    class Meta:
-        permissions = [('ps_crear_rp', 'Crear Rol de Proyecto'),
-                       ('ps_editar_rp', 'Editar Rol de Proyecto'),
-                       ('ps_eliminar_rp', 'Eliminar Rol de Proyecto'),
-                       ('ps_ver_rp', 'Visualizar Rol de Proyecto')]
-
     def __str__(self):
         return self.nombre
 

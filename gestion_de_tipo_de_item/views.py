@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from gestion_de_proyecto.models import Proyecto
@@ -18,6 +19,8 @@ from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     Vista que permite visualizar el nombre, la descripción, y los atributos de un tipo de item
@@ -50,6 +53,8 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     return render(request, 'gestion_de_tipo_de_item/ver_tipo_de_item.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     Vista que permite visualizar los tipos de items asociados a una fase de un proyecto.
@@ -79,6 +84,9 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
                 }
     return render(request, 'gestion_de_tipo_de_item/tipos_de_items.html', context=contexto)
 
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_tipo_de_item')
 def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
@@ -152,6 +160,9 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_importar_tipo_de_item")
 def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
@@ -189,6 +200,8 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_tipo_de_item/importar_tipo_de_item.html', context=contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_tipo_de_item')
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """

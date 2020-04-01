@@ -34,10 +34,7 @@ class Proyecto(models.Model):
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
     class Meta:
-        permissions = [('ps_crear_proyecto', 'Crear Proyecto'),
-                       ('ps_cancelar_proyecto', 'Cancelar Proyecto'),
-                       ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
-                       ('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
+        permissions = [('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
                        ('g_pp_cancelar_proyecto', 'Cancelar Proyecto'),
                        ('pp_ver_proyecto', 'Visualizar Proyecto')]
 

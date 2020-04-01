@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -14,6 +14,7 @@ from .forms import AsignarRolDeProyectoForm
 
 # Create your views here.
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def usuarios_view(request):
     """
     Vista que muestra la lista de usuarios del sistema.
@@ -32,6 +33,7 @@ def usuarios_view(request):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def usuario_view(request, usuario_id):
     """
     Vista que permite ver la información publica de un usuario.
@@ -56,6 +58,7 @@ def usuario_view(request, usuario_id):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def usuario_asignar_rol_view(request, usuario_id):
     """
     Vista que permite asignar un rol a un usuario
@@ -84,6 +87,7 @@ def usuario_asignar_rol_view(request, usuario_id):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def panel_de_administracion_view(request):
     contexto = {'user': request.user,
                 'usuarios': Usuario.objects.all(),

@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import logout
 
 from gestion_de_proyecto.models import Proyecto
 from usuario.models import Usuario
-@login_required
-def index_view(request):
 
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+def index_view(request):
     """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el menú pricipal
 
     Args:
@@ -15,11 +17,14 @@ def index_view(request):
     Retorna:
         El HttpResponse de la Vista a mostrarse
     """
-    usuario = Usuario.objects.get(id = request.user.id)
 
+    usuario = Usuario.objects.get(id = request.user.id)
     proyectos = usuario.get_proyectos()
     contexto = {'user': request.user, 'proyectos':proyectos}
+    
     return render(request, 'sso/index.html', context=contexto)
+
+
 # Create your views here.
 
 def login_view(request):
@@ -33,12 +38,13 @@ def login_view(request):
         HttpResponse
     """
     contexto = None
-    if(request.user.is_authenticated):
+    if (request.user.is_authenticated):
         print(request.user.first_name)
         return redirect('index')
     else:
 
-        return render(request, 'sso/login.html',context = contexto)
+        return render(request, 'sso/login.html', context=contexto)
+
 
 @login_required
 def logout_view(request):
@@ -53,3 +59,10 @@ def logout_view(request):
     """
     logout(request)
     return redirect('login')
+
+
+def sin_permiso(request):
+    """
+    Vista que se encarga de avisarle al usuario que no posee permisos suficientes para lo que desea realizar
+    """
+    return render(request, 'sso/sin_acceso.html')

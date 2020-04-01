@@ -25,10 +25,22 @@ class RolDeSistema(models.Model):
 
     class Meta:
         permissions = [
-            ('ps_crear_rs', 'Crear nuevo Rol de Sistema'),
+            ('pa_crear_proyecto', 'Crear Proyecto'),
+            ('pa_cancelar_proyecto', 'Cancelar Proyecto'),
+            ('ps_ver_proyecto', 'Visualizar lista de todos los Proyectos guardados en el Sistema'),
             ('ps_ver_rs', 'Visualizar Lista de Roles de Sistema'),
-            ('ps_eliminar_rs', 'Eliminar Rol de Sistema'),
-            ('ps_asignar_rs', 'Asignar Roles de Sistema '),
+            ('pa_crear_rs', 'Crear nuevo Rol de Sistema'),
+            ('pa_eliminar_rs', 'Eliminar Rol de Sistema'),
+            ('pa_asignar_rs', 'Asignar Rol de Sistema'),
+            ('pa_crear_rp', 'Crear Rol de Proyecto'),
+            ('ps_ver_rp', 'Visualizar Rol de Proyecto'),
+            ('pa_eliminar_rp', 'Eliminar Rol de Proyecto'),
+            ('pa_editar_rp', 'Editar Rol de Proyecto'),
+            ('ps_ver_usuarios', 'Visualizar lista de todos los Usuarios registrados en el Sistema'),
+            ('pa_desactivar_usuario', 'Desactiva a un Usuario del Sistema'),
+            ('pa_config_cloud', 'Configurar Conexión con el servicio de almacenamiento en la nube'),
+            ('pa_config_sso', 'Configurar Conexión con SSO'),
+            ('pu_acceder_sistema', 'Acceder al Sistema'),
         ]
 
     def save(self, *args, **kwargs):
@@ -40,8 +52,11 @@ class RolDeSistema(models.Model):
             group = Group(name=self.nombre)
             group.save()
 
+        group.permissions.add(Permission.objects.get(codename='pu_acceder_sistema'))
+
         for permiso in self.permisos.all():
             group.permissions.add(permiso)
+
 
     def __str__(self):
         return self.nombre
@@ -58,7 +73,7 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si existe algun usuario utilizando este Rol de Sistema en algun Sistema, False en caso contrario.
 
-        returna: bool
+        retorna: bool
         """
         group = Group.objects.get(name=self.nombre)
         return group.user_set.all().exists()
@@ -67,7 +82,7 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si el rol d sistema fue eliminado con exito, False en caso contrario
 
-        :return: bool
+        retorna: bool
         """
         group = Group.objects.get(name=self.nombre)
         if self.es_utilizado():
