@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 
 # Create your models here.
+from gestion_de_proyecto.models import Participante, Proyecto
 from roles_de_sistema.models import RolDeSistema
 
 
@@ -38,4 +39,24 @@ class Usuario(User):
             rol = self.groups.all()[0]
             return RolDeSistema.objects.get(nombre=rol.name)
         return None
+
+
+    def get_proyectos(self):
+        """
+        Método que retorna la lista de proyectos en los que el usuario participa.
+
+        Retorna:
+            proyectos: lista[] con los proyectos en los que el usuario participa.
+        """
+        user = User.objects.get(id = self.id)
+
+        proyectos = []
+        proyectos_set = Proyecto.objects.filter(gerente = user)
+        for proyecto in proyectos_set:
+            proyectos.append(proyecto)
+        participantes = Participante.objects.filter(usuario = user).exclude(rol = None)
+        for participante in participantes:
+            proyectos.append(participante.proyecto)
+
+        return proyectos
 
