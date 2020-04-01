@@ -1,9 +1,10 @@
-from datetime import datetime
 import pytest
 from django.contrib.auth.models import User, Permission
+from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
-from django.test import TestCase, Client
+from django.test import Client
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -33,7 +34,6 @@ def rol_de_proyecto():
 @pytest.fixture
 def proyecto(usuario, rol_de_proyecto):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
-                        fecha_de_creacion=datetime.today(),
                         creador=usuario)
     proyecto.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)

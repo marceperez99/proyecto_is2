@@ -11,7 +11,6 @@ from .forms import NewRolDeSistemaForm
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO falta incluir el permiso de sistema de que puede ver esto
 def listar_roles_de_sistema_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Sistema que existen dentro del Sistema.

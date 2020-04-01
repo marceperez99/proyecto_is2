@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import pytest
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
 
@@ -9,6 +9,14 @@ from .models import RolDeSistema
 
 
 # Create your tests here.
+@pytest.fixture
+def rs_admin():
+    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol.save()
+    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
+        rol.permisos.add(pp)
+    rol.save()
+    return rol
 
 @pytest.fixture
 def usuario():
@@ -36,10 +44,11 @@ def rol_de_sistema():
 
 
 @pytest.mark.django_db
-def test_vista_crear_rol_usuario_loggeado(cliente_loggeado):
+def test_vista_crear_rol_usuario_loggeado(usuario, cliente_loggeado, rs_admin):
     """
     Test encargado de comprobar que no ocurra nigun error al cargar la pagina con un usuario que ha iniciado sesion
     """
+    usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
     response = cliente_loggeado.get(reverse('nuevo_rol_de_sistema'))
 
     assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
