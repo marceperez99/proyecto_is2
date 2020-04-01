@@ -127,12 +127,12 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
                 }
 
     if request.method == 'POST':
+        atributos_dinamicos = construir_atributos(request)
+        atributos_forms = atributo_form_handler(atributos_dinamicos)
 
-        tipo_de_item_form = TipoDeItemForm(request.POST or None)
+        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
-            atributos_dinamicos = construir_atributos(request)
-            atributos_forms = atributo_form_handler(atributos_dinamicos)
 
             all_valid = True
             # Se validan todos los forms
@@ -148,12 +148,15 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             else:
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
+        else:
+            contexto['form'] = tipo_de_item_form
+            contexto['atributos_seleccionados'] = atributos_forms
     else:
         if tipo_de_item_id is None:
-            contexto['form'] = TipoDeItemForm()
+            contexto['form'] = TipoDeItemForm(proyecto=proyecto)
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-            contexto['form'] = TipoDeItemForm(request.POST or None, instance =tipo_de_item)
+            contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
             # Construye un diccionario a partir de la lista de atributos
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
             print(atributos_dinamicos)
@@ -234,7 +237,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 }
 
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST or None)
+        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
             atributos_dinamicos = construir_atributos(request)
@@ -256,12 +259,14 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
             else:
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
+        else:
+
     else:
         if tipo_de_item_id is None:
-            contexto['form'] = TipoDeItemForm()
+            contexto['form'] = TipoDeItemForm(proyecto=proyecto)
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-            contexto['form'] = TipoDeItemForm(request.POST or None, instance=tipo_de_item)
+            contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
             # TODO: mañantipoa
             # Construye un diccionario a partir de la lista de atributos
 
