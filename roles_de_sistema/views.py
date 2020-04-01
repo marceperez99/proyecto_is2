@@ -64,11 +64,7 @@ def editar_rol_de_sistema_view(request, id_rol):
 
         if form.is_valid() and not rol.es_utilizado():
             rs = form.save()
-            grupo = Group.objects.get(name=rol.nombre)
-            grupo.permissions.clear()
-            grupo.permissions.set(rs.get_permisos())
-            grupo.name = rs.nombre
-            grupo.save()
+            rs.save()
             messages.success(request, 'Rol de Sistema modificado exitosamente')
             return redirect('rol_de_sistema', id_rol=id_rol)
         else:
@@ -122,12 +118,9 @@ def nuevo_rol_de_sistema_view(request):
         form = NewRolDeSistemaForm(request.POST)
         if form.is_valid():
             rol = form.save()
-            group = Group(name=rol.nombre)
-            print(rol.get_permisos())
-            group.save()
-            group.permissions.set(rol.get_permisos())
+            rol.save()
 
-        return redirect('nuevo_rol_de_sistema')
+        return redirect('listar_roles_de_sistema')
     else:
         contexto['form'] = NewRolDeSistemaForm()
 

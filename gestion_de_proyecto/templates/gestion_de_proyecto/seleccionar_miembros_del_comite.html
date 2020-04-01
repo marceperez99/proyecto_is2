@@ -18,10 +18,35 @@
             </div>
         {% endfor %}
     {% endif %}
-    <form method ="POST" action=""> {% csrf_token %}
-        {{ form | crispy }}
-        <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-5 mx-auto">Asignar al comite de cambio</button>
-    </form>
+
+    <div class="container mt-3">
+        <div class="row border bg-white p-3 ">
+            <h3 class="col-12">Asignar Comite de Cambios</h3>
+            <hr class="col-10">
+            <p class="col-11 mx-auto lead text-justify">
+                Seleccione a los participantes del Proyecto que desea que formen parte del Comite de Cambios.
+            </p>
+            <div class="col-11 mx-auto">
+                <form method ="POST"> {% csrf_token %}
+                    {{ form | crispy }}
+                    <div class="row">
+                        <div class="col-auto mx-auto my-3">
+                            <input type="submit" class="btn btn-primary bg-color-accent border-0 " value="Asignar Comite de Cambios">
+                            <a href="../" class="col-auto btn btn-danger bg-color-danger">Cancelar</a>
+                        </div>
+                        <p class="col-12 text-muted text-center">Usted puede volver a modificar el comite antes de Iniciar el Proyecto.
+                            No podrá iniciar el Proyecto hasta haber definido un Comite con un número de participantes
+                            impar mayor a 1</p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
 
 
 

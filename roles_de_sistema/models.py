@@ -31,6 +31,18 @@ class RolDeSistema(models.Model):
             ('ps_asignar_rs', 'Asignar Roles de Sistema '),
         ]
 
+    def save(self, *args, **kwargs):
+        super(RolDeSistema, self).save(*args, **kwargs)
+        if Group.objects.filter(name=self.nombre).exists():
+            group = Group.objects.get(name=self.nombre)
+            group.permissions.clear()
+        else:
+            group = Group(name=self.nombre)
+            group.save()
+
+        for permiso in self.permisos.all():
+            group.permissions.add(permiso)
+
     def __str__(self):
         return self.nombre
 
