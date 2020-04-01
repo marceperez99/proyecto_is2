@@ -23,16 +23,17 @@ class TipoDeItemForm(forms.ModelForm):
         model = TipoDeItem
         fields = ['nombre', 'descripcion', 'prefijo']
 
-    def __init__(self, *args,proyecto=None, **kwargs):
+    def __init__(self, *args, proyecto=None, tipo_de_item=None, **kwargs):
         super(TipoDeItemForm, self).__init__(*args, **kwargs)
         self.proyecto = proyecto
+        self.tipo_de_item = tipo_de_item
 
     def clean_prefijo(self):
         prefijo = self.cleaned_data.get('prefijo')
         fases = self.proyecto.get_fases()
         for fase in fases:
             tipos = fase.tipodeitem_set.all()
-            for tipo in tipos:
+            for tipo in tipos and not self.tipo_de_item == tipo:
                 if tipo.prefijo == prefijo:
                     raise forms.ValidationError('El prefijo debe ser único dentro del proyecto')
         return prefijo

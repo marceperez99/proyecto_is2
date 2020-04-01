@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import Permission
 
 from .models import RolDeSistema
+
 class NewRolDeSistemaForm(forms.ModelForm):
 
     def __init__(self,*args,**kwargs):
