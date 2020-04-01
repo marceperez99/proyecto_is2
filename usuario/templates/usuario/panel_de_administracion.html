@@ -44,7 +44,7 @@
                                             </h5>
                                         </td>
                                         <td class="text-right">
-                                            <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn btn-outline-secondary text-black">
+                                            <a href="{% url 'info_proyecto' proyecto.id %}" class="btn btn-outline-secondary text-black">
                                                 <i class="fas fa-eye"></i> Visualizar
                                             </a>
                                             {% if proyecto.estado != 'Cancelado' and proyecto.estado != 'Finalizado'  %}

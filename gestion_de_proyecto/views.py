@@ -166,10 +166,10 @@ def visualizar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    lista_participante = proyecto.participante_set.all().exclude(usuario = proyecto.gerente)
+    lista_participante = proyecto.participante_set.all().exclude(usuario=proyecto.gerente)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
-                'breadcrumb': {'pagina_actual': proyecto.nombre},'lista_participante':lista_participante}
+                'breadcrumb': {'pagina_actual': proyecto.nombre}, 'lista_participante': lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
 
@@ -352,3 +352,15 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
             comite.save()
             return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
     return render(request, 'gestion_de_proyecto/seleccionar_miembros_del_comite.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+def info_proyecto_view(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    contexto = {'user': request.user, 'proyecto': proyecto,
+                'breadcrumb': {'pagina_actual': 'Informacion del Proyecto',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))}]}}
+
+    return render(request, 'gestion_de_proyecto/info_proyecto.html', contexto)

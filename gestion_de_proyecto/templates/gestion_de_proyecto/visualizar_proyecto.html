@@ -77,6 +77,10 @@
                                     <span class="badge badge-danger">{{proyecto.estado}}</span>
                                 {% endif %}</h5>
                             </div>
+                        <div class="col-12 text-center mt-3">
+                            <a href="{% url 'info_proyecto' proyecto.id %}"
+                               class="btn btn-primary border-0 bg-color-accent">Ver mas Informacion</a>
+                        </div>
                         </div>
                     </div>
                 </div>
