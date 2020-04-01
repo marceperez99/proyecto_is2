@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+from usuario.models import Usuario
 from .models import Proyecto, Participante, Comite
 
 
@@ -33,7 +34,9 @@ class NuevoParticipanteForm(forms.ModelForm):
                         .exclude(usuario=proyecto.gerente).exists():
                     if user not in usuarios:
                         usuarios.append(user.id)
-            self.fields['usuario'].queryset = User.objects.all().filter(pk__in=usuarios)
+            self.fields['usuario'].queryset = Usuario.objects.all().filter(pk__in=usuarios)
+            self.fields['usuario'].empty_label = 'Seleccionar un usuario'
+            self.fields['rol'].empty_label = 'Seleccionar un rol'
 
     class Meta:
         model = Participante
