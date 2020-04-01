@@ -5,10 +5,12 @@ from django.urls import reverse
 from gestion_de_fase.forms import FaseForm
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto
+from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pu_f_ver_fase')
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
@@ -59,6 +61,7 @@ def listar_fase_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pg_crear_fase')
 def nueva_fase_view(request, proyecto_id):
     """
     Vista que se usa para la creacion y posicionamiento de una fase dentro de un proyecto
@@ -100,6 +103,7 @@ def nueva_fase_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pg_editar_fase')
 def editar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
@@ -137,6 +141,7 @@ def editar_fase_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pg_f_eliminar_fase')
 def eliminar_fase_view(request, proyecto_id, fase_id):
     """
     Muestra una vista al usuario para que confirme la eliminacion de una fase.

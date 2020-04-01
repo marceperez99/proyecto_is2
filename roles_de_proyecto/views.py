@@ -110,8 +110,8 @@ def nuevo_rol_de_proyecto_view(request):
         form = NewRolDeProyectoForm(request.POST)
         if form.is_valid():
             rol = form.save()
-            rol.permisos.add(Permission.objects.get(codename='pp_ver_proyecto'))
-        return redirect('nuevo_rol_de_proyecto')
+            rol.permisos.add(Permission.objects.get(codename='pu_ver_proyecto'))
+        return redirect('listar_roles_de_proyecto')
     else:
         contexto['form'] = NewRolDeProyectoForm()
 
@@ -162,6 +162,6 @@ def eliminar_rol_de_proyecto_view(request, id_rol):
             return redirect('rol_de_proyecto', id_rol=id_rol)
         else:
             rol.delete()
-            return redirect('listar_roles')
+            return redirect('listar_roles_de_proyecto')
     else:
         return HttpResponseNotFound('<h1>No se puede acceder a esta pagina.</h1>')

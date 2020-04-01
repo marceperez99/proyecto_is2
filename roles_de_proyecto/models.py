@@ -23,6 +23,28 @@ class RolDeProyecto(models.Model):
     permisos = models.ManyToManyField(Permission)
     #creador = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        permissions = [
+            ('pg_iniciar_proyecto', 'Iniciar Proyecto'),
+            ('pg_editar_proyecto', 'Editar Proyecto'),
+            ('pg_cancelar_proyecto', 'Cancelar Proyecto'),
+            ('pg_asignar_comite', 'Asignar Comite de Cambios'),
+            ('pu_ver_proyecto', 'Visualizar Proyecto'),
+            ('pg_crear_fase', 'Crear Fase dentro de Proyecto'),
+            ('pg_f_editar_fase', 'Editar Fase dentro de Proyecto'),
+            ('pg_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
+            ('pu_f_ver_fase', 'Visualizar Fase dentro de Proyecto'),
+            ('pp_f_cerrar_fase', 'Cerrar Fase de Proyecto'),
+            ('pp_f_crear_tipo_de_item', 'Crear tipo de ítem'),
+            ('pp_f_eliminar_tipo_de_item', 'Eliminar tipo de ítem'),
+            ('pp_f_editar_tipo_de_item', 'Editar tipo de ítem'),
+            ('pp_f_importar_tipo_de_item', 'Importar tipo de ítem'),
+            ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
+            ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
+            ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
+            ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
+        ]
+
     def __str__(self):
         return self.nombre
 

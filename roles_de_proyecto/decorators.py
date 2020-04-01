@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 
-from gestion_de_proyecto.models import Participante
+from gestion_de_proyecto.models import Participante, Proyecto
 
 
 def pp_requerido(permiso_de_proyecto):
@@ -14,16 +14,17 @@ def pp_requerido(permiso_de_proyecto):
     """
 
     def decorador(view):
-        def inner(request, proyecto_id):
+        def inner(request, proyecto_id, *args, **kwargs):
             try:
-                participante = Participante.objects.filter(proyecto=proyecto_id).get(usuario=request.user)
+                proyecto = Proyecto.objects.get(id=proyecto_id)
+                participante = proyecto.get_participante(request.user)
             except:
-                return redirect('pp_insuficientes', proyecto_id=proyecto_id)
-            # Se verifica que
+                return redirect('pp_insuficientes', proyecto_id)
+            # Se verifica que el participante tenga el permiso correspondiente
             if participante.tiene_pp(permiso_de_proyecto):
-                return view(request, proyecto_id)
+                return view(request, proyecto_id, *args, **kwargs)
             else:
-                return redirect('pp_insuficientes', proyecto_id=proyecto_id)
+                return redirect('pp_insuficientes', proyecto_id)
 
         return inner
 
@@ -40,12 +41,16 @@ def pp_requerido_en_fase(permiso_de_proyecto):
 
     def decorador(view):
         def inner(request, proyecto_id, fase_id, *args, **kwargs):
-            participante = Participante.objects.filter(proyecto=proyecto_id).get(usuario=request.user)
+            try:
+                proyecto = Proyecto.objects.get(id=proyecto_id)
+                participante = proyecto.get_participante(request.user)
+            except:
+                return redirect('pp_insuficientes', proyecto_id)
 
             if participante.tiene_pp_en_fase(fase_id, permiso_de_proyecto):
-                return view(request, proyecto_id, fase_id)
+                return view(request, proyecto_id, fase_id, *args, **kwargs)
             else:
-                return redirect('pp_insuficientes', id_proyecto=proyecto_id)
+                return redirect('pp_insuficientes', proyecto_id)
 
         return inner
 

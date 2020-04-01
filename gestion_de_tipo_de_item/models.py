@@ -26,12 +26,6 @@ class TipoDeItem(models.Model):
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
 
-    class Meta:
-        permissions = [('pp_f_crear_tipo_de_item', 'Crear tipo de ítem'),
-                       ('pp_f_eliminar_tipo_de_item', 'Eliminar tipo de ítem'),
-                       ('pp_f_editar_tipo_de_item', 'Editar tipo de ítem'),
-                       ('pp_f_importar_tipo_de_item', 'Importar tipo de ítem')]
-
     def __str__(self):
         return self.nombre
 
