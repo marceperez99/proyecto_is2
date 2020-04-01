@@ -238,10 +238,11 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
 
     if request.method == 'POST':
         tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto)
+        atributos_dinamicos = construir_atributos(request)
+        atributos_forms = atributo_form_handler(atributos_dinamicos)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
-            atributos_dinamicos = construir_atributos(request)
-            atributos_forms = atributo_form_handler(atributos_dinamicos)
+
 
             all_valid = True
             # Se validan todos los forms
@@ -260,6 +261,8 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 contexto['form'] = tipo_de_item_form
                 contexto['atributos_seleccionados'] = atributos_forms
         else:
+            contexto['form'] = tipo_de_item_form
+            contexto['atributos_seleccionados'] = atributos_forms
 
     else:
         if tipo_de_item_id is None:
