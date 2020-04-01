@@ -36,7 +36,7 @@ def nuevo_proyecto_view(request):
         if form.is_valid():
             proyecto = form.save(commit=False)
             proyecto.creador = request.user
-            proyecto.fechaDeCreacion = timezone.now()
+            proyecto.fecha_de_creacion = timezone.now()
             proyecto.estado = EstadoDeProyecto.CONFIGURACION
             proyecto.save()
             comite = Comite(proyecto=proyecto)
