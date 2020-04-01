@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -6,6 +7,8 @@ from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
@@ -31,6 +34,8 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_fase/visualizar_fase.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
@@ -52,6 +57,8 @@ def listar_fase_view(request, proyecto_id):
     return render(request, 'gestion_de_fase/listar_fases.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def nueva_fase_view(request, proyecto_id):
     """
     Vista que se usa para la creacion y posicionamiento de una fase dentro de un proyecto
@@ -91,6 +98,8 @@ def nueva_fase_view(request, proyecto_id):
     return render(request, 'gestion_de_fase/nueva_fase.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def editar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
@@ -126,6 +135,8 @@ def editar_fase_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_de_fase/editar_fase.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def eliminar_fase_view(request, proyecto_id, fase_id):
     """
     Muestra una vista al usuario para que confirme la eliminacion de una fase.
