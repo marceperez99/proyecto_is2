@@ -17,7 +17,7 @@ def pp_requerido(permiso_de_proyecto):
         def inner(request, proyecto_id, *args, **kwargs):
             try:
                 proyecto = Proyecto.objects.get(id=proyecto_id)
-                participante = proyecto.get_participante(request.user)
+                participante = proyecto.get_participante(usuario=request.user)
             except:
                 return redirect('pp_insuficientes', proyecto_id)
             # Se verifica que el participante tenga el permiso correspondiente
@@ -43,7 +43,7 @@ def pp_requerido_en_fase(permiso_de_proyecto):
         def inner(request, proyecto_id, fase_id, *args, **kwargs):
             try:
                 proyecto = Proyecto.objects.get(id=proyecto_id)
-                participante = proyecto.get_participante(request.user)
+                participante = proyecto.get_participante(usuario=request.user)
             except:
                 return redirect('pp_insuficientes', proyecto_id)
 

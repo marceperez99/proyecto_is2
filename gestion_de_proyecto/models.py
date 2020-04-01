@@ -49,10 +49,10 @@ class Proyecto(models.Model):
         if self.gerente.id == usuario.id:
             return self.participante_set.get(usuario=usuario)
         else:
-          if self.participante_set.get(usuario=usuario, rol__isnull=False).exists():
-            return self.participante_set.get(usuario=usuario, rol__isnull=False)
-          else:
-            return None
+            if self.participante_set.filter(usuario=usuario, rol__isnull=False).exists():
+                return self.participante_set.get(usuario=usuario, rol__isnull=False)
+            else:
+                return None
 
     def get_gerente(self):
         """
@@ -288,7 +288,7 @@ class Participante(models.Model):
             False en caso contrario.
         """
         assert (self.rol is None and not self.permisos_por_fase.all().exists()) or (self.rol is not None)
-        return self.usuario == self.proyecto.gerente or  self.rol is not None
+        return self.usuario == self.proyecto.gerente or self.rol is not None
 
     def tiene_pp(self, permiso):
         """
@@ -322,7 +322,8 @@ class Participante(models.Model):
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
-            return self.permisos_por_fase.filter(fase=fase).exists() and self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
+            return self.permisos_por_fase.filter(fase=fase).exists() and self.permisos_por_fase.get(fase=fase).tiene_pp(
+                permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
 
