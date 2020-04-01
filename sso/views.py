@@ -7,7 +7,7 @@ from usuario.models import Usuario
 
 
 @login_required
-@permission_required('pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def index_view(request):
     """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el menú pricipal
 
