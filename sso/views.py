@@ -17,7 +17,11 @@ def index_view(request):
     Retorna:
         El HttpResponse de la Vista a mostrarse
     """
-    contexto = {'user': request.user, 'proyectos': Proyecto.objects.all()}
+
+    usuario = Usuario.objects.get(id = request.user.id)
+    proyectos = usuario.get_proyectos()
+    contexto = {'user': request.user, 'proyectos':proyectos}
+    
     return render(request, 'sso/index.html', context=contexto)
 
 
