@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from django.http import Http404
@@ -14,6 +15,8 @@ from .models import Proyecto, EstadoDeProyecto, Participante, Comite
 
 # Create your views here.
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def nuevo_proyecto_view(request):
     """
     Vista que se usa para la creacion de un proyecto
@@ -50,6 +53,8 @@ def nuevo_proyecto_view(request):
     return render(request, 'gestion_de_proyecto/nuevo_proyecto.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra la siguiente información de los participantes de un proyecto:
@@ -77,6 +82,8 @@ def participantes_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/partipantes.html', context=contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def participante_view(request, proyecto_id, participante_id):
     """
     Vista que muestra la siguiente información de un participante de proyecto:
@@ -113,6 +120,8 @@ def participante_view(request, proyecto_id, participante_id):
     return render(request, 'gestion_de_proyecto/participante.html', context=contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def eliminar_participante_view(request, proyecto_id, participante_id):
     """
     Vista que solicita confirmación del usuario para eliminar un participante de proyecto.
@@ -141,6 +150,8 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     return render(request, 'gestion_de_proyecto/eliminar_participante.html', context=contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -162,6 +173,8 @@ def visualizar_proyecto_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def editar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario los datos actuales del proyecto que se pueden modificar, si el usuario
@@ -185,6 +198,8 @@ def editar_proyecto_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/editar_proyecto.html', {'formulario': form})
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def cancelar_proyecto_view(request, proyecto_id):
     """
     Muestra una vista al usuario para que confirme la cancelacion del proyecto
@@ -208,6 +223,8 @@ def cancelar_proyecto_view(request, proyecto_id):
 
 
 # @pp_requerido('g_pp_iniciar_proyecto')
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def iniciar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
@@ -219,6 +236,8 @@ def iniciar_proyecto_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pp_agregar_participante')
 def nuevo_participante_view(request, proyecto_id):
     """
@@ -277,6 +296,8 @@ def nuevo_participante_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/nuevo_participante.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     """
     Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
@@ -309,10 +330,14 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     return render(request, 'gestion_de_proyecto/asignar_rol_de_proyecto.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def pp_insuficientes(request, *args, **kwargs):
     return render(request, 'gestion_de_proyecto/pp_insuficientes.html', context={'user': request.user})
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)
