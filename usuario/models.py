@@ -14,6 +14,9 @@ class Usuario(User):
     class Meta:
         proxy = True
 
+    def __str__(self):
+        return self.first_name + ' ' + self.last_name
+
     def asignar_rol_a_usuario(self, rs_id):
         self.groups.clear()
         rs = RolDeSistema.objects.get(id=rs_id)
