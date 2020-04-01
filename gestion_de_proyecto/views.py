@@ -177,6 +177,7 @@ def visualizar_proyecto_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pg_editar_proyecto')
 def editar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario los datos actuales del proyecto que se pueden modificar, si el usuario
@@ -202,6 +203,7 @@ def editar_proyecto_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pg_cancelar_proyecto')
 def cancelar_proyecto_view(request, proyecto_id):
     """
     Muestra una vista al usuario para que confirme la cancelacion del proyecto
@@ -224,9 +226,9 @@ def cancelar_proyecto_view(request, proyecto_id):
     return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
 
 
-# @pp_requerido('g_pp_iniciar_proyecto')
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pg_iniciar_proyecto')
 def iniciar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
@@ -234,7 +236,7 @@ def iniciar_proyecto_view(request, proyecto_id):
             proyecto.save()
         else:
             messages.error(request, 'No se puede iniciar el proyecto.')
-        return redirect('index')
+        return redirect('visualizar_proyecto', proyecto_id)
     return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
 
@@ -281,6 +283,9 @@ def nuevo_participante_view(request, proyecto_id):
                     participante.save()
                 permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                                      fase.startswith('f_')}
+                for fase in permisos_por_fase.keys():
+                    permisos_por_fase[fase].append('pu_f_ver_fase')
+
                 # Se asigna el rol de proyecto con los permisos correspondientes
                 participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
 
@@ -300,6 +305,7 @@ def nuevo_participante_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pp_asignar_rp_a_participante')
 def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     """
     Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
@@ -340,6 +346,7 @@ def pp_insuficientes(request, *args, **kwargs):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pg_asignar_comite')
 def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)

@@ -33,11 +33,6 @@ class Proyecto(models.Model):
     fecha_de_creacion = models.DateTimeField(verbose_name="Fecha de Creacion", default=timezone.now)
     estado = models.CharField(max_length=20, verbose_name="Estado del Proyecto")
 
-    class Meta:
-        permissions = [('g_pp_iniciar_proyecto', 'Iniciar Proyecto'),
-                       ('g_pp_cancelar_proyecto', 'Cancelar Proyecto'),
-                       ('pp_ver_proyecto', 'Visualizar Proyecto')]
-
     def __str__(self):
         return self.nombre
 
@@ -51,11 +46,13 @@ class Proyecto(models.Model):
             Participante
 
         """
-        participantes = self.get_participantes()
-        for participante in participantes:
-            if participante.usuario == usuario:
-                return participante
-        return None
+        if self.gerente.id == usuario.id:
+            return self.participante_set.get(usuario=usuario)
+        else:
+          if self.participante_set.get(usuario=usuario, rol__isnull=False).exists():
+            return self.participante_set.get(usuario=usuario, rol__isnull=False)
+          else:
+            return None
 
     def get_gerente(self):
         """
@@ -208,14 +205,6 @@ class Participante(models.Model):
     rol = models.ForeignKey('roles_de_proyecto.RolDeProyecto', null=True, on_delete=models.CASCADE)
     permisos_por_fase = models.ManyToManyField('roles_de_proyecto.PermisosPorFase')
 
-    class Meta:
-        permissions = [
-            ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
-            ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
-            ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
-            ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
-        ]
-
     def __str__(self):
         return self.usuario.get_full_name()
 
@@ -299,7 +288,7 @@ class Participante(models.Model):
             False en caso contrario.
         """
         assert (self.rol is None and not self.permisos_por_fase.all().exists()) or (self.rol is not None)
-        return self.rol is not None
+        return self.usuario == self.proyecto.gerente or  self.rol is not None
 
     def tiene_pp(self, permiso):
         """
@@ -328,10 +317,12 @@ class Participante(models.Model):
         """
         if not self.tiene_rol():
             return False
+        if self.usuario.id == self.proyecto.gerente.id:
+            return True
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
-            return self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
+            return self.permisos_por_fase.filter(fase=fase).exists() and self.permisos_por_fase.get(fase=fase).tiene_pp(permiso)
         else:
             raise Exception('Tipo de objecto fase inadecuado')
 
@@ -341,7 +332,7 @@ class Comite(models.Model):
     miembros = models.ManyToManyField(Participante)
 
     def es_miembro(self, participante):
-        if self.miembros.get(id=participante.id).exists():
+        if self.miembros.filter(id=participante.id).exists():
             return True
         else:
             return False

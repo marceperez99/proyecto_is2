@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth.models import User, Permission
 from django.utils import timezone
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -138,16 +138,19 @@ def test_iniciar_proyecto_en_configuracion_sin_fases(usuario, rol_de_proyecto):
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
+    comite = Comite(proyecto=proyecto_prueba)
     proyecto_prueba.save()
+    comite.save()
     proyecto_prueba.iniciar()
     assert proyecto_prueba.estado == EstadoDeProyecto.CONFIGURACION, 'No se puede Iniciar el Proyecto sin fases'
 
 
 
+
 @pytest.mark.django_db
-def test_iniciar_proyecto_en_configuracion_con_fases(usuario, rol_de_proyecto):
+def test_iniciar_proyecto_en_configuracion(usuario, rol_de_proyecto):
     """
-    Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase, este cambie de estado "En Configuracion",
+    Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase y un comite de cambios, este cambie de estado "En Configuracion",
     a "Iniciado".\n
     Se espera:\n
         Que el proyecto cambie a estado "Iniciado".\n
@@ -157,6 +160,27 @@ def test_iniciar_proyecto_en_configuracion_con_fases(usuario, rol_de_proyecto):
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
     proyecto_prueba.save()
+
+    user1 = User(username='usuario_1', email='usuario1@gmail.com')
+    user1.set_password('password123')
+    user1.save()
+    user2 = User(username='usuario_2', email='usuario2@gmail.com')
+    user2.set_password('password123')
+    user2.save()
+    user3 = User(username='usuario_3', email='usuario3@gmail.com')
+    user3.set_password('password123')
+    user3.save()
+    participante1 = Participante(proyecto=proyecto_prueba, usuario=user1)
+    participante1.save()
+    participante2 = Participante(proyecto=proyecto_prueba, usuario=user2)
+    participante2.save()
+    participante3 = Participante(proyecto=proyecto_prueba, usuario=user3)
+    participante3.save()
+    comite = Comite(proyecto=proyecto_prueba)
+    comite.save()
+    comite.miembros.add(participante1, participante2, participante3)
+    comite.save()
+
     fase_1 = Fase(nombre='Analisis', proyecto=proyecto_prueba, fase_cerrada=False, puede_cerrarse=False)
     fase_1.fase_anterior = None
     fase_1.save()

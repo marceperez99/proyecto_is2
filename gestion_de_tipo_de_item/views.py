@@ -16,11 +16,12 @@ from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_ite
 # /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
 # tipo_de_item/proyecto_id/fase_id
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
-from roles_de_proyecto.decorators import pp_requerido_en_fase
+from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pu_ver_proyecto')
 def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     Vista que permite visualizar el nombre, la descripción, y los atributos de un tipo de item
@@ -55,6 +56,7 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pu_ver_proyecto')
 def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     Vista que permite visualizar los tipos de items asociados a una fase de un proyecto.
@@ -152,7 +154,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
             contexto['form'] = TipoDeItemForm(request.POST or None, instance =tipo_de_item)
-            #Construye un diccionario a partir de la lista de atributos
+            # Construye un diccionario a partir de la lista de atributos
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
             print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
