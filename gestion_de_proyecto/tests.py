@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth.models import User, Permission
 from django.utils import timezone
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -138,9 +138,12 @@ def test_iniciar_proyecto_en_configuracion_sin_fases(usuario, rol_de_proyecto):
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
+    comite = Comite(proyecto=proyecto_prueba)
     proyecto_prueba.save()
+    comite.save()
     proyecto_prueba.iniciar()
     assert proyecto_prueba.estado == EstadoDeProyecto.CONFIGURACION, 'No se puede Iniciar el Proyecto sin fases'
+
 
 
 
