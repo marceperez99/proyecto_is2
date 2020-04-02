@@ -118,8 +118,11 @@ class PermisosPorFase(models.Model):
 
     def get_permisos(self):
         """
-        TODO: falta comentar
-        :return:
+        Metodo que retorna un QuerySet con todos los permisos con los que cuenta un participante dentro de una fase
+        de un proyecto.
+
+        Retorna:
+            QuerySet: lista con todos los permisos de proyecto que tiene asignado un participante en una Fase.
         """
         return self.permisos.all()
 
