@@ -20,7 +20,9 @@
             <h3 class="col-12 col-md-10">Roles de Sistema</h3>
             <!-- Falta agregar condicion para que esta opcion no se muestre si no se tiene el permiso -->
             <div class="col-12 col-md-2 row">
-                <a href="{% url 'nuevo_rol_de_sistema' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">Crear Nuevo Rol</a>
+                {% if user.es_administrador %}
+                    <a href="{% url 'nuevo_rol_de_sistema' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">Crear Nuevo Rol</a>
+                {% endif %}
             </div>
 
         </div>
