@@ -4,6 +4,13 @@
 {% block title %}Menu Principal{%endblock title%}
 {% block content %}
 {% include 'navBar.html' %}
+                {% if messages %}
+
+                {% for message in messages %}
+
+                {% endfor %}
+
+        {% endif %}
   <style>
     [data-toggle="collapse"] .fa:before {
       content: "\f077";
