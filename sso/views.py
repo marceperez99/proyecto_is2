@@ -19,7 +19,8 @@ def index_view(request):
         El HttpResponse de la Vista a mostrarse
     """
 
-    if User.objects.all().count() == 1 and not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
+    if User.objects.all().count() == 1 and \
+            not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
         request.user.groups.add(Group.objects.get(name="Administrador"))
     if not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
         return redirect('sin_permiso')
