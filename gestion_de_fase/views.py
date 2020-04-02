@@ -22,11 +22,13 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
         HttpResponse: pagina web correspondiente a la visualizacion de la fase solicitada
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = proyecto.get_participante(request.user)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     contexto = {
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
+        'permisos': participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {
             'pagina_actual': fase.nombre,
             'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
