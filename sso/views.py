@@ -8,7 +8,6 @@ from usuario.models import Usuario
 
 
 @login_required
-#@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def index_view(request):
     """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el menú pricipal
 
@@ -24,13 +23,11 @@ def index_view(request):
     if not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
         return redirect('sin_permiso')
     usuario = Usuario.objects.get(id=request.user.id)
-    proyectos = usuario.get_proyectos()
+    proyectos = usuario.get_proyectos_activos()
     contexto = {'user': request.user, 'proyectos': proyectos}
 
     return render(request, 'sso/index.html', context=contexto)
 
-
-# Create your views here.
 
 def login_view(request):
     """

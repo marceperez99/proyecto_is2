@@ -60,7 +60,8 @@ def atributo_form_handler(atributos_dinamicos):
 
 def construir_atributos(request):
     """
-    TODO: Marcelo comentame esto.
+    Funcion utilitaria que contruye una lista con los datos de los atributos dinamicos a partir de los
+     datos recibidos en un request.
     """
     # Lista de atributos dinamicos
     atributos_dinamicos = [dict() for x in range(int(request.POST['cantidad_atributos']))]
@@ -147,8 +148,13 @@ def recolectar_atributos(tipo_de_item):
 
 def get_dict_tipo_de_item(tipo):
     """
-    Funcion que toma un tipo de item y retorna un diccionario con todos los datos del tipo de item
-    TODO: marcelo
+    Funcion que toma un tipo de item y retorna un diccionario con todos los datos del tipo de item.
+
+    >>> print(tipo1)
+    [
+        {'tipo': 'Texto', 'nombre': 'Descripción', 'max_longitud': '400', 'requerido': 'Si'},
+        {'tipo': 'Numerico', 'nombre': 'Costo del caso de uso', 'max_digitos': '2', 'max_decimales': '2','requerido':'No'},
+    ]
     """
     atributos = {'id': tipo.id, 'nombre': tipo.nombre, 'descripcion': tipo.descripcion, 'atributos_dinamicos': []}
 

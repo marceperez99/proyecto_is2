@@ -16,6 +16,24 @@ $("#atributos_dinamicos #atr_").each(function(){
     $("input[name=max_decimales]",elemento).attr("name","atr_"+nro_atributo+"_max_decimales");
     $("input[name=tipo]",elemento).attr("name","atr_"+nro_atributo+"_tipo");
     $("#cont_atr").attr("value",nro_atributo);
+
+    console.log($("input[name=atr_"+nro_atributo+"_tipo]",elemento).val());
+    switch ($("input[name=atr_"+nro_atributo+"_tipo]",elemento).val()) {
+        case 'numerico':
+            $("h5",elemento).text("Atributo Numerico");
+            break;
+        case 'cadena':
+            $("h5",elemento).text("Atributo de Texto");
+            break;
+        case 'archivo':
+            $("h5",elemento).text("Atributo de tipo Archivo");
+            break;
+        case 'booleano':
+            $("h5",elemento).text("Atributo Booleano");
+            break;
+        case 'fecha':
+            $("h5",elemento).text("Atributo de tipo Fecha");
+    }
     contador_atr++;
 });
 function agregar_atributo() {
