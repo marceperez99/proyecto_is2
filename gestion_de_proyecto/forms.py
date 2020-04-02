@@ -11,7 +11,10 @@ class ProyectoForm(forms.ModelForm):
         model = Proyecto
         fields = ('nombre', 'descripcion', 'gerente')
 
-
+    def __init__(self,*args,**kwargs):
+        super(ProyectoForm, self).__init__(*args,**kwargs)
+        self.fields['gerente'].empty_label = 'Seleccionar Gerente'
+        self.fields['gerente'].queryset = Usuario.objects.all()
 class EditarProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto

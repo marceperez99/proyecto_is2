@@ -48,7 +48,7 @@
                                                 <i class="fas fa-eye"></i> Visualizar
                                             </a>
                                             {% if proyecto.estado != 'Cancelado' and proyecto.estado != 'Finalizado'  %}
-                                                <a href="#" class="btn btn-outline-danger font-weight-bold">
+                                                <a href="{% url 'cancelar_proyecto' proyecto.id %} " class="btn btn-outline-danger font-weight-bold">
                                                     <i class="fas fa-times"></i> Cancelar
                                                 </a>
                                             {% endif %}
