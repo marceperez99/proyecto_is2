@@ -6,13 +6,12 @@
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <script>
-            function confirmar_eliminacion() {
-                return confirm('¿Esta seguro de que quiere eliminar este Rol de Proyecto? Una vez eliminado el Rol no podra volver atras')
-            }
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
 
         </script>
         {% if messages %}
-
             {% for message in messages %}
                 {% if message.tags == 'error' %}
                     <div class="alert alert-danger">
@@ -24,26 +23,31 @@
 
         {% endif %}
         <div class="row">
-            <h3 class="col-12 col-md-7">Rol de Proyecto</h3>
+            <h3 class="col-12 col-md-5">Rol de Proyecto</h3>
 
-            <!-- TODO cada una de estas dos opciones debe tener su condicion para mostrarse -->
-            <div class="mx-auto col-12 col-md-5">
-                <div class="row">
-                    <div class="col-12 col-md-5 ml-auto">
-                        <a href="{% url 'editar_rol_de_proyecto' rol.id %}" class="btn btn-primary col-12 text-white bg-color-accent">Editar Rol</a>
-                    </div>
-                    <!-- TODO falta poner el link a la eliminacion -->
-                    <form method="POST" class="col-12 col-md-5" action="{% url 'eliminar_rol_de_proyecto' rol.id %}">
-                        {% csrf_token %}
-                        <input type="submit" onclick="confirmar_eliminacion()" class="btn btn-danger col-12 bg-color-danger text-white"
-                               {% if rol.es_utilizado %}disabled{% endif %} value="Eliminar Rol"/>
-                    </form>
-                </div>
-            </div>
-
-
+           {% if user.es_administrador %}
+               <div class="mx-auto col-12 col-md-5">
+                   <form class="row">
+                       <form class="row">
+                           <button {% if rol.es_utilizado %}disabled{%else%}formaction="{% url 'editar_rol_de_proyecto' rol.id %}"{%endif%}
+                                   class="btn col-5 mx-auto text-white bg-color-accent btn-primary"
+                                   {% if rol.es_utilizado %}
+                                   data-toggle="tooltip" data-placement="bottom" title="Este Rol es utilizado por algún Usuario"
+                                   {%endif%}>
+                               Editar Rol
+                           </button>
+                           <button {% if rol.es_utilizado %}disabled{%else%}formaction="{% url 'eliminar_rol_de_proyecto' rol.id %}"{%endif%}
+                                   class="btn col-5 mx-auto text-white bg-color-danger btn-danger"
+                                   {% if rol.es_utilizado %}
+                                   data-toggle="tooltip" data-placement="bottom" title="Este Rol es utilizado por algún Usuario"
+                                   {%endif%}>
+                               Eliminar Rol
+                           </button>
+                       </form>
+                   </form>
+               </div>
+           {% endif %}
         </div>
-
         <hr>
         <div class="row">
             <b class="col-3 my-2">Nombre: </b><div class="col-9">{{ rol.nombre }}</div>

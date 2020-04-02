@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from roles_de_proyecto.models import RolDeProyecto
+from usuario.models import Usuario
 from .forms import NewRolDeProyectoForm
 
 
@@ -24,7 +25,8 @@ def listar_roles_de_proyecto_view(request):
 
      HttpResponse
     """
-    contexto = {'user': request.user,
+    user = Usuario.objects.get(id=request.user.id)
+    contexto = {'user': user,
                 'roles': [
                     {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
@@ -74,7 +76,10 @@ def editar_rol_de_proyecto_view(request, id_rol):
         contexto = {'user': request.user,
                     'form': NewRolDeProyectoForm(instance=rol, initial={'permisos': [r.id for r in rol.get_permisos()]})
                     }
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Editar Rol',
+                              'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                        {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
+                                        {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
     return render(request, 'roles_de_proyecto/editar_rol.html', contexto)
 
 
@@ -135,8 +140,9 @@ def rol_de_proyecto_view(request, id_rol):
         HttpResponse
     """
     rol = get_object_or_404(RolDeProyecto, id=id_rol)
+    user = Usuario.objects.get(id=request.user.id)
     contexto = {
-        'user': request.user,
+        'user': user,
         'rol': {
             'id': rol.id,
             'nombre': rol.nombre,
@@ -168,7 +174,8 @@ def eliminar_rol_de_proyecto_view(request, id_rol):
                 'breadcrumb': {'pagina_actual': 'Eliminar Rol',
                                'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
                                          {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
-                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}}
+                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
+                }
     if request.method == 'POST':
         if rol.es_utilizado():
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
