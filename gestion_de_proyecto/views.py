@@ -137,7 +137,6 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
         request: HttpRequest
         proyecto_id : int identificador único de un proyecto.
         participante_id: int identificador único de un participante a eliminar.
-
     Retorna:
         HttpResponse
 

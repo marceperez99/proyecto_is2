@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from roles_de_sistema.models import RolDeSistema
+from usuario.models import Usuario
 from .forms import NewRolDeSistemaForm
 
 
@@ -23,7 +24,7 @@ def listar_roles_de_sistema_view(request):
 
      HttpResponse
     """
-    contexto = {'user': request.user,
+    contexto = {'user': Usuario.objects.get(id=request.user.id),
                 'roles': [
                     {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
@@ -144,8 +145,11 @@ def rol_de_sistema_view(request, id_rol):
         HttpResponse
     """
     rol = get_object_or_404(RolDeSistema, id=id_rol)
+
+    user = Usuario.objects.get(id=request.user.id)
     contexto = {
-        'user': request.user,
+        'user': user,
+        'permisos': user.get_permisos_list(),
         'rol': {
             'id': rol.id,
             'nombre': rol.nombre,
@@ -179,12 +183,18 @@ def eliminar_rol_de_sistema_view(request, id_rol):
         HttpResponse
     """
     rol = get_object_or_404(RolDeSistema, pk=id_rol)
+    contexto = {'user': request.user, 'rol': rol,
+                'breadcrumb': {'pagina_actual': 'Eliminar Rol',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                         {'nombre': 'Roles de Sistema', 'url': reverse('listar_roles_de_sistema')},
+                                         {'nombre': rol.nombre, 'url': reverse('rol_de_sistema', args=(rol.id,))}]}}
+
     if request.method == 'POST':
         if rol.es_utilizado():
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
             return redirect('rol_de_sistema', id_rol=id_rol)
         else:
             rol.eliminar_rs()
-            return redirect('listar_roles')
-    else:
-        return HttpResponseNotFound('<h1>No se puede acceder a esta pagina.</h1>')
+            return redirect('listar_roles_de_sistema')
+
+    return render(request, 'roles_de_proyecto/eliminar_rol.html', contexto)

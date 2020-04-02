@@ -30,6 +30,9 @@ class Usuario(User):
     def tiene_rs(self):
         return self.groups.all().exists()
 
+    def es_administrador(self):
+        return self.groups.filter(name='Administrador').exists()
+
     def get_rol_de_sistema(self):
         """
         Metodo que retorna el rol de Sistema que tiene asignado el usuairo.
@@ -43,6 +46,16 @@ class Usuario(User):
             return RolDeSistema.objects.get(nombre=rol.name)
         return None
 
+    def get_permisos_list(self):
+        """
+        Metodo que retorna una lista con los codename de los permisos de sistema que tiene el usuario.\n
+        Retorna:
+            list(): lista con los permisos de sistema del usuario.
+        """
+        if self.groups.all().exists():
+            return [ps.codename for ps in self.groups.all()[0].permissions.all()]
+        else:
+            return []
 
     def get_proyectos(self):
         """

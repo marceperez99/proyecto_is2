@@ -45,6 +45,7 @@ def usuario_view(request, usuario_id):
     Requiere los siguientes permisos del sistema:
         -Visualizar usuarios del sistema
     """
+    user = Usuario.objects.get(id=request.user.id)
     usuario = get_object_or_404(Usuario, pk=usuario_id)
     grupo = None
     if request.method == 'POST':
@@ -52,8 +53,8 @@ def usuario_view(request, usuario_id):
     else:
         for g in usuario.groups.all():
             grupo = g.name
-    contexto = {'usuario': usuario, 'user': request.user, 'rs_asignado': usuario.tiene_rs(), 'nombre_rs': grupo,
-               'breadcrumb': {'pagina_actual': usuario.get_full_name(),
+    contexto = {'usuario': usuario, 'user': user, 'rs_asignado': usuario.tiene_rs(), 'nombre_rs': grupo,
+                'breadcrumb': {'pagina_actual': usuario.get_full_name(),
                                'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')}]}}
     return render(request, 'usuario/usuario.html', context=contexto)
 
@@ -90,7 +91,10 @@ def usuario_asignar_rol_view(request, usuario_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def panel_de_administracion_view(request):
-    contexto = {'user': request.user,
+    user = Usuario.objects.get(id=request.user.id)
+    print(user.es_administrador())
+    contexto = {'user': user,
+                'permisos': user.get_permisos_list(),
                 'usuarios': Usuario.objects.all(),
                 'proyectos': Proyecto.objects.all(),
                 'roles_de_proyecto': RolDeProyecto.objects.all(),
