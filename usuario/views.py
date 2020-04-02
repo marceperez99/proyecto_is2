@@ -89,7 +89,10 @@ def usuario_asignar_rol_view(request, usuario_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def panel_de_administracion_view(request):
-    contexto = {'user': request.user,
+    user = Usuario.objects.get(id=request.user.id)
+    print(user.es_administrador())
+    contexto = {'user': user,
+                'permisos': user.get_permisos_list(),
                 'usuarios': Usuario.objects.all(),
                 'proyectos': Proyecto.objects.all(),
                 'roles_de_proyecto': RolDeProyecto.objects.all(),

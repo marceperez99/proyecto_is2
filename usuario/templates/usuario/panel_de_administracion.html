@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}Panel de Administracion{% endblock %}
-
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
@@ -9,7 +8,8 @@
             <h3 class="col-12">Panel de Administracion</h3>
             <hr class="col-12">
             <div class="col-12 p-1">
-                <div class="card">
+                {% if 'ps_ver_proyecto' in permisos %}
+                    <div class="card">
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h4 class="mt-1 col-auto text-white">Proyectos del Sistema</h4>
@@ -17,7 +17,6 @@
                         </div>
                     </div>
                     <div class="card-body">
-
                         <div class="table-responsive">
                             <table class="table table-hover border rounded">
                                 <thead class="text-center">
@@ -47,7 +46,7 @@
                                             <a href="{% url 'info_proyecto' proyecto.id %}" class="btn btn-outline-secondary text-black">
                                                 <i class="fas fa-eye"></i> Visualizar
                                             </a>
-                                            {% if proyecto.estado != 'Cancelado' and proyecto.estado != 'Finalizado'  %}
+                                            {% if user.es_administrador and proyecto.estado != 'Cancelado' and proyecto.estado != 'Finalizado'  %}
                                                 <a href="{% url 'cancelar_proyecto' proyecto.id %} " class="btn btn-outline-danger font-weight-bold">
                                                     <i class="fas fa-times"></i> Cancelar
                                                 </a>
@@ -61,108 +60,114 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
+                {% if 'ps_ver_usuarios' in permisos %}
+                    <div class="card mt-3">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <h4 class="mt-1 col-auto text-white">Usuarios del Sistema</h4>
+                                <a href="{% url 'usuarios' %}" class="btn text-white ml-auto mr-2 mb-2 bg-color-accent">Gestionar Usuarios</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover border rounded">
+                                    <thead class="text-center">
+                                    <tr>
+                                        <th>Nombre</th><th>Rol de Sistema</th><th>Accion</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for usuario in usuarios %}
+                                        <tr>
+                                            <td>{{ usuario.get_full_name }}</td>
+                                            <td class="text-center">{{ usuario.get_rol_de_sistema.nombre }}</td>
+                                            <td class="text-center"><h5><span class="badge badge-success">{{ proyecto.estado }}</span></h5></td>
+                                            <td class="text-right">
+                                                <a href="{% url 'perfil_de_usuario' usuario.id %}" class="btn btn-outline-secondary text-black">
+                                                    <i class="fas fa-eye"></i> Visualizar
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
 
-                <div class="card mt-3">
-                    <div class="card-header bg-color-primary">
-                        <div class="row">
-                            <h4 class="mt-1 col-auto text-white">Usuarios del Sistema</h4>
-                            <a href="{% url 'usuarios' %}" class="btn text-white ml-auto mr-2 mb-2 bg-color-accent">Gestionar Usuarios</a>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover border rounded">
-                                <thead class="text-center">
-                                <tr>
-                                    <th>Nombre</th><th>Rol de Sistema</th><th>Accion</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for usuario in usuarios %}
-                                    <tr>
-                                        <td>{{ usuario.get_full_name }}</td>
-                                        <td class="text-center">{{ usuario.get_rol_de_sistema.nombre }}</td>
-                                        <td class="text-center"><h5><span class="badge badge-success">{{ proyecto.estado }}</span></h5></td>
-                                        <td class="text-right">
-                                            <a href="{% url 'perfil_de_usuario' usuario.id %}" class="btn btn-outline-secondary text-black">
-                                                <i class="fas fa-eye"></i> Visualizar
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+                {% endif %}
 
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <div class="col-12 col-md-6 p-2 my-2">
-                <div class="card">
-                    <div class="card-header bg-color-primary">
-                        <div class="row">
-                            <h4 class="mt-1 col-auto text-white">Roles de Sistema</h4>
-                            <a href="{% url 'listar_roles_de_sistema' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Sistema</a>
+            {% if 'ps_ver_rs' in permisos %}
+                <div class="col-12 col-md-6 p-2 my-2">
+                    <div class="card">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <h4 class="mt-1 col-auto text-white">Roles de Sistema</h4>
+                                <a href="{% url 'listar_roles_de_sistema' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Sistema</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover border rounded">
-                                <thead  class="text-center">
-                                <tr>
-                                    <th>Nombre</th><th>Accion</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for rol in roles_de_sistema %}
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover border rounded">
+                                    <thead  class="text-center">
                                     <tr>
-                                        <td>{{ rol.nombre }}</td>
-                                        <td class="text-right"><a href="{% url 'rol_de_sistema' rol.id %}"
-                                                                  class="btn bg-color-accent text-white font-weight-bold  btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                            &nbsp Visualizar
-                                        </a></td>
+                                        <th>Nombre</th><th>Accion</th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% for rol in roles_de_sistema %}
+                                        <tr>
+                                            <td>{{ rol.nombre }}</td>
+                                            <td class="text-right"><a href="{% url 'rol_de_sistema' rol.id %}"
+                                                                      class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                                &nbsp Visualizar
+                                            </a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12 col-md-6 p-2 my-2">
-                <div class="card">
-                    <div class="card-header bg-color-primary">
-                        <div class="row">
-                            <h4 class="mt-1 col-auto text-white">Roles de Proyecto</h4>
-                            <a href="{% url 'listar_roles_de_proyecto' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Proyecto</a>
+            {% endif %}
+            {% if 'ps_ver_rp' in permisos %}
+                <div class="col-12 col-md-6 p-2 my-2">
+                    <div class="card">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <h4 class="mt-1 col-auto text-white">Roles de Proyecto</h4>
+                                <a href="{% url 'listar_roles_de_proyecto' %}" class="btn text-white ml-auto mr-2 bg-color-accent">Gestionar Roles de Proyecto</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover border rounded">
-                                <thead  class="text-center">
-                                <tr>
-                                    <th>Nombre</th><th>Accion</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for rol in roles_de_proyecto %}
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover border rounded">
+                                    <thead  class="text-center">
                                     <tr>
-                                        <td>{{ rol.nombre }}</td>
-                                        <td class="text-right"><a href="{% url 'rol_de_proyecto' rol.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                            &nbsp Visualizar
-                                        </a></td>
+                                        <th>Nombre</th><th>Accion</th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% for rol in roles_de_proyecto %}
+                                        <tr>
+                                            <td>{{ rol.nombre }}</td>
+                                            <td class="text-right"><a href="{% url 'rol_de_proyecto' rol.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                                &nbsp Visualizar
+                                            </a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
-
 {% endblock %}
