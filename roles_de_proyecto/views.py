@@ -155,7 +155,20 @@ def rol_de_proyecto_view(request, id_rol):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def eliminar_rol_de_proyecto_view(request, id_rol):
+    """
+    Vista de confirmacion de eliminacion de un Proyecto
+
+        Argumentos:
+            request: objeto HttpRequest recibido por el servidor
+            id_rol: int identificador unico del Rol de Proyecto a eliminar
+
+    """
     rol = get_object_or_404(RolDeProyecto, pk=id_rol)
+    contexto = {'user': request.user, 'rol': rol,
+                'breadcrumb': {'pagina_actual': 'Eliminar Rol',
+                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                         {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
+                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}}
     if request.method == 'POST':
         if rol.es_utilizado():
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
@@ -163,5 +176,5 @@ def eliminar_rol_de_proyecto_view(request, id_rol):
         else:
             rol.delete()
             return redirect('listar_roles_de_proyecto')
-    else:
-        return HttpResponseNotFound('<h1>No se puede acceder a esta pagina.</h1>')
+
+    return render(request, 'roles_de_proyecto/eliminar_rol.html', contexto)
