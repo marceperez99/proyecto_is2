@@ -206,7 +206,6 @@ def editar_proyecto_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('pg_cancelar_proyecto')
 def cancelar_proyecto_view(request, proyecto_id):
     """
     Muestra una vista al usuario para que confirme la cancelacion del proyecto
@@ -220,6 +219,10 @@ def cancelar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    if not request.user.has_perm('roles_de_sistema.pa_cancelar_proyecto'):
+        if not request.user == proyecto.gerente:
+            return redirect('pp_insuficientes', proyecto_id)
+
     if request.method == 'POST':
         if proyecto.cancelar():
             proyecto.save()
