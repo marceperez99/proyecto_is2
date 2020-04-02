@@ -1,18 +1,17 @@
 {% extends 'base.html'%}
 {% load socialaccount %}
 {% providers_media_js %}
-{% block title %}Google Registration{%endblock title%}
+{% block title %}Acceso al Sistema{%endblock title%}
 {% block content %}
-<div class="row col col-sm-4" style="height:30%;">
-</div>
-<div class="col col-sm-4 mx-auto justify-content-md-center align-items-end">
-<div class="card text-center" style="height:40%;">
-  <div class="card-header">
-    <h1>SAIP</h1>
+
+<div class="col my-5 col-sm-7 mx-auto justify-content-md-center align-items-end">
+<div class="card shadow h-50 p-0 mb-5 bg-white rounded text-center" style="height:40%;">
+  <div class="card-header bg-color-primary text-white">
+    <h2>Sistema Administrador de Items de Proyectos</h2>
   </div>
   <div class="card-body d-flex align-items-center justify-content-center">
-    <a href="{% provider_login_url 'google' %}">
-      <button class="btn btn-primary"><i class="fab fa-google"></i> Acceder al sistema con su cuenta de Google</button>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-primary py-2 px-3">
+      <i class="fab fa-google"></i> Inicie Sesión con Google
     </a>
   </div>
 </div>
