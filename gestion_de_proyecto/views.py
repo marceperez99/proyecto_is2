@@ -354,7 +354,13 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)
     form = SeleccionarMiembrosDelComiteForm(proyecto, instance=comite)
-    contexto = {'user': request.user, 'form': form}
+    contexto = {'user': request.user, 'form': form,
+                'breadcrumb': {'pagina_actual': 'Asignar Comite de Cambios',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Comite de Cambios', 'url': '#'}]
+                               }
+                }
     if request.method == 'POST':
         form = SeleccionarMiembrosDelComiteForm(proyecto, request.POST, instance=comite)
         if form.is_valid():
@@ -370,7 +376,9 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
 @permission_required('roles_de_sistema.ps_ver_proyecto', login_url='sin_permiso')
 def info_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user, 'proyecto': proyecto,
+                'participante': participante,
                 'breadcrumb': {'pagina_actual': 'Informacion del Proyecto',
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto.id,))}]}}

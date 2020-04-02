@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 
 # Create your models here.
-from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_de_proyecto.models import Participante, Proyecto, EstadoDeProyecto
 from roles_de_sistema.models import RolDeSistema
 
 
@@ -76,3 +76,21 @@ class Usuario(User):
 
         return proyectos
 
+    def get_proyectos_activos(self):
+        """
+        Metodo que retorna la lista de Proyectos Iniciados, y los proyectos En Configuracion
+        , en los que participa un Usuario.
+
+        Retorna:
+            list(): Lista de Proyectos en los participa el usuario
+        """
+        proyectos = list(Proyecto.objects.filter(gerente=self)
+                         .exclude(estado=EstadoDeProyecto.CANCELADO).exclude(estado=EstadoDeProyecto.FINALIZADO))
+
+        participantes = Participante.objects.filter(usuario=self).exclude(rol=None)
+        for participante in participantes:
+            if participante.proyecto.estado != EstadoDeProyecto.FINALIZADO \
+                    and participante.proyecto.estado != EstadoDeProyecto.CANCELADO:
+                proyectos.append(participante.proyecto)
+
+        return proyectos

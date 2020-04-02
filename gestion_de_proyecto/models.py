@@ -355,6 +355,7 @@ class Participante(models.Model):
                 permisos_por_fase = []
         return [pp.codename for pp in permisos_por_fase]
 
+
 class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
     miembros = models.ManyToManyField(Participante)
