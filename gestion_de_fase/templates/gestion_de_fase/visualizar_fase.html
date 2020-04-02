@@ -9,8 +9,12 @@
             <h3 class="col-12 col-md-8">{{ fase.nombre }}</h3>
             <div class="col-12 col-md-4 text-right">
                 {% if proyecto.estado == 'En Configuración' %}
-                    <a href="{% url 'editar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Editar Fase</a>
-                    <a href="{% url 'eliminar_fase' proyecto.id fase.id %}" class="btn btn-danger border-0 bg-color-danger">Eliminar Fase</a>
+                    {% if 'pg_f_editar_fase' in permisos %}
+                        <a href="{% url 'editar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Editar Fase</a>
+                    {% endif %}
+                    {% if 'pg_f_editar_fase' in permisos %}
+                        <a href="{% url 'eliminar_fase' proyecto.id fase.id %}" class="btn btn-danger border-0 bg-color-danger">Eliminar Fase</a>
+                    {% endif %}
                 {% elif proyecto.estado == 'Iniciado' %}
                     <a href="#" class="btn btn-primary border-0 bg-color-accent">Cerrar Fase</a>
                 {% endif %}

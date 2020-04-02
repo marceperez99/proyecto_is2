@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -109,7 +109,8 @@ class Proyecto(models.Model):
             permisos_por_fase: Diccionario con las fases del proyecto y el conjunto de permisos de proyecto
             a asignar al usuario en cada fase respectivamente.
         """
-        assert self.participante_set.filter(usuario=usuario).exists() is True, 'No existe el participante en el proyecto'
+        assert self.participante_set.filter(
+            usuario=usuario).exists() is True, 'No existe el participante en el proyecto'
         participante = self.participante_set.get(usuario=usuario)
         participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
 
@@ -328,6 +329,31 @@ class Participante(models.Model):
         else:
             raise Exception('Tipo de objecto fase inadecuado')
 
+    def get_permisos_de_proyecto_list(self):
+        if self.usuario == self.proyecto.gerente:
+            permisos_de_proyecto = list(Permission.objects.all().filter(codename__startswith='pp_')
+                                        .exclude(codename__startswith='pp_f'))
+            permisos_de_proyecto += list(Permission.objects.all().filter(codename__startswith='pg_')
+                                         .exclude(codename__startswith='pg_f'))
+            permisos_de_proyecto += list(Permission.objects.all().filter(codename__startswith='pu_')
+                                         .exclude(codename__startswith='pu_f'))
+
+            return [pp.codename for pp in permisos_de_proyecto],
+        else:
+            return [pp.codename for pp in self.rol.get_pp_por_proyecto()]
+
+    def get_permisos_por_fase_list(self, fase):
+        if self.usuario.id == self.proyecto.gerente.id:
+            permisos_por_fase = list(Permission.objects.filter(codename__startswith='pu_f_'))
+            permisos_por_fase += list(Permission.objects.filter(codename__startswith='pp_f_'))
+            permisos_por_fase += list(Permission.objects.filter(codename__startswith='pg_f_'))
+
+        else:
+            if self.permisos_por_fase.filter(fase=fase).exists():
+                permisos_por_fase = self.permisos_por_fase.get(fase=fase).get_permisos()
+            else:
+                permisos_por_fase = []
+        return [pp.codename for pp in permisos_por_fase]
 
 class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
