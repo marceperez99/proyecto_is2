@@ -16,7 +16,7 @@ from .models import Proyecto, EstadoDeProyecto, Participante, Comite
 # Create your views here.
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
 def nuevo_proyecto_view(request):
     """
     Vista que se usa para la creacion de un proyecto
@@ -57,6 +57,7 @@ def nuevo_proyecto_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('roles_de_proyecto.pp_ver_participante')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra la siguiente información de los participantes de un proyecto:
@@ -86,6 +87,7 @@ def participantes_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('roles_de_proyecto.pp_ver_participante')
 def participante_view(request, proyecto_id, participante_id):
     """
     Vista que muestra la siguiente información de un participante de proyecto:
@@ -124,6 +126,7 @@ def participante_view(request, proyecto_id, participante_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pp_eliminar_participante')
 def eliminar_participante_view(request, proyecto_id, participante_id):
     """
     Vista que solicita confirmación del usuario para eliminar un participante de proyecto.
@@ -153,6 +156,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('roles_de_proyecto.pu_ver_proyecto')
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -363,7 +367,7 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_proyecto', login_url='sin_permiso')
 def info_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     contexto = {'user': request.user, 'proyecto': proyecto,

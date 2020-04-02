@@ -11,7 +11,7 @@ from .forms import NewRolDeSistemaForm
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_rs', login_url='sin_permiso')
 def listar_roles_de_sistema_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Sistema que existen dentro del Sistema.
@@ -40,7 +40,7 @@ def listar_roles_de_sistema_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_editar_rs', login_url='sin_permiso')
 def editar_rol_de_sistema_view(request, id_rol):
     """
     Vista que permite al usuario editar un Rol de Sistema guardado dentro del sistema.
@@ -88,8 +88,7 @@ def editar_rol_de_sistema_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@permission_required('roles_de_sistema.pa_eliminar_rs', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_rs', login_url='sin_permiso')
 def nuevo_rol_de_sistema_view(request):
     """
     Vista que permite a un usuario crear un nuevo Rol de Sistema dentro del sistema.
@@ -130,7 +129,7 @@ def nuevo_rol_de_sistema_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_rs', login_url='sin_permiso')
 def rol_de_sistema_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Sistema.
@@ -168,7 +167,7 @@ def rol_de_sistema_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_eliminar_rs', login_url='sin_permiso')
 def eliminar_rol_de_sistema_view(request, id_rol):
     """
     Vista que que se encarga de eliminar un Rol de Sistema si ningun usuario tiene asignado dicho rol

@@ -11,8 +11,7 @@ from .forms import NewRolDeProyectoForm
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO falta incluir el permiso de sistema de que puede ver esto
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def listar_roles_de_proyecto_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
@@ -42,8 +41,7 @@ def listar_roles_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO requiere que se indique que requiere un permiso de sistema
+@permission_required('roles_de_sistema.pa_editar_rp', login_url='sin_permiso')
 def editar_rol_de_proyecto_view(request, id_rol):
     """
     Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
@@ -84,7 +82,7 @@ def editar_rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_rp', login_url='sin_permiso')
 # TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
@@ -124,7 +122,7 @@ def nuevo_rol_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def rol_de_proyecto_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Proyecto.
@@ -159,7 +157,7 @@ def rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_eliminar_rp', login_url='sin_permiso')
 def eliminar_rol_de_proyecto_view(request, id_rol):
     """
     Vista de confirmacion de eliminacion de un Proyecto
