@@ -57,7 +57,7 @@ class Proyecto(models.Model):
     def get_gerente(self):
         """
         Metodo que retorna el objeto User del gerente del Proyecto
-
++
         Retorna:
             User: gerente del Proyecto.
         """
