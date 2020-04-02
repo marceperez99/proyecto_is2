@@ -14,10 +14,12 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
+
     Args:
         request: objeto HttpRequest recibido por el servidor.\n
         proyecto_id: int, identificador unico del proyecto.\n
         fase_id: int, identificador unico de la fase que pertenece al proyecto.\n
+
     Retorna:
         HttpResponse: pagina web correspondiente a la visualizacion de la fase solicitada
     """

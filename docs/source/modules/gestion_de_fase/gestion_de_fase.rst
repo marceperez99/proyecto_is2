@@ -1,4 +1,5 @@
 .. index:: Fases
+
 Fases
 *******************
 
@@ -13,6 +14,6 @@ Modelos
     :members:
 
 Pruebas unitarias
-==========================0
+==========================
 .. automodule:: gestion_de_fase.tests
     :members:

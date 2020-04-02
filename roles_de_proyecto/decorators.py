@@ -1,3 +1,5 @@
+from functools import wraps
+
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
@@ -14,6 +16,7 @@ def pp_requerido(permiso_de_proyecto):
     """
 
     def decorador(view):
+        @wraps(view)
         def inner(request, proyecto_id, *args, **kwargs):
             try:
                 proyecto = Proyecto.objects.get(id=proyecto_id)
@@ -41,6 +44,7 @@ def pp_requerido_en_fase(permiso_de_proyecto):
     """
 
     def decorador(view):
+        @wraps(view)
         def inner(request, proyecto_id, fase_id, *args, **kwargs):
             try:
                 proyecto = Proyecto.objects.get(id=proyecto_id)

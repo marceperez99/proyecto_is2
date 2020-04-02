@@ -57,6 +57,7 @@ def test_nueva_fase_al_inicio(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
     atributo fase_anterior de la fase siguiente en donde se inserta la fase.
+
     Se espera:
         El aterior de la fase 1 sea la nueva fase que se inserte
 
@@ -80,6 +81,7 @@ def test_nueva_fase_al_final(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar comprueba que se esta posisionando
     una fase al final.
+
     Se espera:
         Que la fase que se inserto apunte a la fase que anteriormente era la ultima
 
@@ -103,6 +105,7 @@ def test_nueva_fase_medio(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
     atributo fase_anterior de las fases adyacentes de una nueva fase.
+
     Se espera:
         El aterior de la fase 1 se None
         El de la fase 2 sea la fase 1
