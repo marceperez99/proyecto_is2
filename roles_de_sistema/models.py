@@ -32,6 +32,7 @@ class RolDeSistema(models.Model):
             ('pa_crear_rs', 'Crear nuevo Rol de Sistema'),
             ('pa_eliminar_rs', 'Eliminar Rol de Sistema'),
             ('pa_asignar_rs', 'Asignar Rol de Sistema'),
+            ('pa_editar_rs','Editar Rol de Sistema'),
             ('pa_crear_rp', 'Crear Rol de Proyecto'),
             ('ps_ver_rp', 'Visualizar Rol de Proyecto'),
             ('pa_eliminar_rp', 'Eliminar Rol de Proyecto'),

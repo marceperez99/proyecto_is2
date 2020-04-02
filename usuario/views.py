@@ -34,6 +34,7 @@ def usuarios_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_usuarios', login_url='sin_permiso')
 def usuario_view(request, usuario_id):
     """
     Vista que permite ver la información publica de un usuario.
@@ -58,7 +59,7 @@ def usuario_view(request, usuario_id):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_asignar_rs', login_url='sin_permiso')
 def usuario_asignar_rol_view(request, usuario_id):
     """
     Vista que permite asignar un rol a un usuario
