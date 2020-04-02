@@ -40,6 +40,7 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pu_f_ver_fase')
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
