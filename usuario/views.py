@@ -44,6 +44,7 @@ def usuario_view(request, usuario_id):
     Requiere los siguientes permisos del sistema:
         -Visualizar usuarios del sistema
     """
+    user = Usuario.objects.get(id=request.user.id)
     usuario = get_object_or_404(Usuario, pk=usuario_id)
     grupo = None
     if request.method == 'POST':
@@ -51,8 +52,8 @@ def usuario_view(request, usuario_id):
     else:
         for g in usuario.groups.all():
             grupo = g.name
-    contexto = {'usuario': usuario, 'user': request.user, 'rs_asignado': usuario.tiene_rs(), 'nombre_rs': grupo,
-               'breadcrumb': {'pagina_actual': usuario.get_full_name(),
+    contexto = {'usuario': usuario, 'user': user, 'rs_asignado': usuario.tiene_rs(), 'nombre_rs': grupo,
+                'breadcrumb': {'pagina_actual': usuario.get_full_name(),
                                'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')}]}}
     return render(request, 'usuario/usuario.html', context=contexto)
 

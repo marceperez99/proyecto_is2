@@ -13,7 +13,9 @@
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h4 class="mt-1 col-auto text-white">Proyectos del Sistema</h4>
-                            <a href="{% url 'nuevo_proyecto' %}" class="btn text-white ml-auto mr-2 mb-2 bg-color-accent">Crear Nuevo Proyecto</a>
+                            {% if user.es_administrador %}
+                                <a href="{% url 'nuevo_proyecto' %}" class="btn text-white ml-auto mr-2 mb-2 bg-color-accent">Crear Nuevo Proyecto</a>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
