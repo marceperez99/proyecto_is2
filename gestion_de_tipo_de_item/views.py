@@ -39,6 +39,7 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 'proyecto': proyecto,
                 'fase': fase,
                 'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
+                'es_utilizado': tipo_de_item.es_utilizado(),
                 'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -279,3 +280,20 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
             print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/editar_tipo_de_item.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_eliminar_tipo_de_item')
+def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
+    """
+    Vista que se encarga de confirmar la eliminacion de un tipo de item si es que ningun item es de ese tipo
+    """
+
+    tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+
+    if request.method == 'POST':
+        tipo_de_item.delete()
+        return redirect('tipos_de_item', proyecto_id, fase_id)
+    contexto = {'tipo_de_item': tipo_de_item.nombre}
+    return render(request, 'gestion_de_tipo_de_item/eliminar_tipo_de_item.html', context=contexto)
