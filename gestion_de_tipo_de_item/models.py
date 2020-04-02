@@ -44,6 +44,10 @@ class TipoDeItem(models.Model):
         atributos += list(self.atributofecha_set.all())
         return atributos
 
+    def es_utilizado(self):
+        # Todo: agregar logica una vez implementado el item
+        return False
+
 
 class AtributoBinario(models.Model):
     """
