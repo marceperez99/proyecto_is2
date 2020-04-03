@@ -1,8 +1,6 @@
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import Group
-from django.http import HttpResponseNotFound
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from roles_de_sistema.models import RolDeSistema
@@ -16,13 +14,11 @@ def listar_roles_de_sistema_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Sistema que existen dentro del Sistema.
 
-    Args:
-
-     request: HttpRequest
+    Argumentos:
+        request: HttpRequest
 
     Retorna:
-
-     HttpResponse
+        HttpResponse
     """
     contexto = {'user': Usuario.objects.get(id=request.user.id),
                 'roles': [
@@ -43,18 +39,16 @@ def listar_roles_de_sistema_view(request):
 @permission_required('roles_de_sistema.pa_editar_rs', login_url='sin_permiso')
 def editar_rol_de_sistema_view(request, id_rol):
     """
-    Vista que permite al usuario editar un Rol de Sistema guardado dentro del sistema.
-    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol.
-    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan las modificaciones
+    Vista que permite al usuario editar un Rol de Sistema guardado dentro del sistema. \n
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol. \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan las
+    modificaciones.
 
-    Args:
-
-        request: HttpRequest peticion recibida por el servidor
-
+    Argumentos:
+        request: HttpRequest peticion recibida por el servidor \n
         id_rol: int identificador unico del Rol de Sistema que se quiere modificar
 
     Retorna:
-
         HttpResponse
     """
 
@@ -91,22 +85,19 @@ def editar_rol_de_sistema_view(request, id_rol):
 @permission_required('roles_de_sistema.pa_crear_rs', login_url='sin_permiso')
 def nuevo_rol_de_sistema_view(request):
     """
-    Vista que permite a un usuario crear un nuevo Rol de Sistema dentro del sistema.
+    Vista que permite a un usuario crear un nuevo Rol de Sistema dentro del sistema. \n
+    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion de nuevo
+    Rol. \n
+    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Sistema
+    dentro del Sistema. \n
+    Esta vista requiere que el usuario haya iniciado sesion y que cuente con el Permiso de Sistema correspondiente para
+    crear un nuevo Rol de Sistema.
 
-    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion de nuevo Rol.
-
-    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Sistema dentro del Sistema.
-
-    Esta vista requiere que el usuario haya iniciado sesion y que cuente con el Permiso de Sistema correspondiente
-    para crear un nuevo Rol de Sistema.
-
-    Args:
-
-    request: HttpRequest, peticion Http recibida por el servidor de un usuario.
+    Argumentos:
+        request: HttpRequest, peticion Http recibida por el servidor de un usuario.
 
     Retorna:
-
-    HttpResponse
+        HttpResponse
     """
     contexto = {'user': request.user,
                 'breadcrumb': {'pagina_actual': 'Nuevo Rol de Sistema',
@@ -131,17 +122,14 @@ def nuevo_rol_de_sistema_view(request):
 @login_required
 @permission_required('roles_de_sistema.ps_ver_rs', login_url='sin_permiso')
 def rol_de_sistema_view(request, id_rol):
-    """"
+    """
     Vista que muestra al usuario la informacion de un Rol de Sistema.
 
-    Args:
-
-        request: HttpRequest
-
+    Argumentos:
+        request: HttpRequest \n
         id_rol: int, identificador unico del Rol de Sistema al que se esta accediendo
 
     Retorna:
-
         HttpResponse
     """
     rol = get_object_or_404(RolDeSistema, id=id_rol)
@@ -172,14 +160,11 @@ def eliminar_rol_de_sistema_view(request, id_rol):
     """
     Vista que que se encarga de eliminar un Rol de Sistema si ningun usuario tiene asignado dicho rol
 
-    Args:
-
-        request: HttpRequest
-
+    Argumentos:
+        request: HttpRequest \n
         id_rol: int, identificador unico del Rol de Sistema al que se esta accediendo
 
     Retorna:
-
         HttpResponse
     """
     rol = get_object_or_404(RolDeSistema, pk=id_rol)

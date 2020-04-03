@@ -1,11 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 from usuario.models import Usuario
 from .models import Proyecto, Participante, Comite
 
 
+# Todo: documentar
 class ProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto

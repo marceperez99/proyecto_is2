@@ -1,22 +1,19 @@
-from django.contrib.auth.models import Permission, User, Group
+from django.contrib.auth.models import Permission, Group
 from django.db import models
 
 
 class RolDeSistema(models.Model):
     """
-    Clase un Rol de Sistema dentro del sistema. Esta clase sirve además como modelo para la creación de la Base de Datos.
+    Clase un Rol de Sistema dentro del sistema. Esta clase sirve además como modelo para la creación de la Base de
+    Datos.
 
-    Clase Padre: models.Model
+    Clase Padre:
+        models.Model
 
     Atributos:
-
-        nombre: models.CharField
-
-        descripcion: models.CharField
-
+        nombre: models.CharField \n
+        descripcion: models.CharField \n
         permisos: models.ManyToManyField, representa la relacion de un rol con los permisos que incluye.
-
-
     """
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.CharField(max_length=200)
@@ -66,7 +63,8 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna una lista de todos los permisos que incluye este Rol de Sistema.
 
-        retorna: lista de Permission
+        Retorna:
+            lista de Permission
         """
         return [p for p in self.permisos.all()]
 
@@ -74,7 +72,8 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si existe algun usuario utilizando este Rol de Sistema en algun Sistema, False en caso contrario.
 
-        retorna: bool
+        Retorna:
+            Boolean
         """
         group = Group.objects.get(name=self.nombre)
         return group.user_set.all().exists()
@@ -83,7 +82,8 @@ class RolDeSistema(models.Model):
         """
         Metodo que retorna True si el rol d sistema fue eliminado con exito, False en caso contrario
 
-        retorna: bool
+        Retorna:
+            Booleano
         """
         group = Group.objects.get(name=self.nombre)
         if self.es_utilizado():

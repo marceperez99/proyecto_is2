@@ -1,8 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission
-from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 from django.urls import reverse
 
 from roles_de_proyecto.models import RolDeProyecto
@@ -16,13 +15,11 @@ def listar_roles_de_proyecto_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
 
-    Args:
-
-     request: HttpRequest
+    Argumentos:
+        request: HttpRequest
 
     Retorna:
-
-     HttpResponse
+        HttpResponse
     """
     user = Usuario.objects.get(id=request.user.id)
     contexto = {'user': user,
@@ -44,18 +41,16 @@ def listar_roles_de_proyecto_view(request):
 @permission_required('roles_de_sistema.pa_editar_rp', login_url='sin_permiso')
 def editar_rol_de_proyecto_view(request, id_rol):
     """
-    Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
-    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol.
-    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan las modificaciones
+    Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema. \n
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol. \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan
+    las modificaciones
 
-    Args:
-
-        request: HttpRequest peticion recibida por el servidor
-
-        id_rol: int identificador unico del Rol de Proyecto que se quiere modificar
+    Argumentos:
+        request: HttpRequest peticion recibida por el servidor \n
+        id_rol: int identificador unico del Rol de Proyecto que se quiere modificar.
 
     Retorna:
-
         HttpResponse
     """
 
@@ -86,22 +81,19 @@ def editar_rol_de_proyecto_view(request, id_rol):
 # TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
-    Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema.
-
-    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion de nuevo Rol.
-
-    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Proyecto dentro del Sistema.
-
+    Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema. \n
+    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion
+    de nuevo Rol. \n
+    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Proyecto
+    dentro del Sistema. \n
     Esta vista requiere que el usuario haya iniciado sesion y que cuente con el Permiso de Sistema correspondiente
     para crear un nuevo Rol de Proyecto.
 
-    Args:
-
-    request: HttpRequest, peticion Http recibida por el servidor de un usuario.
+    Argumentos:
+        request: HttpRequest, peticion Http recibida por el servidor de un usuario.
 
     Retorna:
-
-    HttpResponse
+        HttpResponse
     """
     contexto = {'user': request.user,
                 'breadcrumb': {'pagina_actual': 'Nuevo Rol de Proyecto',
@@ -127,14 +119,11 @@ def rol_de_proyecto_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Proyecto.
 
-    Args:
-
-        request: HttpRequest
-
+    Argumentos:
+        request: HttpRequest \n
         id_rol: int, identificador unico del Rol de Proyecto al que se esta accediendo
 
     Retorna:
-
         HttpResponse
     """
     rol = get_object_or_404(RolDeProyecto, id=id_rol)
@@ -162,10 +151,9 @@ def eliminar_rol_de_proyecto_view(request, id_rol):
     """
     Vista de confirmacion de eliminacion de un Proyecto
 
-        Argumentos:
-            request: objeto HttpRequest recibido por el servidor
-            id_rol: int identificador unico del Rol de Proyecto a eliminar
-
+    Argumentos:
+        request: objeto HttpRequest recibido por el servidor \n
+        id_rol: int identificador unico del Rol de Proyecto a eliminar
     """
     rol = get_object_or_404(RolDeProyecto, pk=id_rol)
     contexto = {'user': request.user, 'rol': rol,

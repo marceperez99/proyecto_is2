@@ -1,7 +1,7 @@
-from django.test import TestCase, Client
 import pytest
 from django.contrib.auth.models import User, Permission
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from roles_de_proyecto.models import RolDeProyecto
@@ -81,12 +81,14 @@ def test_participante_tiene_permiso(usuario, proyecto, rol_de_proyecto, permiso,
 @pytest.mark.django_db
 def test_cancelar_proyecto_en_configuracion(usuario, rol_de_proyecto):
     """
-    Prueba unitaria para verificar que al momento de cancelar un proyecto con estado "En Configuracion", este quede con estado "Cancelado".
-    Se espera:\n
-        Que el proyecto quede en estado "Cancelado".\n
-    Mensaje de error:
-        No se pudo Cancelar el Proyecto.\n
+    Prueba unitaria para verificar que al momento de cancelar un proyecto con estado "En Configuracion", este quede
+    con estado "Cancelado".
 
+    Se espera:
+        Que el proyecto quede en estado "Cancelado".
+
+    Mensaje de error:
+        No se pudo Cancelar el Proyecto.
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
@@ -94,15 +96,18 @@ def test_cancelar_proyecto_en_configuracion(usuario, rol_de_proyecto):
     proyecto_prueba.cancelar()
     assert proyecto_prueba.estado == EstadoDeProyecto.CANCELADO, "No se pudo Cancelar el Proyecto"
 
+
 @pytest.mark.django_db
 def test_cancelar_proyecto_iniciado(usuario, rol_de_proyecto):
     """
-    Prueba unitaria para verificar que al momento de cancelar un proyecto con estado "Iniciado", este quede con estado "Cancelado".
-    Se espera:\n
-        Que el proyecto quede en estado "Cancelado".\n
-    Mensaje de error:
-        No se pudo Cancelar el Proyecto.\n
+    Prueba unitaria para verificar que al momento de cancelar un proyecto con estado "Iniciado", este quede con
+    estado "Cancelado".
 
+    Se espera:
+        Que el proyecto quede en estado "Cancelado".
+
+    Mensaje de error:
+        No se pudo Cancelar el Proyecto.
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.INICIADO)
@@ -116,25 +121,31 @@ def test_cancelar_proyecto_finalizado(usuario, rol_de_proyecto):
     """
     Prueba unitaria para verificar que al momento de cancelar un proyecto con estado "Finalizadp", este no
     le permita cambiar su estado.
-    Se espera:\n
-        Que el proyecto siga con el estado "Finalizado".\n
-    Mensaje de error:
-        No se pudo Cancelar un Proyecto con estado "Finalizado".\n
 
+    Se espera:
+        Que el proyecto siga con el estado "Finalizado".
+
+    Mensaje de error:
+        No se pudo Cancelar un Proyecto con estado "Finalizado".
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.FINALIZADO)
     proyecto_prueba.save()
     proyecto_prueba.cancelar()
     assert proyecto_prueba.estado == EstadoDeProyecto.FINALIZADO, "No se puede cambiar el estado de un proyecto con estado Finalizado"
+
+
 @pytest.mark.django_db
 def test_iniciar_proyecto_en_configuracion_sin_fases(usuario, rol_de_proyecto):
     """
-    Prueba unitaria para verificar que al momento de iniciar un proyecto sin fases con un estado "En Configuracion", este no cambie su estado
-    Se espera:\n
-        Que el proyecto no cambie de estado.\n
+    Prueba unitaria para verificar que al momento de iniciar un proyecto sin fases con un estado "En Configuracion",
+    este no cambie su estado.
+
+    Se espera:
+        Que el proyecto no cambie de estado.
+
     Mensaje de error:
-        No se puede Iniciar el Proyecto sin fases.\n
+        No se puede Iniciar el Proyecto sin fases.
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
@@ -145,17 +156,17 @@ def test_iniciar_proyecto_en_configuracion_sin_fases(usuario, rol_de_proyecto):
     assert proyecto_prueba.estado == EstadoDeProyecto.CONFIGURACION, 'No se puede Iniciar el Proyecto sin fases'
 
 
-
-
 @pytest.mark.django_db
 def test_iniciar_proyecto_en_configuracion(usuario, rol_de_proyecto):
     """
-    Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase y un comite de cambios, este cambie de estado "En Configuracion",
-    a "Iniciado".\n
-    Se espera:\n
-        Que el proyecto cambie a estado "Iniciado".\n
+    Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase y un comite de cambios,
+    este cambie de estado "En Configuracion", a "Iniciado".
+
+    Se espera:
+        Que el proyecto cambie a estado "Iniciado".
+
     Mensaje de error:
-        No se puede iniciar el Proyecto.\n
+        No se puede iniciar el Proyecto.
     """
     proyecto_prueba = Proyecto(nombre='IS2', descripcion='Descripcion', fecha_de_creacion=timezone.now(),
                                creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
