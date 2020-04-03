@@ -5,26 +5,18 @@ class Fase(models.Model):
     """
     Clase Fase del sistema. Esta clase sirve además como modelo para la creación de la Base de Datos.
 
-    Clase Padre: models.Model
+    Clase Padre:
+        models.Model
 
     Atributos:
-
-        nombre: models.CharField
-
-        proyecto: models.ForeignKey
-
-        descripcion: models.CharField
-
-        fase_anterior:  models.ForeignKey
-
-        items = models.ForeignKey
-
-        lineaBase = models.ForeignKey
-
-        fase_cerrada = models.BooleanField
-
-        puede_cerrarse = models.BooleanField
-
+        nombre: models.CharField \n
+        proyecto: models.ForeignKey \n
+        descripcion: models.CharField \n
+        fase_anterior:  models.ForeignKey \n
+        items = models.ForeignKey \n
+        lineaBase = models.ForeignKey \n
+        fase_cerrada = models.BooleanField \n
+        puede_cerrarse = models.BooleanField \n
         permisos: models.ManyToManyField, representa la relacion de un rol con los permisos que incluye.
     """
     nombre = models.CharField(max_length=100)
@@ -42,9 +34,9 @@ class Fase(models.Model):
     def posicionar_fase(self):
         """
         Metodo que sirve para el posicionamiento de una nueva fase dento del proyecto, lo posiona correctamente
-        al inicio o al medio de las fases que ya existen
+        al inicio o al medio de las fases que ya existen.
 
-        Agrs:
+        Argumentos:
             fase: fase recien creada
         """
         if self.fase_anterior is None:

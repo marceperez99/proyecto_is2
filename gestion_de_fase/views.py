@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.urls import reverse
+
 from gestion_de_fase.forms import FaseForm
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto
@@ -14,10 +15,12 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
-    Args:
+
+    Argumentos:
         request: objeto HttpRequest recibido por el servidor.\n
         proyecto_id: int, identificador unico del proyecto.\n
-        fase_id: int, identificador unico de la fase que pertenece al proyecto.\n
+        fase_id: int, identificador unico de la fase que pertenece al proyecto.
+
     Retorna:
         HttpResponse: pagina web correspondiente a la visualizacion de la fase solicitada
     """
@@ -44,10 +47,12 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
-    proyecto.\n
-    Args:
+    proyecto.
+
+    Argumentos:
         request: objeto HttpRequest recibido por el servidor,\n
         proyecto_id: int, identificador unico del proyecto.
+
     Retorna:
         HttpResponse: objeto HttpResponse con la pagina web correspondiente a la lista de Fases de un Proyecto.
     """
@@ -67,18 +72,15 @@ def listar_fase_view(request, proyecto_id):
 @pp_requerido('pg_crear_fase')
 def nueva_fase_view(request, proyecto_id):
     """
-    Vista que se usa para la creacion y posicionamiento de una fase dentro de un proyecto
-    Si el metodo Http con el que se realizo la peticion fue GET se muestra un formulario para completar.
+    Vista que se usa para la creacion y posicionamiento de una fase dentro de un proyecto \n
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra un formulario para completar. \n
     Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan en la BD
 
-    Args:
-
-     request: HttpRequest
-
+    Argumentos:
+     request: HttpRequest \n
      proyecto_id: int identificador unico de un Proyecto
 
     Retorna:
-
      HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
@@ -110,15 +112,16 @@ def nueva_fase_view(request, proyecto_id):
 def editar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
-    desea cambiar, los cambia.
+    desea cambiar, los cambia. \n
     Si el metodo Http con el que se realizo la peticion fue GET se muestra los datos que tiene la fase con la
-    posibilidad de editarlos.
+    posibilidad de editarlos. \n
     Si el metodo Http con el que se realizo la peticion fue POST se toman los datos cambiados y se guardan en la BD
 
-    Args:\n
-        request: HttpRequest.
-        fase_id: int identificador unico de la fase que se quiere ver. \n
-    Retorna:\n
+    Argumentos:
+        request: HttpRequest. \n
+        fase_id: int identificador unico de la fase que se quiere ver.
+
+    Retorna:
         HttpResponse
     """
     fase = get_object_or_404(Fase, id=fase_id)
@@ -147,14 +150,16 @@ def editar_fase_view(request, proyecto_id, fase_id):
 @pp_requerido_en_fase('pg_f_eliminar_fase')
 def eliminar_fase_view(request, proyecto_id, fase_id):
     """
-    Muestra una vista al usuario para que confirme la eliminacion de una fase.
-    Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme la elimincion de una fase.
+    Muestra una vista al usuario para que confirme la eliminacion de una fase. \n
+    Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme la elimincion
+    de una fase. \n
     Si el metodo Http con el que se realizo la peticion fue POST se procede a eliminar la fase.
 
-    Args:\n
-        request: HttpRequest.
-        proyecto_id: int identificador unico del Proyecto que se quiere ver. \n
-    Retorna:\n
+    Argumentos:
+        request: HttpRequest. \n
+        proyecto_id: int identificador unico del Proyecto que se quiere ver.
+
+    Retorna:
         HttpResponse
     """
     fase = get_object_or_404(Fase, id=fase_id)

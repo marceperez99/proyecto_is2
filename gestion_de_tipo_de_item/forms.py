@@ -1,21 +1,16 @@
 from django import forms
-from django.forms import Form
-from django.shortcuts import get_object_or_404
 
-from gestion_de_fase.models import Fase
 from .models import TipoDeItem, AtributoCadena, AtributoBooleano, AtributoFecha, AtributoNumerico, AtributoBinario
 
 
 class TipoDeItemForm(forms.ModelForm):
     """
     nombre: string\n
-        descripcion: string\n
-        prefijo: string\n
-        creador: User\n
-        fase: Fase\n
-        fecha_creacion: date\n
-
-
+    descripcion: string\n
+    prefijo: string\n
+    creador: User\n
+    fase: Fase\n
+    fecha_creacion: date\n
     """
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 

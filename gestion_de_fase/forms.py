@@ -1,4 +1,5 @@
 from django import forms
+
 from gestion_de_fase.models import Fase
 
 
@@ -6,16 +7,16 @@ class FaseForm(forms.ModelForm):
     """
     Form que se usa para la creacion de una fase.
 
-    Clase Padre: forms.ModelForm
-
+    Clase Padre:
+        forms.ModelForm
     """
 
     def __init__(self,*args,proyecto=None,**kwargs):
         """
-            Metodo que se usa para incluir solo las fases del proyecto en donde se trabaja
+        Constructor del form, recibe los datos de la fase y la fase anterior
 
-            Args:
-
+        Argumentos:
+            proyecto: Proyecto
         """
         super(FaseForm, self).__init__(*args,**kwargs)
         self.fields['fase_anterior'].required=False

@@ -1,7 +1,6 @@
 import pytest
 from django.contrib.auth.models import User, Permission
-from django.test import TestCase, Client
-
+from django.test import Client
 # Create your tests here.
 from django.utils import timezone
 
@@ -11,7 +10,7 @@ from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoFor
     AtributoNumericoForm, AtributoFechaForm
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
-from gestion_de_tipo_de_item.utils import recolectar_atributos, get_dict_tipo_de_item, atributo_form_handler
+from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -134,8 +133,8 @@ def test_recolectar_atributos(atributos, tipo_de_item):
 @pytest.mark.django_db
 def test_atributo_form_hanldler(atributos, tipo_de_item):
     """
-    Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo del tipo de item
-
+    Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo
+    del tipo de item.
 
     Resultado esperado:
         Una lista con un form adecuado para cada atributo del tipo de item.

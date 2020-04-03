@@ -1,9 +1,9 @@
-from django.test import TestCase
+from http import HTTPStatus
+
+import pytest
+from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
-from django.contrib.auth.models import User, Permission, Group
-from http import HTTPStatus
-import pytest
 
 from roles_de_sistema.models import RolDeSistema
 
@@ -21,10 +21,9 @@ def rs_admin():
 @pytest.mark.django_db
 def test_ver_usuario_existente(rs_admin):
     """
-    Prueba el acceso a la información de un usuario existente dentro del sistema.
-
-    Crea un usuario en la base de datos.
-    Inicia sesión con este nuevo usuario.
+    Prueba el acceso a la información de un usuario existente dentro del sistema. \n
+    Crea un usuario en la base de datos. \n
+    Inicia sesión con este nuevo usuario. \n
     Accede a /usuarios/id con id igual a la clave primaria del usuario creado.
 
     Resultado esperado:
@@ -47,10 +46,9 @@ def test_ver_usuario_existente(rs_admin):
 @pytest.mark.django_db
 def test_ver_usuario_no_existente(rs_admin):
     """
-        Prueba el acceso a la información de un usuario no existente dentro del sistema.
-
-        Crea un usuario en la base de datos.
-        Inicia sesión con este nuevo usuario.
+        Prueba el acceso a la información de un usuario no existente dentro del sistema. \n
+        Crea un usuario en la base de datos. \n
+        Inicia sesión con este nuevo usuario. \n
         Accede a /usuarios/id con id distinto al de la clave primaria del usuario creado.
 
         Resultado esperado:
@@ -73,10 +71,9 @@ def test_ver_usuario_no_existente(rs_admin):
 @pytest.mark.django_db
 def test_ver_usuarios(rs_admin):
     """
-        Prueba el acceso a la lista de usuarios existentes dentro del sistema.
-
-        Crea un usuario en la base de datos.
-        Inicia sesión con este nuevo usuario.
+        Prueba el acceso a la lista de usuarios existentes dentro del sistema. \n
+        Crea un usuario en la base de datos. \n
+        Inicia sesión con este nuevo usuario. \n
         Accede a /usuarios/ .
 
         Resultado esperado:

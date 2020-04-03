@@ -1,10 +1,9 @@
 import pytest
 from django.contrib.auth.models import User, Permission
-from django.utils import timezone
+from django.test import Client
 
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
-from django.test import Client
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -57,6 +56,7 @@ def test_nueva_fase_al_inicio(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
     atributo fase_anterior de la fase siguiente en donde se inserta la fase.
+
     Se espera:
         El aterior de la fase 1 sea la nueva fase que se inserte
 
