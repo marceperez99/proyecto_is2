@@ -1,10 +1,9 @@
 import pytest
 from django.contrib.auth.models import User, Permission
-from django.utils import timezone
+from django.test import Client
 
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
-from django.test import Client
 from roles_de_proyecto.models import RolDeProyecto
 
 
