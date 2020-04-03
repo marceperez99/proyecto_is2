@@ -55,7 +55,7 @@ def nuevo_proyecto_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('roles_de_proyecto.pp_ver_participante')
+@pp_requerido('pp_ver_participante')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra los nombres y apellidos de los participantes de un proyecto, asi como el nombre del Rol que
@@ -84,7 +84,7 @@ def participantes_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('roles_de_proyecto.pp_ver_participante')
+@pp_requerido('pp_ver_participante')
 def participante_view(request, proyecto_id, participante_id):
     """
     Vista que muestra la siguiente información de un participante de proyecto: \n
@@ -157,7 +157,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('roles_de_proyecto.pu_ver_proyecto')
+@pp_requerido('pu_ver_proyecto')
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -338,6 +338,10 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     if request.method == 'POST':
         permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                              fase.startswith('f_')}
+
+        for fase in permisos_por_fase.keys():
+            permisos_por_fase[fase].append('pu_f_ver_fase')
+
         rol = get_object_or_404(RolDeProyecto, id=request.POST['rol'])
         participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
         return redirect('participante', proyecto.id, participante.id)
@@ -347,6 +351,15 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def pp_insuficientes(request, *args, **kwargs):
+    """
+    Vista que se muestra al usuario al detectar que este trata de realizar una accion para la que no tiene permisos
+    dentro del proyecto.
+
+    Argumentos:
+        request: objeto HttpRequest recibido por el servidor.
+    Retorna:
+        HttpResponse: pagina HTML que indica al usuario que no tiene los permisos de proyecto correspondientes.
+    """
     return render(request, 'gestion_de_proyecto/pp_insuficientes.html', context={'user': request.user})
 
 
@@ -378,6 +391,12 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.ps_ver_proyecto', login_url='sin_permiso')
 def info_proyecto_view(request, proyecto_id):
+    """
+    Metodo que muestra una pantalla de visualizacion de la informacion en general de un proyecto del sistema.\n
+    Retorna:
+        HttpResponse: respuesta HTTP a la solicitud del usuario.
+    """
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user, 'proyecto': proyecto,
