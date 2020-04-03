@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from django.contrib.auth.models import User, Permission
 from django.test import Client
@@ -38,8 +40,9 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
+
 def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.datetime.now(tz = timezone.utc),
                         creador=usuario)
     proyecto.save()
     fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
@@ -111,7 +114,7 @@ def atributos(tipo_de_item):
     atributos.append(anum)
     return atributos
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_recolectar_atributos(atributos, tipo_de_item):
     """
@@ -129,7 +132,7 @@ def test_recolectar_atributos(atributos, tipo_de_item):
     assert len(lista_atributos) == len(
         atributos), "La función recolectar_atributos no consigue todos los atributos del tipo de item."
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_atributo_form_hanldler(atributos, tipo_de_item):
     """
