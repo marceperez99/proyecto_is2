@@ -42,7 +42,7 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pu_f_ver_fase')
+@pp_requerido('pu_ver_proyecto')
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
@@ -168,7 +168,7 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
             fase_derecha.fase_anterior = fase_izquierda
             fase_derecha.save()
         fase.delete()
-        # Todo falta pone la url correcta
+
         return redirect('listar_fases', proyecto.id)
     contexto = {'fase': fase, 'proyecto': proyecto,
                 'breadcrumb': {
