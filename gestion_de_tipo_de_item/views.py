@@ -1,22 +1,23 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from gestion_de_proyecto.models import Proyecto
+
 from gestion_de_fase.models import Fase
+from gestion_de_proyecto.models import Proyecto
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
 from gestion_de_tipo_de_item.models import TipoDeItem
-from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
-    construir_atributos, recolectar_atributos
-
-# Create your views here.
-
 # /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id
 # /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id/editar
 # /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
 # tipo_de_item/proyecto_id/fase_id
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
+    construir_atributos, recolectar_atributos
 from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
+
+
+# Create your views here.
 
 
 @login_required
@@ -27,9 +28,9 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     Vista que permite visualizar el nombre, la descripción, y los atributos de un tipo de item
 
     Argumentos:
-        request: HttpRequest
-        proyecto_id: int id que identifica unicamente a un proyecto.
-        fase_id: int id que identifica unicamente a una fase
+        request: HttpRequest \n
+        proyecto_id: int id que identifica unicamente a un proyecto. \n
+        fase_id: int id que identifica unicamente a una fase \n
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
@@ -63,8 +64,8 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
     Vista que permite visualizar los tipos de items asociados a una fase de un proyecto.
 
     Argumentos:
-        request: HttpRequest.
-        proyecto_id: int id que identifica unicamente a un proyecto.
+        request: HttpRequest. \n
+        proyecto_id: int id que identifica unicamente a un proyecto. \n
         fase_id: int id que identifica unicamente a una fase.
 
     Retorna:
@@ -98,14 +99,13 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
     Permite agregar nuevos atributos al tipo de item.
 
     Argumentos:
-        request: HttpRequest
-        proyecto_id: int id que identica unicamente a un proyecto del sistema.
-        fase_id: int id que identifica unicamente a una fase del sistema.
+        request: HttpRequest \n
+        proyecto_id: int id que identica unicamente a un proyecto del sistema. \n
+        fase_id: int id que identifica unicamente a una fase del sistema. \n
         tipo_de_item: int id que identifica unicamente una tipo de item. (solo si se esta importando un tipo de item)
 
     Retorna:
         HttpReponse
-
     """
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, pk=fase_id)
@@ -176,8 +176,8 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     su modificación y creación.
 
     Argumentos:
-        request: HttpRequest.
-        proyecto_id: int id que identifica unicamente a un proyecto del sistema.
+        request: HttpRequest. \n
+        proyecto_id: int id que identifica unicamente a un proyecto del sistema. \n
         fase_id: int id que identifica unicamente a una fase del sistema.
 
     Retorna:
@@ -238,7 +238,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 }
 
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto)
+        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto,tipo_de_item = tipo_de_item)
         atributos_dinamicos = construir_atributos(request)
         atributos_forms = atributo_form_handler(atributos_dinamicos)
         if tipo_de_item_form.is_valid():

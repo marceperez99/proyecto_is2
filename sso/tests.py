@@ -1,16 +1,17 @@
-from django.test import TestCase
+from http import HTTPStatus
+
+import pytest
+from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
-from django.contrib.auth.models import User, Permission, Group
-from http import HTTPStatus
-import pytest
 
 from roles_de_sistema.models import RolDeSistema
 
 
+# Todo: Comentar
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol = RolDeSistema(nombre='Administrador', descripcion='descripcion de prueba')
     rol.save()
     for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
         rol.permisos.add(pp)

@@ -1,6 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User, Permission
-from django.shortcuts import get_object_or_404
+from django.db import models
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
@@ -9,12 +8,13 @@ from roles_de_proyecto.models import PermisosPorFase
 
 class EstadoDeProyecto:
     """
-        Clase que se usa para facilitar el nombramiento de los estados del proyecto.\n
-        Estados de Proyecto:\n
-        CONFIGURACION = En Configuracion\n
-        INICIADO = Iniciado\n
-        FINALIZADO = Finalizado\n
-        CANCELADO = Cancelado\n
+    Clase que se usa para facilitar el nombramiento de los estados del proyecto.
+
+    Estados de Proyecto:
+        CONFIGURACION = En Configuracion \n
+        INICIADO = Iniciado \n
+        FINALIZADO = Finalizado \n
+        CANCELADO = Cancelado
     """
     CONFIGURACION = "En Configuración"
     INICIADO = "Iniciado"
@@ -39,12 +39,13 @@ class Proyecto(models.Model):
     def get_participante(self, usuario):
         """
         Metodo que retorna el objeto Participante asociado al proyecto y que contenga el usuario
-        pasado como parametro.\n
+        pasado como parametro.
+
         Argumentos:
-            usuario: objeto User\n
+            usuario: User
+
         Retorna:
             Participante
-
         """
         if self.gerente.id == usuario.id:
             return self.participante_set.get(usuario=usuario)
@@ -65,8 +66,9 @@ class Proyecto(models.Model):
 
     def get_participantes(self):
         """
-        Metodo que retorna todos los participantes del proyecto.\n
-        Retorna:\n
+        Metodo que retorna todos los participantes del proyecto.
+
+        Retorna:
             QuerySet: objeto con todos los participantes del Proyecto.
         """
         participantes = [self.participante_set.get(usuario=self.gerente)]
@@ -77,17 +79,18 @@ class Proyecto(models.Model):
     def get_comite_de_cambios(self):
         """
         Metodo que retorna el Comite de Cambios asociado al Proyecto.
-            Retorna:
-                 Comite: objeto Comite del proyecto
+
+        Retorna:
+             Comite: objeto Comite del proyecto
         """
         assert self.comite_set.all().count() == 1, 'El Proyecto no tiene un Comite asociado'
         return self.comite_set.all()[0]
 
     def get_fases(self):
         """
-        Metodo que retorna todas las fases del Proyecto en orden
-        segun el campo fase_anterior.\n
-        Retorna:\n
+        Metodo que retorna todas las fases del Proyecto en orden, segun el campo fase_anterior.
+
+        Retorna:
             Lista: lista de fases del proyecto en orden
         """
         lista = []
@@ -103,7 +106,7 @@ class Proyecto(models.Model):
         Metodo que asigna a un participante un rol de proyecto y un conjunto de permisos por cada fase del
         proyecto.
 
-        Args:
+        Argumentos:
             rol: RolDeProyecto, rol a asignar al usuario.\n
             usuario: User, usuario a quien se asignara el rol.\n
             permisos_por_fase: Diccionario con las fases del proyecto y el conjunto de permisos de proyecto
@@ -116,24 +119,28 @@ class Proyecto(models.Model):
 
     def tiene_permiso_de_proyecto(self, usuario, permiso):
         """
-        Metodo que verifica si un usuario tiene o no un determinado permiso de proyecto \n
-        Args:\n
-        usuario: User\n
-        permiso: codename(string) del permiso de proyecto\n
-        Retorna:\n
+        Metodo que verifica si un usuario tiene o no un determinado permiso de proyecto
+
+        Argumentos:
+            usuario: User \n
+            permiso: codename(string) del permiso de proyecto
+
+        Retorna:
             True si el usuario tiene el permiso de proyecto.\n
-            False en caso contrario.\n
+            False en caso contrario.
         """
         return self.get_participante(usuario).tiene_pp(permiso)
 
     def tiene_permiso_de_proyecto_en_fase(self, usuario, fase, permiso):
         """
         Metodo que retorna True si el usuario tiene un determinado permiso de proyecto dentro de una determinada
-        fase.\n
-        Args:
+        fase.
+
+        Argumentos:
             usuario: User\n
             fase: Fase\n
-            permiso: codename(string) del permiso de proyecto\n
+            permiso: codename(string) del permiso de proyecto
+
         Retorna:
             True si el usuario tiene el permiso dentro de la fase del proyecto.\n
             False en caso contrario.
@@ -143,14 +150,14 @@ class Proyecto(models.Model):
     def cancelar(self):
         """
         Metodo de la clase proyecto que verifica si un proyecto no este en en estado finalizado,
-        si este se encuentra en otro estado, lo pone en estado "Cancelado".\n
-        Args:
-            proyecto: Proyecto\n
+        si este se encuentra en otro estado, lo pone en estado "Cancelado".
+
+        Argumentos:
+            proyecto: Proyecto
+
         Retorna:
             True: si el proyecto se encuentra en estado "En Configuracion" o "iniciado".\n
-            False: si el proyecto ya se encuentra en estado "Finalizado".\n
-
-
+            False: si el proyecto ya se encuentra en estado "Finalizado".
         """
         if self.estado == EstadoDeProyecto.FINALIZADO:
             return False
@@ -161,9 +168,10 @@ class Proyecto(models.Model):
     def iniciar(self):
         """
         Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
-        cambia su estado de "En Configuracion" a "Iniciado"\n
-        Retorna:\n
-            True: si cambio a estado "Iniciado"
+        cambia su estado de "En Configuracion" a "Iniciado"
+
+        Retorna:
+            True: si cambio a estado "Iniciado" \n
             False: si el proyecto aun no tiene fases
         """
         comite = Comite.objects.get(proyecto=self)
@@ -184,7 +192,6 @@ class Proyecto(models.Model):
 
         Retorna:
             None
-
         """
         if self.participante_set.filter(usuario=usuario, rol__isnull=False).exists():
             mensaje = "El sistema es inconsistente: 2 participantes activos hacen referencia al mismo usuario."
@@ -196,11 +203,12 @@ class Proyecto(models.Model):
 
 class Participante(models.Model):
     """
-    Modelo que representa la relacion entre un usuario del sistema y un proyecto en particular.\n
+    Modelo que representa la relacion entre un usuario del sistema y un proyecto en particular.
+
     Atributos:
-        - proyecto: Proyecto
-        - usuario: User
-        - rol: RolDeProyecto
+        proyecto: Proyecto \n
+        usuario: User \n
+        rol: RolDeProyecto
     """
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto', on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -214,9 +222,9 @@ class Participante(models.Model):
         """
         Metodo que retorna el nombre del Rol de Proyecto que tiene asignado un participante dentro del Proyecto.
 
-            Retorna:
-                string: nombre del rol de Proyecto que tiene asignado el usuario dentro del proyecto,
-                retorna 'Gerente de Proyecto' si el participante es el Gerente de este proyecto.
+        Retorna:
+            string: nombre del rol de Proyecto que tiene asignado el usuario dentro del proyecto, \n
+            retorna 'Gerente de Proyecto' si el participante es el Gerente de este proyecto.
         """
         if self.rol is not None:
             return self.rol.nombre
@@ -228,10 +236,9 @@ class Participante(models.Model):
         Metodo que retorna un diccionario que, por cada fase del proyecto, contiene una lista de los permisos de
         proyecto que el usuario tiene asignado en la fase correspondiente.
 
-            Retorna:
-                dict: diccionario con la estructura.
-                    { Fase: [Permission, ...] }
-
+        Retorna:
+            dict: diccionario con la estructura.
+                { Fase: [Permission, ...] }
         """
         pp_por_fase = {}
         for fase in self.proyecto.get_fases():
@@ -246,10 +253,10 @@ class Participante(models.Model):
         """
         Metodo que asigna a un participante de un proyecto un conjunto de permisos por cada fase del proyecto.
 
-        Args:
+        Argumentos:
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
-        Lanza:
+        Reotorna:
             Exception: si las claves del diccionario recibido no son del tipo string o del tipo Fase.
         """
         for fase in permisos_por_fase.keys():
@@ -270,10 +277,9 @@ class Participante(models.Model):
         """
         Metodo que asigna a un participante un rol de proyecto y un conjunto de permisos por cada fase del proyecto
 
-        Args:
+        Argumentos:
             rol: RolDeProyecto, rol a asignar al usuario.\n
             permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
-
         """
         self.permisos_por_fase.clear()
         if permisos_por_fase != {}:
@@ -296,7 +302,7 @@ class Participante(models.Model):
         """
         Metodo que comprueba si el participante tiene un Permiso de Proyecto.
 
-        Args:
+        Argumentos:
             permiso: codename(string) del permiso de proyecto.
 
         Retorna:
@@ -309,7 +315,7 @@ class Participante(models.Model):
         """
         Metodo que comprueba si el participante tiene un Permiso de Proyecto dentro de una determinada fase.
 
-        Args:
+        Argumentos:
             fase: identificador(int) de la fase o objeto Fase.\n
             permiso: codename(string) del permiso de proyecto.
 
@@ -354,6 +360,7 @@ class Participante(models.Model):
             else:
                 permisos_por_fase = []
         return [pp.codename for pp in permisos_por_fase]
+
 
 class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)

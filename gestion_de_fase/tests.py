@@ -1,10 +1,10 @@
 import pytest
 from django.contrib.auth.models import User, Permission
+from django.test import Client
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
-from django.test import Client
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -34,7 +34,7 @@ def rol_de_proyecto():
 @pytest.fixture
 def proyecto(usuario, rol_de_proyecto):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
-                        creador=usuario)
+                        creador=usuario,fecha_de_creacion=timezone.now())
     proyecto.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.save()
@@ -51,12 +51,13 @@ def fase(proyecto):
     fase.save()
     return None
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_nueva_fase_al_inicio(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
     atributo fase_anterior de la fase siguiente en donde se inserta la fase.
+
     Se espera:
         El aterior de la fase 1 sea la nueva fase que se inserte
 
@@ -74,12 +75,13 @@ def test_nueva_fase_al_inicio(proyecto):
     fase_2 = Fase.objects.get(id=fase_2.id)
     assert fase_1.fase_anterior is None and fase_2.fase_anterior.pk == fase_1.pk, "No se logra posicionar una fase al inicio"
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_nueva_fase_al_final(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar comprueba que se esta posisionando
     una fase al final.
+
     Se espera:
         Que la fase que se inserto apunte a la fase que anteriormente era la ultima
 
@@ -97,12 +99,13 @@ def test_nueva_fase_al_final(proyecto):
     fase_3 = Fase.objects.get(id=fase_3.id)
     assert fase_2.fase_anterior is None and fase_3.fase_anterior.pk == fase_2.pk, "No se logra posicionar una fase al final"
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_nueva_fase_medio(proyecto):
     """
     Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
     atributo fase_anterior de las fases adyacentes de una nueva fase.
+
     Se espera:
         El aterior de la fase 1 se None
         El de la fase 2 sea la fase 1

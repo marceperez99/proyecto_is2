@@ -1,7 +1,8 @@
+import datetime
+
 import pytest
 from django.contrib.auth.models import User, Permission
-from django.test import TestCase, Client
-
+from django.test import Client
 # Create your tests here.
 from django.utils import timezone
 
@@ -11,7 +12,7 @@ from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoFor
     AtributoNumericoForm, AtributoFechaForm
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
-from gestion_de_tipo_de_item.utils import recolectar_atributos, get_dict_tipo_de_item, atributo_form_handler
+from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
 
 
@@ -39,8 +40,9 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
+
 def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.datetime.now(tz = timezone.utc),
                         creador=usuario)
     proyecto.save()
     fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
@@ -112,7 +114,7 @@ def atributos(tipo_de_item):
     atributos.append(anum)
     return atributos
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_recolectar_atributos(atributos, tipo_de_item):
     """
@@ -130,12 +132,12 @@ def test_recolectar_atributos(atributos, tipo_de_item):
     assert len(lista_atributos) == len(
         atributos), "La función recolectar_atributos no consigue todos los atributos del tipo de item."
 
-
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 def test_atributo_form_hanldler(atributos, tipo_de_item):
     """
-    Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo del tipo de item
-
+    Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo
+    del tipo de item.
 
     Resultado esperado:
         Una lista con un form adecuado para cada atributo del tipo de item.

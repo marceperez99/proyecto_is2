@@ -17,11 +17,14 @@
         <div class="row">
             <h3 class="col-12 col-md-10">Roles de Proyecto</h3>
             <!-- Falta agregar condicion para que esta opcion no se muestre si no se tiene el permiso -->
-            <div class="col-12 col-md-2 row">
-                <a href="{% url 'nuevo_rol_de_proyecto' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">
-                    Crear Nuevo Rol
-                </a>
-            </div>
+            {% if user.es_administrador %}
+                <div class="col-12 col-md-2 row">
+                    <a href="{% url 'nuevo_rol_de_proyecto' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">
+                        Crear Nuevo Rol
+                    </a>
+                </div>
+            {% endif %}
+
 
         </div>
             <hr>
@@ -30,18 +33,17 @@
                 {% for message in messages %}
                     {% if message.tags == 'error' %}
                         <div class="alert alert-danger">
-                    {% else %}
-                        <div class="alert alert-{{ message.tags }}">
+                        {{ message }}</div>
                     {% endif %}
-                    {{ message }}</div>
+
                 {% endfor %}
 
         {% endif %}
 
         <div id="lista_roles">
             {% for rol in roles %}
-                <div class="card" style="margin:10px">
-                    <div class="card-header bg-light" id="header_rol_{{ rol.id }}">
+                <div class="card col-10 mx-auto p-0" style="margin:10px">
+                    <div class="card-header bg-color-primary text-white" id="header_rol_{{ rol.id }}">
                         <div class="row">
                             <div class="col-auto mr-auto">
                                 {{rol.nombre}}
@@ -52,7 +54,7 @@
                                     &nbsp Visualizar
                                 </a>
                             </div>
-                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_rol_{{rol.id}}" aria-expanded="false" aria-controls="lista_roles">
+                            <button class="btn btn-link collapsed text-white" data-toggle="collapse" data-target="#collapse_rol_{{rol.id}}" aria-expanded="false" aria-controls="lista_roles">
                                 <i class="fa" aria-hidden="true"></i>
                             </button>
                         </div>

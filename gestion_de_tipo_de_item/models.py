@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from gestion_de_fase.models import Fase
-from django.utils.timezone import timezone
 
 
 # Create your models here.
@@ -17,7 +17,6 @@ class TipoDeItem(models.Model):
         creador: User\n
         fase: Fase\n
         fecha_creacion: date\n
-
     """
     nombre = models.CharField(max_length=101)
     descripcion = models.CharField(max_length=401)

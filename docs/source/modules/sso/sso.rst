@@ -15,6 +15,6 @@ Modelos
     :members:
 
 Pruebas unitarias
-==========================0
+==========================
 .. automodule:: sso.tests
     :members:

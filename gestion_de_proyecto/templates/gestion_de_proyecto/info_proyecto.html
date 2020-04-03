@@ -8,7 +8,9 @@
         <div class="row bg-white p-3 border rounded">
             <h3 class="col-6">Informacion del Proyecto</h3>
             <div class="col-6 text-right">
-                <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn btn-primary bg-color-accent border-0">Visualizar Proyecto</a>
+                {% if participante is not None %}
+                    <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn btn-primary bg-color-accent border-0">Visualizar Proyecto</a>
+                {% endif %}
             </div>
             <hr class="col-10 mx-auto">
             <h5 class="col-4 mb-3">Nombre</h5><div class="col-8 mb-3">{{ proyecto.nombre }}</div>
@@ -21,11 +23,12 @@
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h5 class="col-auto text-white">Participantes</h5>
-                            <!-- TODO agregar condicion de que solo si participa el usuario que se muestre esta opcion -->
-                                <a href="{% url 'participantes' proyecto.id %}"
-                                   class="btn btn-primary border-0 ml-auto mr-3 bg-color-accent">
-                                    Gestionar Participantes
-                                </a>
+                                {% if participante %}
+                                    <a href="{% url 'participantes' proyecto.id %}"
+                                       class="btn btn-primary border-0 ml-auto mr-3 bg-color-accent">
+                                        Gestionar Participantes
+                                    </a>
+                                {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
@@ -49,12 +52,12 @@
                     <div class="card-header bg-color-primary">
                         <div class="row">
                             <h5 class="col-auto text-white">Comite de Cambios</h5>
-                            <!-- TODO falta cambiar esto para que vaya a la pagina del Comite de Cambios -->
-                            <!-- TODO agregar condicion de que solo si participa el usuario que se muestre esta opcion -->
-                            <a href="{% url 'asignar_miembros_comite' proyecto.id %}"
-                               class="btn btn-primary border-0 ml-auto mr-3 bg-color-accent">
-                                Asignar Comite de Cambios
-                            </a>
+                            {% if participante.get_rol_nombre == 'Gerente de Proyecto' %}
+                                <a href="{% url 'asignar_miembros_comite' proyecto.id %}"
+                                   class="btn btn-primary border-0 ml-auto mr-3 bg-color-accent">
+                                    Asignar Comite de Cambios
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-body">

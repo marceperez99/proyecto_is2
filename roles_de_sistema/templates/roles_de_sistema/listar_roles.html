@@ -20,7 +20,9 @@
             <h3 class="col-12 col-md-10">Roles de Sistema</h3>
             <!-- Falta agregar condicion para que esta opcion no se muestre si no se tiene el permiso -->
             <div class="col-12 col-md-2 row">
-                <a href="{% url 'nuevo_rol_de_sistema' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">Crear Nuevo Rol</a>
+                {% if user.es_administrador %}
+                    <a href="{% url 'nuevo_rol_de_sistema' %}" class="btn bg-color-accent text-white font-weight-bold col-12 ml-auto">Crear Nuevo Rol</a>
+                {% endif %}
             </div>
 
         </div>
@@ -30,18 +32,18 @@
                 {% for message in messages %}
                     {% if message.tags == 'error' %}
                         <div class="alert alert-danger">
-                    {% else %}
-                        <div class="alert alert-{{ message.tags }}">
-                    {% endif %}
-                    {{ message }}</div>
+                            {{ message }}
+                        </div>
+                {% endif %}
+
                 {% endfor %}
 
         {% endif %}
 
-        <div id="lista_roles">
+        <div id="lista_roles" class="col-10 mx-auto">
             {% for rol in roles %}
                 <div class="card" style="margin:10px">
-                    <div class="card-header bg-light" id="header_rol_{{ rol.id }}">
+                    <div class="card-header text-white bg-color-primary" id="header_rol_{{ rol.id }}">
                         <div class="row">
                             <div class="col-auto mr-auto">
                                 {{rol.nombre}}
@@ -52,7 +54,7 @@
                                     &nbsp Visualizar
                                 </a>
                             </div>
-                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_rol_{{rol.id}}" aria-expanded="false" aria-controls="lista_roles">
+                            <button class="btn btn-link text-white collapsed" data-toggle="collapse" data-target="#collapse_rol_{{rol.id}}" aria-expanded="false" aria-controls="lista_roles">
                                 <i class="fa" aria-hidden="true"></i>
                             </button>
                         </div>

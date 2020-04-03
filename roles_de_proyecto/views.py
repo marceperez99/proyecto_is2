@@ -1,30 +1,28 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission
-from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 from django.urls import reverse
 
 from roles_de_proyecto.models import RolDeProyecto
+from usuario.models import Usuario
 from .forms import NewRolDeProyectoForm
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO falta incluir el permiso de sistema de que puede ver esto
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def listar_roles_de_proyecto_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
 
-    Args:
-
-     request: HttpRequest
+    Argumentos:
+        request: HttpRequest
 
     Retorna:
-
-     HttpResponse
+        HttpResponse
     """
-    contexto = {'user': request.user,
+    user = Usuario.objects.get(id=request.user.id)
+    contexto = {'user': user,
                 'roles': [
                     {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
@@ -40,22 +38,19 @@ def listar_roles_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO requiere que se indique que requiere un permiso de sistema
+@permission_required('roles_de_sistema.pa_editar_rp', login_url='sin_permiso')
 def editar_rol_de_proyecto_view(request, id_rol):
     """
-    Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
-    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol.
-    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan las modificaciones
+    Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema. \n
+    Si el metodo Http con el que se realizo la peticion fue GET se muestra la vista de edicion del rol. \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos recibidos y se guardan
+    las modificaciones
 
-    Args:
-
-        request: HttpRequest peticion recibida por el servidor
-
-        id_rol: int identificador unico del Rol de Proyecto que se quiere modificar
+    Argumentos:
+        request: HttpRequest peticion recibida por el servidor \n
+        id_rol: int identificador unico del Rol de Proyecto que se quiere modificar.
 
     Retorna:
-
         HttpResponse
     """
 
@@ -74,31 +69,31 @@ def editar_rol_de_proyecto_view(request, id_rol):
         contexto = {'user': request.user,
                     'form': NewRolDeProyectoForm(instance=rol, initial={'permisos': [r.id for r in rol.get_permisos()]})
                     }
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Editar Rol',
+                              'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                        {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
+                                        {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
     return render(request, 'roles_de_proyecto/editar_rol.html', contexto)
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_rp', login_url='sin_permiso')
 # TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
-    Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema.
-
-    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion de nuevo Rol.
-
-    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Proyecto dentro del Sistema.
-
+    Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema. \n
+    Si al vista recibe un HttpRequest enviado con el metodo GET mostrará al usuario la pantalla de creacion
+    de nuevo Rol. \n
+    En cambio, si recibe el HttpRequest con el metodo POST tomará los datos recibidos y creará un nuevo Rol de Proyecto
+    dentro del Sistema. \n
     Esta vista requiere que el usuario haya iniciado sesion y que cuente con el Permiso de Sistema correspondiente
     para crear un nuevo Rol de Proyecto.
 
-    Args:
-
-    request: HttpRequest, peticion Http recibida por el servidor de un usuario.
+    Argumentos:
+        request: HttpRequest, peticion Http recibida por el servidor de un usuario.
 
     Retorna:
-
-    HttpResponse
+        HttpResponse
     """
     contexto = {'user': request.user,
                 'breadcrumb': {'pagina_actual': 'Nuevo Rol de Proyecto',
@@ -119,24 +114,22 @@ def nuevo_rol_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def rol_de_proyecto_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Proyecto.
 
-    Args:
-
-        request: HttpRequest
-
+    Argumentos:
+        request: HttpRequest \n
         id_rol: int, identificador unico del Rol de Proyecto al que se esta accediendo
 
     Retorna:
-
         HttpResponse
     """
     rol = get_object_or_404(RolDeProyecto, id=id_rol)
+    user = Usuario.objects.get(id=request.user.id)
     contexto = {
-        'user': request.user,
+        'user': user,
         'rol': {
             'id': rol.id,
             'nombre': rol.nombre,
@@ -153,22 +146,22 @@ def rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_eliminar_rp', login_url='sin_permiso')
 def eliminar_rol_de_proyecto_view(request, id_rol):
     """
     Vista de confirmacion de eliminacion de un Proyecto
 
-        Argumentos:
-            request: objeto HttpRequest recibido por el servidor
-            id_rol: int identificador unico del Rol de Proyecto a eliminar
-
+    Argumentos:
+        request: objeto HttpRequest recibido por el servidor \n
+        id_rol: int identificador unico del Rol de Proyecto a eliminar
     """
     rol = get_object_or_404(RolDeProyecto, pk=id_rol)
     contexto = {'user': request.user, 'rol': rol,
                 'breadcrumb': {'pagina_actual': 'Eliminar Rol',
                                'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
                                          {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
-                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}}
+                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
+                }
     if request.method == 'POST':
         if rol.es_utilizado():
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')
