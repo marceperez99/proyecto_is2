@@ -6,12 +6,12 @@ from django.contrib import messages
 from django.urls import reverse
 
 from roles_de_proyecto.models import RolDeProyecto
+from usuario.models import Usuario
 from .forms import NewRolDeProyectoForm
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO falta incluir el permiso de sistema de que puede ver esto
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def listar_roles_de_proyecto_view(request):
     """
     Vista que muestra al usuario la lista de Roles de Proyecto que existen dentro del Sistema.
@@ -24,7 +24,8 @@ def listar_roles_de_proyecto_view(request):
 
      HttpResponse
     """
-    contexto = {'user': request.user,
+    user = Usuario.objects.get(id=request.user.id)
+    contexto = {'user': user,
                 'roles': [
                     {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
                      'permisos': [p.name for p in rol.get_permisos()]
@@ -40,8 +41,7 @@ def listar_roles_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# TODO requiere que se indique que requiere un permiso de sistema
+@permission_required('roles_de_sistema.pa_editar_rp', login_url='sin_permiso')
 def editar_rol_de_proyecto_view(request, id_rol):
     """
     Vista que permite al usuario editar un Rol de Proyecto guardado dentro del sistema.
@@ -74,12 +74,15 @@ def editar_rol_de_proyecto_view(request, id_rol):
         contexto = {'user': request.user,
                     'form': NewRolDeProyectoForm(instance=rol, initial={'permisos': [r.id for r in rol.get_permisos()]})
                     }
-
+    contexto['breadcrumb'] = {'pagina_actual': 'Editar Rol',
+                              'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
+                                        {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
+                                        {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
     return render(request, 'roles_de_proyecto/editar_rol.html', contexto)
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_rp', login_url='sin_permiso')
 # TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
@@ -119,7 +122,7 @@ def nuevo_rol_de_proyecto_view(request):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_rp', login_url='sin_permiso')
 def rol_de_proyecto_view(request, id_rol):
     """"
     Vista que muestra al usuario la informacion de un Rol de Proyecto.
@@ -135,8 +138,9 @@ def rol_de_proyecto_view(request, id_rol):
         HttpResponse
     """
     rol = get_object_or_404(RolDeProyecto, id=id_rol)
+    user = Usuario.objects.get(id=request.user.id)
     contexto = {
-        'user': request.user,
+        'user': user,
         'rol': {
             'id': rol.id,
             'nombre': rol.nombre,
@@ -153,7 +157,7 @@ def rol_de_proyecto_view(request, id_rol):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_eliminar_rp', login_url='sin_permiso')
 def eliminar_rol_de_proyecto_view(request, id_rol):
     """
     Vista de confirmacion de eliminacion de un Proyecto
@@ -168,7 +172,8 @@ def eliminar_rol_de_proyecto_view(request, id_rol):
                 'breadcrumb': {'pagina_actual': 'Eliminar Rol',
                                'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
                                          {'nombre': 'Roles de Proyecto', 'url': reverse('listar_roles_de_proyecto')},
-                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}}
+                                         {'nombre': rol.nombre, 'url': reverse('rol_de_proyecto', args=(rol.id,))}]}
+                }
     if request.method == 'POST':
         if rol.es_utilizado():
             messages.error(request, 'El Rol no puede ser eliminado ya que algun usuario tiene asignado este rol.')

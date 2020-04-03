@@ -57,7 +57,7 @@ class Proyecto(models.Model):
     def get_gerente(self):
         """
         Metodo que retorna el objeto User del gerente del Proyecto
-
++
         Retorna:
             User: gerente del Proyecto.
         """
@@ -354,6 +354,7 @@ class Participante(models.Model):
             else:
                 permisos_por_fase = []
         return [pp.codename for pp in permisos_por_fase]
+
 
 class Comite(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)

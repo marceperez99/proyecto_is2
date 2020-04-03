@@ -14,10 +14,12 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
+
     Args:
         request: objeto HttpRequest recibido por el servidor.\n
         proyecto_id: int, identificador unico del proyecto.\n
         fase_id: int, identificador unico de la fase que pertenece al proyecto.\n
+
     Retorna:
         HttpResponse: pagina web correspondiente a la visualizacion de la fase solicitada
     """
@@ -40,6 +42,7 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pu_ver_proyecto')
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
@@ -105,7 +108,7 @@ def nueva_fase_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pg_editar_fase')
+@pp_requerido_en_fase('pg_f_editar_fase')
 def editar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
@@ -165,7 +168,7 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
             fase_derecha.fase_anterior = fase_izquierda
             fase_derecha.save()
         fase.delete()
-        # Todo falta pone la url correcta
+
         return redirect('listar_fases', proyecto.id)
     contexto = {'fase': fase, 'proyecto': proyecto,
                 'breadcrumb': {

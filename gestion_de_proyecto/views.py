@@ -16,7 +16,7 @@ from .models import Proyecto, EstadoDeProyecto, Participante, Comite
 # Create your views here.
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
 def nuevo_proyecto_view(request):
     """
     Vista que se usa para la creacion de un proyecto
@@ -57,6 +57,7 @@ def nuevo_proyecto_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pp_ver_participante')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra la siguiente información de los participantes de un proyecto:
@@ -86,6 +87,7 @@ def participantes_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pp_ver_participante')
 def participante_view(request, proyecto_id, participante_id):
     """
     Vista que muestra la siguiente información de un participante de proyecto:
@@ -124,6 +126,7 @@ def participante_view(request, proyecto_id, participante_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pp_eliminar_participante')
 def eliminar_participante_view(request, proyecto_id, participante_id):
     """
     Vista que solicita confirmación del usuario para eliminar un participante de proyecto.
@@ -153,6 +156,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pu_ver_proyecto')
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -202,7 +206,6 @@ def editar_proyecto_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('pg_cancelar_proyecto')
 def cancelar_proyecto_view(request, proyecto_id):
     """
     Muestra una vista al usuario para que confirme la cancelacion del proyecto
@@ -216,6 +219,10 @@ def cancelar_proyecto_view(request, proyecto_id):
         HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    if not request.user.has_perm('roles_de_sistema.pa_cancelar_proyecto'):
+        if not request.user == proyecto.gerente:
+            return redirect('pp_insuficientes', proyecto_id)
+
     if request.method == 'POST':
         if proyecto.cancelar():
             proyecto.save()
@@ -331,6 +338,10 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     if request.method == 'POST':
         permisos_por_fase = {fase[2:]: request.POST.getlist(fase) for fase in request.POST.keys() if
                              fase.startswith('f_')}
+
+        for fase in permisos_por_fase.keys():
+            permisos_por_fase[fase].append('pu_f_ver_fase')
+
         rol = get_object_or_404(RolDeProyecto, id=request.POST['rol'])
         participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
         return redirect('participante', proyecto.id, participante.id)
@@ -340,6 +351,15 @@ def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def pp_insuficientes(request, *args, **kwargs):
+    """
+    Vista que se muestra al usuario al detectar que este trata de realizar una accion para la que no tiene permisos
+    dentro del proyecto.
+
+    Argumentos:
+        request: objeto HttpRequest recibido por el servidor.
+    Retorna:
+        HttpResponse: pagina HTML que indica al usuario que no tiene los permisos de proyecto correspondientes.
+    """
     return render(request, 'gestion_de_proyecto/pp_insuficientes.html', context={'user': request.user})
 
 
@@ -350,7 +370,13 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)
     form = SeleccionarMiembrosDelComiteForm(proyecto, instance=comite)
-    contexto = {'user': request.user, 'form': form}
+    contexto = {'user': request.user, 'form': form,
+                'breadcrumb': {'pagina_actual': 'Asignar Comite de Cambios',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Comite de Cambios', 'url': '#'}]
+                               }
+                }
     if request.method == 'POST':
         form = SeleccionarMiembrosDelComiteForm(proyecto, request.POST, instance=comite)
         if form.is_valid():
@@ -363,10 +389,18 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
 
 
 @login_required
-@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_proyecto', login_url='sin_permiso')
 def info_proyecto_view(request, proyecto_id):
+    """
+    Metodo que muestra una pantalla de visualizacion de la informacion en general de un proyecto del sistema.\n
+    Retorna:
+        HttpResponse: respuesta HTTP a la solicitud del usuario.
+    """
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user, 'proyecto': proyecto,
+                'participante': participante,
                 'breadcrumb': {'pagina_actual': 'Informacion del Proyecto',
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto.id,))}]}}

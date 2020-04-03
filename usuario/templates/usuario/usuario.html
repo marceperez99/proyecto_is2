@@ -22,19 +22,21 @@
             </div>
             {% endif %}
             <h3 class="col-12 col-sm-5 mr-auto">Perfil de Usuario</h3>
-            <div class="col-12 col-sm-7">
-                <div class="row justify-content-end">
-                    {% if rs_asignado %}
-                    <button type="button" class="btn btn-danger" onclick="$('.alert').prop('hidden',false).change()">
-                        Desasignar Rol de Sistema
-                    </button>
-                    {% endif %}
-                    <a href="{%url 'asignar_rol_de_sistema' usuario.id%}"
-                       class="btn btn-primary bg-color-accent ml-1">
-                        {% if rs_asignado %}Cambiar{% else %}Asignar{% endif %} Rol de Sistema
-                    </a>
+            {% if user.es_administrador %}
+                <div class="col-12 col-sm-7">
+                    <div class="row justify-content-end">
+                        {% if rs_asignado %}
+                            <button type="button" class="btn btn-danger" onclick="$('.alert').prop('hidden',false).change()">
+                                Desasignar Rol de Sistema
+                            </button>
+                        {% endif %}
+                        <a href="{%url 'asignar_rol_de_sistema' usuario.id%}"
+                           class="btn btn-primary bg-color-accent ml-1">
+                            {% if rs_asignado %}Cambiar{% else %}Asignar{% endif %} Rol de Sistema
+                        </a>
+                    </div>
                 </div>
-        </div>
+            {% endif %}
         </div>
         <div class="row bg-white mt-3 p-3 border rounded">
             <img src="{{ usuario.socialaccount_set.all.0.get_avatar_url }}" class="col-10 mx-auto col-sm-2 rounded-circle">

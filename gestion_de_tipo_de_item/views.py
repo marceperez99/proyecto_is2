@@ -238,7 +238,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 }
 
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto)
+        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto,tipo_de_item = tipo_de_item)
         atributos_dinamicos = construir_atributos(request)
         atributos_forms = atributo_form_handler(atributos_dinamicos)
         if tipo_de_item_form.is_valid():
