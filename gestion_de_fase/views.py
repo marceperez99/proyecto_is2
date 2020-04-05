@@ -129,6 +129,11 @@ def editar_fase_view(request, proyecto_id, fase_id):
     form = FaseForm(request.POST or None, instance=fase, proyecto=proyecto)
     if request.method == 'POST':
         if form.is_valid():
+            if Fase.objects.filter(fase_anterior=fase).exists():
+                print('Entro en el if')
+                fase_siguiente = Fase.objects.get(fase_anterior=fase)
+                fase_siguiente.fase_anterior = Fase.objects.get(id=fase.id).fase_anterior
+                fase_siguiente.save()
             fase = form.save(commit=False)
             fase.save()
             fase.posicionar_fase()
