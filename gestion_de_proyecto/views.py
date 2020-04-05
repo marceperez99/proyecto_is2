@@ -239,6 +239,16 @@ def cancelar_proyecto_view(request, proyecto_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_iniciar_proyecto')
 def iniciar_proyecto_view(request, proyecto_id):
+    """
+    Vista que permite iniciar un proyecto, si este tiene al menos una fase
+
+    Argumentos:
+        request: HttpRequest recibido por el servidor \n
+        proyecto_id: identificador del proyecto donde se agregara el usuario
+
+    Retorna
+        HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
         if proyecto.iniciar():
