@@ -11,10 +11,12 @@ class ProyectoForm(forms.ModelForm):
         model = Proyecto
         fields = ('nombre', 'descripcion', 'gerente')
 
-    def __init__(self,*args,**kwargs):
-        super(ProyectoForm, self).__init__(*args,**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ProyectoForm, self).__init__(*args, **kwargs)
         self.fields['gerente'].empty_label = 'Seleccionar Gerente'
-        self.fields['gerente'].queryset = Usuario.objects.all()
+        self.fields['gerente'].queryset = Usuario.objects.filter(groups__isnull=False)
+
+
 class EditarProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto
@@ -29,11 +31,11 @@ class NuevoParticipanteForm(forms.ModelForm):
         usuarios = []
         if proyecto is not None:
             # Se obtienen todos los ids de usuarios que no estan entro del proyecto
-            for user in User.objects.all():
+            for user in Usuario.objects.filter(groups__isnull=False):
                 if not proyecto.participante_set.all().filter(usuario=user).exists():
                     usuarios.append(user.id)
 
-                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True)\
+                if proyecto.participante_set.all().filter(usuario=user, rol__isnull=True) \
                         .exclude(usuario=proyecto.gerente).exists():
                     if user not in usuarios:
                         usuarios.append(user.id)
@@ -71,4 +73,4 @@ class SeleccionarMiembrosDelComiteForm(forms.ModelForm):
     def __init__(self, proyecto, *args, **kwargs):
         super(SeleccionarMiembrosDelComiteForm, self).__init__(*args, **kwargs)
         self.fields['miembros'].queryset = proyecto.participante_set.all()
-        self.fields['miembros'].widget=forms.CheckboxSelectMultiple()
+        self.fields['miembros'].widget = forms.CheckboxSelectMultiple()
