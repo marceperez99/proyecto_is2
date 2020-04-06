@@ -147,11 +147,18 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)
     if comite.es_miembro(participante):
-        return redirect('participante_view', proyecto_id=proyecto_id, participante_id=participante_id)
+        messages.error(request, 'No se puede eliminar a un participante del Comite de Cambios.')
+        return redirect('participante', proyecto_id=proyecto_id, participante_id=participante_id)
     if request.method == 'POST':
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)
-    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario}
+    contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario,
+                'breadcrumb': {'pagina_actual': 'Editar',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto',
+                                                         args=(proyecto.id,))}]}
+                }
+
     return render(request, 'gestion_de_proyecto/eliminar_participante.html', context=contexto)
 
 
@@ -201,7 +208,11 @@ def editar_proyecto_view(request, proyecto_id):
         proyecto = form.save(commit=False)
         proyecto.save()
         return redirect('index')
-    return render(request, 'gestion_de_proyecto/editar_proyecto.html', {'formulario': form})
+    contexto = {'formulario': form, 'breadcrumb': {'pagina_actual': 'Editar',
+                                                   'links': [{'nombre': proyecto.nombre,
+                                                              'url': reverse('visualizar_proyecto',
+                                                                             args=(proyecto.id,))}]}}
+    return render(request, 'gestion_de_proyecto/editar_proyecto.html', contexto)
 
 
 @login_required
