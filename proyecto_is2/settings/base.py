@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'gestion_de_proyecto',
     'gestion_de_fase',
     'gestion_de_tipo_de_item',
+    'gestion_de_item',
 
 
     'allauth',  # <--
