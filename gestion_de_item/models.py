@@ -9,13 +9,13 @@ class EstadoDeItem:
     Clase que especifica todos los estados en los que se puede encontrar un tipo de item
 
     Estados de un item:
-        CREADO = "Creado"
-        APROBADO = "Aprobado"
-        EN_LINEA_BASE = "En Linea Base"
-        ELIMINADO = "Eliminado"
-        A_APROBAR = "Listo para su aprobación"
-        EN_REVISION = "En Revisión"
-        A_MODIFICAR = "A modificar"
+        - CREADO = "Creado"
+        - APROBADO = "Aprobado"
+        - EN_LINEA_BASE = "En Linea Base"
+        - ELIMINADO = "Eliminado"
+        - A_APROBAR = "Listo para su aprobación"
+        - EN_REVISION = "En Revisión"
+        - A_MODIFICAR = "A modificar"
     """
     CREADO = "Creado"
     APROBADO = "Aprobado"
@@ -29,7 +29,11 @@ class EstadoDeItem:
 class Item(models.Model):
     """
     Modelo que representa a un item de una fase.
-    TODO: COMENTAR!!!
+
+    - tipo_de_item: TipoDeItem, el tipo de este ite,
+    - estado: EstadoItem, estado en que se encuentra el item
+    - version: VersionItem, versión actual de este item.
+
     """
     tipo_de_item = models.ForeignKey(TipoDeItem,on_delete=models.CASCADE)
     estado = models.CharField(max_length=40)
@@ -57,7 +61,15 @@ class Item(models.Model):
 
 class VersionItem(models.Model):
     """
-    Modelo que representa la versión actual de un item y sus atributos versionables.
+    Modelo que representa una versión de un ítem junto a sus atributos versionables.
+
+    - nombre: string
+    - descripcion: string
+    - peso: int
+    - antecesores: lista[] items
+    - padres: lista[] items
+    - version: int
+
     """
 
     item = models.ForeignKey(Item, on_delete=models.CASCADE,related_name='version_item')
@@ -70,6 +82,10 @@ class VersionItem(models.Model):
 
 
 class AtributoItemArchivo(models.Model):
+    """
+    Modelo que representa un atributo dinámico de tipo archivo de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo archivo del tipo de item correspondiente.
+
+    """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoBinario,on_delete=models.CASCADE)
     url = models.CharField(
@@ -77,24 +93,41 @@ class AtributoItemArchivo(models.Model):
 
 
 class AtributoItemBooleano(models.Model):
+    """
+        Modelo que representa un atributo dinámico de tipo booleano de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo booleano del tipo de item correspondiente.
+
+    """
+
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoBooleano,on_delete=models.CASCADE)
     valor = models.BooleanField()
 
 
 class AtributoItemFecha(models.Model):
+    """
+    Modelo que representa un atributo dinámico de tipo fecha de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo fecha del tipo de item correspondiente.
+
+    """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoFecha,on_delete=models.CASCADE)
     valor = models.DateTimeField()
 
 
 class AtributoItemNumerico(models.Model):
+    """
+        Modelo que representa un atributo dinámico de tipo númerico de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo númerico del tipo de item correspondiente.
+
+    """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoNumerico,on_delete=models.CASCADE)
     valor = models.DecimalField(decimal_places=20,max_digits=20)
 
 
 class AtributoItemCadena(models.Model):
+    """
+        Modelo que representa un atributo dinámico de tipo cadena de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo cadena del tipo de item correspondiente.
+
+    """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoCadena,on_delete=models.CASCADE)
     valor = models.CharField(max_length=500)
