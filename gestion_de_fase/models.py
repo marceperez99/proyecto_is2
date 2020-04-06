@@ -49,3 +49,11 @@ class Fase(models.Model):
                 fase_derecha = Fase.objects.all().filter(fase_anterior=self.fase_anterior).exclude(id=self.id).filter(proyecto=self.proyecto)[0]
                 fase_derecha.fase_anterior = self
                 fase_derecha.save()
+
+    def get_items(self):
+        tipos = self.tipodeitem_set.all()
+        items = []
+        for tipo in tipos:
+            items.extend(list(tipo.item_set.all()))
+
+        return items

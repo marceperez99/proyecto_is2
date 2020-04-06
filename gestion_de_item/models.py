@@ -34,7 +34,7 @@ class Item(models.Model):
     tipo_de_item = models.ForeignKey(TipoDeItem,on_delete=models.CASCADE)
     estado = models.CharField(max_length=40)
     codigo = models.CharField(max_length=40)  # TODO: construir en el field: tipo_de_item.prefijo + #order
-    version = models.ForeignKey('gestion_de_item.VersionItem', related_name= 'item_version',on_delete=models.CASCADE)
+    version = models.ForeignKey('gestion_de_item.VersionItem', null=True,related_name= 'item_version',on_delete=models.CASCADE)
 
     def __str__(self):
         return self.version.nombre
