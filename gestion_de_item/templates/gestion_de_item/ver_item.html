@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ item }}{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-4">Item de Proyecto</h3>
+            <div class="col-8 text-right">
+                <!-- TODO faltan ponerle las restricciones a estos botones segun permisos y estados -->
+                <a href="#" class="btn btn-success  border-0">Aprobar Item</a>
+                <a href="#" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
+                <a href="#" class="btn btn-danger bg-color-danger border-0">Eliminar Item</a>
+            </div>
+            <hr class="col-12">
+            <div class="col-10 bg-white border rounded p-3 mx-auto">
+                <div class="row">
+                    <div class="col-4 h5">Codigo</div><div class="col-8">{{ item.codigo }}</div>
+                    <div class="col-4 h5">Nombre</div><div class="col-8">{{ item.version.nombre }}</div>
+                    <div class="col-4 h5">Descripcion</div><div class="col-8">{{ item.version.descripcion }}</div>
+                    <div class="col-4 h5">Estado</div><div class="col-8">{{ item.estado }}</div>
+                    {% for atr in item.get_atributos_dinamicos %}
+                        <div class="col-4 h5">{{atr.nombre}}</div><div class="col-8">{{atr.valor}}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
