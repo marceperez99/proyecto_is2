@@ -3,6 +3,7 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
     <div class="container mt-3">
         <div class="row">
             <h3 class="col-4">Items de la Fase</h3>
@@ -12,8 +13,9 @@
                 {% endif %}
             </div>
             <hr class="col-12">
+
             <div class="col-10 mx-auto bg-white border rounded p-3">
-                <table class="table">
+                <table class="table" id="lista_items">
                     <thead>
                     <tr>
                         <th>Codigo</th>
@@ -41,4 +43,35 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
+    <script>
+        $("#lista_items").DataTable(
+            {"columnDefs": [
+                    { "orderable": false, "targets": 3 }
+                ],
+                'language':{
+            "decimal":        "",
+            "emptyTable":     "No hay items para mostrar",
+            "info":           '',//"Mostrando registros del  _START_ al _END_ de _TOTAL_",
+            "infoEmpty":      '',//"Showing 0 to 0 of 0 entries",
+            "infoFiltered":   "(filtered from _MAX_ total entries)",
+            "infoPostFix":    "",
+            "thousands":      ".",
+            "lengthMenu":     "Mostrar _MENU_ items",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "search":         "Buscar item:",
+            "zeroRecords":    "No se encontraron items",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+            "aria": {
+                "sortAscending":  ": activate to sort column ascending",
+                "sortDescending": ": activate to sort column descending"
+            }
+        }});
+    </script>
 {% endblock %}
