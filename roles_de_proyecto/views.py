@@ -60,7 +60,8 @@ def editar_rol_de_proyecto_view(request, id_rol):
         form = NewRolDeProyectoForm(request.POST, instance=rol)
 
         if form.is_valid():  # and not rol.es_utilizado():
-            form.save()
+            rol = form.save()
+            rol.permisos.add(Permission.objects.get(codename='pu_ver_proyecto'))
             messages.success(request, 'Rol de Proyecto modificado exitosamente')
             return redirect('rol_de_proyecto', id_rol=id_rol)
 
