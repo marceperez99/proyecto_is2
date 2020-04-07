@@ -6,7 +6,10 @@ from django.urls import reverse
 
 from gestion_de_item.models import Item
 from gestion_de_proyecto.models import Proyecto
+from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
+from gestion_de_fase.models import Fase
+from gestion_de_tipo_de_item.models import TipoDeItem
 
 
 @login_required
@@ -59,4 +62,28 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
             {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))}]}
     }
     return render(request, 'gestion_de_item/ver_item.html', contexto)
-    pass
+
+
+def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
+    """
+    Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
+    Si la vista es llamada sin tipo_de_item_id como argumento permite seleccionar un tipo de item de la fase.
+
+    Argumentos:
+        - request : HttpRequest
+        - proyecto_id : int , identificador único de un proyecto.
+        - fase_id: int, identificador único de una fase.
+        - tipo_de_item_id: int, identificador del tipo de item seleccionado
+    Retorna:
+        - HttpResponse
+    """
+    # Si es llamado sin tipo_de_item, permite seleccionar uno
+    if tipo_de_item_id is None:
+        proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+        fase = get_object_or_404(Fase, id=fase_id)
+        lista_tipo_de_item = [get_dict_tipo_de_item(tipo) for tipo in TipoDeItem.objects.filter(fase=fase)]
+        contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto}
+        return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
+    else:
+        # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
+        pass

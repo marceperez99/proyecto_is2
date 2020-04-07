@@ -14,8 +14,8 @@ Fase.objects.all().delete()
 TipoDeItem.objects.all().delete()
 
 # Usuario 1 y 2 tienen que ser gerentes de proyecto
-user_1 = User.objects.get(pk=2)
-user_2 = User.objects.get(pk=3)
+user_1 = User.objects.get(pk=13)
+user_2 = User.objects.get(pk=14)
 
 p1 = Proyecto()
 p1.nombre = "Proyecto de Ingenieria de Software"

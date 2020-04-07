@@ -185,6 +185,7 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
     fase = get_object_or_404(Fase, pk=fase_id)
+    # Lista de diccionarios de tipo de item
     lista_tipo_de_item = [get_dict_tipo_de_item(tipo) for tipo in TipoDeItem.objects.exclude(fase=fase)]
 
     contexto = {'user': request.user,

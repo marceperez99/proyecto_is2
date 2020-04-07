@@ -1,0 +1,95 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Seleccionar Tipo De Item{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <style>
+        [data-toggle="collapse"] .fa:before {
+            content: "\f077";
+
+        }
+
+        [data-toggle="collapse"].collapsed .fa:before {
+            content: "\f078";
+
+        }
+    </style>
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">Seleccionar el tipo de item</h3>
+            <hr class="col-12">
+            <div id="list_tipo" class="col-12 col-md-10 mx-auto">
+                {% for tipo in lista_tipo_de_item %}
+                    <div class="card m-2">
+                        <div class="card-header bg-color-primary text-white" id="header_tipo_{{ tipo.id }}">
+                            <div class="row">
+                                <div class="col-auto text-white mr-auto">
+                                    {{tipo.nombre}}
+                                </div>
+                                <div>
+                                    <a href="{% url 'nuevo_item_tipo' proyecto.id fase.id tipo.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                         Nuevo ítem
+                                    </a>
+                                </div>
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_tipo{{ tipo.id }}" aria-expanded="false" aria-controls="list_tipo">
+                                    <i class="fa  text-white" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="collapse_tipo{{ tipo.id }}" class="collapse" aria-labelledby="header_tipo_{{ tipo.id }}" data-parent="#list_tipo">
+                            <div class="card-body row">
+                                <div class="col-3">Descripción:</div><div class="col-9">{{ tipo.descripcion }}</div>
+                                <div id="atributos" class="col-12 row">
+                                    <h5 class="col-12 mt-3">Atributos</h5>
+                                    <hr class="col-12">
+                                    <h6 class="col-12">Nombre</h6>
+                                    <div class="col-4">Tipo:</div><div class="col-8">Texto</div>
+                                    <hr class="col-10">
+                                    <h6 class="col-12">Descripcion</h6>
+                                    <div class="col-4">Tipo:</div><div class="col-8">Texto</div>
+                                    <hr class="col-10">
+                                    <h6 class="col-12">Costo</h6>
+                                    <div class="col-4">Tipo:</div><div class="col-8">Numerico</div>
+                                    <hr class="col-10">
+                                    {% for atributo in tipo.atributos_dinamicos %}
+                                        <h6 class="col-12">{{ atributo.nombre }}</h6>
+                                        <div class="col-4">Tipo:</div><div class="col-8">{{ atributo.tipo }}</div>
+                                        <div class="col-4">Campo Requerido:</div><div class="col-8">{{ atributo.requerido }}</div>
+                                        {% if atributo.max_longitud %}
+                                            <div class="col-4">Cantidad Maxima de Caracteres:</div><p class=" col-8">{{atributo.max_longitud}}</p>
+                                        {% endif %}
+                                        {% if atributo.max_tamaño %}
+                                            <div class="col-4">Tamaño Maximo del Archivo(en GB):</div><div class=" col-8">{{atributo.max_tamaño}}</div>
+                                        {% endif %}
+                                        {% if atributo.max_digitos %}
+                                            <div class="col-4">Cantidad Maxima de Digitos del Numero:</div><div class=" col-8">{{atributo.max_digitos}}</div>
+                                        {% endif %}
+                                        {% if atributo.max_decimales %}
+                                            <div class="col-4">Cantidad Maxima de Decimales del Numero:</div><div class=" col-8">{{atributo.max_decimales}}</div>
+                                        {% endif %}
+                                        <hr class="col-10">
+                                    {% endfor %}
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <h4 class="col-12 text-center"> No hay tipos de items para importar</h4>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+
+{% endblock %}
