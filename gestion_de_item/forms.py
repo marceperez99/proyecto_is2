@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Q
-from gestion_de_item.models import VersionItem, Item
+from gestion_de_item.models import VersionItem, Item, EstadoDeItem
 
 
 class NuevoVersionItemForm(forms.ModelForm):
@@ -15,8 +15,8 @@ class NuevoVersionItemForm(forms.ModelForm):
         self.item = item
         # Consigue todos los items de la fase actual o anterior.
         # LEE LA ERS
-        self.fields['relacion'] = forms.ModelChoiceField(queryset=Item.objects.filter(
-            Q(tipo_de_item__fase=self.tipo_de_item.fase) | Q(tipo_de_item__fase=self.tipo_de_item.fase.fase_anterior)))
+        queryset = Item.objects.filter(Q(tipo_de_item__fase=self.tipo_de_item.fase) & (Q(estado=EstadoDeItem.APROBADO) | Q(estado=EstadoDeItem.EN_LINEA_BASE) )| Q(tipo_de_item__fase=self.tipo_de_item.fase.fase_anterior) & Q(estado=EstadoDeItem.EN_LINEA_BASE))
+        self.fields['relacion'] = forms.ModelChoiceField(queryset = queryset)
 
         # Si es la primera fase no es obligatorio introducir una relación.
         if self.tipo_de_item.fase.fase_anterior is None:
@@ -25,11 +25,4 @@ class NuevoVersionItemForm(forms.ModelForm):
         self.fields['relacion'].empty_label = 'Seleccionar el antecesor/padre de este item'
         self.fields['relacion'].label = 'Antecesor/Padre'
 
-        # Un codigo oculto para completar
-        # self.fields['codigo'] = forms.CharField()
-        # self.fields['codigo'].required = False
-        # self.fields['codigo'].widget = forms.HiddenInput()
 
-    # def clean_codigo(self):
-    #   codigo = self.tipo_de_item.prefijo + '_' + str(self.tipo_de_item.item_set.all().count() + 1)
-    #  return codigo
