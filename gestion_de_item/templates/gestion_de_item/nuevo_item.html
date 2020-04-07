@@ -1,0 +1,21 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Nuevo Item{%endblock title%}
+{% block content %}
+
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <form method="POST" class="mx-auto col-12 col-md-10 row">
+            {% csrf_token %}
+            <h3 class="col-auto">Nuevo Item</h3>
+
+            <hr class="col-12">
+            <div class="col-12">
+                {{form|crispy}}
+            </div>
+            <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Guardar Tipo de Item">
+        </form>
+    </div>
+{% endblock %}
