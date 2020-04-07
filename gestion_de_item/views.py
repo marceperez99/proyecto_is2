@@ -64,7 +64,9 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     }
     return render(request, 'gestion_de_item/ver_item.html', contexto)
 
-
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_crear_item')
 def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=None):
     """
     Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
