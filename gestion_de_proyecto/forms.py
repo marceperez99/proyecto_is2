@@ -17,6 +17,7 @@ class ProyectoForm(forms.ModelForm):
         self.fields['gerente'].queryset = Usuario.objects.filter(groups__isnull=False)
 
 
+
 class EditarProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto

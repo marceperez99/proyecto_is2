@@ -9,7 +9,7 @@
             <h3 class="col-4">Items de la Fase</h3>
             <div class="col-8 text-right">
                 {% if 'pp_f_crear_item' %}
-                    <a href="#" class="btn border-0 btn-primary gb-color-accent">Crear Item</a>
+                    <a href="{% url 'nuevo_item' proyecto.id fase.id %}" class="btn border-0 btn-primary gb-color-accent">Nuevo Item</a>
                 {% endif %}
             </div>
             <hr class="col-12">
