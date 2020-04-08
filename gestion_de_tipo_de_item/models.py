@@ -44,8 +44,7 @@ class TipoDeItem(models.Model):
         return atributos
 
     def es_utilizado(self):
-        # Todo: agregar logica una vez implementado el item
-        return False
+         return self.item_set.all().count() > 0
 
 
 class AtributoBinario(models.Model):
