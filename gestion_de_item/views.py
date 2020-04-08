@@ -9,8 +9,10 @@ from gestion_de_proyecto.models import Proyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
-from gestion_de_tipo_de_item.models import TipoDeItem
-from .forms import NuevoVersionItemForm
+from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
+    AtributoBooleano
+from .forms import NuevoVersionItemForm, AtributoItemArchivoForm, AtributoItemCadenaForm, AtributoItemNumericoForm, \
+    AtributoItemFechaForm, AtributoItemBooleanoForm
 
 
 @login_required
@@ -90,9 +92,22 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
     else:
         tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+
         # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
         if request.method == 'POST':
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
+            atributo_forms = []
+            for atributo in tipo_de_item.get_atributos():
+                if type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoCadena:
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoNumerico:
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
             if form.is_valid():
                 version = form.save(commit=False)
 
@@ -120,9 +135,21 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                 return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
         else:
-            # creo que falta contexto
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
+            atributo_forms = []
+            for atributo in tipo_de_item.get_atributos():
+                if type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,plantilla = atributo))
+                elif type(atributo) == AtributoCadena:
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoNumerico:
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                        'tipo_de_item': tipo_de_item}
+                        'tipo_de_item': tipo_de_item,'atributo_forms':atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
         pass
