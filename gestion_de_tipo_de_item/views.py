@@ -294,7 +294,10 @@ def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
 
     if request.method == 'POST':
-        tipo_de_item.delete()
+        #pasar mensaje
+        if tipo_de_item.es_utilizado():
+            tipo_de_item.delete()
+
         return redirect('tipos_de_item', proyecto_id, fase_id)
     contexto = {'tipo_de_item': tipo_de_item.nombre}
     return render(request, 'gestion_de_tipo_de_item/eliminar_tipo_de_item.html', context=contexto)
