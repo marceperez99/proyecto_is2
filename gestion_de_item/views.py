@@ -55,6 +55,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     contexto = {
+        'se_puede_eliminar' : item.estado == EstadoDeItem.CREADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -65,6 +66,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
             {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))}]}
     }
     return render(request, 'gestion_de_item/ver_item.html', contexto)
+
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
@@ -139,7 +141,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             atributo_forms = []
             for atributo in tipo_de_item.get_atributos():
                 if type(atributo) == AtributoBinario:
-                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,plantilla = atributo))
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
                 elif type(atributo) == AtributoCadena:
                     atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
                 elif type(atributo) == AtributoNumerico:
@@ -150,10 +152,23 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
 
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                        'tipo_de_item': tipo_de_item,'atributo_forms':atributo_forms}
+                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
+
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pu_f_elimianr_item')
-def eliminar_item_view(request,proyecto_id,fase_id,item_id):
+@pp_requerido_en_fase('pp_f_eliminar_item')
+def eliminar_item_view(request, proyecto_id, fase_id, item_id):
+    item = get_object_or_404(Item, id=item_id)
+
+    if request.method == 'POST':
+        # pasar mensaje
+        if item.estado == EstadoDeItem.CREADO:
+            item.estado = EstadoDeItem.ELIMINADO
+            item.save()
+        else:
+            pass
+        return redirect('listar_items', proyecto_id, fase_id)
+    contexto = {'item': item.version.nombre}
+    return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
