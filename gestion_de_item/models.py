@@ -120,7 +120,8 @@ class AtributoItemNumerico(models.Model):
     """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoNumerico,on_delete=models.CASCADE)
-    valor = models.DecimalField(decimal_places=20,max_digits=20)
+    valor = models.DecimalField(decimal_places=20,max_digits=40)
+
 
 
 class AtributoItemCadena(models.Model):
