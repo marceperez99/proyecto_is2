@@ -58,6 +58,30 @@ class Item(models.Model):
     def get_numero_version(self):
         return self.version.version
 
+    def get_atributos_dinamicos(self):
+        """
+        Metodo que retorna la lista de atributos dinamicos del Item.
+
+        Retorna:
+            list(): lista de objetos AtributoItemNumerico, AtributoItemFecha,
+        """
+        atributos = list(self.version.atributoitemnumerico_set.all())
+        atributos += list(self.version.atributoitemfecha_set.all())
+        atributos += list(self.version.atributoitemcadena_set.all())
+        atributos += list(self.version.atributoitembooleano_set.all())
+        atributos += list(self.version.atributoitemarchivo_set.all())
+        return atributos
+
+    def get_versiones(self):
+        """
+        Metodo que retorna la lista de versiones de un determinado Item.
+
+        Retorna
+            list(): lista de objetos Version, con los datos de la version del item
+        """
+        # TODO verificar que esto retorne correctamente las versiones
+        return self.version_item.all().order_by('-version')
+
 
 class VersionItem(models.Model):
     """

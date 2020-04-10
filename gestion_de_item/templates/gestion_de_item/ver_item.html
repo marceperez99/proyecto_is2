@@ -10,7 +10,12 @@
             <h3 class="col-4">Item de Proyecto</h3>
             <div class="col-8 text-right">
                 <!-- TODO faltan ponerle las restricciones a estos botones segun permisos y estados -->
-                <a href="#" class="btn btn-success  border-0">Aprobar Item</a>
+                {% if item.estado == 'Creado' %}
+                    <a href="#" class="btn btn-success  border-0">Solicitar Aprobación de Item</a>
+                {% elif item.estado == 'A Aprobar' %}
+                    <a href="#" class="btn btn-success  border-0">Aprobar Item</a>
+                {% endif %}
+
                 <a href="#" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
                 {% if se_puede_eliminar %}
                 <a href="{% url 'eliminar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">Eliminar Item</a>
@@ -20,13 +25,18 @@
 
             <div class="col-10 bg-white border rounded p-3 mx-auto">
                 <div class="row">
-                    <div class="col-4 h5">Codigo</div><div class="col-8">{{ item.codigo }}</div>
-                    <div class="col-4 h5">Nombre</div><div class="col-8">{{ item.version.nombre }}</div>
-                    <div class="col-4 h5">Descripcion</div><div class="col-8">{{ item.version.descripcion }}</div>
-                    <div class="col-4 h5">Estado</div><div class="col-8">{{ item.estado }}</div>
+                    <div class="col-4 h5 my-3">Codigo</div><div class="col-8 my-3">{{ item.codigo }}</div>
+                    <div class="col-4 h5 my-3">Nombre</div><div class="col-8 my-3">{{ item.version.nombre }}</div>
+                    <div class="col-4 h5 my-3">Descripcion</div><div class="col-8 my-3">{{ item.version.descripcion }}</div>
+                    <div class="col-4 h5 my-3">Estado</div><div class="col-8 my-3">{{ item.estado }}</div>
+                    <div class="col-4 h5 my-3">Version</div>
+                    <div class="col-8 my-3">{{ item.version.version }}</div>
                     {% for atr in item.get_atributos_dinamicos %}
-                        <div class="col-4 h5">{{atr.nombre}}</div><div class="col-8">{{atr.valor}}</div>
+                    <div class="col-4 h5">{{atr.nombre}}</div><div class="col-8 my-3">{{atr.valor}}</div>
                     {% endfor %}
+                    <hr class="col-10">
+                    <div class="col-auto ml-auto"><a href="{% url 'historial_item' proyecto.id fase.id item.id %}" class="btn ml-auto btn-primary">Visualizar Historial de Cambios</a></div>
+
                 </div>
             </div>
         </div>
