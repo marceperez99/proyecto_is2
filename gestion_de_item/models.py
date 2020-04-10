@@ -35,10 +35,11 @@ class Item(models.Model):
     - version: VersionItem, versión actual de este item.
 
     """
-    tipo_de_item = models.ForeignKey(TipoDeItem,on_delete=models.CASCADE)
+    tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
     estado = models.CharField(max_length=40)
     codigo = models.CharField(max_length=40)  # TODO: construir en el field: tipo_de_item.prefijo + #order
-    version = models.ForeignKey('gestion_de_item.VersionItem', null=True,related_name= 'item_version',on_delete=models.CASCADE)
+    version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
+                                on_delete=models.CASCADE)
 
     def __str__(self):
         return self.version.nombre
@@ -96,13 +97,13 @@ class VersionItem(models.Model):
 
     """
 
-    item = models.ForeignKey(Item, on_delete=models.CASCADE,related_name='version_item')
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='version_item')
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()  # TODO: construir en el field: item.version_item_set.all.count() + 1
     peso = models.IntegerField()
-    antecesores = models.ManyToManyField(Item,related_name='antecesores')
-    padres = models.ManyToManyField(Item,related_name='padres')
+    antecesores = models.ManyToManyField(Item, related_name='antecesores')
+    padres = models.ManyToManyField(Item, related_name='padres')
 
 
 class AtributoItemArchivo(models.Model):
@@ -110,10 +111,10 @@ class AtributoItemArchivo(models.Model):
     Modelo que representa un atributo dinámico de tipo archivo de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo archivo del tipo de item correspondiente.
 
     """
-    version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
-    plantilla = models.ForeignKey(AtributoBinario,on_delete=models.CASCADE)
-    valor = models.CharField(
-        max_length=500)  # TODO: Marcos, podes cambiar esto si ves necesario. Puede llamarse valor tambien para ser estandar.
+    version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
+    plantilla = models.ForeignKey(AtributoBinario, on_delete=models.CASCADE)
+    valor = models.CharField(max_length=500, null=True)
+    # TODO: Marcos, podes cambiar esto si ves necesario. Puede llamarse valor tambien para ser estandar.
 
 
 class AtributoItemBooleano(models.Model):
@@ -122,9 +123,9 @@ class AtributoItemBooleano(models.Model):
 
     """
 
-    version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
-    plantilla = models.ForeignKey(AtributoBooleano,on_delete=models.CASCADE)
-    valor = models.BooleanField()
+    version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
+    plantilla = models.ForeignKey(AtributoBooleano, on_delete=models.CASCADE)
+    valor = models.BooleanField(null=True)
 
 
 class AtributoItemFecha(models.Model):
@@ -132,9 +133,9 @@ class AtributoItemFecha(models.Model):
     Modelo que representa un atributo dinámico de tipo fecha de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo fecha del tipo de item correspondiente.
 
     """
-    version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
-    plantilla = models.ForeignKey(AtributoFecha,on_delete=models.CASCADE)
-    valor = models.DateTimeField()
+    version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
+    plantilla = models.ForeignKey(AtributoFecha, on_delete=models.CASCADE)
+    valor = models.DateTimeField(null=True)
 
 
 class AtributoItemNumerico(models.Model):
@@ -142,10 +143,9 @@ class AtributoItemNumerico(models.Model):
         Modelo que representa un atributo dinámico de tipo númerico de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo númerico del tipo de item correspondiente.
 
     """
-    version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
-    plantilla = models.ForeignKey(AtributoNumerico,on_delete=models.CASCADE)
-    valor = models.DecimalField(decimal_places=20,max_digits=40)
-
+    version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
+    plantilla = models.ForeignKey(AtributoNumerico, on_delete=models.CASCADE)
+    valor = models.DecimalField(decimal_places=20, max_digits=40, null=True)
 
 
 class AtributoItemCadena(models.Model):
@@ -153,8 +153,6 @@ class AtributoItemCadena(models.Model):
         Modelo que representa un atributo dinámico de tipo cadena de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo cadena del tipo de item correspondiente.
 
     """
-    version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
-    plantilla = models.ForeignKey(AtributoCadena,on_delete=models.CASCADE)
-    valor = models.CharField(max_length=500)
-
-
+    version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
+    plantilla = models.ForeignKey(AtributoCadena, on_delete=models.CASCADE)
+    valor = models.CharField(max_length=500, null=True)
