@@ -30,87 +30,77 @@ class NuevoVersionItemForm(forms.ModelForm):
         self.fields['relacion'].label = 'Antecesor/Padre'
 
 
-class AtributoItemArchivoForm(forms.ModelForm):
-    class Meta:
-        model = AtributoItemArchivo
-        fields = ['url']
-        widgets = {'url': forms.HiddenInput}
+class AtributoItemArchivoForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, **kwargs):
         super(AtributoItemArchivoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.fields['archivo'] = forms.FileField()
-        self.fields['archivo'].empty_label = 'Seleccionar un archivo'
-        self.fields['archivo'].label = 'Archivo'
-        self.fields['archivo'].required = self.plantilla.requerido
-        self.fields['url'].required = False
-    def clean_archivo(self):
+        self.nombre = 'valor_' + str(plantilla.id)
+        self.fields[self.nombre] = forms.FileField()
+        self.fields[self.nombre].empty_label = 'Seleccionar un archivo'
+        self.fields[self.nombre].label = plantilla.nombre
+        self.fields[self.nombre].required = self.plantilla.requerido
+
+    def clean(self):
         # Falta validar el tamaño maximo del archivo
-        archivo = self.cleaned_data['archivo']
-        return archivo
+
+        return self.cleaned_data
 
 
-class AtributoItemCadenaForm(forms.ModelForm):
-    class Meta:
-        model = AtributoItemCadena
-        fields = ['valor']
+class AtributoItemCadenaForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, **kwargs):
         super(AtributoItemCadenaForm, self).__init__(*args, **kwargs)
 
         self.plantilla = plantilla
-        self.fields['valor'].label = self.plantilla.nombre
-        self.fields['valor'].required = self.plantilla.requerido
+        self.nombre = 'valor_' + str(plantilla.id)
+        self.fields[self.nombre] = forms.CharField()
+        self.fields[self.nombre].label = self.plantilla.nombre
+        self.fields[self.nombre].required = self.plantilla.requerido
 
-    def clean_valor(self):
-        valor = self.cleaned_data['valor']
+    def clean(self):
+        valor = self.cleaned_data[self.nombre]
         if len(valor) > self.plantilla.max_longitud:
             raise ValidationError('La longitud del texto supera la longitud permitida por el tipo de item')
-        return valor
+        return self.cleaned_data
 
 
-class AtributoItemNumericoForm(forms.ModelForm):
-    class Meta:
-        model = AtributoItemNumerico
-        fields = ['valor']
+class AtributoItemNumericoForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, **kwargs):
         super(AtributoItemNumericoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.fields['valor'].label = self.plantilla.nombre
-        self.fields['valor'].required = self.plantilla.requerido
-
-    def clean_valor(self):
-        valor = int(self.cleaned_data['valor'])
-        if len(valor) > self.plantilla.max_digitos:
-            raise ValidationError(
-                'La cantidad de digitos no decimales  supera la cantidad permitida por el tipo de item')
-        return valor
+        self.nombre = 'valor_' + str(plantilla.id)
+        self.fields[self.nombre] = forms.DecimalField(max_digits=plantilla.max_digitos,
+                                                      decimal_places=plantilla.max_decimales)
+        print(plantilla.max_digitos)
+        print(plantilla.max_decimales)
+        self.fields[self.nombre].label = self.plantilla.nombre
+        self.fields[self.nombre].required = self.plantilla.requerido
 
 
-class AtributoItemBooleanoForm(forms.ModelForm):
-    class Meta:
-        model = AtributoItemBooleano
-        fields = ['valor']
+class AtributoItemBooleanoForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, **kwargs):
         super(AtributoItemBooleanoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.fields['valor'].label = self.plantilla.nombre
-        self.fields['valor'].required = self.plantilla.requerido
+        self.nombre = 'valor_' + str(plantilla.id)
+        self.fields[self.nombre] = forms.BooleanField()
+        self.fields[self.nombre].label = self.plantilla.nombre
+        self.fields[self.nombre].required = self.plantilla.requerido
+
 
 class DateInput(forms.DateInput):
     input_type = 'date'
-class AtributoItemFechaForm(forms.ModelForm):
-    class Meta:
-        model = AtributoItemFecha
-        fields = ['valor']
-        widgets = {'valor': DateInput()}
 
+
+class AtributoItemFechaForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, **kwargs):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        #self.fields['valor'] = forms.DateField()
-        self.fields['valor'].label = self.plantilla.nombre
-        self.fields['valor'].required = self.plantilla.requerido
+        self.nombre = 'valor_' + str(plantilla.id)
+        self.fields[self.nombre] = forms.DateTimeField()
+        self.fields[self.nombre].label = self.plantilla.nombre
+        self.fields[self.nombre].required = self.plantilla.requerido
+        self.fields[self.nombre].widget = DateInput()
