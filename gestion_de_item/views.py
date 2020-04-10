@@ -17,7 +17,7 @@ from .forms import NuevoVersionItemForm, AtributoItemArchivoForm, AtributoItemCa
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pu_f_ver_item')
+@pp_requerido_en_fase('pu_f_ver_fase')
 def listar_items(request, proyecto_id, fase_id):
     """
 
@@ -29,7 +29,7 @@ def listar_items(request, proyecto_id, fase_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     participante = proyecto.get_participante(request.user)
-    print(fase.get_items())
+
     contexto = {
         'user': request.user,
         'proyecto': proyecto,
@@ -49,13 +49,30 @@ def listar_items(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pu_f_ver_item')
+@pp_requerido_en_fase('pu_f_ver_fase')
 def visualizar_item(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que permite la visualizacion de la informacion de un Item, en esta vista se presentan las opciones
+    de Modificar Item, Aprobar Item, Eliminar Item.
+
+    Argumentos:
+        request: HttpRequest.\n
+        proyecto_id:(int) identificador unico del proyecto al que se esta accediendo.\n
+        fase_id:(int) identificador unico de la fase del proyecto donde esta el item.\n
+        item_id:(int) identificador unico del item que se desea visualizar.
+
+    Retorna:
+        HttpResponse
+
+    Requiere permisos de Proyecto:
+        pu_f_ver_fase: Visualizar Fase de Proyecto
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+    print(item.get_atributos_dinamicos())
     contexto = {
-        'se_puede_eliminar' : item.estado == EstadoDeItem.CREADO,
+        'se_puede_eliminar': item.estado == EstadoDeItem.CREADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -186,3 +203,24 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
         return redirect('listar_items', proyecto_id, fase_id)
     contexto = {'item': item.version.nombre}
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
+
+
+def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    contexto = {
+        'item': item,
+        'user': request.user,
+        'breadcrumb': {'pagina_actual': 'Historial de Cambios',
+                       'links': [
+                           {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                           {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                           {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                           {'nombre': item.version.nombre,
+                            'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))},
+                       ]
+                       }
+    }
+    return render(request, 'gestion_de_item/historial_item.html', contexto)
