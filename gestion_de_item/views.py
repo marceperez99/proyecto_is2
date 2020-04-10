@@ -103,12 +103,12 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
                 elif type(atributo) == AtributoNumerico:
                     atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoBinario:
-                #     atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoFecha:
-                #     atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoBooleano:
-                #     atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,request.FILES, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
             if form_nuevo.is_valid():
                 version = form_nuevo.save(commit=False)
                 anterior = form_nuevo.cleaned_data['relacion']
@@ -133,7 +133,8 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     item.version = version
                     item.save()
                     if anterior is not None:
-                        assert anterior.get_fase() == fase.fase_anterior or anterior.get_fase() == fase, "El sistema es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior"
+                        assert anterior.get_fase() == fase.fase_anterior or anterior.get_fase() == fase, "El sistema " \
+                                                                                                         "es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior "
 
                         if anterior.get_fase() == fase.fase_anterior:
                             version.antecesores.add(anterior)
@@ -145,6 +146,12 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                             atributo = AtributoItemCadena()
                         elif type(form.plantilla) == AtributoNumerico:
                             atributo = AtributoItemNumerico()
+                        elif type(form.plantilla) == AtributoBinario:
+                            atributo = AtributoItemArchivo()
+                        elif type(form.plantilla) == AtributoFecha:
+                            atributo = AtributoItemFecha()
+                        elif type(form.plantilla) == AtributoBooleano:
+                            atributo = AtributoItemBooleano()
 
                         atributo.plantilla = form.plantilla
                         atributo.version = version
@@ -161,12 +168,12 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                             atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
                         elif type(atributo) == AtributoNumerico:
                             atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
-                        # elif type(atributo) == AtributoBinario:
-                        #     atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
-                        # elif type(atributo) == AtributoFecha:
-                        #     atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
-                        # elif type(atributo) == AtributoBooleano:
-                        #     atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                        elif type(atributo) == AtributoBinario:
+                            atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                        elif type(atributo) == AtributoFecha:
+                            atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                        elif type(atributo) == AtributoBooleano:
+                            atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
 
                     contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                                 'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
@@ -180,12 +187,12 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
                 elif type(atributo) == AtributoNumerico:
                     atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoBinario:
-                #     atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoFecha:
-                #     atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
-                # elif type(atributo) == AtributoBooleano:
-                #     atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
 
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}

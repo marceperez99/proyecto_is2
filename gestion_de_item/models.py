@@ -88,7 +88,7 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem,on_delete=models.CASCADE)
     plantilla = models.ForeignKey(AtributoBinario,on_delete=models.CASCADE)
-    url = models.CharField(
+    valor = models.CharField(
         max_length=500)  # TODO: Marcos, podes cambiar esto si ves necesario. Puede llamarse valor tambien para ser estandar.
 
 
