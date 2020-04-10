@@ -160,6 +160,20 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_item')
 def eliminar_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que solicita confirmación para eliminar un item.
+    La eliminación consiste en cambiar el estado del item al estado ELIMINADO.
+    Solo es posible eliminar un item si este se encuentra en estado CREADO.
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item a eliminar.
+
+    Retorna:
+        - HttpResponse
+    """
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
