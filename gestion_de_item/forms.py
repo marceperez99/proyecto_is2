@@ -32,10 +32,10 @@ class NuevoVersionItemForm(forms.ModelForm):
 
 class AtributoItemArchivoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, **kwargs):
+    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
         super(AtributoItemArchivoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.nombre = 'valor_' + str(plantilla.id)
+        self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.FileField()
         self.fields[self.nombre].empty_label = 'Seleccionar un archivo'
         self.fields[self.nombre].label = plantilla.nombre
@@ -49,11 +49,11 @@ class AtributoItemArchivoForm(forms.Form):
 
 class AtributoItemCadenaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, **kwargs):
+    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
         super(AtributoItemCadenaForm, self).__init__(*args, **kwargs)
 
         self.plantilla = plantilla
-        self.nombre = 'valor_' + str(plantilla.id)
+        self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.CharField()
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
@@ -67,10 +67,10 @@ class AtributoItemCadenaForm(forms.Form):
 
 class AtributoItemNumericoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, **kwargs):
+    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
         super(AtributoItemNumericoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.nombre = 'valor_' + str(plantilla.id)
+        self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.DecimalField(max_digits=plantilla.max_digitos,
                                                       decimal_places=plantilla.max_decimales)
         print(plantilla.max_digitos)
@@ -81,10 +81,10 @@ class AtributoItemNumericoForm(forms.Form):
 
 class AtributoItemBooleanoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, **kwargs):
+    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
         super(AtributoItemBooleanoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.nombre = 'valor_' + str(plantilla.id)
+        self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.BooleanField()
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
@@ -96,10 +96,10 @@ class DateInput(forms.DateInput):
 
 class AtributoItemFechaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, **kwargs):
+    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
-        self.nombre = 'valor_' + str(plantilla.id)
+        self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.DateTimeField()
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido

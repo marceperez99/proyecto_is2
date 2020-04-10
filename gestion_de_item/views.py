@@ -98,17 +98,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         if request.method == 'POST':
             form_nuevo = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
             atributo_forms = []
+            counter = 0
             for atributo in tipo_de_item.get_atributos():
+                counter = counter + 1
                 if type(atributo) == AtributoCadena:
-                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,request.FILES, plantilla=atributo))
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,request.FILES, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
             if form_nuevo.is_valid():
                 version = form_nuevo.save(commit=False)
                 anterior = form_nuevo.cleaned_data['relacion']
@@ -155,7 +157,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                         atributo.plantilla = form.plantilla
                         atributo.version = version
-                        atributo.valor = form.cleaned_data['valor_' + str(atributo.plantilla.id)]
+                        atributo.valor = form.cleaned_data[form.nombre]
 
                         atributo.save()
 
@@ -163,17 +165,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                 else:
                     form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
                     atributo_forms = []
+                    counter = 0
                     for atributo in tipo_de_item.get_atributos():
+                        counter = counter + 1
                         if type(atributo) == AtributoCadena:
-                            atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                            atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
                         elif type(atributo) == AtributoNumerico:
-                            atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                            atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
                         elif type(atributo) == AtributoBinario:
-                            atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                            atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo,counter = counter))
                         elif type(atributo) == AtributoFecha:
-                            atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                            atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
                         elif type(atributo) == AtributoBooleano:
-                            atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                            atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
 
                     contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                                 'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
@@ -182,17 +186,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         else:
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
             atributo_forms = []
+            counter = 0
             for atributo in tipo_de_item.get_atributos():
+                counter = counter +1
                 if type(atributo) == AtributoCadena:
-                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
                 elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
 
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
