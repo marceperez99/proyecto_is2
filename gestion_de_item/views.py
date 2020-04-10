@@ -9,8 +9,10 @@ from gestion_de_proyecto.models import Proyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
-from gestion_de_tipo_de_item.models import TipoDeItem
-from .forms import NuevoVersionItemForm
+from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
+    AtributoBooleano
+from .forms import NuevoVersionItemForm, AtributoItemArchivoForm, AtributoItemCadenaForm, AtributoItemNumericoForm, \
+    AtributoItemFechaForm, AtributoItemBooleanoForm
 
 
 @login_required
@@ -53,6 +55,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     contexto = {
+        'se_puede_eliminar' : item.estado == EstadoDeItem.CREADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -63,6 +66,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
             {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))}]}
     }
     return render(request, 'gestion_de_item/ver_item.html', contexto)
+
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
@@ -90,9 +94,22 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
     else:
         tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+
         # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
         if request.method == 'POST':
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
+            atributo_forms = []
+            for atributo in tipo_de_item.get_atributos():
+                if type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoCadena:
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoNumerico:
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
             if form.is_valid():
                 version = form.save(commit=False)
 
@@ -120,9 +137,52 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                 return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
         else:
-            # creo que falta contexto
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
+            atributo_forms = []
+            for atributo in tipo_de_item.get_atributos():
+                if type(atributo) == AtributoBinario:
+                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoCadena:
+                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoNumerico:
+                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoFecha:
+                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo))
+                elif type(atributo) == AtributoBooleano:
+                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo))
+
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                        'tipo_de_item': tipo_de_item}
+                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
-        pass
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_eliminar_item')
+def eliminar_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que solicita confirmación para eliminar un item.
+    La eliminación consiste en cambiar el estado del item al estado ELIMINADO.
+    Solo es posible eliminar un item si este se encuentra en estado CREADO.
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item a eliminar.
+
+    Retorna:
+        - HttpResponse
+    """
+    item = get_object_or_404(Item, id=item_id)
+
+    if request.method == 'POST':
+        # pasar mensaje
+        if item.estado == EstadoDeItem.CREADO:
+            item.estado = EstadoDeItem.ELIMINADO
+            item.save()
+        else:
+            pass
+        return redirect('listar_items', proyecto_id, fase_id)
+    contexto = {'item': item.version.nombre}
+    return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
