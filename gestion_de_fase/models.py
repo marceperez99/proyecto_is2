@@ -1,4 +1,5 @@
 from django.db import models
+from gestion_de_item.models import Item
 
 
 class Fase(models.Model):
@@ -57,3 +58,13 @@ class Fase(models.Model):
             items.extend(list(tipo.item_set.all()))
 
         return items
+
+    def get_item_estado(self, estado):
+        #TODO comentar y hacer PU
+        tipos = self.tipodeitem_set.all()
+        items = []
+        for tipo in tipos:
+            items.extend(list(tipo.item_set.filter(estado=estado)))
+
+        items = [item.id for item in items]
+        return Item.objects.filter(id__in=items)
