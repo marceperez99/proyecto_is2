@@ -152,6 +152,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     item.version = version
                     item.save()
 
+
                     # Si se seleccionó un item a relacionar
                     if anterior is not None:
                         assert anterior.get_fase() == fase.fase_anterior or anterior.get_fase() == fase, "El sistema " \

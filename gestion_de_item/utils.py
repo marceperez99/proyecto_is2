@@ -4,11 +4,15 @@ from gestion_de_item.forms import *
 
 def get_atributos_forms(tipo_de_item, request):
     """
+    Función utilitaria que construye una lista de forms para cada atributo del item asociado a su tipo de item.
 
-    :param tipo_de_item:
-    :param request:
-    :return:
-    """
+    Argumentos:
+        - tipo_de_item: TipoDeItem
+        - request: HttpRequest
+
+    Retorna
+        atributo_forms: lista de forms adecuados para cada atributo.
+   """
     atributo_forms = []
     counter = 0
     for atributo in tipo_de_item.get_atributos():
