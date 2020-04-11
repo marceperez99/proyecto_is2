@@ -273,3 +273,33 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
                        }
     }
     return render(request, 'gestion_de_item/historial_item.html', contexto)
+
+
+def relacionar_item_view(request, proyecto_id, fase_id, item_id):
+    #TODO comentar
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    contexto = {'proyecto': proyecto,
+                'fase': fase,
+                'item': item,
+                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO)
+                }
+    if request.method == 'POST':
+        if 'tipo' in request.GET.keys():
+            if request.GET['tipo'] == 'padre-hijo':
+                form = RelacionPadreHijoForm(request.POST, item=item)
+                if form.is_valid():
+                    item.add_padre(form.cleaned_data['padre'])
+                else:
+                    contexto['form'] = form
+            elif request.GET['tipo'] == 'antecesor-sucesor':
+                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+    else:
+        if 'tipo' in request.GET.keys():
+            if request.GET['tipo'] == 'padre-hijo':
+                contexto['form'] = RelacionPadreHijoForm(item=item)
+            elif request.GET['tipo'] == 'antecesor-sucesor':
+                pass #TODO hacer cuando haya la funcionalidad de Linea Base
+
+    return render(request, 'gestion_de_item/relacionar_item.html', contexto)
