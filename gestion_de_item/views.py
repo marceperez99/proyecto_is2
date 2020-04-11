@@ -215,13 +215,10 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        # pasar mensaje
-        if item.estado == EstadoDeItem.CREADO:
-            item.estado = EstadoDeItem.ELIMINADO
-            item.save()
-        else:
-            pass
+
+        item.eliminar()
         return redirect('listar_items', proyecto_id, fase_id)
+
     contexto = {'item': item.version.nombre}
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 

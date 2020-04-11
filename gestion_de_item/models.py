@@ -83,6 +83,18 @@ class Item(models.Model):
         # TODO verificar que esto retorne correctamente las versiones
         return self.version_item.all().order_by('-version')
 
+    def eliminar(self):
+        """
+        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.
+
+        Retorna: True or False (Eliminado o no)
+        """
+        if self.estado == EstadoDeItem.CREADO:
+            self.estado = EstadoDeItem.ELIMINADO
+            self.save()
+            return True
+        return False
+
 
 class VersionItem(models.Model):
     """
