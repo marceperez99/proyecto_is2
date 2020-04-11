@@ -5,7 +5,9 @@ from django.db import models
 from gestion_de_fase.models import Fase
 
 
+
 # Create your models here.
+
 class TipoDeItem(models.Model):
     """
     Modelo que representa una instancia de un tipo de item.
@@ -44,7 +46,8 @@ class TipoDeItem(models.Model):
         return atributos
 
     def es_utilizado(self):
-         return self.item_set.all().count() > 0
+        return self.item_set.all().count() > 0
+
 
 
 class AtributoBinario(models.Model):
