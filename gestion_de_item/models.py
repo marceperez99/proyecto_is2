@@ -9,7 +9,7 @@ class EstadoDeItem:
     Clase que especifica todos los estados en los que se puede encontrar un tipo de item
 
     Estados de un item:
-        - CREADO = "Creado"
+        - NO_APROBADO = "No Aprobado"
         - APROBADO = "Aprobado"
         - EN_LINEA_BASE = "En Linea Base"
         - ELIMINADO = "Eliminado"
@@ -17,7 +17,7 @@ class EstadoDeItem:
         - EN_REVISION = "En Revisión"
         - A_MODIFICAR = "A modificar"
     """
-    CREADO = "Creado"
+    NO_APROBADO = "No Aprobado"
     APROBADO = "Aprobado"
     EN_LINEA_BASE = "En Linea Base"
     ELIMINADO = "Eliminado"
@@ -77,22 +77,25 @@ class Item(models.Model):
         """
         Metodo que retorna la lista de versiones de un determinado Item.
 
-        Retorna
+        Retorna:
             list(): lista de objetos Version, con los datos de la version del item
         """
-        # TODO verificar que esto retorne correctamente las versiones
         return self.version_item.all().order_by('-version')
 
     def solicitar_aprobacion(self):
-        #TODO probar y comentar
-        assert self.estado == EstadoDeItem.CREADO, 'El item debe estar en estado Creado para solicitar Aprobacion'
+        """
+        Metodo que cambia el estado del Item de No Aprobado a A Aprobar.
+        """
+        assert self.estado == EstadoDeItem.NO_APROBADO, 'El item debe estar en estado Creado para solicitar Aprobacion'
         self.estado = EstadoDeItem.A_APROBAR
         self.save()
 
     def aprobar(self):
-        #TODO probar y comentar
+        """
+        Metodo que cambia el estado del Item de A Aprobar A Aprobado.
+        """
         assert self.estado == EstadoDeItem.A_APROBAR, 'El item debe estar en estado A Aprobar para ser aprobado'
-        self.estado = EstadoDeItem.APROBAR
+        self.estado = EstadoDeItem.APROBADO
         self.save()
 
 
