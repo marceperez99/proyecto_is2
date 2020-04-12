@@ -32,7 +32,7 @@ class TipoDeItem(models.Model):
 
     def get_atributos(self):
         """
-        Método que consigue la lista completa de atributos dinámico
+        Método que consigue la lista completa de atributos dinámicos
 
         Retorna:
             atributos: lista[] atributos dinámicos asociados a este tipo de item.
