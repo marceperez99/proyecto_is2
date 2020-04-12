@@ -42,7 +42,7 @@ class Item(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Item, self).__init__(*args, **kwargs)
-        self.estado = EstadoDeItem.CREADO
+        self.estado = EstadoDeItem.NO_APROBADO
         if self.tipo_de_item is not None:
             self.codigo = self.tipo_de_item.prefijo + '_' + str(self.tipo_de_item.item_set.all().count() + 1)
 
@@ -120,7 +120,7 @@ class Item(models.Model):
 
         Retorna: True or False (Eliminado o no)
         """
-        if self.estado == EstadoDeItem.CREADO:
+        if self.estado == EstadoDeItem.NO_APROBADO:
             self.estado = EstadoDeItem.ELIMINADO
             self.save()
             return True
