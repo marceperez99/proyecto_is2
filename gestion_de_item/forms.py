@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
     AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
+from gestion_de_item.utils import hay_ciclo
 
 
 class NuevoVersionItemForm(forms.ModelForm):
@@ -104,3 +105,19 @@ class AtributoItemFechaForm(forms.Form):
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
         self.fields[self.nombre].widget = DateInput()
+
+
+class RelacionPadreHijoForm(forms.Form):
+
+    def __init__(self, *args, item=None ,**kwargs):
+        super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
+        self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO))
+        self.item = item
+
+    def clean_padre(self):
+        padre = self.cleaned_data['padre']
+        hijo = self.item
+        if hay_ciclo(padre, hijo):
+            raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
+        else:
+            return padre

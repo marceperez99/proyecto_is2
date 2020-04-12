@@ -129,3 +129,5 @@ def test_nueva_fase_medio(proyecto):
     fase_2 = Fase.objects.get(id=fase_2.id)
     fase_3 = Fase.objects.get(id=fase_3.id)
     assert fase_1.fase_anterior is None and fase_2.fase_anterior.pk == fase_1.pk and fase_3.fase_anterior.pk == fase_2.pk, "No se logra posicionar una fase entre dos fases"
+
+# TODO: Marcelo: test probando get_items de modelo Fase

@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth.models import User, Permission
 from django.test import Client
 # Create your tests here.
+
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
@@ -86,3 +87,10 @@ def test_nueva_version(tipo_de_item):
     item.save()
     item.nueva_version()
     assert item.version.version == 2, 'No fue creada una nueva versión'
+
+
+# TODO: probar metodo solicitar_aprobacion()
+# TODO: probar metodo aprobar()
+# TODO: probar vistas
+# TODO: probar get_versiones()
+

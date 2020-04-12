@@ -1,7 +1,6 @@
 from gestion_de_tipo_de_item.models import *
 from gestion_de_item.forms import *
 
-
 def get_atributos_forms(tipo_de_item, request):
     """
     Función utilitaria que construye una lista de forms para cada atributo del item asociado a su tipo de item.
@@ -33,3 +32,17 @@ def get_atributos_forms(tipo_de_item, request):
             atributo_forms.append(
                 AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
     return atributo_forms
+
+def hay_ciclo(padre, hijo):
+    #TODO comentar y hacer PU
+    stack = []
+    visitado = set()
+    stack.append(padre)
+    visitado.add(padre)
+    while len(stack) != 0:
+        item = stack.pop()
+        for padre in item.padres.all():
+            if padre not in visitado:
+                stack.append(padre)
+                visitado.add(item)
+    return hijo in visitado

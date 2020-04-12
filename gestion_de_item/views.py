@@ -20,21 +20,22 @@ from .utils import *
 @pp_requerido_en_fase('pu_f_ver_fase')
 def listar_items(request, proyecto_id, fase_id):
     """
+    Vista que permite la visualizacion de los items creados dentro de la fase.
+    Si el usuario cuenta con el permiso de proyecto
 
-    :param request:
-    :param proyecto_id:
-    :param fase_id:
-    :return:
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     participante = proyecto.get_participante(request.user)
-
+    if participante.tiene_pp_en_fase(fase, 'pp_f_ver_items_eliminados'):
+        items = fase.get_items(items_eliminados=True)
+    else:
+        items = fase.get_items()
     contexto = {
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
-        'items': fase.get_items(),
+        'items': items,
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
                        'links': [
@@ -72,7 +73,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     contexto = {
-        'se_puede_eliminar': item.estado == EstadoDeItem.CREADO,
+        'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -122,7 +123,6 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             atributo_forms = get_atributos_forms(tipo_de_item,request)
 
             # Si el form de version es valido
-
             if form_nuevo.is_valid():
 
                 version = form_nuevo.save(commit=False)
@@ -180,11 +180,11 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         atributo.save()
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
+
         # Si uno de los forms no fue completado correctamente.
         if not all_valid:
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
             atributo_forms = get_atributos_forms(tipo_de_item,request)
-
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
@@ -211,8 +211,8 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-
         item.eliminar()
+
         return redirect('listar_items', proyecto_id, fase_id)
 
     contexto = {'item': item.version.nombre}
@@ -238,3 +238,94 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
                        }
     }
     return render(request, 'gestion_de_item/historial_item.html', contexto)
+
+
+def relacionar_item_view(request, proyecto_id, fase_id, item_id):
+    #TODO comentar
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    contexto = {'proyecto': proyecto,
+                'fase': fase,
+                'item': item,
+                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO)
+                }
+    if request.method == 'POST':
+        if 'tipo' in request.GET.keys():
+            if request.GET['tipo'] == 'padre-hijo':
+                form = RelacionPadreHijoForm(request.POST, item=item)
+                if form.is_valid():
+                    item.add_padre(form.cleaned_data['padre'])
+                else:
+                    contexto['form'] = form
+            elif request.GET['tipo'] == 'antecesor-sucesor':
+                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+    else:
+        if 'tipo' in request.GET.keys():
+            if request.GET['tipo'] == 'padre-hijo':
+                contexto['form'] = RelacionPadreHijoForm(item=item)
+            elif request.GET['tipo'] == 'antecesor-sucesor':
+                pass #TODO hacer cuando haya la funcionalidad de Linea Base
+
+    return render(request, 'gestion_de_item/relacionar_item.html', contexto)
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_aprobar_item')
+def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
+    """
+        Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
+        La aprobación del item deberá ser realizada por un participante del proyecto con el permiso de
+        'Aprobar Item' dentro de la fase donde se encuentra el item.
+        Argumentos:
+            - request: HttpRequest
+            - proyecto_id: int, identificador unico de un proyecto del sistema.
+            - fase_id: int, identificador unico de una fase de un proyecto.
+            - item_id: int, identificador unico del item a eliminar.
+
+        Retorna:
+            - HttpResponse
+        Requiere:
+            - 'pp_f_aprobar_item': permiso de proyecto para aprobar item.
+        """
+
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.NO_APROBADO:
+            item.solicitar_aprobacion()
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
+
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_aprobar_item')
+def aprobar_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que permite la aprobacion de un item que ha sido puesto en el estado A Aprobar.
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item a eliminar.
+
+    Retorna:
+        - HttpResponse
+    """
+
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.A_APROBAR:
+            item.aprobar()
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/aprobar_item.html', contexto)
+

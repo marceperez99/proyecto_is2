@@ -2,11 +2,6 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from gestion_de_fase.models import Fase
-
-
-
-# Create your models here.
 
 class TipoDeItem(models.Model):
     """
@@ -24,7 +19,7 @@ class TipoDeItem(models.Model):
     descripcion = models.CharField(max_length=401)
     prefijo = models.CharField(max_length=20)
     creador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
+    fase = models.ForeignKey('gestion_de_fase.Fase', on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
 
     def __str__(self):
