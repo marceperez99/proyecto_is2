@@ -1,5 +1,7 @@
 from django.db import models
 
+from gestion_de_item.models import EstadoDeItem
+
 
 class Fase(models.Model):
     """
@@ -50,10 +52,25 @@ class Fase(models.Model):
                 fase_derecha.fase_anterior = self
                 fase_derecha.save()
 
-    def get_items(self):
+    def get_items(self, items_eliminados=False):
+        """
+        Metodo que retorna los items asociados a una fase.
+
+        Argumentos:
+            items_eliminados: bandera para indicar si se retornarán todos los items de la fase, incluyendo
+            aquellos que ya fueron eliminados.
+
+        Retorna:
+            list(): lista de todos los items de la fase del proyecto.
+        """
         tipos = self.tipodeitem_set.all()
         items = []
         for tipo in tipos:
-            items.extend(list(tipo.item_set.all()))
+            if items_eliminados:
+                # Se incluyen todos los items del tipo
+                items.extend(list(tipo.item_set.all()))
+            else:
+                # Se excluyen los items eliminados
+                items.extend(list(tipo.item_set.all().exclude(estado=EstadoDeItem.ELIMINADO)))
 
         return items
