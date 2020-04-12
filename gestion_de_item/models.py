@@ -40,6 +40,39 @@ class Item(models.Model):
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
 
+    def __init__(self, *args, **kwargs):
+        super(Item, self).__init__(*args, **kwargs)
+        self.estado = EstadoDeItem.CREADO
+        if self.tipo_de_item is not None:
+            self.codigo = self.tipo_de_item.prefijo + '_' + str(self.tipo_de_item.item_set.all().count() + 1)
+
+
+
+    # No cambiar save() o se rompe
+    def nueva_version(self):
+        """
+        Método que crea una nueva version para el item. Debe ser invocado antes de modificar un item y solo si se desea modificar.
+
+        Ej:
+
+            >>> item = Item.objects.first()
+            >>> item.nueva_version()
+            >>> item.agregar_padre(padre)
+
+
+        """
+
+        version = self.version
+        version.save(versionar = True)
+
+        for atributo in self.get_atributos_dinamicos():
+            atributo.pk = None
+            atributo.version = version
+            atributo.save()
+
+        self.version = version
+        self.save()
+
     def __str__(self):
         return self.version.nombre
 
@@ -81,6 +114,18 @@ class Item(models.Model):
         """
         return self.version_item.all().order_by('-version')
 
+    def eliminar(self):
+        """
+        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.
+
+        Retorna: True or False (Eliminado o no)
+        """
+        if self.estado == EstadoDeItem.CREADO:
+            self.estado = EstadoDeItem.ELIMINADO
+            self.save()
+            return True
+        return False
+
     def add_padre(self, item):
         #TODO comentar y hacer PU
         pass
@@ -100,6 +145,7 @@ class Item(models.Model):
         assert self.estado == EstadoDeItem.A_APROBAR, 'El item debe estar en estado A Aprobar para ser aprobado'
         self.estado = EstadoDeItem.APROBADO
         self.save()
+
 
 
 class VersionItem(models.Model):
@@ -122,6 +168,12 @@ class VersionItem(models.Model):
     peso = models.IntegerField()
     antecesores = models.ManyToManyField(Item, related_name='antecesores')
     padres = models.ManyToManyField(Item, related_name='padres')
+
+    def save(self, *args, versionar=True, **kwargs):
+        if versionar:
+            self.pk = None
+            self.version = self.item.version_item.all().count() + 1
+        super(VersionItem, self).save(*args, **kwargs)
 
 
 

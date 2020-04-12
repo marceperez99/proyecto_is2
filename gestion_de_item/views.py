@@ -12,6 +12,7 @@ from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
 from .forms import *
+from .utils import *
 
 
 @login_required
@@ -67,10 +68,10 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     Requiere permisos de Proyecto:
         pu_f_ver_fase: Visualizar Fase de Proyecto
     """
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
-    print(item.get_atributos_dinamicos())
     contexto = {
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
@@ -103,6 +104,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
+
     # Si es llamado sin tipo_de_item, permite seleccionar uno
     if tipo_de_item_id is None:
 
@@ -110,63 +112,54 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto}
         return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
     else:
-        tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
-
         # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
+        tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
+        all_valid = False
         if request.method == 'POST':
+
             form_nuevo = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
-            atributo_forms = []
-            counter = 0
-            for atributo in tipo_de_item.get_atributos():
-                counter = counter + 1
-                if type(atributo) == AtributoCadena:
-                    atributo_forms.append(
-                        AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(
-                        AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(
-                        AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo,
-                                                counter=counter))
-                elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(
-                        AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(
-                        AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
+
+            # Consigue los atributos asociados al tipo de item.
+            atributo_forms = get_atributos_forms(tipo_de_item,request)
+
+            # Si el form de version es valido
             if form_nuevo.is_valid():
+
                 version = form_nuevo.save(commit=False)
+                # Se consigue el item a relacionar con este nuevo item.
                 anterior = form_nuevo.cleaned_data['relacion']
 
                 all_valid = True
-                # Se validan todos los forms
+                # Se validan todos los forms de los atributos dinamicos.
                 for form in atributo_forms:
                     all_valid = all_valid and form.is_valid()
 
                 if all_valid:
 
-                    if item is None:
-                        item = Item()
-                        item.tipo_de_item = tipo_de_item
-                        item.estado = EstadoDeItem.NO_APROBADO
-                        item.codigo = tipo_de_item.prefijo + '_' + str(tipo_de_item.item_set.all().count() + 1)
+                    if item is None:  # Legacy condition, ignore.
+                        # Crea un item.
+                        item = Item(tipo_de_item = tipo_de_item)
                         item.save()
 
-                    version.version = item.version_item.all().count() + 1
+                    # Asocia esta versión al item creado.
                     version.item = item
-                    version.save()
+                    version.save(versionar = True)
+                    # Actualiza la version del item a esta versión creada.
                     item.version = version
                     item.save()
+
+
+                    # Si se seleccionó un item a relacionar
                     if anterior is not None:
                         assert anterior.get_fase() == fase.fase_anterior or anterior.get_fase() == fase, "El sistema " \
                                                                                                          "es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior "
-
+                        # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
                             version.antecesores.add(anterior)
                         elif anterior.get_fase() == fase:
                             version.padres.add(anterior)
 
+                    # Crea los atributos dinamicos del item.
                     for form in atributo_forms:
                         if type(form.plantilla) == AtributoCadena:
                             atributo = AtributoItemCadena()
@@ -179,6 +172,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         elif type(form.plantilla) == AtributoBooleano:
                             atributo = AtributoItemBooleano()
 
+                        # Asocia al atributo el tipo de item y la plantilla del atributo.
                         atributo.plantilla = form.plantilla
                         atributo.version = version
                         atributo.valor = form.cleaned_data[form.nombre]
@@ -186,54 +180,11 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         atributo.save()
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
-                else:
-                    form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
-                    atributo_forms = []
-                    counter = 0
-                    for atributo in tipo_de_item.get_atributos():
-                        counter = counter + 1
-                        if type(atributo) == AtributoCadena:
-                            atributo_forms.append(
-                                AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
-                        elif type(atributo) == AtributoNumerico:
-                            atributo_forms.append(
-                                AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
-                        elif type(atributo) == AtributoBinario:
-                            atributo_forms.append(
-                                AtributoItemArchivoForm(request.POST or None, plantilla=atributo, counter=counter))
-                        elif type(atributo) == AtributoFecha:
-                            atributo_forms.append(
-                                AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
-                        elif type(atributo) == AtributoBooleano:
-                            atributo_forms.append(
-                                AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
 
-                    contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                                'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
-                    return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
-
-        else:
+        # Si uno de los forms no fue completado correctamente.
+        if not all_valid:
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
-            atributo_forms = []
-            counter = 0
-            for atributo in tipo_de_item.get_atributos():
-                counter = counter + 1
-                if type(atributo) == AtributoCadena:
-                    atributo_forms.append(
-                        AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(
-                        AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(
-                        AtributoItemArchivoForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(
-                        AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
-                elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(
-                        AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
-
+            atributo_forms = get_atributos_forms(tipo_de_item,request)
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
@@ -260,13 +211,10 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        # pasar mensaje
-        if item.estado == EstadoDeItem.NO_APROBADO:
-            item.estado = EstadoDeItem.ELIMINADO
-            item.save()
-        else:
-            pass
+        item.eliminar()
+
         return redirect('listar_items', proyecto_id, fase_id)
+
     contexto = {'item': item.version.nombre}
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 

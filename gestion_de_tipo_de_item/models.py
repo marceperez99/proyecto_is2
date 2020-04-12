@@ -27,7 +27,7 @@ class TipoDeItem(models.Model):
 
     def get_atributos(self):
         """
-        Método que consigue la lista completa de atributos dinámico
+        Método que consigue la lista completa de atributos dinámicos
 
         Retorna:
             atributos: lista[] atributos dinámicos asociados a este tipo de item.
@@ -41,7 +41,8 @@ class TipoDeItem(models.Model):
         return atributos
 
     def es_utilizado(self):
-         return self.item_set.all().count() > 0
+        return self.item_set.all().count() > 0
+
 
 
 class AtributoBinario(models.Model):
