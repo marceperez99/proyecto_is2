@@ -50,10 +50,10 @@ class Item(models.Model):
         return self.version.peso
 
     def get_antecesores(self):
-        return self.version.antecesores
+        return self.version.antecesores.all()
 
     def get_padres(self):
-        return self.version.padres
+        return self.version.padres.all()
 
     def get_numero_version(self):
         return self.version.version
