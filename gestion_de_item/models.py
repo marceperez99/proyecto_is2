@@ -83,6 +83,18 @@ class Item(models.Model):
         # TODO verificar que esto retorne correctamente las versiones
         return self.version_item.all().order_by('-version')
 
+    def solicitar_aprobacion(self):
+        #TODO probar y comentar
+        assert self.estado == EstadoDeItem.CREADO, 'El item debe estar en estado Creado para solicitar Aprobacion'
+        self.estado = EstadoDeItem.A_APROBAR
+        self.save()
+
+    def aprobar(self):
+        #TODO probar y comentar
+        assert self.estado == EstadoDeItem.A_APROBAR, 'El item debe estar en estado A Aprobar para ser aprobado'
+        self.estado = EstadoDeItem.APROBAR
+        self.save()
+
 
 class VersionItem(models.Model):
     """

@@ -119,15 +119,21 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             for atributo in tipo_de_item.get_atributos():
                 counter = counter + 1
                 if type(atributo) == AtributoCadena:
-                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None,request.FILES, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo,
+                                                counter=counter))
                 elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
             if form_nuevo.is_valid():
                 version = form_nuevo.save(commit=False)
                 anterior = form_nuevo.cleaned_data['relacion']
@@ -186,15 +192,20 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     for atributo in tipo_de_item.get_atributos():
                         counter = counter + 1
                         if type(atributo) == AtributoCadena:
-                            atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
+                            atributo_forms.append(
+                                AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
                         elif type(atributo) == AtributoNumerico:
-                            atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
+                            atributo_forms.append(
+                                AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
                         elif type(atributo) == AtributoBinario:
-                            atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo,counter = counter))
+                            atributo_forms.append(
+                                AtributoItemArchivoForm(request.POST or None, plantilla=atributo, counter=counter))
                         elif type(atributo) == AtributoFecha:
-                            atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
+                            atributo_forms.append(
+                                AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
                         elif type(atributo) == AtributoBooleano:
-                            atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
+                            atributo_forms.append(
+                                AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
 
                     contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                                 'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
@@ -205,17 +216,22 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             atributo_forms = []
             counter = 0
             for atributo in tipo_de_item.get_atributos():
-                counter = counter +1
+                counter = counter + 1
                 if type(atributo) == AtributoCadena:
-                    atributo_forms.append(AtributoItemCadenaForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemCadenaForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoNumerico:
-                    atributo_forms.append(AtributoItemNumericoForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemNumericoForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoBinario:
-                    atributo_forms.append(AtributoItemArchivoForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemArchivoForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoFecha:
-                    atributo_forms.append(AtributoItemFechaForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemFechaForm(request.POST or None, plantilla=atributo, counter=counter))
                 elif type(atributo) == AtributoBooleano:
-                    atributo_forms.append(AtributoItemBooleanoForm(request.POST or None, plantilla=atributo,counter = counter))
+                    atributo_forms.append(
+                        AtributoItemBooleanoForm(request.POST or None, plantilla=atributo, counter=counter))
 
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
@@ -273,3 +289,38 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
                        }
     }
     return render(request, 'gestion_de_item/historial_item.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_aprobar_item')
+def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
+    # TODO probar y comentar
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.CREADO:
+            item.solicitar_aprobacion()
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
+
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_aprobar_item')
+def aprobar_item_view(request, proyecto_id, fase_id, item_id):
+    # TODO probar y comentar
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.A_APROBAR:
+            item.aprobar()
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
