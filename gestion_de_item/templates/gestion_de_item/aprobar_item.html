@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Solicitar Aprobacion{% endblock %}
+
+{% block content %}
+    {% include 'navBar.html'%}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row bg-white p-3 border rounded">
+            <h3 class="col-12">Aprobar Item</h3>
+            <hr class="col-10 mx-auto">
+            <p class="lead">Esta seguro que desea aceptar la Solicitud de Aprobacion de este Item?</p>
+
+            <form method="POST" class="col-12">
+                {% csrf_token %}
+                <div class="row">
+                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Aprobar Item">
+                    <a href="../" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
