@@ -19,7 +19,7 @@
                 {% endif %}
 
                 {% if item.estado == 'No Aprobado' %}
-                    <a href="#" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
+                    <a href="{% url 'editar_item' proyecto.id fase.id item.id %}" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
                 {% endif %}
                 {% if item.estado == 'Aprobado' %}
                     <a href="#" class="btn btn-danger bg-color-danger border-0">Desaprobar Item</a>
