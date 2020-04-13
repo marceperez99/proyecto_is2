@@ -31,9 +31,15 @@ class NuevoVersionItemForm(forms.ModelForm):
         self.fields['relacion'].label = 'Antecesor/Padre'
 
 
+class EditarItemForm(forms.ModelForm):
+    class Meta:
+        model = VersionItem
+        fields = ['nombre', 'descripcion', 'peso']
+
+
 class AtributoItemArchivoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemArchivoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -50,7 +56,7 @@ class AtributoItemArchivoForm(forms.Form):
 
 class AtributoItemCadenaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemCadenaForm, self).__init__(*args, **kwargs)
 
         self.plantilla = plantilla
@@ -68,7 +74,7 @@ class AtributoItemCadenaForm(forms.Form):
 
 class AtributoItemNumericoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemNumericoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -82,7 +88,7 @@ class AtributoItemNumericoForm(forms.Form):
 
 class AtributoItemBooleanoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemBooleanoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -97,7 +103,7 @@ class DateInput(forms.DateInput):
 
 class AtributoItemFechaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -109,7 +115,7 @@ class AtributoItemFechaForm(forms.Form):
 
 class RelacionPadreHijoForm(forms.Form):
 
-    def __init__(self, *args, item=None ,**kwargs):
+    def __init__(self, *args, item=None, **kwargs):
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
         self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO))
         self.item = item

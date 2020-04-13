@@ -2,7 +2,7 @@ from gestion_de_tipo_de_item.models import *
 from gestion_de_item.forms import *
 
 
-def get_atributos_forms(tipo_de_item, request):
+def get_atributos_forms(tipo_de_item, request,instance=None):
     """
     Función utilitaria que construye una lista de forms para cada atributo del item asociado a su tipo de item.
 
