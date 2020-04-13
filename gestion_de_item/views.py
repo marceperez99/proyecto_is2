@@ -1,18 +1,16 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
-
-# Create your views here.
 from django.urls import reverse
-
-from gestion_de_item.models import Item, EstadoDeItem
+from gestion_de_item.forms import NuevoVersionItemForm, RelacionPadreHijoForm
+from gestion_de_item.models import Item, EstadoDeItem, AtributoItemCadena, AtributoItemNumerico, AtributoItemArchivo, \
+    AtributoItemFecha, AtributoItemBooleano
+from gestion_de_item.utils import get_atributos_forms
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
-from .forms import *
-from .utils import *
 
 
 @login_required
@@ -120,7 +118,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             form_nuevo = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
 
             # Consigue los atributos asociados al tipo de item.
-            atributo_forms = get_atributos_forms(tipo_de_item,request)
+            atributo_forms = get_atributos_forms(tipo_de_item, request)
 
             # Si el form de version es valido
             if form_nuevo.is_valid():
@@ -138,16 +136,15 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                     if item is None:  # Legacy condition, ignore.
                         # Crea un item.
-                        item = Item(tipo_de_item = tipo_de_item)
+                        item = Item(tipo_de_item=tipo_de_item)
                         item.save()
 
                     # Asocia esta versión al item creado.
                     version.item = item
-                    version.save(versionar = True)
+                    version.save(versionar=True)
                     # Actualiza la version del item a esta versión creada.
                     item.version = version
                     item.save()
-
 
                     # Si se seleccionó un item a relacionar
                     if anterior is not None:
@@ -184,7 +181,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
         # Si uno de los forms no fue completado correctamente.
         if not all_valid:
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
-            atributo_forms = get_atributos_forms(tipo_de_item,request)
+            atributo_forms = get_atributos_forms(tipo_de_item, request)
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
                         'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
@@ -241,7 +238,7 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 
 
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
-    #TODO comentar
+    # TODO comentar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -265,9 +262,10 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
             if request.GET['tipo'] == 'padre-hijo':
                 contexto['form'] = RelacionPadreHijoForm(item=item)
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                pass #TODO hacer cuando haya la funcionalidad de Linea Base
+                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
 
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
+
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
@@ -301,7 +299,6 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
 
 
-
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
@@ -328,4 +325,3 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/aprobar_item.html', contexto)
-

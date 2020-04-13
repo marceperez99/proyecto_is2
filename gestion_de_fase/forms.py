@@ -10,6 +10,7 @@ class FaseForm(forms.ModelForm):
     Clase Padre:
         forms.ModelForm
     """
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
     def __init__(self, *args, proyecto=None, **kwargs):
         """
