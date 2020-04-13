@@ -1,12 +1,13 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
-    AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
-from gestion_de_item.utils import hay_ciclo
+import gestion_de_item
+from gestion_de_item.models import VersionItem, Item, EstadoDeItem
 
 
 class NuevoVersionItemForm(forms.ModelForm):
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
+
     class Meta:
         model = VersionItem
         fields = ['nombre', 'descripcion', 'peso']
@@ -33,7 +34,7 @@ class NuevoVersionItemForm(forms.ModelForm):
 
 class AtributoItemArchivoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemArchivoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -50,7 +51,7 @@ class AtributoItemArchivoForm(forms.Form):
 
 class AtributoItemCadenaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemCadenaForm, self).__init__(*args, **kwargs)
 
         self.plantilla = plantilla
@@ -68,7 +69,7 @@ class AtributoItemCadenaForm(forms.Form):
 
 class AtributoItemNumericoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemNumericoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -82,7 +83,7 @@ class AtributoItemNumericoForm(forms.Form):
 
 class AtributoItemBooleanoForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemBooleanoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -97,7 +98,7 @@ class DateInput(forms.DateInput):
 
 class AtributoItemFechaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None,counter = None, **kwargs):
+    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -109,7 +110,7 @@ class AtributoItemFechaForm(forms.Form):
 
 class RelacionPadreHijoForm(forms.Form):
 
-    def __init__(self, *args, item=None ,**kwargs):
+    def __init__(self, *args, item=None, **kwargs):
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
         self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO))
         self.item = item
@@ -117,7 +118,7 @@ class RelacionPadreHijoForm(forms.Form):
     def clean_padre(self):
         padre = self.cleaned_data['padre']
         hijo = self.item
-        if hay_ciclo(padre, hijo):
+        if gestion_de_item.utils.hay_ciclo(padre, hijo):
             raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
         else:
             return padre

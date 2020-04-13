@@ -7,6 +7,7 @@ from .models import Proyecto, Participante, Comite
 
 # Todo: documentar
 class ProyectoForm(forms.ModelForm):
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
     class Meta:
         model = Proyecto
         fields = ('nombre', 'descripcion', 'gerente')
