@@ -329,3 +329,16 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/aprobar_item.html', contexto)
 
+def editar_item_view(request,proyecto_id,fase_id,item_id):
+    """
+    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
+
+    Argumentos:
+        - request: HttpRequest,
+        - proyecto_id: int, identificador único de un  proyecto.
+        - fase_id: int, identificador único de una fase.
+        - item_id: int, identificador único de un item a editar.
+
+    Retorna
+        - HttpResponse
+    """
