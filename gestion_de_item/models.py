@@ -39,6 +39,8 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)  # TODO: construir en el field: tipo_de_item.prefijo + #order
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
+    antecesores = models.ManyToManyField('self',related_name='antecesores_item', symmetrical=False)
+    padres = models.ManyToManyField('self',related_name='padres_item', symmetrical=False)
 
 
 
@@ -77,10 +79,10 @@ class Item(models.Model):
         return self.version.peso
 
     def get_antecesores(self):
-        return self.version.antecesores.all()
+        return self.antecesores.all()
 
     def get_padres(self):
-        return self.version.padres.all()
+        return self.padres.all()
 
     def get_numero_version(self):
         return self.version.version
@@ -121,8 +123,8 @@ class Item(models.Model):
         return False
 
     def add_padre(self, item):
-        #TODO comentar y hacer PU
-        pass
+        self.padres.add(item)
+
 
     def solicitar_aprobacion(self):
         """
@@ -160,8 +162,7 @@ class VersionItem(models.Model):
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()  # TODO: construir en el field: item.version_item_set.all.count() + 1
     peso = models.IntegerField()
-    antecesores = models.ManyToManyField(Item, related_name='antecesores')
-    padres = models.ManyToManyField(Item, related_name='padres')
+
 
     def save(self, *args, versionar=True, **kwargs):
         if versionar:
