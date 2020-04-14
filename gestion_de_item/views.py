@@ -139,6 +139,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                     if item is None:  # Legacy condition, ignore.
                         # Crea un item.
                         item = Item(tipo_de_item=tipo_de_item)
+                        item.estado = EstadoDeItem.NO_APROBADO
+                        item.codigo = item.tipo_de_item.prefijo + '_' + str(
+                            item.tipo_de_item.item_set.all().count() + 1)
                         item.save()
 
                     # Asocia esta versión al item creado.

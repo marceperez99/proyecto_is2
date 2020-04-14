@@ -40,12 +40,6 @@ class Item(models.Model):
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
 
-    def __init__(self, *args, **kwargs):
-        super(Item, self).__init__(*args, **kwargs)
-        self.estado = EstadoDeItem.NO_APROBADO
-        if self.tipo_de_item is not None:
-            self.codigo = self.tipo_de_item.prefijo + '_' + str(self.tipo_de_item.item_set.all().count() + 1)
-
 
 
     # No cambiar save() o se rompe
