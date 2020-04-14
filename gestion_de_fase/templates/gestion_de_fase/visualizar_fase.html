@@ -98,11 +98,11 @@
             <div class="col-12 col-md-4">
                 <div class="card mb-3">
                     <div class="card-header bg-color-primary text-white">Informacion de la Fase</div>
-                    <div class="card-body">
+                    <div class="card-body" style="max-height: 300px; overflow: scroll">
                         <div class="row">
                             <div class="col-12 h6">Nombre:</div><div class="col-12 mb-3">{{ fase.nombre }}</div>
                             <div class="col-12 h6">Descripcion:</div><div class="col-12 mb-3">{{ fase.descripcion }}</div>
-                            <div class="col-3 h6">Estado:</div>
+                            <div class="col-5 h6">Estado:</div>
                             <div class="col-7">
                                 <h5>{% if fase.fase_cerrada %}
                                         <span class="badge badge-success">Cerrada</span>
