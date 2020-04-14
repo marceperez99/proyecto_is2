@@ -1,9 +1,5 @@
-from datetime import date
-
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
-
-# Create your views here.
 from django.urls import reverse
 
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
@@ -16,7 +12,7 @@ from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, Atributo
     AtributoBooleano
 from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms, hay_ciclo
+from .utils import get_atributos_forms
 
 
 @login_required
@@ -273,6 +269,7 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
 
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
@@ -402,15 +399,15 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
                 # Crea nuevos atributos dinamicos relacionados a esta nueva version
                 counter = 0
-                for form,atributo in zip(atributos_forms,atributos_dinamicos):
-                    counter = counter +1
+                for form, atributo in zip(atributos_forms, atributos_dinamicos):
+                    counter = counter + 1
                     atributo.version = version
                     atributo.valor = form.cleaned_data['valor_' + str(counter)]
                     atributo.pk = None
                     atributo.save()
                 # Finaliza el proceso de editar
                 item.save()
-                return redirect('visualizar_item',proyecto_id=proyecto_id,fase_id=fase_id,item_id=item_id)
+                return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
     # En caso de que un form este mal o no sea un POST
     if not all_valid:
         contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'item': item,

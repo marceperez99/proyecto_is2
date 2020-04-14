@@ -7,6 +7,8 @@ from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItem
 import gestion_de_item
 
 class NuevoVersionItemForm(forms.ModelForm):
+    descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
+
     class Meta:
         model = VersionItem
         fields = ['nombre', 'descripcion', 'peso']

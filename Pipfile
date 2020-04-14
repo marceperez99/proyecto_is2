@@ -8,7 +8,6 @@ verify_ssl = true
 [packages]
 django = "*"
 pytest = "*"
-psycopg2-binary = "*"
 sphinx = "*"
 django-allauth = "*"
 pytest-django = "*"
