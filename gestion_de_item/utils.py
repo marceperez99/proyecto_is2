@@ -3,7 +3,8 @@ from gestion_de_item.forms import AtributoItemNumericoForm, AtributoItemBooleano
     AtributoItemCadenaForm, AtributoItemArchivoForm
 
 
-def get_atributos_forms(tipo_de_item, request):
+
+def get_atributos_forms(tipo_de_item, request,instance=None):
     """
     Función utilitaria que construye una lista de forms para cada atributo del item asociado a su tipo de item.
 

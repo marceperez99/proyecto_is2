@@ -1,16 +1,18 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from gestion_de_item.forms import NuevoVersionItemForm, RelacionPadreHijoForm
-from gestion_de_item.models import Item, EstadoDeItem, AtributoItemCadena, AtributoItemNumerico, AtributoItemArchivo, \
-    AtributoItemFecha, AtributoItemBooleano
-from gestion_de_item.utils import get_atributos_forms
+
+from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
+    AtributoItemArchivo, AtributoItemBooleano
 from gestion_de_proyecto.models import Proyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
+from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
+    AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
+from .utils import get_atributos_forms
 
 
 @login_required
@@ -267,6 +269,7 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
 
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
@@ -325,3 +328,88 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/aprobar_item.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_editar_item')
+def editar_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
+
+    Argumentos:
+        - request: HttpRequest,
+        - proyecto_id: int, identificador único de un  proyecto.
+        - fase_id: int, identificador único de una fase.
+        - item_id: int, identificador único de un item a editar.
+
+    Retorna
+        - HttpResponse
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(Fase, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    version_actual = item.version
+
+    # Carga todos los formularios
+
+    form_version = EditarItemForm(request.POST or None, instance=version_actual)
+    # Consigue todos los atributos de este item.
+    atributos_dinamicos = item.get_atributos_dinamicos()
+    atributos_forms = []
+    counter = 0
+    # Crea un form para cada atributo
+    for atributo in atributos_dinamicos:
+        counter = counter + 1
+        if type(atributo) == AtributoItemCadena:
+            atributos_forms.append(
+                AtributoItemCadenaForm(request.POST or None, plantilla=atributo.plantilla, counter=counter,
+                                       initial={'valor_' + str(counter): atributo.valor}))
+        elif type(atributo) == AtributoItemNumerico:
+            atributos_forms.append(
+                AtributoItemNumericoForm(request.POST or None, plantilla=atributo.plantilla, counter=counter,
+                                         initial={'valor_' + str(counter): atributo.valor.normalize()}))
+        elif type(atributo) == AtributoItemArchivo:
+            atributos_forms.append(
+                AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,
+                                        counter=counter, initial={'valor_' + str(counter): atributo.valor}))
+        elif type(atributo) == AtributoItemBooleano: \
+                atributos_forms.append(
+                    AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                                             initial={'valor_' + str(counter): atributo.valor}))
+        elif type(atributo) == AtributoItemFecha:
+            atributos_forms.append(
+                AtributoItemFechaForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                                      initial={'valor_' + str(counter): atributo.valor}))
+
+    all_valid = False
+    if request.method == 'POST':
+        # Verifica si los atributos estaticos son validos.
+        if form_version.is_valid():
+            all_valid = True
+            # Verifica si los atributos dinamicos son validos.
+            for form in atributos_forms:
+                all_valid = all_valid and form.is_valid()
+
+            # Si todos los formularios son validos
+            if all_valid:
+                version = form_version.save()
+                # Relaciona el item a esta version
+                item.version = version
+
+                # Crea nuevos atributos dinamicos relacionados a esta nueva version
+                counter = 0
+                for form, atributo in zip(atributos_forms, atributos_dinamicos):
+                    counter = counter + 1
+                    atributo.version = version
+                    atributo.valor = form.cleaned_data['valor_' + str(counter)]
+                    atributo.pk = None
+                    atributo.save()
+                # Finaliza el proceso de editar
+                item.save()
+                return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
+    # En caso de que un form este mal o no sea un POST
+    if not all_valid:
+        contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'item': item,
+                    'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version}
+        return render(request, 'gestion_de_item/editar_item.html', context=contexto)

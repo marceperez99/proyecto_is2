@@ -1,9 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
+    AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
+#from gestion_de_item.utils import hay_ciclo
 import gestion_de_item
-from gestion_de_item.models import VersionItem, Item, EstadoDeItem
-
 
 class NuevoVersionItemForm(forms.ModelForm):
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
@@ -30,6 +31,12 @@ class NuevoVersionItemForm(forms.ModelForm):
 
         self.fields['relacion'].empty_label = 'Seleccionar el antecesor/padre de este item'
         self.fields['relacion'].label = 'Antecesor/Padre'
+
+
+class EditarItemForm(forms.ModelForm):
+    class Meta:
+        model = VersionItem
+        fields = ['nombre', 'descripcion', 'peso']
 
 
 class AtributoItemArchivoForm(forms.Form):
@@ -95,6 +102,10 @@ class AtributoItemBooleanoForm(forms.Form):
 class DateInput(forms.DateInput):
     input_type = 'date'
 
+    def __init__(self, **kwargs):
+        kwargs["format"] = "%d-%m-%Y"
+        super().__init__(**kwargs)
+
 
 class AtributoItemFechaForm(forms.Form):
 
@@ -102,10 +113,12 @@ class AtributoItemFechaForm(forms.Form):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
-        self.fields[self.nombre] = forms.DateTimeField()
+        self.fields[self.nombre] = forms.DateField()
+        #self.fields[self.nombre] = forms.DateField(input_formats=['%d-%m-%Y'], widget=forms.DateInput(format='%d-%m-%y'))
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
-        self.fields[self.nombre].widget = DateInput()
+        self.fields[self.nombre].widget = DateInput() #Este es un widget creado mas arriba
+
 
 
 class RelacionPadreHijoForm(forms.Form):
