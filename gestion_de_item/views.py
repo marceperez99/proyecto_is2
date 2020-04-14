@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -369,7 +371,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
         elif type(atributo) == AtributoItemNumerico:
             atributos_forms.append(
                 AtributoItemNumericoForm(request.POST or None, plantilla=atributo.plantilla, counter=counter,
-                                         initial={'valor_' + str(counter): atributo.valor}))
+                                         initial={'valor_' + str(counter): atributo.valor.normalize()}))
         elif type(atributo) == AtributoItemArchivo:
             atributos_forms.append(
                 AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,

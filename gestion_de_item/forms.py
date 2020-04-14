@@ -3,8 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
     AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
-from gestion_de_item.utils import hay_ciclo
-
+#from gestion_de_item.utils import hay_ciclo
+import gestion_de_item
 
 class NuevoVersionItemForm(forms.ModelForm):
     class Meta:
@@ -100,6 +100,10 @@ class AtributoItemBooleanoForm(forms.Form):
 class DateInput(forms.DateInput):
     input_type = 'date'
 
+    def __init__(self, **kwargs):
+        kwargs["format"] = "%d-%m-%Y"
+        super().__init__(**kwargs)
+
 
 class AtributoItemFechaForm(forms.Form):
 
@@ -107,10 +111,12 @@ class AtributoItemFechaForm(forms.Form):
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
-        self.fields[self.nombre] = forms.DateTimeField()
+        self.fields[self.nombre] = forms.DateField()
+        #self.fields[self.nombre] = forms.DateField(input_formats=['%d-%m-%Y'], widget=forms.DateInput(format='%d-%m-%y'))
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
-        self.fields[self.nombre].widget = DateInput()
+        self.fields[self.nombre].widget = DateInput() #Este es un widget creado mas arriba
+
 
 
 class RelacionPadreHijoForm(forms.Form):
@@ -123,7 +129,7 @@ class RelacionPadreHijoForm(forms.Form):
     def clean_padre(self):
         padre = self.cleaned_data['padre']
         hijo = self.item
-        if hay_ciclo(padre, hijo):
+        if gestion_de_item.utils.hay_ciclo(padre, hijo):
             raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
         else:
             return padre

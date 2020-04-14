@@ -207,7 +207,7 @@ class AtributoItemFecha(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoFecha', on_delete=models.CASCADE)
-    valor = models.DateTimeField(null=True)
+    valor = models.DateField(null=True)
 
 
 class AtributoItemNumerico(models.Model):
