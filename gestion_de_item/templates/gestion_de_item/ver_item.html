@@ -47,7 +47,11 @@
                                  {% elif atr.valor == False %}
                                     No
                                 {% else %}
-                                    {{atr.valor}}
+                                    {% if atr.valor.normalize %}
+                                        {{atr.valor.normalize}}
+                                    {% else %}
+                                        {{atr.valor}}
+                                    {% endif %}
                             {% endif %}
                         </div>
                     {% endfor %}
