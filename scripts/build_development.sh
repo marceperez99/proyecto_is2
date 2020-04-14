@@ -7,6 +7,12 @@ if [[ ! $REPLY =~ ^[Ss]$ ]]
 then
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
+#Verificacion de las dependencias necesarias para psycopg2
+dpkg -l | cut -d " " -f 3 | grep -q "^python3-dev" || \
+ { echo "Se requiere la libreria python3-dev para continuar" ; exit 1; }
+dpkg -l | cut -d " " -f 3 | grep -q "^libpq-dev" || \
+ { echo "Se requiere la libreria libpq-dev para continuar" ; exit 1; }
+
 #Variables
 SCRIPT_PATH=$(dirname $0)
 POSTGRES_USER="postgres"
@@ -26,6 +32,6 @@ read -p "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " in
 POSTGRES_PASS=${input:-$POSTGRES_PASS}
 
 #Creacion de nueva base de datos
-scripts/build_database.sh $DB_NAME $POSTGRES_USER $POSTGRES_PASS $DB_USER $DB_PASS
+scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
 scripts/run_dev_server.sh
 
