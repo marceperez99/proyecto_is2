@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar Rol de Sistema{% endblock %}
+{% block content %}
+{% include 'navBar.html' %}
+{% include 'breadcrumb.html' %}
+<div class="container mt-3">
+    <h3 class="col-12">Esta seguro que desea eliminar el Rol de Sistema "{{ rol.nombre }}"</h3>
+    <div class="row border rounded bg-white p-3">
+        {% if en_proyecto %}
+        <div class="col-12 mx-auto text-center mt-3">
+            <p>El usuario se encuentra como participante en uno o mas proyectos, asi que no se le puede desasignar
+                el Rol de Sistema</p>
+            <a href="../" class="btn btn-primary mr-3 border-0 bg-color-accent">Volver</a>
+        </div>
+
+        {% else %}
+        <div class="col-12 mx-auto text-center mt-3">
+            Al Desasignar el Rol de Sistema a este Usuario, este perderá los permisos de acceso al sistema.
+        </div>
+        <br><br>
+        <form method="POST" class="col-auto mx-auto">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary mr-3 border-0 bg-color-accent" value="Desasignar Rol">
+            <a href="../" class="btn btn-danger ml-3 bg-color-danger border-0">Cancelar</a>
+        </form>
+        {% endif %}
+
+
+    </div>
+</div>
+{% endblock %}

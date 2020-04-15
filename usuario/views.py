@@ -55,6 +55,7 @@ def usuario_view(request, usuario_id):
 
 
 @login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @permission_required('roles_de_sistema.pa_asignar_rs', login_url='sin_permiso')
 def usuario_asignar_rol_view(request, usuario_id):
     """
@@ -83,12 +84,13 @@ def usuario_asignar_rol_view(request, usuario_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def panel_de_administracion_view(request):
     user = Usuario.objects.get(id=request.user.id)
     print(user.es_administrador())
     contexto = {'user': user,
                 'permisos': user.get_permisos_list(),
-                'usuarios': Usuario.objects.all(),
+                'usuarios': Usuario.objects.all().filter(is_superuser=False),
                 'proyectos': Proyecto.objects.all(),
                 'roles_de_proyecto': RolDeProyecto.objects.all(),
                 'roles_de_sistema': RolDeSistema.objects.all(),
@@ -96,3 +98,35 @@ def panel_de_administracion_view(request):
                                'pagina_actual': 'Panel de Administracion'}
                 }
     return render(request, 'usuario/panel_de_administracion.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_desasignar_rs', login_url='sin_permiso')
+def desasignar_rol_de_sistema_view(request, usuario_id):
+    """
+    Vista que que se encarga de Desasignar un Rol de Sistema a un Usuario si este no se encuantra en ningun proyecto
+
+    Argumentos:
+        request: HttpRequest \n
+        usuario_id: int, identificador unico del Usuario
+
+    Retorna:
+        HttpResponse
+    """
+
+    usuario = get_object_or_404(Usuario, pk=usuario_id)
+
+    contexto = {'user': request.user, 'usuario': usuario, 'en_proyecto': usuario.get_proyectos() != [],
+                'rol': usuario.get_rol_de_sistema(),
+                'breadcrumb': {'pagina_actual': 'Desasignar RS',
+                               'links': [{'nombre': 'Usuarios', 'url': reverse('usuarios')},
+                                         {'nombre': usuario.get_full_name(), 'url': reverse('perfil_de_usuario',
+                                                                                            args=(usuario_id,))}]}}
+
+    grupo = None
+    if request.method == 'POST':
+        usuario.desasignar_rol_a_usuario()
+        return redirect('perfil_de_usuario', usuario_id=usuario_id)
+
+    return render(request, 'usuario/desasignar_rs.html', contexto)
