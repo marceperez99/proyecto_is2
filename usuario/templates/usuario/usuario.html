@@ -26,9 +26,10 @@
                 <div class="col-12 col-sm-7">
                     <div class="row justify-content-end">
                         {% if rs_asignado %}
-                            <button type="button" class="btn btn-danger" onclick="$('.alert').prop('hidden',false).change()">
+                        <a href="{%url 'desasignar_rol_de_sistema' usuario.id%}"
+                           class="btn btn-danger ml-3 bg-color-danger border-0">
                                 Desasignar Rol de Sistema
-                            </button>
+                        </a>
                         {% endif %}
                         <a href="{%url 'asignar_rol_de_sistema' usuario.id%}"
                            class="btn btn-primary bg-color-accent ml-1">
