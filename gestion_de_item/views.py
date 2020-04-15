@@ -157,9 +157,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                                                                          "es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            version.antecesores.add(anterior)
+                            item.antecesores.add(anterior)
                         elif anterior.get_fase() == fase:
-                            version.padres.add(anterior)
+                            item.padres.add(anterior)
 
                     # Crea los atributos dinamicos del item.
                     for form in atributo_forms:

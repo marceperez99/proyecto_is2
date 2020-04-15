@@ -10,6 +10,7 @@
             <hr class="col-10">
             {% if form %}
                 <form class="col-10 mx-auto" method="post">
+                    {% csrf_token %}
                     <div class="row">
                         <p class="lead">Seleccione un Item con el que desea relacionar el item '{{ form.item }}'</p>
                         <div class="col-10 mx-auto">
