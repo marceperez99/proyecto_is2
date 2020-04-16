@@ -15,8 +15,7 @@ from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, Atributo
     AtributoBooleano
 from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
-from .models import Item, VersionItem
-
+from .models import Item, VersionItem, EstadoDeItem
 
 
 @pytest.fixture
@@ -94,3 +93,28 @@ def test_nueva_version(tipo_de_item):
 # TODO: probar vistas
 # TODO: probar get_versiones()
 
+
+@pytest.fixture
+def item(tipo_de_item):
+    item = Item(tipo_de_item=tipo_de_item)
+    item.estado = EstadoDeItem.NO_APROBADO
+    item.save()
+    version = VersionItem()
+    version.item = item
+    version.descripcion = ""
+    version.nombre = ""
+    version.peso = 2
+    version.save()
+    item.version = version
+    item.save()
+    return item
+
+
+@pytest.mark.django_db
+def test_desaprobar_item(item):
+    """
+    Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
+    """
+    item.estado = EstadoDeItem.APROBADO
+    item.desaprobar()
+    assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
