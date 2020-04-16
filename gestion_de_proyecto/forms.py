@@ -1,13 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
-
 from usuario.models import Usuario
 from .models import Proyecto, Participante, Comite
 
 
-# Todo: documentar
 class ProyectoForm(forms.ModelForm):
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
+
     class Meta:
         model = Proyecto
         fields = ('nombre', 'descripcion', 'gerente')
@@ -16,7 +14,6 @@ class ProyectoForm(forms.ModelForm):
         super(ProyectoForm, self).__init__(*args, **kwargs)
         self.fields['gerente'].empty_label = 'Seleccionar Gerente'
         self.fields['gerente'].queryset = Usuario.objects.filter(groups__isnull=False)
-
 
 
 class EditarProyectoForm(forms.ModelForm):
