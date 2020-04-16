@@ -142,6 +142,15 @@ class Item(models.Model):
         self.estado = EstadoDeItem.APROBADO
         self.save()
 
+    def desaprobar(self):
+        """
+        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprovado'.
+        """
+        assert self.estado == EstadoDeItem.APROBADO, 'El item debe estar en estado Aprobado para ser desaprobado'
+        self.estado = EstadoDeItem.NO_APROBADO
+        self.save()
+
+
 
 
 class VersionItem(models.Model):
