@@ -77,7 +77,7 @@ class Fase(models.Model):
         return items
 
     def get_item_estado(self, estado):
-        #TODO comentar y hacer PU
+        # TODO: Luis comentar y hacer PU
         tipos = self.tipodeitem_set.all()
         items = []
         for tipo in tipos:

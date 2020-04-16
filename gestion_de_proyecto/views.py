@@ -5,12 +5,12 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
 from .models import Proyecto, EstadoDeProyecto, Participante, Comite
+from .decorators import estado_proyecto
 
 
 # Create your views here.
@@ -127,6 +127,7 @@ def participante_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pp_eliminar_participante')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def eliminar_participante_view(request, proyecto_id, participante_id):
     """
     Vista que solicita confirmación del usuario para eliminar un participante de proyecto. \n
@@ -187,6 +188,7 @@ def visualizar_proyecto_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_editar_proyecto')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def editar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario los datos actuales del proyecto que se pueden modificar, si el usuario
@@ -217,6 +219,7 @@ def editar_proyecto_view(request, proyecto_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def cancelar_proyecto_view(request, proyecto_id):
     """
     Muestra una vista al usuario para que confirme la cancelacion del proyecto. \n
@@ -249,6 +252,7 @@ def cancelar_proyecto_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_iniciar_proyecto')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def iniciar_proyecto_view(request, proyecto_id):
     """
     Vista que permite iniciar un proyecto, si este tiene al menos una fase
@@ -273,6 +277,7 @@ def iniciar_proyecto_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pp_agregar_participante')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def nuevo_participante_view(request, proyecto_id):
     """
     Vista que permite la asignacion de un rol
@@ -334,6 +339,7 @@ def nuevo_participante_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pp_asignar_rp_a_participante')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     """
     Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
@@ -387,6 +393,7 @@ def pp_insuficientes(request, *args, **kwargs):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_asignar_comite')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)

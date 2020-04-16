@@ -9,7 +9,7 @@
 
             <h3 class="col-4">Item de Proyecto</h3>
             <div class="col-8 text-right">
-                <!-- TODO faltan ponerle las restricciones a estos botones segun permisos y estados -->
+
                 {% if item.estado == 'No Aprobado' %}
                     <a href="{% url 'solicitar_aprobacion_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">Solicitar Aprobación de Item</a>
 

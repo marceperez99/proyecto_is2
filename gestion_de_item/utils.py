@@ -39,7 +39,7 @@ def get_atributos_forms(tipo_de_item, request,instance=None):
 
 
 def hay_ciclo(padre, hijo):
-    # TODO comentar y hacer PU
+    # TODO Luis: comentar y hacer PU
     stack = []
     visitado = set()
     stack.append(padre)

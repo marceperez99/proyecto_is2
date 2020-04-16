@@ -4,7 +4,8 @@ from django.urls import reverse
 
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
-from gestion_de_proyecto.models import Proyecto
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
@@ -18,6 +19,7 @@ from .utils import get_atributos_forms
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def listar_items(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
@@ -51,6 +53,7 @@ def listar_items(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def visualizar_item(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion de la informacion de un Item, en esta vista se presentan las opciones
@@ -89,6 +92,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=None):
     """
     Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
@@ -102,6 +106,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     Retorna:
         - HttpResponse
     """
+    # TODO: Hugo, falta prueba unitaria de la vista
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
 
@@ -195,6 +200,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que solicita confirmación para eliminar un item.
@@ -210,6 +216,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna:
         - HttpResponse
     """
+    # TODO: Hugo, falta verificar condiciones de eliminacion y prueba unitaria de la vista
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
@@ -221,7 +228,14 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 
 
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_ver_historial_de_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    TODO: Marcelo, falta comentar
+
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -242,8 +256,11 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/historial_item.html', contexto)
 
 
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_relacionar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
-    # TODO comentar
+    # TODO: Luis: comentar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -272,10 +289,10 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
 
-
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """
         Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
@@ -308,6 +325,7 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la aprobacion de un item que ha sido puesto en el estado A Aprobar.
@@ -336,6 +354,7 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
@@ -349,6 +368,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna
         - HttpResponse
     """
+    # TODO: Hugo: hacer prueba unitaria
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -376,13 +396,14 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
             atributos_forms.append(
                 AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,
                                         counter=counter, initial={'valor_' + str(counter): atributo.valor}))
-        elif type(atributo) == AtributoItemBooleano: \
-                atributos_forms.append(
-                    AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
-                                             initial={'valor_' + str(counter): atributo.valor}))
+        elif type(atributo) == AtributoItemBooleano:
+            print(atributo.valor)
+            atributos_forms.append(AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                                                            initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemFecha:
             atributos_forms.append(
-                AtributoItemFechaForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                AtributoItemFechaForm(request.POST, plantilla=atributo.plantilla,
+                                      fecha=atributo.valor, counter=counter,
                                       initial={'valor_' + str(counter): atributo.valor}))
 
     all_valid = False

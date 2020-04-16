@@ -36,7 +36,7 @@ class Item(models.Model):
     """
     tipo_de_item = models.ForeignKey('gestion_de_tipo_de_item.TipoDeItem', on_delete=models.CASCADE)
     estado = models.CharField(max_length=40)
-    codigo = models.CharField(max_length=40)  # TODO: construir en el field: tipo_de_item.prefijo + #order
+    codigo = models.CharField(max_length=40)  # TODO: Hugo: factorizar generacion de codigo del item
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
     antecesores = models.ManyToManyField('self',related_name='antecesores_item', symmetrical=False)
@@ -83,6 +83,9 @@ class Item(models.Model):
 
     def get_padres(self):
         return self.padres.all()
+
+    def get_hijos(self):
+        return self.padres_item.all()
 
     def get_numero_version(self):
         return self.version.version
@@ -174,7 +177,7 @@ class VersionItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='version_item')
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
-    version = models.IntegerField()  # TODO: construir en el field: item.version_item_set.all.count() + 1
+    version = models.IntegerField()  # TODO: Hugo: factorizar generacion de la version
     peso = models.IntegerField()
 
 

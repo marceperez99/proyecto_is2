@@ -20,6 +20,7 @@ def listar_roles_de_sistema_view(request):
     Retorna:
         HttpResponse
     """
+    # TODO: Marcos: hacer prueba unitaria de esta vista
     contexto = {'user': Usuario.objects.get(id=request.user.id),
                 'roles': [
                     {'id': rol.id, 'nombre': rol.nombre, 'descripcion': rol.descripcion,
@@ -51,7 +52,7 @@ def editar_rol_de_sistema_view(request, id_rol):
     Retorna:
         HttpResponse
     """
-
+    # TODO: Marcos: hacer prueba unitaria de esta vista
     rol = get_object_or_404(RolDeSistema, pk=id_rol)
 
     if request.method == 'POST':
@@ -99,6 +100,7 @@ def nuevo_rol_de_sistema_view(request):
     Retorna:
         HttpResponse
     """
+    # TODO: Marcos: hacer prueba unitaria de esta vista
     contexto = {'user': request.user,
                 'breadcrumb': {'pagina_actual': 'Nuevo Rol de Sistema',
                                'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')},
@@ -132,6 +134,7 @@ def rol_de_sistema_view(request, id_rol):
     Retorna:
         HttpResponse
     """
+    # TODO: Marcos: hacer prueba unitaria de esta vista
     rol = get_object_or_404(RolDeSistema, id=id_rol)
 
     user = Usuario.objects.get(id=request.user.id)
@@ -167,6 +170,7 @@ def eliminar_rol_de_sistema_view(request, id_rol):
     Retorna:
         HttpResponse
     """
+    # TODO: Marcos: hacer prueba unitaria de esta vista
     rol = get_object_or_404(RolDeSistema, pk=id_rol)
     contexto = {'user': request.user, 'rol': rol,
                 'breadcrumb': {'pagina_actual': 'Eliminar Rol',
