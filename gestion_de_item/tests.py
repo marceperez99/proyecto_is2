@@ -201,3 +201,12 @@ def test_aprobar_item_view(cliente_loggeado, proyecto, item):
     response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
     assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+
+@pytest.mark.django_db
+def test_desaprobar_item(item):
+    """
+    Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
+    """
+    item.estado = EstadoDeItem.APROBADO
+    item.desaprobar()
+    assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'

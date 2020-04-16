@@ -145,6 +145,20 @@ class Item(models.Model):
         self.estado = EstadoDeItem.APROBADO
         self.save()
 
+    def desaprobar(self):
+        """
+        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
+        Retorna: \n
+            -True: El item no tiene hijos, por ende el item se puede desaprobar
+            -False: El item tiene al menos un hijo, no se puede desaprobar
+        """
+        assert self.estado == EstadoDeItem.APROBADO, 'El item debe estar en estado Aprobado para ser desaprobado'
+        if self.padres_item.all().count() == 0:
+            self.estado = EstadoDeItem.NO_APROBADO
+            self.save()
+            return True
+        else:
+            return False
 
 
 class VersionItem(models.Model):
