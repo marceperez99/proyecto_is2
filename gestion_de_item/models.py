@@ -84,6 +84,9 @@ class Item(models.Model):
     def get_padres(self):
         return self.padres.all()
 
+    def get_hijos(self):
+        return self.padres_item.all()
+
     def get_numero_version(self):
         return self.version.version
 

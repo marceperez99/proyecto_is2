@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
     AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
-#from gestion_de_item.utils import hay_ciclo
+# from gestion_de_item.utils import hay_ciclo
 import gestion_de_item
+
 
 class NuevoVersionItemForm(forms.ModelForm):
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
@@ -91,34 +92,28 @@ class AtributoItemNumericoForm(forms.Form):
 class AtributoItemBooleanoForm(forms.Form):
 
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+        marcado = False
+        if 'initial' in kwargs:
+            marcado = kwargs['initial']['valor_' + str(counter)]
         super(AtributoItemBooleanoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
-        self.fields[self.nombre] = forms.BooleanField()
+        self.fields[self.nombre] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'checked': marcado}))
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
-
-
-class DateInput(forms.DateInput):
-    input_type = 'date'
-
-    def __init__(self, **kwargs):
-        kwargs["format"] = "%d-%m-%Y"
-        super().__init__(**kwargs)
 
 
 class AtributoItemFechaForm(forms.Form):
 
-    def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+    def __init__(self, *args, plantilla=None, fecha=None, counter=None, **kwargs):
+        print(fecha, counter)
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.DateField()
-        #self.fields[self.nombre] = forms.DateField(input_formats=['%d-%m-%Y'], widget=forms.DateInput(format='%d-%m-%y'))
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
-        self.fields[self.nombre].widget = DateInput() #Este es un widget creado mas arriba
-
+        self.fields[self.nombre].widget = forms.DateInput(attrs={'type': 'date', 'value': fecha})
 
 
 class RelacionPadreHijoForm(forms.Form):

@@ -272,7 +272,6 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
 
-
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
@@ -376,13 +375,14 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
             atributos_forms.append(
                 AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,
                                         counter=counter, initial={'valor_' + str(counter): atributo.valor}))
-        elif type(atributo) == AtributoItemBooleano: \
-                atributos_forms.append(
-                    AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
-                                             initial={'valor_' + str(counter): atributo.valor}))
+        elif type(atributo) == AtributoItemBooleano:
+            print(atributo.valor)
+            atributos_forms.append(AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                                                            initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemFecha:
             atributos_forms.append(
-                AtributoItemFechaForm(request.POST, plantilla=atributo.plantilla, counter=counter,
+                AtributoItemFechaForm(request.POST, plantilla=atributo.plantilla,
+                                      fecha=atributo.valor, counter=counter,
                                       initial={'valor_' + str(counter): atributo.valor}))
 
     all_valid = False
