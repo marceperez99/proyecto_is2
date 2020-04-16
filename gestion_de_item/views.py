@@ -4,7 +4,8 @@ from django.urls import reverse
 
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
-from gestion_de_proyecto.models import Proyecto
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
@@ -18,6 +19,7 @@ from .utils import get_atributos_forms
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def listar_items(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
@@ -51,6 +53,7 @@ def listar_items(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def visualizar_item(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion de la informacion de un Item, en esta vista se presentan las opciones
@@ -89,6 +92,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=None):
     """
     Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
@@ -195,6 +199,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que solicita confirmación para eliminar un item.
@@ -221,6 +226,9 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 
 
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_ver_historial_de_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
@@ -242,6 +250,9 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/historial_item.html', contexto)
 
 
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_relacionar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     # TODO comentar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
@@ -275,6 +286,7 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """
         Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
@@ -307,6 +319,7 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la aprobacion de un item que ha sido puesto en el estado A Aprobar.
@@ -335,6 +348,7 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
