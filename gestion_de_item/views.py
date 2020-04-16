@@ -416,3 +416,31 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
         contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'item': item,
                     'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version}
         return render(request, 'gestion_de_item/editar_item.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_desaprobar_item')
+def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item a eliminar.
+
+    Retorna:
+        - HttpResponse
+    """
+
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.APROBADO:
+            item.desaprobar()
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/desaprobar_item.html', contexto)

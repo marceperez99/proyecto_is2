@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:item_id>/historial/', views.ver_historial_item_view, name='historial_item'),
     path('<int:item_id>/solicitar_aprobacion/', views.solicitar_aprobacion_view, name='solicitar_aprobacion_item'),
     path('<int:item_id>/aprobar/', views.aprobar_item_view, name='aprobar_item'),
+    path('<int:item_id>/desaprobar/', views.desaprobar_item_view, name='desaprobar_item'),
     path('nuevo/', views.nuevo_item_view, name='nuevo_item'),
     path('nuevo/<int:tipo_de_item_id>/', views.nuevo_item_view, name='nuevo_item_tipo'),
     path('<int:item_id>/editar/', views.editar_item_view,name='editar_item'),
