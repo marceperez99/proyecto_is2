@@ -1,23 +1,16 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.forms import TipoDeItemForm, AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
 from gestion_de_tipo_de_item.models import TipoDeItem
-# /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id
-# /poyectos/proyecto_id/fase/fase_id/tipo_de_item/tipo_de_item_id/editar
-# /#/poyectos/proyecto_id/fase/fase_id/tipo_de_item/nuevo
-# tipo_de_item/proyecto_id/fase_id
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from gestion_de_tipo_de_item.utils import guardar_atributos, guardar_tipo_de_item, atributo_form_handler, \
     construir_atributos, recolectar_atributos
 from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
-
-
-# Create your views here.
 
 
 @login_required
@@ -92,6 +85,7 @@ def listar_tipo_de_item_view(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_tipo_de_item')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None):
     """
     Vista que muestra la pantalla de creación de un nuevo tipo de item.\n
@@ -170,6 +164,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_importar_tipo_de_item")
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def importar_tipo_de_item_view(request, proyecto_id, fase_id):
     """
     Vista que permite seleccionar un tipo de item del sistema para copiar sus atributos a un nuevo tipo de item para
@@ -210,6 +205,7 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_tipo_de_item')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     TODO: comentar
@@ -239,12 +235,11 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 }
 
     if request.method == 'POST':
-        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto,tipo_de_item = tipo_de_item)
+        tipo_de_item_form = TipoDeItemForm(request.POST or None, proyecto=proyecto, tipo_de_item=tipo_de_item)
         atributos_dinamicos = construir_atributos(request)
         atributos_forms = atributo_form_handler(atributos_dinamicos)
         if tipo_de_item_form.is_valid():
             tipo_de_item = tipo_de_item_form.save(commit=False)
-
 
             all_valid = True
             # Se validan todos los forms
@@ -286,6 +281,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_tipo_de_item')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
     Vista que se encarga de confirmar la eliminacion de un tipo de item si es que ningun item es de ese tipo
@@ -294,7 +290,7 @@ def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
 
     if request.method == 'POST':
-        #pasar mensaje
+        # pasar mensaje
         if tipo_de_item.es_utilizado():
             tipo_de_item.delete()
 
