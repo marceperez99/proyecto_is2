@@ -106,6 +106,7 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     Retorna:
         - HttpResponse
     """
+    # TODO: Hugo, falta prueba unitaria de la vista
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
 
@@ -215,6 +216,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna:
         - HttpResponse
     """
+    # TODO: Hugo, falta verificar condiciones de eliminacion y prueba unitaria de la vista
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
@@ -230,6 +232,10 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_ver_historial_de_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
+    """
+    TODO: Marcelo, falta comentar
+
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -254,7 +260,7 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_relacionar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
-    # TODO comentar
+    # TODO: Luis: comentar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -362,6 +368,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna
         - HttpResponse
     """
+    # TODO: Hugo: hacer prueba unitaria
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)

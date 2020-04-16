@@ -1,29 +1,34 @@
 import datetime
-
+from http import HTTPStatus
 import pytest
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
-# Create your tests here.
-
+from django.urls import reverse
 from django.utils import timezone
-
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto, Participante
-from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
-    AtributoNumericoForm, AtributoFechaForm
-from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
-    AtributoBooleano
-from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
+from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
-from .models import Item, VersionItem
-
+from roles_de_sistema.models import RolDeSistema
+from .models import Item, VersionItem, EstadoDeItem
 
 
 @pytest.fixture
-def usuario():
+def rs_admin():
+    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol.save()
+    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
+        rol.permisos.add(pp)
+    rol.save()
+    return rol
+
+
+@pytest.fixture
+def usuario(rs_admin):
     user = User(username='user_test', email='test@admin.com')
     user.set_password('password123')
     user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
 
 
@@ -43,10 +48,10 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
-
 def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.datetime.now(tz = timezone.utc),
-                        creador=usuario)
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
+                        fecha_de_creacion=datetime.datetime.now(tz=timezone.utc),
+                        creador=usuario, gerente=usuario)
     proyecto.save()
     fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
@@ -64,7 +69,6 @@ def tipo_de_item(usuario, proyecto):
     tipo_de_item = TipoDeItem()
     tipo_de_item.nombre = "Requerimiento Funcional"
     tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
-
     tipo_de_item.prefijo = "RF"
     tipo_de_item.creador = usuario
     tipo_de_item.fase = Fase.objects.get(nombre='Analisis')
@@ -72,10 +76,11 @@ def tipo_de_item(usuario, proyecto):
     tipo_de_item.save()
     return tipo_de_item
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
-@pytest.mark.django_db
-def test_nueva_version(tipo_de_item):
-    item = Item(tipo_de_item = tipo_de_item)
+
+@pytest.fixture
+def item(tipo_de_item):
+    item = Item(tipo_de_item=tipo_de_item)
+    item.estado = EstadoDeItem.NO_APROBADO
     item.save()
     version = VersionItem()
     version.item = item
@@ -85,12 +90,114 @@ def test_nueva_version(tipo_de_item):
     version.save()
     item.version = version
     item.save()
+    return item
+
+
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
+@pytest.mark.django_db
+def test_nueva_version(item):
     item.nueva_version()
     assert item.version.version == 2, 'No fue creada una nueva versión'
 
 
-# TODO: probar metodo solicitar_aprobacion()
-# TODO: probar metodo aprobar()
-# TODO: probar vistas
-# TODO: probar get_versiones()
+@pytest.mark.django_db
+def test_solicitar_aprobacion_item(item):
+    """
+    Prueba unitaria que verifica que al llamar al metodo solicitar_aprobacion se cambie el estado del
+    item a A_Aprobar
+    """
+    item.solicitar_aprobacion()
+    assert item.estado == EstadoDeItem.A_APROBAR, 'El estado del item no cambio a A Aprobar'
+
+
+@pytest.mark.django_db
+def test_aprobar_item_solicitado(item):
+    """
+    Prueba Unitaria que verifica que al aprobar un item se cambie el estado del item a Aprobado.
+    """
+    item.solicitar_aprobacion()
+    item.aprobar()
+    assert item.estado == EstadoDeItem.APROBADO, 'El estado del item no cambio a A Aprobar'
+
+
+@pytest.mark.django_db
+def test_get_versiones(item):
+    """
+    Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
+    """
+    item.nueva_version()
+    item.nueva_version()
+    versiones = VersionItem.objects.filter(item=item)
+
+    test_versiones = list(item.get_versiones())
+
+    versiones_ordenadas = True
+    nro_version = test_versiones[0].version
+    # Se verifica que las versiones esten en orden
+    for i in range(1, len(test_versiones)):
+        if test_versiones[i].version >= nro_version:
+            versiones_ordenadas = False
+        nro_version = test_versiones[i].version
+
+    assert versiones_ordenadas and len(versiones) == len(test_versiones), 'La cantidad de versiones retornadas ' \
+                                                                          'por el metodo y las que realmente estan ' \
+                                                                          'guardadads en el sistema no coinciden'
+
+
+@pytest.mark.django_db
+def test_listar_items_view(cliente_loggeado, proyecto, item):
+    """
+    Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
+    """
+    proyecto.estado = EstadoDeProyecto.INICIADO
+    proyecto.save()
+    response = cliente_loggeado.get(reverse('listar_items', args=(proyecto.id, item.get_fase().id)))
+    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+@pytest.mark.django_db
+def test_visualizar_item(cliente_loggeado, proyecto, item):
+    """
+    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar un item.
+    """
+    proyecto.estado = EstadoDeProyecto.INICIADO
+    proyecto.save()
+    response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+@pytest.mark.django_db
+def test_ver_historial_item_view(cliente_loggeado, proyecto, item):
+    """
+    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+     de un item.
+    """
+    proyecto.estado = EstadoDeProyecto.INICIADO
+    proyecto.save()
+    response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
+    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+@pytest.mark.django_db
+def test_solicitar_aprobacion_view(cliente_loggeado, proyecto, item):
+    """
+    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+     de un item.
+    """
+    proyecto.estado = EstadoDeProyecto.INICIADO
+    proyecto.save()
+    response = cliente_loggeado.get(reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
+    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+@pytest.mark.django_db
+def test_aprobar_item_view(cliente_loggeado, proyecto, item):
+    """
+    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+     de un item.
+    """
+    proyecto.estado = EstadoDeProyecto.INICIADO
+    proyecto.save()
+    response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
