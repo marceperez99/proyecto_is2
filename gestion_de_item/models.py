@@ -126,6 +126,7 @@ class Item(models.Model):
         return False
 
     def add_padre(self, item):
+        #TODO comentar
         self.padres.add(item)
 
 
@@ -160,6 +161,20 @@ class Item(models.Model):
         else:
             return False
 
+    def eliminar_relacion(self, item):
+        #TODO comentar y hacer PU
+
+        if self.padres.filter(id=item.id).exists():
+            if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
+                self.padres.remove(item)
+                return True
+        elif self.antecesores.filter(id=item.id).exists():
+            if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
+                self.antecesores.remove(item)
+                return  True
+        else:
+            raise Exception("Los items no estan relacionados")
+        return False
 
 class VersionItem(models.Model):
     """
