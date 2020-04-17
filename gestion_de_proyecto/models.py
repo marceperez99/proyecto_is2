@@ -210,9 +210,9 @@ class Participante(models.Model):
     Modelo que representa la relacion entre un usuario del sistema y un proyecto en particular.
 
     Atributos:
-        proyecto: Proyecto \n
-        usuario: User \n
-        rol: RolDeProyecto
+        - proyecto: Proyecto \n
+        - usuario: User \n
+        - rol: RolDeProyecto
     """
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto', on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -227,8 +227,8 @@ class Participante(models.Model):
         Metodo que retorna el nombre del Rol de Proyecto que tiene asignado un participante dentro del Proyecto.
 
         Retorna:
-            string: nombre del rol de Proyecto que tiene asignado el usuario dentro del proyecto, \n
-            retorna 'Gerente de Proyecto' si el participante es el Gerente de este proyecto.
+            - string: nombre del rol de Proyecto que tiene asignado el usuario dentro del proyecto, \n
+            - retorna 'Gerente de Proyecto' si el participante es el Gerente de este proyecto.
         """
         if self.rol is not None:
             return self.rol.nombre
@@ -241,8 +241,8 @@ class Participante(models.Model):
         proyecto que el usuario tiene asignado en la fase correspondiente.
 
         Retorna:
-            dict: diccionario con la estructura.
-                { Fase: [Permission, ...] }
+            - dict: diccionario con la estructura.
+                    { Fase: [Permission, ...] }
         """
         pp_por_fase = {}
         for fase in self.proyecto.get_fases():
@@ -258,10 +258,10 @@ class Participante(models.Model):
         Metodo que asigna a un participante de un proyecto un conjunto de permisos por cada fase del proyecto.
 
         Argumentos:
-            permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
+            - permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
 
-        Reotorna:
-            Exception: si las claves del diccionario recibido no son del tipo string o del tipo Fase.
+        Retorna:
+            - Exception: si las claves del diccionario recibido no son del tipo string o del tipo Fase.
         """
         for fase in permisos_por_fase.keys():
             if isinstance(fase, str):
@@ -282,8 +282,8 @@ class Participante(models.Model):
         Metodo que asigna a un participante un rol de proyecto y un conjunto de permisos por cada fase del proyecto
 
         Argumentos:
-            rol: RolDeProyecto, rol a asignar al usuario.\n
-            permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
+            - rol: RolDeProyecto, rol a asignar al usuario.\n
+            - permisos_por_fase: Diccionario que contiene por cada fase, una lista de permisos de proyecto.
         """
         self.permisos_por_fase.clear()
         if permisos_por_fase != {}:
@@ -296,8 +296,8 @@ class Participante(models.Model):
         Metodo que verifica si el participante tiene asignado un rol de Proyecto
 
         Retorna:
-            True si el participante cuenta con un rol asignado.\n
-            False en caso contrario.
+            - True si el participante cuenta con un rol asignado.\n
+            - False en caso contrario.
         """
         assert (self.rol is None and not self.permisos_por_fase.all().exists()) or (self.rol is not None)
         return self.usuario == self.proyecto.gerente or self.rol is not None
@@ -307,11 +307,11 @@ class Participante(models.Model):
         Metodo que comprueba si el participante tiene un Permiso de Proyecto.
 
         Argumentos:
-            permiso: codename(string) del permiso de proyecto.
+            - permiso: codename(string) del permiso de proyecto.
 
         Retorna:
-            True si el usuario cuenta con el permiso de proyecto.\n
-            False en caso contrario.
+            - True si el usuario cuenta con el permiso de proyecto.\n
+            - False en caso contrario.
         """
         return self.proyecto.get_gerente().id == self.usuario.id or (self.tiene_rol() and self.rol.tiene_pp(permiso))
 
@@ -320,12 +320,12 @@ class Participante(models.Model):
         Metodo que comprueba si el participante tiene un Permiso de Proyecto dentro de una determinada fase.
 
         Argumentos:
-            fase: identificador(int) de la fase o objeto Fase.\n
-            permiso: codename(string) del permiso de proyecto.
+            - fase: identificador(int) de la fase o objeto Fase.\n
+            - permiso: codename(string) del permiso de proyecto.
 
         Retorna:
-            True si el usuario cuenta con el permiso de proyecto.\n
-            False en caso contrario.
+            - True si el usuario cuenta con el permiso de proyecto.\n
+            - False en caso contrario.
         """
         if not self.tiene_rol():
             return False
@@ -340,6 +340,14 @@ class Participante(models.Model):
             raise Exception('Tipo de objecto fase inadecuado')
 
     def get_permisos_de_proyecto_list(self):
+        """
+        Metodo que retorna una lista con los codenames de los permisos que tiene asignado un participante
+        del proyecto, este metodo solo retorna los permisos de proyecto que le permite realizar operaciones
+        dentro del proyecto, no los permisos que tiene el usuario dentro de las fases.
+
+        Retorna:
+            - list(): Lista de codenames de Permisos de Proyecto.
+        """
         if self.usuario == self.proyecto.gerente:
             permisos_de_proyecto = list(Permission.objects.all().filter(codename__startswith='pp_')
                                         .exclude(codename__startswith='pp_f'))
@@ -353,6 +361,16 @@ class Participante(models.Model):
             return [pp.codename for pp in self.rol.get_pp_por_proyecto()]
 
     def get_permisos_por_fase_list(self, fase):
+        """
+        Metodo que retorna los permisos de proyecto que tiene un participante dentro de una determinada
+        fase de un proyecto.
+
+        Argumentos:
+            - fase: Fase
+
+        Retorna:
+            - list(): Lista de codenames de Permisos de Proyecto.
+        """
         if self.usuario.id == self.proyecto.gerente.id:
             permisos_por_fase = list(Permission.objects.filter(codename__startswith='pu_f_'))
             permisos_por_fase += list(Permission.objects.filter(codename__startswith='pp_f_'))
