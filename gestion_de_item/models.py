@@ -129,22 +129,35 @@ class Item(models.Model):
         #TODO comentar
         self.padres.add(item)
 
-
     def solicitar_aprobacion(self):
         """
         Metodo que cambia el estado del Item de No Aprobado a A Aprobar.
+
+        Requiere:
+            Item debe estar en el estado NO_APROBADO
+        Lanza:
+            Exception: si el item no esta en el estado NO_APROBADO
         """
-        assert self.estado == EstadoDeItem.NO_APROBADO, 'El item debe estar en estado Creado para solicitar Aprobacion'
-        self.estado = EstadoDeItem.A_APROBAR
-        self.save()
+        if self.estado == EstadoDeItem.NO_APROBADO:
+            self.estado = EstadoDeItem.A_APROBAR
+            self.save()
+        else:
+            raise Exception(f"El item debe esta en el estado {EstadoDeItem.NO_APROBADO} para solicitar su Aprobacion")
 
     def aprobar(self):
         """
         Metodo que cambia el estado del Item de A Aprobar A Aprobado.
+
+        Requiere:
+            Item debe estar en el estado A_APROBAR
+        Lanza:
+            Exception: si el item no esta en el estado A_APROBAR
         """
-        assert self.estado == EstadoDeItem.A_APROBAR, 'El item debe estar en estado A Aprobar para ser aprobado'
-        self.estado = EstadoDeItem.APROBADO
-        self.save()
+        if self.estado == EstadoDeItem.A_APROBAR:
+            self.estado = EstadoDeItem.APROBADO
+            self.save()
+        else:
+            raise Exception(f"El item debe esta en el estado {EstadoDeItem.A_APROBAR} para solicitar su Aprobacion")
 
     def desaprobar(self):
         """
