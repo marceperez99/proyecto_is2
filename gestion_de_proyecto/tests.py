@@ -51,10 +51,21 @@ def proyecto(usuario, gerente, rol_de_proyecto):
 @pytest.mark.django_db
 @pytest.mark.parametrize('permiso,esperado', [('pp_cerrar_fase', True), ('pp_agregar_items', True)])
 def test_participante_tiene_permiso_gerente(proyecto, permiso, esperado):
+    """
+    Prueba unitaria que verifica el funcionamiento correcto del metodo tiene_pp cuando se lo invoca desde
+    del Participante Gerente del Proyecto.
+
+    Se espera:
+        Que el metodo retorne True para todos los casos.
+
+    Mensaje de Error:
+        El metodo deberia retornar True, pero retorno False
+
+    """
     gerente = proyecto.get_gerente()
     participante_gerente = Participante.objects.get(usuario=gerente)
 
-    assert participante_gerente.tiene_pp(permiso) == esperado
+    assert participante_gerente.tiene_pp(permiso) == esperado, 'El metodo deberia retornar True, pero retorno False'
 
 
 @pytest.mark.django_db
@@ -63,7 +74,22 @@ def test_participante_tiene_permiso_gerente(proyecto, permiso, esperado):
                                               ('pp_asignar_rp_a_participante', True)])
 def test_participante_tiene_permiso(usuario, proyecto, rol_de_proyecto, permiso, esperado):
     """
-    Prueba unitaria que comprueba el funcionamiento de la funcion tiene_permiso de la clase Participante.
+    Prueba unitaria parametrizada que comprueba el funcionamiento de la funcion tiene_permiso de la clase Participante.
+
+    Esta prueba comprueba con varios permisos de proyecto si el usuario tiene permisos.
+
+    Se espera:
+        Que para cada uno de los siguientes casos el metodo lance la siguiente respuesta.
+
+            - 'pp_cerrar_fase' -> False\n
+            - 'pp_agregar_items' -> False\n
+            - 'pp_agregar_participante' -> True\n
+            - 'pp_eliminar_participante' -> True\n
+            - 'pp_asignar_rp_a_participante' -> True
+
+    Mensaje de Error:
+        Se espera que la verificacion de si el participante tiene el Permiso {permiso} resulte en {esperado},
+        pero resulto {valor_obtenido}
     """
     codename_permisos = [
         'pp_agregar_participante',

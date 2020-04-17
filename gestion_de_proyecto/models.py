@@ -241,6 +241,7 @@ class Participante(models.Model):
         proyecto que el usuario tiene asignado en la fase correspondiente.
 
         Retorna:
+
             - dict: diccionario con la estructura.
                     { Fase: [Permission, ...] }
         """
