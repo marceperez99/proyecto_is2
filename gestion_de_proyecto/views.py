@@ -266,10 +266,11 @@ def iniciar_proyecto_view(request, proyecto_id):
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
-        if proyecto.iniciar():
-            proyecto.save()
-        else:
-            messages.error(request, 'No se puede iniciar el proyecto.')
+        try:
+            proyecto.iniciar()
+            messages.success(request, 'El Proyecto fue iniciado correctamente')
+        except Exception as e:
+            messages.error(request, e)
         return redirect('visualizar_proyecto', proyecto_id)
     return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
