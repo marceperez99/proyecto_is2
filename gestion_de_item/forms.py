@@ -191,7 +191,7 @@ class AtributoItemBooleanoForm(forms.Form):
         self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'checked': marcado}))
         self.fields[self.nombre].label = self.plantilla.nombre
-        self.fields[self.nombre].required = self.plantilla.requerido
+        self.fields[self.nombre].required = False
 
 
 class AtributoItemFechaForm(forms.Form):
