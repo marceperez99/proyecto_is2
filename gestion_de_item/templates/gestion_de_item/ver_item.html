@@ -93,6 +93,7 @@
                                                                 <a href="{% url 'visualizar_item' proyecto.id fase.id padre.id %}" class="btn btn-primary border-0">
                                                                     <i class="fas fa-eye"></i> Visualizar
                                                                 </a>
+                                                                <a href="{% url 'eliminar_relacion_item' proyecto.id fase.id item.id padre.id %}" class="btn btn-danger">Eliminar</a>
                                                             </td>
                                                         </tr>
                                                     {% endfor %}

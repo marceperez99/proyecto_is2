@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.contrib import messages
 
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
@@ -465,3 +466,30 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/desaprobar_item.html', contexto)
+
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_desaprobar_item')
+def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
+    #TODO comntar
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    item_relacionado = get_object_or_404(Item, id=item_relacion_id)
+
+    if request.method == 'POST':
+        if item.estado == EstadoDeItem.APROBADO:
+            try:
+                if item.eliminar_relacion(item_relacionado):
+                    messages.success(request, "La relacion se pudo eliminar correctamente")
+                else:
+                    messages.error(request, "La relacion no se pudo eliminar, pues el item dejara de ser trazale a la primera fase")
+            except Exception as e:
+                messages.error(request, e)
+
+        return redirect('visualizar_item', proyecto.id, fase.id, item.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    return render(request, 'gestion_de_item/eliminar_relacion.html', contexto)
