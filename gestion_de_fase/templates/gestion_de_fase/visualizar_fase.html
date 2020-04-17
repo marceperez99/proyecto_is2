@@ -6,6 +6,7 @@
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row">
+            {% include 'mensajes.html' %}
             <h3 class="col-12 col-md-8">{{ fase.nombre }}</h3>
             <div class="col-12 col-md-4 text-right">
                 {% if proyecto.estado == 'En Configuración' %}

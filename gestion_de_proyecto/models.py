@@ -170,17 +170,21 @@ class Proyecto(models.Model):
         Metodo de la clase proyecto, que verifica si este tiene al menos una fase, si esta la tiene
         cambia su estado de "En Configuracion" a "Iniciado"
 
-        Retorna:
-            True: si cambio a estado "Iniciado" \n
-            False: si el proyecto aun no tiene fases
+        Lanza:
+            Exception: si el el proyecto no tiene fases creadas.\n
+            Exception: si aun no se ha definido un Comite de Cambios.
         """
+        if not self.fase_set.exists():
+            raise Exception("El proyecto no cuenta con ninguna Fase creada")
         comite = Comite.objects.get(proyecto=self)
         numero_de_miembros = comite.miembros.all().count()
-        if self.fase_set.exists() and numero_de_miembros > 1 and numero_de_miembros % 2 == 1:
-            self.estado = EstadoDeProyecto.INICIADO
-            return True
-        else:
-            return False
+        if numero_de_miembros <= 1:
+            raise Exception('El Proyecto no cuenta con un Comite de Cambios definido.')
+        if numero_de_miembros % 2 == 0:
+            raise Exception('El numero de usuarios que conforman el Comite de Cambios debe ser impar.')
+
+        self.estado = EstadoDeProyecto.INICIADO
+        self.save()
 
     def eliminar_participante(self, usuario):
         """
