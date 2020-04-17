@@ -43,7 +43,20 @@
                                     <div class="col-4">Costo:</div><div class="col-8">{{ version.peso }}</div>
                                     <hr class="col-10">
                                     {% for atributo in version.get_atributos_dinamicos %}
-                                        <div class="col-4">{{ atributo.nombre }}:</div><div class="col-8">{{ atributo.valor }}</div>
+                                        <div class="col-4">{{ atributo.plantilla.nombre }}:</div><div class="col-8">
+                                            {% if atributo.valor == None %}
+                                            {% elif atributo.valor == True %}
+                                                Si
+                                             {% elif atributo.valor == False %}
+                                                No
+                                            {% else %}
+                                                {% if atributo.valor.normalize %}
+                                                    {{atributo.valor.normalize}}
+                                                {% else %}
+                                                    {{atributo.valor}}
+                                                {% endif %}
+                                        {% endif %}
+                                    </div>
                                         <hr class="col-10">
                                     {% endfor %}
                             </div>
