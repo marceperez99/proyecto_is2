@@ -8,17 +8,35 @@ import gestion_de_item
 
 
 class NuevoVersionItemForm(forms.ModelForm):
+    """
+    Form que permite la creación de un nuevo item. Solicita los atributos no dinamicos del item.
+    Es necesario especificar un padre o un sucesor para el nuevo item si es que no se encuentra en la primera fase del proyecto.
+
+
+    Campos:
+        - nombre: str, nombre del nuevo ítem.
+        - descripción: str, descripción del nuevo ítem.
+        - peso: int, peso del nuevo ítem.
+        - Antecesor/Padre: Item, padre o antecesor de este item (no requerido en la primera fase)
+    """
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
     class Meta:
         model = VersionItem
         fields = ['nombre', 'descripcion', 'peso']
 
-    def __init__(self, *args, tipo_de_item=None, item=None, **kwargs):
+    def __init__(self, *args, tipo_de_item=None, **kwargs):
+        """
+        Constructor de la clase NuevoVersionItemForm.
+        Los items candidatos para el campo Antecesor/Padre son seleccionados de la fase anterior aquellos que estan en una linea base y de la fase actual si estan aprobados o en linea base.
+
+        Argumentos:
+            - tipo_de_item: TipoDeITem, el tipo de item al quen pertenece este item.
+
+        """
         super(NuevoVersionItemForm, self).__init__(*args, **kwargs)
 
         self.tipo_de_item = tipo_de_item
-        self.item = item
         # Consigue todos los items de la fase actual o anterior.
         # LEE LA ERS
         queryset = Item.objects.filter(Q(tipo_de_item__fase=self.tipo_de_item.fase) & (
@@ -35,14 +53,36 @@ class NuevoVersionItemForm(forms.ModelForm):
 
 
 class EditarItemForm(forms.ModelForm):
+    """
+    Form que permite editar los atributos no dinamicos del item.
+
+    Campos:
+        -nombre: str, nombre del item
+        -descripción: str, descripción del item.
+        -peso: int, peso del item.
+    """
     class Meta:
         model = VersionItem
         fields = ['nombre', 'descripcion', 'peso']
 
 
 class AtributoItemArchivoForm(forms.Form):
+    """
+    Form que permite crear y editar atributos dinamicos del tipo 'Archivo'.
+
+    Campos:
+        - File
+
+    """
 
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+        """
+        Constructor del form AtributoItemArchivoForm.
+
+        Argumentos:
+            - plantilla: AtributoArchivo
+
+        """
         super(AtributoItemArchivoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -58,8 +98,25 @@ class AtributoItemArchivoForm(forms.Form):
 
 
 class AtributoItemCadenaForm(forms.Form):
+    """
+    Form que permite crear y editar atributos dinamicos del tipo 'Cadena'.
 
+    Validaciones:
+        - La longitud del texto no debe superar la especificada en la plantilla del atributo.
+
+    Campos:
+        - str
+
+    """
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+        """
+        Constructor del form AtributoItemCadenaForm.
+
+
+        Argumentos:
+            - plantilla: AtributoCadena
+        """
+
         super(AtributoItemCadenaForm, self).__init__(*args, **kwargs)
 
         self.plantilla = plantilla
@@ -69,6 +126,10 @@ class AtributoItemCadenaForm(forms.Form):
         self.fields[self.nombre].required = self.plantilla.requerido
 
     def clean(self):
+        """
+        Método que valida que la longitud de la cadena no supere la especificada en la plantilla del atributo.
+
+        """
         valor = self.cleaned_data[self.nombre]
         if len(valor) > self.plantilla.max_longitud:
             raise ValidationError('La longitud del texto supera la longitud permitida por el tipo de item')
@@ -76,8 +137,24 @@ class AtributoItemCadenaForm(forms.Form):
 
 
 class AtributoItemNumericoForm(forms.Form):
+    """
+       Form que permite crear y editar atributos dinamicos del tipo 'Numerico'.
 
+       Validaciones:
+           - La cantidad total de digitos del número no puede superar la especificada en la plantilla del atributo.
+           - La cantidad de digitos decimales no puede superar la especificada en la plantilla del atributo.
+       Campos:
+           - Decimal
+
+    """
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+        """
+        Constructor del form AtributoItemNumericoForm.
+
+        Argumentos:
+            - plantilla: AtributoNumerico
+
+        """
         super(AtributoItemNumericoForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -90,8 +167,22 @@ class AtributoItemNumericoForm(forms.Form):
 
 
 class AtributoItemBooleanoForm(forms.Form):
+    """
+    Form que permite crear y editar atributos dinamicos del tipo 'Booleano'.
 
+    Campos:
+        - boolean
+
+    """
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
+        """
+        Constructor del form AtributoItemBooleanoForm.
+
+        Argumentos:
+            - plantilla: AtributoBooleano
+
+        """
+
         marcado = False
         if 'initial' in kwargs:
             marcado = kwargs['initial']['valor_' + str(counter)]
@@ -104,8 +195,20 @@ class AtributoItemBooleanoForm(forms.Form):
 
 
 class AtributoItemFechaForm(forms.Form):
+    """
 
+    Form que permite crear y editar atributos dinamicos del tipo 'Fecha'.
+
+    Campos:
+        - Date
+    """
     def __init__(self, *args, plantilla=None, fecha=None, counter=None, **kwargs):
+        """
+        Constructor del form AtributoItemFechaForm.
+
+        Argumentos:
+            - plantilla: AtributoFecha
+        """
         print(fecha, counter)
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
