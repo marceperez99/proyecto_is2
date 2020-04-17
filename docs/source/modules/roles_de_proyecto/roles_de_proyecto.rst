@@ -26,6 +26,11 @@ Modelos
 .. automodule:: roles_de_proyecto.models
     :members:
 
+Decoradores
+============
+.. automodule:: roles_de_proyecto.decorators
+    :members:
+
 Pruebas Unitarias
 ==================
 .. automodule:: roles_de_proyecto.tests
