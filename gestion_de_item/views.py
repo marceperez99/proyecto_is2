@@ -234,8 +234,16 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     """
-    TODO: Marcelo, falta comentar
+    Vista que permite la visualizacion del Historial de Cambios de un Item.
 
+    Argumentos:
+        request: HttpRequest, petición recibida por el servidor.\n
+        proyecto_id: int, identificador único del proyecto.\n
+        fase_id: int, identificador único de la fase del proyecto.\n
+        item_id: int, identificador único del item dentro de la fase.
+
+    Retorna:
+        HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
@@ -296,27 +304,33 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """
-        Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
-        La aprobación del item deberá ser realizada por un participante del proyecto con el permiso de
-        'Aprobar Item' dentro de la fase donde se encuentra el item.
-        Argumentos:
-            - request: HttpRequest
-            - proyecto_id: int, identificador unico de un proyecto del sistema.
-            - fase_id: int, identificador unico de una fase de un proyecto.
-            - item_id: int, identificador unico del item a eliminar.
+    Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
+    La aprobación del item deberá ser realizada por un participante del proyecto con el permiso de
+    'Aprobar Item' dentro de la fase donde se encuentra el item.
 
-        Retorna:
-            - HttpResponse
-        Requiere:
-            - 'pp_f_aprobar_item': permiso de proyecto para aprobar item.
-        """
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item a eliminar.
+
+    Retorna:
+        - HttpResponse
+
+    Requiere:
+        - 'pp_f_aprobar_item': permiso de proyecto para aprobar item.
+    """
 
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     if request.method == 'POST':
-        if item.estado == EstadoDeItem.NO_APROBADO:
+        try:
             item.solicitar_aprobacion()
+            messages.success(request, 'Se ha solicitado la aprobacion del Item correctamente.')
+        except Exception as e:
+            messages.error(request, e)
+
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
@@ -330,6 +344,7 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la aprobacion de un item que ha sido puesto en el estado A Aprobar.
+
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.
@@ -344,8 +359,12 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     if request.method == 'POST':
-        if item.estado == EstadoDeItem.A_APROBAR:
+        try:
             item.aprobar()
+            messages.success(request, 'Se ha aprobado el Item correctamente.')
+        except Exception as e:
+            messages.error(request, e)
+
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
@@ -446,6 +465,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
+
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.

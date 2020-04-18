@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 
 
@@ -39,10 +40,8 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)  # TODO: Hugo: factorizar generacion de codigo del item
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
-    antecesores = models.ManyToManyField('self',related_name='antecesores_item', symmetrical=False)
-    padres = models.ManyToManyField('self',related_name='padres_item', symmetrical=False)
-
-
+    antecesores = models.ManyToManyField('self', related_name='antecesores_item', symmetrical=False)
+    padres = models.ManyToManyField('self', related_name='padres_item', symmetrical=False)
 
     # No cambiar save() o se rompe
     def nueva_version(self):
@@ -59,7 +58,7 @@ class Item(models.Model):
         """
 
         version = self.version
-        version.save(versionar = True)
+        version.save(versionar=True)
 
         for atributo in self.get_atributos_dinamicos():
             atributo.pk = None
@@ -97,12 +96,7 @@ class Item(models.Model):
         Retorna:
             list(): lista de objetos AtributoItemNumerico, AtributoItemFecha,
         """
-        atributos = list(self.version.atributoitemnumerico_set.all())
-        atributos += list(self.version.atributoitemfecha_set.all())
-        atributos += list(self.version.atributoitemcadena_set.all())
-        atributos += list(self.version.atributoitembooleano_set.all())
-        atributos += list(self.version.atributoitemarchivo_set.all())
-        return atributos
+        return self.version.get_atributos_dinamicos()
 
     def get_versiones(self):
         """
@@ -126,25 +120,38 @@ class Item(models.Model):
         return False
 
     def add_padre(self, item):
-        #TODO comentar
+        # TODO comentar
         self.padres.add(item)
-
 
     def solicitar_aprobacion(self):
         """
         Metodo que cambia el estado del Item de No Aprobado a A Aprobar.
+
+        Requiere:
+            Item debe estar en el estado NO_APROBADO
+        Lanza:
+            Exception: si el item no esta en el estado NO_APROBADO
         """
-        assert self.estado == EstadoDeItem.NO_APROBADO, 'El item debe estar en estado Creado para solicitar Aprobacion'
-        self.estado = EstadoDeItem.A_APROBAR
-        self.save()
+        if self.estado == EstadoDeItem.NO_APROBADO:
+            self.estado = EstadoDeItem.A_APROBAR
+            self.save()
+        else:
+            raise Exception(f"El item debe esta en el estado {EstadoDeItem.NO_APROBADO} para solicitar su Aprobacion")
 
     def aprobar(self):
         """
         Metodo que cambia el estado del Item de A Aprobar A Aprobado.
+
+        Requiere:
+            Item debe estar en el estado A_APROBAR
+        Lanza:
+            Exception: si el item no esta en el estado A_APROBAR
         """
-        assert self.estado == EstadoDeItem.A_APROBAR, 'El item debe estar en estado A Aprobar para ser aprobado'
-        self.estado = EstadoDeItem.APROBADO
-        self.save()
+        if self.estado == EstadoDeItem.A_APROBAR:
+            self.estado = EstadoDeItem.APROBADO
+            self.save()
+        else:
+            raise Exception(f"El item debe esta en el estado {EstadoDeItem.A_APROBAR} para solicitar su Aprobacion")
 
     def desaprobar(self):
         """
@@ -162,19 +169,22 @@ class Item(models.Model):
             return False
 
     def eliminar_relacion(self, item):
-        #TODO comentar y hacer PU
+        # TODO comentar y hacer PU
 
         if self.padres.filter(id=item.id).exists():
-            if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
+            if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
+                    self.padres.count() == 1 and self.antecesores.count() >= 1):
                 self.padres.remove(item)
                 return True
         elif self.antecesores.filter(id=item.id).exists():
-            if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
+            if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
+                    self.antecesores.count() == 1 and self.padres.count() >= 1):
                 self.antecesores.remove(item)
-                return  True
+                return True
         else:
             raise Exception("Los items no estan relacionados")
         return False
+
 
 class VersionItem(models.Model):
     """
@@ -195,14 +205,19 @@ class VersionItem(models.Model):
     version = models.IntegerField()  # TODO: Hugo: factorizar generacion de la version
     peso = models.IntegerField()
 
+    def get_atributos_dinamicos(self):
+        atributos = list(self.atributoitemnumerico_set.all())
+        atributos += list(self.atributoitemfecha_set.all())
+        atributos += list(self.atributoitemcadena_set.all())
+        atributos += list(self.atributoitembooleano_set.all())
+        atributos += list(self.atributoitemarchivo_set.all())
+        return atributos
 
     def save(self, *args, versionar=True, **kwargs):
         if versionar:
             self.pk = None
             self.version = self.item.version_item.all().count() + 1
         super(VersionItem, self).save(*args, **kwargs)
-
-
 
 
 class AtributoItemArchivo(models.Model):

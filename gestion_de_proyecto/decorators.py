@@ -10,6 +10,9 @@ def estado_proyecto(*estados):
     """
         Decorador que verifica que el proyecto se encuentre en un estado determinado.
 
+        Si el Proyecto no se encuentra en uno de los estados especificados se redirige al usuario
+        a la vista de Visualización del Proyecto.
+
         Argumentos:
             arg: lista de estados en los que puede estar el Proyecto.
     """

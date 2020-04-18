@@ -23,9 +23,24 @@ class EditarProyectoForm(forms.ModelForm):
 
 
 class NuevoParticipanteForm(forms.ModelForm):
+    """
+    Formulario utilizado para Asignar un nuevo Participante un Proyecto.
+    El formulario solicita la selección de un Usuario activo del Sistema que no esté aún dentro
+    del Proyecto.
 
+    Clase Padre:
+        forms.ModelForm.
+    """
     def __init__(self, *args, proyecto=None, **kwargs):
+        """
+        Constructor del Formulario.
 
+        Este filtra, en el campo de usuario, solo los usuarios que aun no estan en el proyecto y están
+        activos dentro del Sistema.
+
+        Argumentos:
+            proyecto:Proyecto, proyecto al cual se agregará el participante
+        """
         super(NuevoParticipanteForm, self).__init__(*args, **kwargs)
         usuarios = []
         if proyecto is not None:
@@ -48,8 +63,27 @@ class NuevoParticipanteForm(forms.ModelForm):
 
 
 class SeleccionarPermisosForm(forms.Form):
+    """
+    Formulario utilizado para seleccionar los permisos de proyecto que se asignarán a un usuario por cada
+    fase del Proyecto.
 
+    El formulario solicita al usuario seleccionar, por cada fase, los permisos que se darán al nuevo participante.
+
+    Clase Padre:
+        forms.Form
+    """
     def __init__(self, usuario, proyecto, rol, *args, **kwargs):
+        """
+        Constructor del formulario.
+
+        Se agrega, por cada fase, un campo de selección multiple con los permisos de proyecto a seleccionar
+        para asignarlos al usuario.
+
+        Argumentos:
+            usuario: User, nuevo participante del Proyecto.\n
+            proyecto: Proyecto, proyecto al cual se agregará al usuario.\n
+            rol: RolDeProyecto, rol el cual se asignará al nuevo Participante.\n
+        """
         super(SeleccionarPermisosForm, self).__init__(*args, **kwargs)
         for fase in proyecto.get_fases():
             self.fields[f'f_{fase.id}'] = forms.MultipleChoiceField(
