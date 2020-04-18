@@ -4,16 +4,13 @@ from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
-
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante
 from roles_de_sistema.models import RolDeSistema
 from .models import RolDeProyecto
-from datetime import datetime
 
 
 # FIXTURES
-
 @pytest.fixture
 def rs_admin():
     rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
@@ -75,23 +72,36 @@ def proyecto(usuario, gerente, rol_de_proyecto):
     participante.save()
     return proyecto
 
+
 # Pruebas Unitarias
 @pytest.mark.django_db
 def test_vista_crear_rol_usuario_loggeado(usuario, cliente_loggeado, rs_admin):
     """
-    Test encargado de comprobar que no ocurra nigun error al cargar la pagina con un usuario que ha iniciado sesion
+    Test encargado de comprobar que no ocurra nigun error al cargar la pagina con un usuario que ha iniciado sesion.
+
+    Se espera:
+        Status code de la respuesta del servidor 300.
+
+    Mensaje de Error:
+        No se obtuvo la pagina correctamente. Se esperaba un status code 300.
     """
     usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
     response = cliente_loggeado.get(reverse('nuevo_rol_de_proyecto'))
 
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+    assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. Se esperaba un status code 300'
 
 
 @pytest.mark.django_db
 def test_roldeproyecto_lista_de_permisos():
     """
     Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al tratar de obtener los permisos de un
-    rol creado retorne una lista con esos
+    rol creado retorne una lista con esos.
+
+    Se espera:
+        Que la lista de permisos obtenida por get_permisos sea la misma que se asignó al rol.
+
+    Mensaje de Error:
+        Los permisos asignados al rol no fueron guardados correctamente.
     """
     permisos = list(Permission.objects.all())
     rol = RolDeProyecto(nombre='rol1', descripcion="descripcion")
@@ -107,20 +117,34 @@ def test_roldeproyecto_lista_de_permisos():
 def test_roldeproyecto_lista_de_permisos_vacia():
     """
     Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al tratar de obtener los permisos de un
-    rol creado sin permisos retorne una lista vacia
+    rol creado sin permisos retorne una lista vacia.
+
+    Se espera:
+        Que la lista de permisos obtenidas por get_permisos esté vacía.
+
+    Mensaje de Error:
+        Los permisos asignados al rol no fueron guardados correctamente, se esperaba obtener una lista vacía.
     """
     rol = RolDeProyecto(nombre='rol1', descripcion="descripcion")
     rol.save()
 
     permisos_obtenidos = rol.get_permisos()
 
-    assert permisos_obtenidos == [], "Los permisos asignados al rol no fueron guardados correctamente, "
+    assert permisos_obtenidos == [], "Los permisos asignados al rol no fueron guardados correctamente, se esperaba" \
+                                     " obtener una lista vacía"
 
 
 @pytest.mark.django_db
 def test_asignar_rol_de_proyecto(proyecto, usuario, rol_de_proyecto):
     """
     Prueba que verifica la asignacion correcta de un rol de proyecto a un usuario.
+
+    Se espera:
+        Que el usuario tenga un rol asignado y tenga los permisos de proyecto asignados.
+
+    Mensaje de Error:
+        El rol no ha sido asignado al participante o no se han asignado los permisos correspondientes
+        al participante
     """
     permisos = list(rol_de_proyecto.permisos.all())
     fases = list(Fase.objects.all().filter(proyecto=proyecto))
@@ -139,12 +163,18 @@ def test_get_participantes(proyecto):
     """
     Prueba unitaria encargada de verificar que la funcion get_participantes retorne correctamente los participantes
     de un proyecto.
+
+    Se espera:
+        Que get_participantes retorne todos los participantes del Proyecto.
+
+    Mensaje de error:
+        No se retornaron correctamente los participantes del Proyecto
     """
 
     participantes = list(Participante.objects.all().filter(proyecto=proyecto))
     gerente = proyecto.participante_set.get(usuario=proyecto.gerente)
     assert list(proyecto.get_participantes()) == [gerente], 'No se retornaron correctamente los participantes del' \
-                                                                'Proyecto'
+                                                            'Proyecto'
 
 
 @pytest.mark.django_db
@@ -152,6 +182,12 @@ def test_tiene_permiso_de_proyecto(proyecto, usuario, rol_de_proyecto):
     """
     Test que verifica que el metodo tiene_permiso_de_proyecto de la clase Proyecto retorne verdadero si el
     usuario no cuenta con el permiso dado.
+
+    Se espera:
+        Que tiene_permiso_de_proyecto retorne True.
+
+    Mensaje de Error:
+        El metodo indica que el usuario no tiene el permiso de proyecto pero el usuario si tiene asignado el permiso.
     """
     fases = proyecto.fase_set.all()
     permisos = list(rol_de_proyecto.get_pp_por_fase())
@@ -159,7 +195,8 @@ def test_tiene_permiso_de_proyecto(proyecto, usuario, rol_de_proyecto):
     proyecto.asignar_rol_de_proyecto(usuario, rol_de_proyecto, permisos_por_fase)
 
     condicion = proyecto.tiene_permiso_de_proyecto(usuario, 'pp_agregar_participante')
-    assert condicion is True, 'El usuario cuenta con el permiso de proyecto pero no se encuentra este'
+    assert condicion is True, 'El metodo indica que el usuario no tiene el permiso de proyecto pero el usuario si ' \
+                              'tiene asignado el permiso'
 
 
 @pytest.mark.django_db
@@ -167,6 +204,12 @@ def test_tiene_no_permiso_de_proyecto(proyecto, usuario, rol_de_proyecto):
     """
     Test que verifica que el metodo tiene_permiso_de_proyecto de la clase Proyecto retorne falso si el
     usuario no cuenta con el permiso dado.
+
+    Se espera:
+        Que tiene_permiso_de_proyecto retorne False.
+
+    Mensaje de Error:
+        El metodo indica que el usuario tiene el permiso de proyecto pero el usuario no tiene asignado el permiso.
     """
     fases = Fase.objects.all().filter(proyecto=proyecto)
     permisos = list(rol_de_proyecto.get_pp_por_fase())
@@ -174,4 +217,5 @@ def test_tiene_no_permiso_de_proyecto(proyecto, usuario, rol_de_proyecto):
     proyecto.asignar_rol_de_proyecto(usuario, rol_de_proyecto, permisos_por_fase)
 
     condicion = proyecto.tiene_permiso_de_proyecto(usuario, 'pp_permiso_no_existente')
-    assert condicion is False, 'El usuario cuenta con el permiso de proyecto pero no se encuentra este'
+    assert condicion is False, 'El metodo indica que el usuario tiene el permiso de proyecto pero el usuario no ' \
+                               'tiene asignado el permiso'
