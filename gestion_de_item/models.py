@@ -116,10 +116,19 @@ class Item(models.Model):
 
         Retorna: True or False (Eliminado o no)
         """
+        mensaje_error = []
+        #mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
         if self.estado != EstadoDeItem.NO_APROBADO:
-            raise Exception('Estado_Incorrecto')
-        if self.get_hijos() is not None and self.get_sucesores() is not None:
-            raise Exception('Hijo_Sucesor')
+            mensaje_error.append('El item se encuentra en el estado ' + self.estado)
+            raise Exception(mensaje_error)
+        hijos = self.get_hijos()
+        sucesores = self.get_sucesores()
+        if hijos.count() != 0 or sucesores.count() != 0:
+            for hijo in hijos:
+                mensaje_error.append('El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+            for sucesor in sucesores:
+                mensaje_error.append(f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
+            raise Exception(mensaje_error)
 
         self.estado = EstadoDeItem.ELIMINADO
         self.save()

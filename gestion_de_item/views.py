@@ -221,8 +221,19 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        item.eliminar()
+        try:
+            item.eliminar()
+        except Exception as e:
+            mensaje = 'El item no puede ser eliminado debido a las siguientes razones:<br>'
 
+            errores = e.args[0]
+            print(e)
+            print(errores)
+            for error in errores:
+               mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' +  mensaje + '</ul>'
+            messages.error(request,mensaje)
+            return redirect('visualizar_item',proyecto_id,fase_id,item_id)
         return redirect('listar_items', proyecto_id, fase_id)
 
     contexto = {'item': item.version.nombre}
