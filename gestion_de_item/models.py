@@ -86,6 +86,9 @@ class Item(models.Model):
     def get_hijos(self):
         return self.padres_item.all()
 
+    def get_sucesores(self):
+        return self.antecesores_item.all()
+
     def get_numero_version(self):
         return self.version.version
 
@@ -113,11 +116,13 @@ class Item(models.Model):
 
         Retorna: True or False (Eliminado o no)
         """
-        if self.estado == EstadoDeItem.NO_APROBADO:
-            self.estado = EstadoDeItem.ELIMINADO
-            self.save()
-            return True
-        return False
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            raise Exception('Estado_Incorrecto')
+        if self.get_hijos() is not None and self.get_sucesores() is not None:
+            raise Exception('Hijo_Sucesor')
+
+        self.estado = EstadoDeItem.ELIMINADO
+        self.save()
 
     def add_padre(self, item):
         # TODO comentar
