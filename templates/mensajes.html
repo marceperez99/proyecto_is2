@@ -2,7 +2,7 @@
     {% for message in messages %}
         {% if message.tags == 'error' %}
             <div class="alert alert-danger alert-dismissible fade show col-12">
-                {{ message }}
+                {{ message | safe}}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

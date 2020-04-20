@@ -86,6 +86,9 @@ class Item(models.Model):
     def get_hijos(self):
         return self.padres_item.all()
 
+    def get_sucesores(self):
+        return self.antecesores_item.all()
+
     def get_numero_version(self):
         return self.version.version
 
@@ -113,11 +116,22 @@ class Item(models.Model):
 
         Retorna: True or False (Eliminado o no)
         """
-        if self.estado == EstadoDeItem.NO_APROBADO:
-            self.estado = EstadoDeItem.ELIMINADO
-            self.save()
-            return True
-        return False
+        mensaje_error = []
+        #mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            mensaje_error.append('El item se encuentra en el estado ' + self.estado)
+            raise Exception(mensaje_error)
+        hijos = self.get_hijos()
+        sucesores = self.get_sucesores()
+        if hijos.count() != 0 or sucesores.count() != 0:
+            for hijo in hijos:
+                mensaje_error.append('El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+            for sucesor in sucesores:
+                mensaje_error.append(f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
+            raise Exception(mensaje_error)
+
+        self.estado = EstadoDeItem.ELIMINADO
+        self.save()
 
     def add_padre(self, item):
         # TODO comentar

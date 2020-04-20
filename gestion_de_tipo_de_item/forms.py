@@ -71,4 +71,4 @@ class AtributoBooleanoForm(forms.ModelForm):
 
     class Meta:
         model = AtributoBooleano
-        fields = ['nombre', 'requerido']
+        fields = ['nombre']
