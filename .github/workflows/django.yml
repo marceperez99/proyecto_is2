@@ -39,10 +39,7 @@ jobs:
     - name: Install Dependencies
       run: |
         pipenv install --dev
-    
-    - uses: harmon758/postgresql-action@v1
-      with:
-        postgresql version: '11'
+ 
     - name: Run migrations
       run: python manage.py migrate --settings=proyecto_is2.settings.dev_settings
     - name: Run Tests with pytest
