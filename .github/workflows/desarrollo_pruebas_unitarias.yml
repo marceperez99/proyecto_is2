@@ -2,9 +2,9 @@ name: Desarrollo CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ Desarrollo ]
   pull_request:
-    branches: [ master ]
+    branches: [ Desarrollo ]
 
 jobs:
   build:
