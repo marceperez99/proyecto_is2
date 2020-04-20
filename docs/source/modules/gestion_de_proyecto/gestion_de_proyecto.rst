@@ -22,6 +22,11 @@ Modelos
 .. automodule:: gestion_de_proyecto.models
     :members:
 
+Decoradores
+============
+.. automodule:: gestion_de_proyecto.decorators
+    :members:
+
 Pruebas Unitarias
 ==================
 .. automodule:: gestion_de_proyecto.tests

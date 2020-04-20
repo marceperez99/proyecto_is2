@@ -7,14 +7,7 @@
    
     <div class="container mt-3">
         <div class="row">
-             {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                        <div class="alert alert-danger col-12">
-                            {{ message }}</div>
-                {% endif %}
-                {% endfor %}
-        {% endif %}
+            {% include 'mensajes.html' %}
             <h3 class="col-auto">{{ proyecto.nombre }}</h3>
             <div class="ml-auto">
                 {% if proyecto.estado == 'En Configuración' %}

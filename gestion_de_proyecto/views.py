@@ -266,10 +266,11 @@ def iniciar_proyecto_view(request, proyecto_id):
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
-        if proyecto.iniciar():
-            proyecto.save()
-        else:
-            messages.error(request, 'No se puede iniciar el proyecto.')
+        try:
+            proyecto.iniciar()
+            messages.success(request, 'El Proyecto fue iniciado correctamente')
+        except Exception as e:
+            messages.error(request, e)
         return redirect('visualizar_proyecto', proyecto_id)
     return render(request, 'gestion_de_proyecto/iniciar_proyecto.html', {'proyecto': proyecto})
 
@@ -342,7 +343,13 @@ def nuevo_participante_view(request, proyecto_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def asignar_rol_de_proyecto_view(request, proyecto_id, participante_id):
     """
-    Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto
+    Vista que permite la asignacion de un nuevo Rol de Proyecto a un participante del proyecto.
+
+    Argumentos:
+        request: HttpRequest, peticion recibida por el servidor.\n
+        proyecto_id: int, identificador único del proyecto.\n
+        participante_id: int, identificador del participante del proyecto.
+
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     participante = get_object_or_404(proyecto.participante_set, id=participante_id)
@@ -417,16 +424,29 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
 
 
 @login_required
-@permission_required('roles_de_sistema.ps_ver_proyecto', login_url='sin_permiso')
 def info_proyecto_view(request, proyecto_id):
     """
-    Metodo que muestra una pantalla de visualizacion de la informacion en general de un proyecto del sistema.\n
-    Retorna:
-        HttpResponse: respuesta HTTP a la solicitud del usuario.
-    """
+    Metodo que muestra una pantalla de visualizacion de la información en general de un proyecto del sistema.\n
+    Esta vista es accesible por los participantes del proyecto y por los usuarios que tengan el Permiso de Sistema
+    ps_ver_proyecto.
 
+    Si el usuario no es participante del proyecto y no tiene el permiso de ver la información de los Proyectos
+    del Sistema se lo redigire a la vista donde se le indica que no tiene permisos.
+
+    Argumentos:
+        - request: HttpRequest, petición recibida por el servidor.\n
+        - proyecto_id: identificador único del proyecto.
+
+    Retorna:
+        - HttpResponse
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     participante = proyecto.get_participante(request.user)
+
+    if not request.user.has_perm('roles_de_sistema.ps_ver_proyecto') and participante is None:
+        # El usuario no es participante ni tiene permisos para ver la informacion de proyecto se lo redirige
+        return redirect('sin_permiso')
+
     contexto = {'user': request.user, 'proyecto': proyecto,
                 'participante': participante,
                 'breadcrumb': {'pagina_actual': 'Informacion del Proyecto',

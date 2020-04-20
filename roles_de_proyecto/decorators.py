@@ -9,9 +9,12 @@ from gestion_de_proyecto.models import Participante, Proyecto
 
 def pp_requerido(permiso_de_proyecto):
     """
-    Decorador de vista que hace que la vista requiera un permiso de proyecto
-    Args:
+    Decorador de vista que hace que la vista requiera un permiso de proyecto.
 
+    Si el usuario no tiene el permiso dentro del proyecto se lo redirige a una vista
+    donde se le indica que no tiene los Permisos de Proyecto.
+
+    Argumentos:
         permiso_de_proyecto: permiso que es necesario para que la vista se ejecute
     """
 
@@ -38,8 +41,12 @@ def pp_requerido(permiso_de_proyecto):
 def pp_requerido_en_fase(permiso_de_proyecto):
     """
     Decorador de vista que hace que la vista requiera un permiso de proyecto dentro de una fase de un
-    proyecto
-    Args:
+    proyecto.
+
+    Si el usuario no tiene el permiso dentro del proyecto se lo redirige a una vista
+    donde se le indica que no tiene los Permisos de Proyecto dentro de la Fase.
+
+    Argumentos:
         permiso_de_proyecto: permiso que es necesario para que la vista se ejecute
     """
 
