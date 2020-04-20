@@ -120,7 +120,12 @@ class Item(models.Model):
         return False
 
     def add_padre(self, item):
-        # TODO comentar
+        """
+        Metodo del model Item que anhade a un item pasado como parametro a la
+        lista que representa los padres del item
+        Parametros:\n
+            -item: int, identificador unico del item a la cual se anhade a la liste de padres
+        """
         self.padres.add(item)
 
     def solicitar_aprobacion(self):
@@ -169,7 +174,16 @@ class Item(models.Model):
             return False
 
     def eliminar_relacion(self, item):
-        # TODO comentar y hacer PU
+        """
+        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes
+        Parametros:\n
+            -item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir,
+            de la lista de padres
+        Retorna:\n
+            -True: Si se puede eliminar la relacion entre los dos item si que haya inconsistencia
+            -False: Cuando la relacion no se puede eliminar, pues hay al menos un item que no es trazable
+                    a la primera fase
+        """
 
         if self.padres.filter(id=item.id).exists():
             if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
