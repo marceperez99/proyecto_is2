@@ -1,11 +1,8 @@
 import datetime
-
 import pytest
 from django.contrib.auth.models import User, Permission
 from django.test import Client
-# Create your tests here.
 from django.utils import timezone
-
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante
 from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
@@ -14,7 +11,6 @@ from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, Atributo
     AtributoBooleano
 from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
-
 
 @pytest.fixture
 def usuario():
@@ -40,7 +36,6 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
-
 def proyecto(usuario, rol_de_proyecto):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.datetime.now(tz = timezone.utc),
                         creador=usuario)
@@ -114,46 +109,62 @@ def atributos(tipo_de_item):
     atributos.append(anum)
     return atributos
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
+
 @pytest.mark.django_db
-def test_recolectar_atributos(atributos, tipo_de_item):
-    """
-    Prueba unitaria que verifica que todos los atributos relacionados a un tipo de item sean recolectados
-    y cargados en la lista que retorna la función utilitaria recolectar_atributos()
+class TestModeloTipoDeItem:
+    # TODO: Marcos test es_utilizado
+    pass
 
-    Resultado esperado:
-        Todos los atributos son devueltos por la función.
-
-    Mensaje de Error:
-        La función recolectar_atributos() no consigue todos los atributos del tipo de item.
-
-    """
-    lista_atributos = recolectar_atributos(tipo_de_item)
-    assert len(lista_atributos) == len(
-        atributos), "La función recolectar_atributos no consigue todos los atributos del tipo de item."
 
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
-def test_atributo_form_hanldler(atributos, tipo_de_item):
-    """
-    Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo
-    del tipo de item.
+class TestUtilsTiposDeItem:
+    def test_recolectar_atributos(self, atributos, tipo_de_item):
+        """
+        Prueba unitaria que verifica que todos los atributos relacionados a un tipo de item sean recolectados
+        y cargados en la lista que retorna la función utilitaria recolectar_atributos()
 
-    Resultado esperado:
-        Una lista con un form adecuado para cada atributo del tipo de item.
+        Resultado esperado:
+            Todos los atributos son devueltos por la función.
 
-    Mensaje de error:
-        Los forms construidos no son adecuados para los atributos existentes.
-    """
-    lista_atributos = recolectar_atributos(tipo_de_item)
-    lista_forms = atributo_form_handler(lista_atributos)
-    forms_adecuados = True
-    for atributo, form in zip(lista_atributos, lista_forms):
-        tipo = atributo['tipo']
-        forms_adecuados = forms_adecuados and ((tipo == 'cadena' and type(form) == AtributoCadenaForm) or (
-                tipo == 'archivo' and type(form) == AtributoArchivoForm) or (tipo == 'numerico' and type(
-            form) == AtributoNumericoForm) or (tipo == 'booleano' and type(form) == AtributoBooleanoForm) or (
-                                                       tipo == 'fecha' and type(form) == AtributoFechaForm))
+        Mensaje de Error:
+            La función recolectar_atributos() no consigue todos los atributos del tipo de item.
 
-    assert len(lista_atributos) == len(
-        lista_forms) and forms_adecuados, "La función atributo_form_handler no construye forms adecuados para los atributos"
+        """
+        lista_atributos = recolectar_atributos(tipo_de_item)
+        assert len(lista_atributos) == len(
+            atributos), "La función recolectar_atributos no consigue todos los atributos del tipo de item."
+
+    def test_atributo_form_hanldler(self, atributos, tipo_de_item):
+        """
+        Prueba unitaria que verifica que la función atributo_form_handler construya forms adecuados para cada atributo
+        del tipo de item.
+
+        Resultado esperado:
+            Una lista con un form adecuado para cada atributo del tipo de item.
+
+        Mensaje de error:
+            Los forms construidos no son adecuados para los atributos existentes.
+        """
+        lista_atributos = recolectar_atributos(tipo_de_item)
+        lista_forms = atributo_form_handler(lista_atributos)
+        forms_adecuados = True
+        for atributo, form in zip(lista_atributos, lista_forms):
+            tipo = atributo['tipo']
+            forms_adecuados = forms_adecuados and ((tipo == 'cadena' and type(form) == AtributoCadenaForm) or (
+                    tipo == 'archivo' and type(form) == AtributoArchivoForm) or (tipo == 'numerico' and type(
+                form) == AtributoNumericoForm) or (tipo == 'booleano' and type(form) == AtributoBooleanoForm) or (
+                                                           tipo == 'fecha' and type(form) == AtributoFechaForm))
+
+        assert len(lista_atributos) == len(
+            lista_forms) and forms_adecuados, "La función atributo_form_handler no construye forms adecuados para los atributos"
+
+
+class TestVistasTipoDeItem:
+    # TODO: Hugo test tipo_de_item_view
+    # TODO: Hugo test listar_tipo_de_item_view
+    # TODO: Hugo test nuevo_tipo_de_item_view
+    # TODO: Hugo test importar_tipo_de_item_view
+    # TODO: Luis test editar_tipo_de_item_view
+    # TODO: Marcos test eliminar_tipo_de_item_view
+    pass

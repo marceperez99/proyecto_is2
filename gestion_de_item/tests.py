@@ -95,118 +95,123 @@ def item(tipo_de_item):
 
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
-def test_nueva_version(item):
-    item.nueva_version()
-    assert item.version.version == 2, 'No fue creada una nueva versión'
+class TestModelosItem:
+    def test_nueva_version(self, item):
+        item.nueva_version()
+        assert item.version.version == 2, 'No fue creada una nueva versión'
+
+    @pytest.mark.django_db
+    def test_solicitar_aprobacion_item(self, item):
+        """
+        Prueba unitaria que verifica que al llamar al metodo solicitar_aprobacion se cambie el estado del
+        item a A_Aprobar
+        """
+        item.solicitar_aprobacion()
+        assert item.estado == EstadoDeItem.A_APROBAR, 'El estado del item no cambio a A Aprobar'
+
+    @pytest.mark.django_db
+    def test_aprobar_item_solicitado(self, item):
+        """
+        Prueba Unitaria que verifica que al aprobar un item se cambie el estado del item a Aprobado.
+        """
+        item.solicitar_aprobacion()
+        item.aprobar()
+        assert item.estado == EstadoDeItem.APROBADO, 'El estado del item no cambio a A Aprobar'
+
+    @pytest.mark.django_db
+    def test_get_versiones(self, item):
+        """
+        Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
+        """
+        item.nueva_version()
+        item.nueva_version()
+        versiones = VersionItem.objects.filter(item=item)
+
+        test_versiones = list(item.get_versiones())
+
+        versiones_ordenadas = True
+        nro_version = test_versiones[0].version
+        # Se verifica que las versiones esten en orden
+        for i in range(1, len(test_versiones)):
+            if test_versiones[i].version >= nro_version:
+                versiones_ordenadas = False
+            nro_version = test_versiones[i].version
+
+        assert versiones_ordenadas and len(versiones) == len(test_versiones), 'La cantidad de versiones retornadas ' \
+                                                                              'por el metodo y las que realmente estan ' \
+                                                                              'guardadads en el sistema no coinciden'
+
+    def test_desaprobar_item(self, item):
+        """
+        Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
+        """
+        item.estado = EstadoDeItem.APROBADO
+        item.desaprobar()
+        assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
+
+    pass
 
 
 @pytest.mark.django_db
-def test_solicitar_aprobacion_item(item):
-    """
-    Prueba unitaria que verifica que al llamar al metodo solicitar_aprobacion se cambie el estado del
-    item a A_Aprobar
-    """
-    item.solicitar_aprobacion()
-    assert item.estado == EstadoDeItem.A_APROBAR, 'El estado del item no cambio a A Aprobar'
+class TestVistasItem:
 
+    def test_listar_items_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('listar_items', args=(proyecto.id, item.get_fase().id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-@pytest.mark.django_db
-def test_aprobar_item_solicitado(item):
-    """
-    Prueba Unitaria que verifica que al aprobar un item se cambie el estado del item a Aprobado.
-    """
-    item.solicitar_aprobacion()
-    item.aprobar()
-    assert item.estado == EstadoDeItem.APROBADO, 'El estado del item no cambio a A Aprobar'
+    def test_visualizar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar un item.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+    # TODO: Hugo: test_nuevo_item_view
 
-@pytest.mark.django_db
-def test_get_versiones(item):
-    """
-    Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
-    """
-    item.nueva_version()
-    item.nueva_version()
-    versiones = VersionItem.objects.filter(item=item)
+    # TODO: Hugo test_eliminar_item_view
 
-    test_versiones = list(item.get_versiones())
+    def test_ver_historial_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    versiones_ordenadas = True
-    nro_version = test_versiones[0].version
-    # Se verifica que las versiones esten en orden
-    for i in range(1, len(test_versiones)):
-        if test_versiones[i].version >= nro_version:
-            versiones_ordenadas = False
-        nro_version = test_versiones[i].version
+    # TODO: Luis test_relacionar_item_view
 
-    assert versiones_ordenadas and len(versiones) == len(test_versiones), 'La cantidad de versiones retornadas ' \
-                                                                          'por el metodo y las que realmente estan ' \
-                                                                          'guardadads en el sistema no coinciden'
+    def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(
+            reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+    def test_aprobar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-@pytest.mark.django_db
-def test_listar_items_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('listar_items', args=(proyecto.id, item.get_fase().id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+    # TODO: Hugo test_editar_item_view
 
+    # TODO: Luis test_desaprobar_item_view
 
-@pytest.mark.django_db
-def test_visualizar_item(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
-
-@pytest.mark.django_db
-def test_ver_historial_item_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
-
-@pytest.mark.django_db
-def test_solicitar_aprobacion_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
-
-@pytest.mark.django_db
-def test_aprobar_item_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
-
-@pytest.mark.django_db
-def test_desaprobar_item(item):
-    """
-    Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
-    """
-    item.estado = EstadoDeItem.APROBADO
-    item.desaprobar()
-    assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
+    # TODO: test_eliminar_relacion_view
