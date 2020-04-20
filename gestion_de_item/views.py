@@ -280,7 +280,20 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_relacionar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
-    # TODO: Luis: comentar
+    """
+    Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
+    fases adyacentes (antecesor-sucesor), de acuerdo a la opcion que elija el usuario se mostraran
+    los item aprobados de la misma fase o de la fase adyacente para ser relacionados
+    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados, de esa fase o de la adyacente \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion, verifica si es valido y la guarda \n
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item.
+    Retorna
+        - request: HttpRequest
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -504,7 +517,21 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
-    #TODO comntar
+    """
+    Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
+    fases adyacentes (antecesor-sucesor).
+    Si el metodo Http con el que se realizo la peticion fue GET, le pide al usuario que confirme la eliminacion de la ralacion\n
+    Si el metodo Http con el que se realizo la peticion fue POST, se verifica que todos los item sean trazables a la primera fase
+    antes de eliminar la realcion, se muestra un mensaje si no se puede eliminar la relacion\n
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item.
+        -item_relacion_id: int, identificador unico del item
+    Retorna
+        - request: HttpRequest
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
