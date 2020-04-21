@@ -142,6 +142,15 @@ class Item(models.Model):
         """
         self.padres.add(item)
 
+    def add_antecesor(self, item):
+        """
+        Metodo del model Item que anhade a un item pasado como parametro a la
+        lista que representa los antecesores del item
+        Parametros:\n
+            -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
+        """
+        self.antecesores.add(item)
+
     def solicitar_aprobacion(self):
         """
         Metodo que cambia el estado del Item de No Aprobado a A Aprobar.
@@ -185,6 +194,13 @@ class Item(models.Model):
             self.save()
             return True
         else:
+            mensaje_error = []
+            hijos = self.get_hijos()
+            for hijo in hijos:
+                mensaje_error.append(
+                    'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+
+            raise Exception(mensaje_error)
             return False
 
     def eliminar_relacion(self, item):
