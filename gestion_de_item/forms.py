@@ -61,6 +61,7 @@ class EditarItemForm(forms.ModelForm):
         -descripción: str, descripción del item.
         -peso: int, peso del item.
     """
+
     class Meta:
         model = VersionItem
         fields = ['nombre', 'descripcion', 'peso']
@@ -108,6 +109,7 @@ class AtributoItemCadenaForm(forms.Form):
         - str
 
     """
+
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         """
         Constructor del form AtributoItemCadenaForm.
@@ -147,6 +149,7 @@ class AtributoItemNumericoForm(forms.Form):
            - Decimal
 
     """
+
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         """
         Constructor del form AtributoItemNumericoForm.
@@ -174,6 +177,7 @@ class AtributoItemBooleanoForm(forms.Form):
         - boolean
 
     """
+
     def __init__(self, *args, plantilla=None, counter=None, **kwargs):
         """
         Constructor del form AtributoItemBooleanoForm.
@@ -202,6 +206,7 @@ class AtributoItemFechaForm(forms.Form):
     Campos:
         - Date
     """
+
     def __init__(self, *args, plantilla=None, fecha=None, counter=None, **kwargs):
         """
         Constructor del form AtributoItemFechaForm.
@@ -233,3 +238,20 @@ class RelacionPadreHijoForm(forms.Form):
             raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
         else:
             return padre
+
+
+class RelacionAntecesorSucesorForm(forms.Form):
+
+    def __init__(self, *args, item=None, **kwargs):
+        super(RelacionAntecesorSucesorForm, self).__init__(*args, **kwargs)
+        self.fields['antecesor'] = forms.ModelChoiceField(
+            queryset=item.get_fase().fase_anterior.get_item_estado(EstadoDeItem.EN_LINEA_BASE))
+        self.item = item
+
+    #    def clean_antecesor(self):
+     #   antecesor = self.cleaned_data['antecesor']
+      #  sucesor = self.item
+       # if gestion_de_item.utils.hay_ciclo(antecesor, sucesor):
+        #    raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
+       # else:
+         #   return antecesor

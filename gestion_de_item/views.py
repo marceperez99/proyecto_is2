@@ -489,12 +489,13 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
-
+    Si no es porsible cambiar el estado a No Aprobado, se muestra una lista de las razones por las
+    cuales no se puede cambiar el estado.\n
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.
         - fase_id: int, identificador unico de una fase de un proyecto.
-        - item_id: int, identificador unico del item a eliminar.
+        - item_id: int, identificador unico del item a desaprobar.
 
     Retorna:
         - HttpResponse
@@ -503,9 +504,20 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+
     if request.method == 'POST':
         if item.estado == EstadoDeItem.APROBADO:
-            item.desaprobar()
+            try:
+                item.desaprobar()
+                messages.success(request, "El item se desaprobo correctamente")
+            except Exception as e:
+                mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
+                errores = e.args[0]
+                for error in errores:
+                    mensaje = mensaje + '<li>' + error + '</li><br>'
+                mensaje = '<ul>' + mensaje + '</ul>'
+                messages.error(request, mensaje)
+
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
