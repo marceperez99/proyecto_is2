@@ -31,6 +31,9 @@ def usuario(rs_admin):
 
 
 class TestModeloUsuario:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo Usuario.
+    """
     # TODO: Marcos test asignar_rol_a_usuario
     # TODO: Marcos test desasignar_rol_a_usuario
     # TODO: Marcos test get_rol_de_sistema
@@ -42,6 +45,9 @@ class TestModeloUsuario:
 
 @pytest.mark.django_db
 class TestVistasUsuarios:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
+    """
     @fixture
     def admin_loggeado(self, usuario, rs_admin):
 

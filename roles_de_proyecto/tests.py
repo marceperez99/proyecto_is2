@@ -71,7 +71,9 @@ def proyecto(usuario, gerente, rol_de_proyecto):
 # Pruebas Unitarias
 @pytest.mark.django_db
 class TestModeloRolDeProyecto:
-    # TODO: asignar_permisos
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo RolDeProyecto.
+    """
     def test_roldeproyecto_lista_de_permisos(self):
         """
         Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al tratar de obtener los permisos de un
@@ -121,6 +123,9 @@ class TestModeloRolDeProyecto:
 
 @pytest.mark.django_db
 class TestVistasRolDeProyecto:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a los Roles de Proyecto.
+    """
     @pytest.fixture
     def cliente_loggeado(self, usuario):
         client = Client()

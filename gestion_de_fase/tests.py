@@ -6,7 +6,10 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
+from gestion_de_item.models import Item, VersionItem, EstadoDeItem
+from gestion_de_item.tests import tipo_de_item
 from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 
@@ -29,11 +32,13 @@ def usuario(rs_admin):
     user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
 
+
 @pytest.fixture
 def cliente_loggeado(usuario):
     client = Client()
     client.login(username='user_test', password='password123')
     return client
+
 
 @pytest.fixture
 def rol_de_proyecto():
@@ -57,16 +62,34 @@ def proyecto(usuario):
 def fase(proyecto):
     fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
-    fase = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    fase = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    return None
+    return fase
+
+
+@pytest.fixture
+def tipo_de_item(fase, usuario):
+    tipo = TipoDeItem.objects.create(nombre="Requerimiento Funcional", creador=usuario,
+                                     descripcion="Especificación de un requerimiento funcional.", prefijo="RF",
+                                     fase=fase, fecha_creacion=timezone.now())
+    return tipo
+
+
+@pytest.fixture
+def item(tipo_de_item):
+    item = Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.NO_APROBADO, codigo="")
+    version = VersionItem.objects.create(item=item, descripcion="Descripcion del item", version=1, nombre="Item",
+                                         peso=1)
+    item.version = version
+    item.save()
+    return item
 
 
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModeloFase:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo Fase.
+    """
+
     def test_nueva_fase_al_inicio(self, proyecto):
         """
         Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
@@ -140,7 +163,57 @@ class TestModeloFase:
         fase_3 = Fase.objects.get(id=fase_3.id)
         assert fase_1.fase_anterior is None and fase_2.fase_anterior.pk == fase_1.pk and fase_3.fase_anterior.pk == fase_2.pk, "No se logra posicionar una fase entre dos fases"
 
-    # TODO: Marcelo: test probando get_items de modelo Fase
+    def test_get_items(self, fase, tipo_de_item, item):
+        """
+        Prueba Unitaria que comprueba que el metodo get_items retorne todos los items que no estén eliminados
+        dentro una fase.
+
+        Se espera:
+            Que se retornen todos los items de la fase del proyecto.
+        Mensaje de error:
+            El metodo get_items no retorna correctamente los items de una fase.
+        """
+        new_item = Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.ELIMINADO, codigo="")
+        version = VersionItem.objects.create(item=new_item, descripcion="Descripcion del item", version=1,
+                                             nombre="Item",
+                                             peso=1)
+        new_item.version = version
+        new_item.save()
+
+        assert len(fase.get_items()) == len([item]), "El metodo get_items no retorna correctamente " \
+                                                     "los items de una fase."
+
+    def test_get_items_eliminados(self, fase, tipo_de_item, item):
+        """
+        Prueba Unitaria que comprueba que el metodo get_items retorne todos los items de una fase, incluso
+        aquellos items ya eliminados.
+
+        Se espera:
+            Que se retornen todos los items de la fase del proyecto.
+        Mensaje de error:
+            El metodo get_items no retorna correctamente los items de una fase.
+        """
+        new_item = Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.ELIMINADO, codigo="")
+        version = VersionItem.objects.create(item=new_item, descripcion="Descripcion del item", version=1,
+                                             nombre="Item",
+                                             peso=1)
+        new_item.version = version
+        new_item.save()
+        condicion = len(fase.get_items(items_eliminados=True)) == len([item, new_item])
+        assert condicion is True, "El metodo get_items no retorna correctamente los items de una fase."
+
+    def test_get_items_vacio(self, fase):
+        """
+        Prueba Unitaria que comprueba que el metodo get_items no retorne ningun item .
+
+        Se espera:
+            Que se retornen todos los items de la fase del proyecto.
+        Mensaje de error:
+            El metodo get_items no retorna correctamente los items de una fase.
+
+        """
+        assert fase.get_items() == [], "El metodo get_items no retorna correctamente " \
+                                       "los items de una fase."
 
     # TODO: Luis: test para probar get_item_estado
 
@@ -148,6 +221,9 @@ class TestModeloFase:
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestVistasFase:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a las Fases de un Proyecto.
+    """
 
     def test_visualizar_fase_view(self, cliente_loggeado, proyecto):
         """
@@ -177,7 +253,7 @@ class TestVistasFase:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
-        response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id, )))
+        response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     # TODO: Luis test_nueva_fase_view

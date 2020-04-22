@@ -44,6 +44,9 @@ def rol_de_sistema():
 
 @pytest.mark.django_db
 class TestModeloRolDeSistema:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo RolDeSistema
+    """
     # TODO: Marcos test get_permisos en el caso de que si retorne una lista
 
     def test_roldesistema_lista_de_permisos_vacia(self):
@@ -93,6 +96,9 @@ class TestModeloRolDeSistema:
 
 @pytest.mark.django_db
 class TestVistasRolDeSistema:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a los Roles de Sistema.
+    """
     # TODO: Marcos test listar_roles_de_sistema_view
     # TODO: Marcos test editar_rol_de_sistema_view
     # TODO: Marcos test rol_de_sistema_view

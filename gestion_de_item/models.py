@@ -53,10 +53,7 @@ class Item(models.Model):
             >>> item = Item.objects.first()
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
-
-
         """
-
         version = self.version
         version.save(versionar=True)
 
@@ -183,6 +180,9 @@ class Item(models.Model):
 
     def desaprobar(self):
         """
+        TODO: Luis, como el metodo lanza excepcion si es que no se puede desaprobar el item no hace
+        falta que el metodo retorne si se pudo desaprobar el item o no.Agrega a la documentacion que lanza exception
+
         Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
         Retorna: \n
             -True: El item no tiene hijos, por ende el item se puede desaprobar
@@ -205,14 +205,19 @@ class Item(models.Model):
 
     def eliminar_relacion(self, item):
         """
-        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes
-        Parametros:\n
-            -item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir,
-            de la lista de padres
-        Retorna:\n
-            -True: Si se puede eliminar la relacion entre los dos item si que haya inconsistencia
-            -False: Cuando la relacion no se puede eliminar, pues hay al menos un item que no es trazable
-                    a la primera fase
+        TODO: Luis, vamos a seguir el mismo disenho que con los otros metodos que cuando no se puede eliminar relacion
+        en este caso se lance una excepcion en vez de retornar True o False.
+
+        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
+
+        Parametros:
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de
+                    padres.
+        Retorna:
+            - True: Si se puede eliminar la relacion entre los dos item si que haya inconsistencia.
+            - False: Cuando la relacion no se puede eliminar, pues hay al menos un item que no es trazable
+                    a la primera fase.
+
         """
 
         if self.padres.filter(id=item.id).exists():
