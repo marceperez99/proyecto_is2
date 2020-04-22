@@ -225,13 +225,33 @@ class AtributoItemFechaForm(forms.Form):
 
 
 class RelacionPadreHijoForm(forms.Form):
+    """
+    Form que permite la creación de un nueva relacion padre-hijo entre item.
+    Es necesario especificar un padre para el item.\n
+    Campos:
+        -padre: Item, futuro padre del item selecionado
+    """
 
     def __init__(self, *args, item=None, **kwargs):
+        """
+        Constructor de la clase RelacionPadreHijoForm.
+        Los items candidatos para el campo Padre son seleccionados de la misma fase y que estan aprobados.
+
+        Argumentos:
+            - item: Item, items que esten estado aprobado
+
+        """
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
         self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO))
         self.item = item
 
     def clean_padre(self):
+        """
+        Método que verifica que la nueva relacion no forme un ciclo, con la ayuda de la funcion "hay_ciclo".
+        Saltara un mensaje de error en caso de que forme algun ciclo.
+        Retorna:
+            True: si la relacion no forma ciclo
+        """
         padre = self.cleaned_data['padre']
         hijo = self.item
         if gestion_de_item.utils.hay_ciclo(padre, hijo):
@@ -241,17 +261,26 @@ class RelacionPadreHijoForm(forms.Form):
 
 
 class RelacionAntecesorSucesorForm(forms.Form):
+    """
+    Form que permite la creación de un nueva relacion antecesor-sucesor entre item.
+    Es necesario especificar un antecesor para el item si es que no se encuentra en la primera fase del proyecto.
+
+
+    Campos:
+        - Antecesor: Item, antecesor de este item (no requerido en la primera fase)
+    """
 
     def __init__(self, *args, item=None, **kwargs):
+        """
+        Constructor de la clase RelacionAntecesorSucesorForm.
+        Los items candidatos para el campo Antecesor son seleccionados de la fase anterior aquellos que estan en una linea base.
+
+        Argumentos:
+            - item: Item, items de la fase anterior que cumplan que esten en una linea base
+
+        """
         super(RelacionAntecesorSucesorForm, self).__init__(*args, **kwargs)
         self.fields['antecesor'] = forms.ModelChoiceField(
             queryset=item.get_fase().fase_anterior.get_item_estado(EstadoDeItem.EN_LINEA_BASE))
         self.item = item
 
-    #    def clean_antecesor(self):
-     #   antecesor = self.cleaned_data['antecesor']
-      #  sucesor = self.item
-       # if gestion_de_item.utils.hay_ciclo(antecesor, sucesor):
-        #    raise ValidationError('La relacion no se puede formar, pues va a formar una dependencia ciclica')
-       # else:
-         #   return antecesor
