@@ -70,7 +70,78 @@ class TestModeloProyecto:
     """
     Pruebas unitarias que comprueban el funcionamiento de los metodos del Modelo Proyecto.
     """
-    # TODO: Marcelo test get_participante
+
+    def test_get_participante(self, proyecto, usuario):
+        """
+        Prueba unitaria que comprueba que el metodo get_participante retorne correctamente el Objeto Participante
+         dado un usuario.
+
+        Se espera:
+            Que get_participante retorne correctamente el objecto Participante de un usuario dentro de un
+            proyecto.
+
+        Mensaje de error:
+            No se retornaron correctamente los participantes del Proyecto
+        """
+        participante = proyecto.get_participante(usuario)
+        assert participante is not None and participante.usuario.id == usuario.id
+
+    def test_get_participante_gerente(self, proyecto, gerente):
+        """
+        Prueba unitaria que comprueba que el metodo get_participante retorne correctamente el Objeto Participante
+         dado un usuario.
+
+        Se espera:
+            Que get_participante retorne correctamente el objecto Participante de un usuario dentro de un
+            proyecto.
+
+        Mensaje de error:
+            No se consiguió correctamente el objecto participante del Gerente del Proyecto.
+        """
+        participante = proyecto.get_participante(gerente)
+        condicion = participante is not None and participante.usuario.id == gerente.id
+        assert condicion is True, "No se consiguió correctamente el objecto participante del Gerente del Proyecto."
+
+    def test_get_participante_no_existente(self, proyecto):
+        """
+        Prueba unitaria que comprueba que el metodo get_participante retorne None al tratar de obtener el Objeto
+        Participante de un usuario que no está dentro de un Proyecto.
+
+        Se espera:
+            Que get_participante retorne None.
+
+        Mensaje de error:
+            El método get_participante debe retornar None cuando se le pasa un usuario que no está dentro del Proyecto.
+        """
+        user = User(username='usuario1', email='usuario1@gmail.com')
+        user.set_password('password123')
+        user.save()
+
+        participante = proyecto.get_participante(user)
+        assert participante is None, "El método get_participante debe retornar None cuando se le pasa un usuario" \
+                                     " que no está dentro del Proyecto"
+
+    def test_get_participante_usuario_sin_rol(self, proyecto):
+        """
+        Prueba unitaria que comprueba que el metodo get_participante retorne None al tratar de obtener el Objeto
+        Participante participante que no tiene un rol dentro del Proyecto.
+
+        Se espera:
+            Que get_participante retorne None.
+
+        Mensaje de error:
+            El método get_participante debe retornar None cuando se le pasa un usuario que no tiene
+            un rol dentro del Proyecto.
+        """
+        user = User(username='usuario1', email='usuario1@gmail.com')
+        user.set_password('password123')
+        user.save()
+        Participante.objects.create(usuario=user, proyecto=proyecto)
+
+        participante = proyecto.get_participante(user)
+        assert participante is None, "El método get_participante debe retornar None cuando se le pasa un usuario" \
+                                     " que no tiene un rol dentro del Proyecto"
+
     def test_get_participantes(self, proyecto):
         """
         Prueba unitaria encargada de verificar que la funcion get_participantes retorne correctamente los participantes
@@ -90,8 +161,43 @@ class TestModeloProyecto:
             proyecto.get_participantes()) == participantes, 'No se retornaron correctamente los participantes del' \
                                                             'Proyecto'
 
-    # TODO: Marcelo test get_comite_de_cambios
-    # TODO: Marcelo test get_fases
+    def test_get_comite_de_cambios(self, proyecto, usuario, gerente):
+        """
+        Prueba unitaria que comprueba el funcionamiento del metodo get_comite_de_cambios del Modelo Proyecto.
+
+        Se espera:
+            Que el método retorne el objeto Comite que representa el comite de cambios del Proyecto.
+
+        Mensaje de Error:
+            No se obtuvo correctamente el Comite del Proyecto.
+        """
+        participantes = proyecto.get_participantes()
+        comite = Comite.objects.create(proyecto=proyecto)
+        comite.miembros.add(*participantes)
+
+        comite = proyecto.get_comite_de_cambios()
+
+        condicion = all(part in participantes for part in comite.miembros.all())
+        assert condicion is True, "No se obtuvo correctamente el Comite del Proyecto."
+
+    def test_get_fases(self, proyecto):
+        """
+        Prueba unitaria que comprueba que el metodo get_fases de un Proyecto obtenga correctamente todas las fases de
+        un Proyecto.
+
+        Se espera:
+
+        Mensaje de Error:
+            No se retornaron todas las fases del proyecto o estos no estan en el orden correcto
+        """
+        fases = proyecto.get_fases()
+        # Se comprueban que todas las fases retornadas estén dentro de las fases del proyecto
+        # y ordenadas por fase_anterior
+        condicion = all(fase in fases for fase in proyecto.fase_set.all()) and all(
+            fase.fase_anterior is None if i == 0 else fase.fase_anterior.id == fases[i - 1].id for i, fase in
+            enumerate(fases))
+        assert condicion is True, "No se retornaron todas las fases del proyecto o estos no estan en el orden correcto"
+
     def test_asignar_rol_de_proyecto(self, proyecto, usuario, rol_de_proyecto):
         """
         Prueba que verifica la asignacion correcta de un rol de proyecto a un usuario.
@@ -123,7 +229,8 @@ class TestModeloProyecto:
             Que tiene_permiso_de_proyecto retorne True.
 
         Mensaje de Error:
-            El metodo indica que el usuario no tiene el permiso de proyecto pero el usuario si tiene asignado el permiso.
+            El metodo indica que el usuario no tiene el permiso de proyecto pero el usuario si tiene
+            asignado el permiso.
         """
         fases = proyecto.fase_set.all()
         permisos = list(rol_de_proyecto.get_pp_por_fase())
@@ -131,8 +238,8 @@ class TestModeloProyecto:
         proyecto.asignar_rol_de_proyecto(usuario, rol_de_proyecto, permisos_por_fase)
 
         condicion = proyecto.tiene_permiso_de_proyecto(usuario, 'pp_agregar_participante')
-        assert condicion is True, 'El metodo indica que el usuario no tiene el permiso de proyecto pero el usuario si ' \
-                                  'tiene asignado el permiso'
+        assert condicion is True, 'El metodo indica que el usuario no tiene el permiso de proyecto pero el ' \
+                                  'usuario si tiene asignado el permiso'
 
     def test_tiene_no_permiso_de_proyecto(self, proyecto, usuario, rol_de_proyecto):
         """
@@ -154,7 +261,34 @@ class TestModeloProyecto:
         assert condicion is False, 'El metodo indica que el usuario tiene el permiso de proyecto pero el usuario no ' \
                                    'tiene asignado el permiso'
 
-    # TODO: Marcelo test tiene_permiso_de_proyecto_en_fase
+    @pytest.mark.parametrize('permiso, fase, esperado', [('pp_f_crear_tipo_de_item', 'Analisis', True),
+                                                         ('pp_f_editar_tipo_de_item', 'Desarrollo', False)])
+    def test_tiene_permiso_de_proyecto_en_fase(self, proyecto, usuario, permiso, fase, esperado):
+        """
+        Test que verifica que el metodo tiene_permiso_de_proyecto_en_fase de la clase Proyecto retorne falso si el
+        usuario no cuenta con el permiso dado dentro de una fase.
+
+        Se espera:
+            Que tiene_permiso_de_proyecto retorne para:
+                'pp_f_crear_tipo_de_item', 'Analisis' -> True
+                'pp_f_editar_tipo_de_item', 'Desarrollo' -> False
+
+        Mensaje de Error:
+            Se esperaba que el metodo retorne {esperado} pero se retornó {tiene_permiso}.
+        """
+        fase = proyecto.fase_set.get(nombre=fase)
+        permisos = Permission.objects.all().filter(codename__startswith='pp_')
+        fases = proyecto.get_fases()
+        participante = proyecto.get_participante(usuario)
+        rol = RolDeProyecto.objects.create(nombre="Rol1", descripcion="Descripcion")
+        rol.permisos.add(*permisos)
+        permisos_por_fase = {fases[0]: list(permisos)}
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+
+        tiene_permiso = proyecto.tiene_permiso_de_proyecto_en_fase(usuario, fase, permiso)
+
+        assert tiene_permiso == esperado, f'Se esperaba que el metodo retorne {esperado} ' \
+                                          f'pero se retorno {tiene_permiso}'
 
     def test_cancelar_proyecto_en_configuracion(self, usuario, rol_de_proyecto):
         """
@@ -205,7 +339,8 @@ class TestModeloProyecto:
                                    creador=usuario, estado=EstadoDeProyecto.FINALIZADO)
         proyecto_prueba.save()
         proyecto_prueba.cancelar()
-        assert proyecto_prueba.estado == EstadoDeProyecto.FINALIZADO, "No se puede cambiar el estado de un proyecto con estado Finalizado"
+        assert proyecto_prueba.estado == EstadoDeProyecto.FINALIZADO, "No se puede cambiar el estado de un " \
+                                                                      "proyecto con estado Finalizado"
 
     def test_iniciar_proyecto_en_configuracion_sin_fases(self, usuario, rol_de_proyecto):
         """
@@ -231,8 +366,8 @@ class TestModeloProyecto:
 
     def test_iniciar_proyecto_en_configuracion(self, usuario, rol_de_proyecto):
         """
-        Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase y un comite de cambios,
-        este cambie de estado "En Configuracion", a "Iniciado".
+        Prueba unitaria para verificar que al momento de iniciar un proyecto con al menos una fase y un comite de
+        cambios, este cambie de estado "En Configuracion", a "Iniciado".
 
         Se espera:
             Que el proyecto cambie a estado "Iniciado".
@@ -278,8 +413,33 @@ class TestModeloParticipante:
     """
     Pruebas unitarias que comprueban el funcionamiento de los metodos de la clase Participante.
     """
-    # TODO: Marcelo test get_rol_nombre
-    # TODO: Marcelo test  get_pp_por_fase
+
+    def test_get_pp_por_fase(self, proyecto, usuario):
+        """
+        Test que verifica que el metodo tget_pp_por_fase retorne correctamente todos los permisos que tiene el usuario
+        en cada fase.
+
+        Se espera:
+            Que el metodo retorne un diccionario con todos los permisos por fase que tiene el usuario en cada fase.
+
+        Mensaje de Error:
+            No se obtuvo correctamente la lista de permisos por fase del usuario.
+        """
+        participante = proyecto.get_participante(usuario)
+        fases = proyecto.get_fases()
+
+        rol = RolDeProyecto.objects.create(nombre="Rol2", descripcion="Descripcion")
+        permisos = Permission.objects.all().filter(codename__startswith='pp_f')
+        rol.permisos.add(*permisos)
+        permisos_por_fase = {fases[0]: list(permisos), fases[1]: [], fases[2]: []}
+
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+        resultado = participante.get_pp_por_fase()
+        resultado = {k: list(v) for k, v in resultado.items()}
+        condicion = all(all(perm in permisos_por_fase[k] for perm in v) and
+                        all(perm in v for perm in permisos_por_fase[k]) for k, v in resultado.items())
+        assert condicion is True, 'No se obtuvo correctamente la lista de permisos por fase del usuario'
+
     # TODO: Marcelo test asignar_permisos_de_proyecto
     # TODO: Marcelo test asignar_rol_de_proyecto
     # TODO: Marcelo test tiene_rol
@@ -337,9 +497,89 @@ class TestModeloParticipante:
         assert valor_prueba == esperado, f'Se espera que la verificacion de si el participante tiene el Permiso ' + \
                                          f'{permiso} resulte en {esperado}, pero resulto {valor_prueba}'
 
-    # TODO: Marcelo test tiene_pp_en_fase
-    # TODO: Marcelo test get_permisos_de_proyecto_list
-    # TODO: Marcelo test get_permisos_por_fase_list
+
+    @pytest.mark.parametrize('permiso, fase, esperado', [('pp_f_crear_tipo_de_item', 'Analisis', True),
+                                                         ('pp_f_editar_tipo_de_item', 'Desarrollo', False)])
+    def test_tiene_pp_en_fase(self, proyecto, usuario, permiso, fase, esperado):
+        """
+        Test que verifica el funcionamiento del metodo tiene_pp_en_fase de la clase Participante.
+
+        Se espera:
+            Que tiene_permiso_de_proyecto retorne para:
+                'pp_f_crear_tipo_de_item', 'Analisis' -> True
+                'pp_f_editar_tipo_de_item', 'Desarrollo' -> False
+
+        Mensaje de Error:
+            Se esperaba que el metodo retorne {esperado} pero se retornó {tiene_permiso}.
+        """
+        fase = proyecto.fase_set.get(nombre=fase)
+        permisos = Permission.objects.all().filter(codename__startswith='pp_')
+        fases = proyecto.get_fases()
+        rol = RolDeProyecto.objects.create(nombre="Rol1", descripcion="Descripcion")
+        rol.permisos.add(*permisos)
+        permisos_por_fase = {fases[0]: list(permisos)}
+        participante = proyecto.get_participante(usuario)
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+
+        tiene_permiso = participante.tiene_pp_en_fase(fase, permiso)
+
+        assert tiene_permiso == esperado, f'Se esperaba que el metodo retorne {esperado} pero se retorno {tiene_permiso}'
+
+    def test_get_permisos_de_proyecto_list(self, proyecto, usuario):
+        """
+        Test que verifica el funcionamiento del metodo get_permisos_de_proyecto_list de la clase Participante.
+
+        Se espera:
+            Que tiene_permiso_de_proyecto retorne una lista con los codenames de los Permisos con los que cuenta el
+            participante.
+
+        Mensaje de Error:
+            El metodo no retornó correctamente la lista de permisos o no se retornaron todos los permisos.
+        """
+        participante = proyecto.get_participante(usuario)
+        permisos = [perm.codename for perm in Permission.objects.all().filter(codename__startswith='pp_')
+            .exclude(codename__startswith='pp_f')]
+
+        permisos_test = participante.get_permisos_de_proyecto_list()
+
+        condicion = all(perm in permisos for perm in permisos_test) and all(perm in permisos_test for perm in permisos)
+        assert condicion is True, 'El metodo no retornó correctamente la lista de permisos o ' \
+                                  'no se retornaron todos los permisos'
+
+
+    @pytest.mark.parametrize('fase, esperado',
+                             [('Analisis', ['pp_f_editar_tipo_de_item', 'pp_f_crear_tipo_de_item', 'pu_f_ver_fase']),
+                              ('Desarrollo', [])])
+    def test_get_permisos_por_fase_list(self, proyecto, usuario, fase, esperado):
+        """
+        Test que verifica que el metodo tiene_permiso_de_proyecto_en_fase de la clase Proyecto retorne falso si el
+        usuario no cuenta con el permiso dado dentro de una fase.
+
+        Se espera:
+            Que get_permisos_por fase retorne para:
+                'Analisis' -> ['pp_f_editar_tipo_de_item', 'pp_f_crear_tipo_de_item', 'pu_f_ver_fase']
+                'Desarrollo' -> []
+
+        Mensaje de Error:
+            Se esperaba que el metodo retorne {esperado} pero se retornó {lista_permisos}.
+        """
+        fase = proyecto.fase_set.get(nombre=fase)
+
+        permisos = [Permission.objects.get(codename='pp_f_editar_tipo_de_item'),
+                    Permission.objects.get(codename='pp_f_crear_tipo_de_item'),
+                    Permission.objects.get(codename='pu_f_ver_fase')]
+
+        fases = proyecto.get_fases()
+        participante = proyecto.get_participante(usuario)
+        rol = RolDeProyecto.objects.create(nombre="Rol1", descripcion="Descripcion")
+        rol.permisos.add(*permisos)
+        permisos_por_fase = {fases[0]: list(permisos)}
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+
+        lista_permisos = participante.get_permisos_por_fase_list(fase)
+
+        condicion = all(p in esperado for p in lista_permisos) and all(p in lista_permisos for p in esperado)
+        assert condicion is True, 'Se esperaba que el metodo retorne {esperado} pero se retornó {lista_permisos}'
 
 
 @pytest.mark.django_db
@@ -354,6 +594,7 @@ class TestVistasProyecto:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a un Proyecto.
     """
+
     @pytest.fixture
     def gerente_loggeado(self, gerente):
         client = Client()
@@ -380,7 +621,6 @@ class TestVistasProyecto:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
-        print(gerente_loggeado)
         response = gerente_loggeado.get(reverse('nuevo_participante', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
@@ -402,4 +642,3 @@ class TestVistasProyecto:
     # TODO: Hugo test seleccionar_miembros_del_comite_view
     # TODO: Marcos test info_proyecto_view
     pass
-

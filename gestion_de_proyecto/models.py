@@ -145,7 +145,11 @@ class Proyecto(models.Model):
             True si el usuario tiene el permiso dentro de la fase del proyecto.\n
             False en caso contrario.
         """
-        return self.get_participante(usuario).tiene_pp_por_fase(fase, permiso)
+        participante = self.get_participante(usuario)
+        if participante is None:
+            return False
+        else:
+            return participante.tiene_pp_en_fase(fase, permiso)
 
     def cancelar(self):
         """
