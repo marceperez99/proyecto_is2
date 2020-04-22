@@ -440,10 +440,56 @@ class TestModeloParticipante:
                         all(perm in v for perm in permisos_por_fase[k]) for k, v in resultado.items())
         assert condicion is True, 'No se obtuvo correctamente la lista de permisos por fase del usuario'
 
-    # TODO: Marcelo test asignar_permisos_de_proyecto
-    # TODO: Marcelo test asignar_rol_de_proyecto
-    # TODO: Marcelo test tiene_rol
-    # TODO: Marcelo test tiene_pp_en_fase
+    def test_asignar_permisos_de_proyecto(self, proyecto, usuario):
+        """
+        Prueba unitaria que comprueba que el metodo asignar_permisos_de_proyecto asigne correctamente los permisos
+        de proyecto por fase.
+
+        Se espera:
+            Que tiene_permiso_de_proyecto asigne correctamente, por cada fase, los permisos pasados.
+
+        Mensaje de Error:
+            El metodo no retornó correctamente la lista de permisos o no se retornaron todos los permisos.
+        """
+        participante = proyecto.get_participante(usuario)
+        fases = proyecto.get_fases()
+        permisos = list(Permission.objects.filter(codename__startswith='pp_f_'))
+        permisos_por_fase = {fases[0]: permisos, fases[1]: [], fases[2]: permisos}
+
+        participante.asignar_permisos_de_proyecto(permisos_por_fase)
+
+        permisos_fases_result = {ppf.fase: list(ppf.permisos.all()) for ppf in participante.permisos_por_fase.all()}
+
+        condicion = all(all(p in permisos_por_fase[fase] for p in perms)
+                        for fase, perms in permisos_fases_result.items())
+        condicion = condicion and all(all(p in permisos_fases_result[fase] for p in perms)
+                                      for fase, perms in permisos_por_fase.items())
+        assert condicion is True, 'El metodo no retornó correctamente la lista de permisos o ' \
+                                  'no se retornaron todos los permisos'
+
+    def test_asignar_rol_de_proyecto(self, proyecto, usuario):
+        """
+        Test que verifica el funcionamiento del metodo asignar_rol_de_pryoecto de la clase Participante.
+
+        Se espera:
+            Que asignar_rol_de_proyecto asigne correctamente el rol de Proyecto al Participante.
+
+        Mensaje de Error:
+            El metodo no asignó correctamente el rol de proyecto al participante.
+        """
+        participante = proyecto.get_participante(usuario)
+        participante.rol = None
+        participante.save()
+        fases = proyecto.get_fases()
+        rol = RolDeProyecto.objects.create(nombre="Rol2", descripcion="Descripcion")
+        permisos = Permission.objects.all().filter(codename__startswith='pp_f')
+        rol.permisos.add(*permisos)
+        permisos_por_fase = {fases[0]: list(permisos), fases[1]: [], fases[2]: []}
+
+        participante.asignar_rol_de_proyecto(rol, permisos_por_fase)
+        condicion = participante.rol is not None
+        assert condicion is True, 'El metodo no asignó correctamente el rol de proyecto al participante'
+
     @pytest.mark.parametrize('permiso,esperado', [('pp_cerrar_fase', True), ('pp_agregar_items', True)])
     def test_participante_tiene_permiso_gerente(self, proyecto, permiso, esperado):
         """
@@ -497,7 +543,6 @@ class TestModeloParticipante:
         assert valor_prueba == esperado, f'Se espera que la verificacion de si el participante tiene el Permiso ' + \
                                          f'{permiso} resulte en {esperado}, pero resulto {valor_prueba}'
 
-
     @pytest.mark.parametrize('permiso, fase, esperado', [('pp_f_crear_tipo_de_item', 'Analisis', True),
                                                          ('pp_f_editar_tipo_de_item', 'Desarrollo', False)])
     def test_tiene_pp_en_fase(self, proyecto, usuario, permiso, fase, esperado):
@@ -545,7 +590,6 @@ class TestModeloParticipante:
         condicion = all(perm in permisos for perm in permisos_test) and all(perm in permisos_test for perm in permisos)
         assert condicion is True, 'El metodo no retornó correctamente la lista de permisos o ' \
                                   'no se retornaron todos los permisos'
-
 
     @pytest.mark.parametrize('fase, esperado',
                              [('Analisis', ['pp_f_editar_tipo_de_item', 'pp_f_crear_tipo_de_item', 'pu_f_ver_fase']),

@@ -74,7 +74,6 @@ class TestModeloRolDeProyecto:
     """
     Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo RolDeProyecto.
     """
-    # TODO: asignar_permisos
     def test_roldeproyecto_lista_de_permisos(self):
         """
         Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al tratar de obtener los permisos de un
