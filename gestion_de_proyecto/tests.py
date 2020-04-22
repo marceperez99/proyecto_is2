@@ -1,5 +1,4 @@
 from http import HTTPStatus
-
 import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
@@ -68,7 +67,9 @@ def proyecto(usuario, gerente, rol_de_proyecto):
 
 @pytest.mark.django_db
 class TestModeloProyecto:
-
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los metodos del Modelo Proyecto.
+    """
     # TODO: Marcelo test get_participante
     def test_get_participantes(self, proyecto):
         """
@@ -271,61 +272,12 @@ class TestModeloProyecto:
 
     # TODO: Hugo test eliminar_participante
 
-@pytest.mark.django_db
-class TestVistasProyecto:
-    @pytest.fixture
-    def gerente_loggeado(self, gerente):
-        client = Client()
-        client.login(username='gerente', password='password123')
-        return client
-
-    # TODO: Luis test nuevo_proyecto_view
-    # TODO: Hugo test participantes_view
-    # TODO: Hugo test participante_view
-    # TODO: Hugo test eliminar_participante_view
-    # TODO: Luis test visualizar_proyecto_view
-    # TODO: Luis test editar_proyecto_view
-    # TODO: Luis test cancelar_proyecto_view
-    # TODO: Luis test iniciar_proyecto_view
-
-    def test_nuevo_participante_view(self, gerente_loggeado, proyecto):
-        """
-        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
-        vista para agregar un nuevo participante a un proyecto.
-
-        Se espera:
-            Que la respuesta HTTP sea OK.
-
-        Mensaje de Error:
-            Hubo un error al tratar de acceder a la URL
-        """
-        print(gerente_loggeado)
-        response = gerente_loggeado.get(reverse('nuevo_participante', args=(proyecto.id,)))
-        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
-    def test_asignar_rol_de_proyecto_view(self, gerente_loggeado, proyecto, usuario):
-        """
-        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
-        vista de asignación de un nuevo rol de proyecto a un participante.
-
-        Se espera:
-            Que la respuesta HTTP sea OK.
-
-        Mensaje de Error:
-            Hubo un error al tratar de acceder a la URL
-        """
-        participante = proyecto.get_participante(usuario)
-        response = gerente_loggeado.get(reverse('asignar_rol_de_proyecto', args=(proyecto.id, participante.id)))
-        assert response.status_code == HTTPStatus.OK, f'Hubo un error al tratar de acceder a la URL {response.content}'
-
-    # TODO: Hugo test seleccionar_miembros_del_comite_view
-    # TODO: Marcos test info_proyecto_view
-    pass
-
 
 @pytest.mark.django_db
 class TestModeloParticipante:
-
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los metodos de la clase Participante.
+    """
     # TODO: Marcelo test get_rol_nombre
     # TODO: Marcelo test  get_pp_por_fase
     # TODO: Marcelo test asignar_permisos_de_proyecto
@@ -396,4 +348,58 @@ class TestModeloComite:
 
     pass
 
+
+@pytest.mark.django_db
+class TestVistasProyecto:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a un Proyecto.
+    """
+    @pytest.fixture
+    def gerente_loggeado(self, gerente):
+        client = Client()
+        client.login(username='gerente', password='password123')
+        return client
+
+    # TODO: Luis test nuevo_proyecto_view
+    # TODO: Hugo test participantes_view
+    # TODO: Hugo test participante_view
+    # TODO: Hugo test eliminar_participante_view
+    # TODO: Luis test visualizar_proyecto_view
+    # TODO: Luis test editar_proyecto_view
+    # TODO: Luis test cancelar_proyecto_view
+    # TODO: Luis test iniciar_proyecto_view
+
+    def test_nuevo_participante_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista para agregar un nuevo participante a un proyecto.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        print(gerente_loggeado)
+        response = gerente_loggeado.get(reverse('nuevo_participante', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_asignar_rol_de_proyecto_view(self, gerente_loggeado, proyecto, usuario):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de asignación de un nuevo rol de proyecto a un participante.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        participante = proyecto.get_participante(usuario)
+        response = gerente_loggeado.get(reverse('asignar_rol_de_proyecto', args=(proyecto.id, participante.id)))
+        assert response.status_code == HTTPStatus.OK, f'Hubo un error al tratar de acceder a la URL {response.content}'
+
+    # TODO: Hugo test seleccionar_miembros_del_comite_view
+    # TODO: Marcos test info_proyecto_view
+    pass
 

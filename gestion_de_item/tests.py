@@ -96,6 +96,9 @@ def item(tipo_de_item):
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModelosItem:
+    """
+    Pruebas unitarias que comprueban el funcionamiento del Modelo Item.
+    """
     def test_nueva_version(self, item):
         item.nueva_version()
         assert item.version.version == 2, 'No fue creada una nueva versión'
@@ -154,7 +157,9 @@ class TestModelosItem:
 
 @pytest.mark.django_db
 class TestVistasItem:
-
+    """
+    Pruebas Unitarias que comprueban el funcionamiento correcto de las vistas referentes a los Items de un Proyecto.
+    """
     def test_listar_items_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.

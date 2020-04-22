@@ -540,8 +540,9 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
         - proyecto_id: int, identificador unico de un proyecto del sistema.
         - fase_id: int, identificador unico de una fase de un proyecto.
         - item_id: int, identificador unico del item.
-        -item_relacion_id: int, identificador unico del item
-    Retorna
+        - item_relacion_id: int, identificador unico del item
+
+    Retorna:
         - request: HttpRequest
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)

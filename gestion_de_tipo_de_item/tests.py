@@ -112,6 +112,9 @@ def atributos(tipo_de_item):
 
 @pytest.mark.django_db
 class TestModeloTipoDeItem:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los metodos del Modelo TipoDeItem
+    """
     # TODO: Marcos test es_utilizado
     pass
 
@@ -119,6 +122,9 @@ class TestModeloTipoDeItem:
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestUtilsTiposDeItem:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las funciones utilitarias de la App.
+    """
     def test_recolectar_atributos(self, atributos, tipo_de_item):
         """
         Prueba unitaria que verifica que todos los atributos relacionados a un tipo de item sean recolectados
@@ -161,6 +167,9 @@ class TestUtilsTiposDeItem:
 
 
 class TestVistasTipoDeItem:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a los Tipos de Item de un Proyecto.
+    """
     # TODO: Hugo test tipo_de_item_view
     # TODO: Hugo test listar_tipo_de_item_view
     # TODO: Hugo test nuevo_tipo_de_item_view

@@ -67,6 +67,9 @@ def fase(proyecto):
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModeloFase:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo Fase.
+    """
     def test_nueva_fase_al_inicio(self, proyecto):
         """
         Prueba unitaria para verificar que el metodo posicionar de una fase modifique correctamente el
@@ -148,7 +151,9 @@ class TestModeloFase:
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestVistasFase:
-
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a las Fases de un Proyecto.
+    """
     def test_visualizar_fase_view(self, cliente_loggeado, proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la

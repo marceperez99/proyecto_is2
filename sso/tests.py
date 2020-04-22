@@ -19,7 +19,10 @@ def rs_admin():
 
 @pytest.mark.django_db
 class TestVistasSSO:
-
+    """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas de inicio de sesión, pantalla principal y cierre
+    de sesión.
+    """
     def test_index_usuario_no_autenticado(self):
         """
         Prueba unitaria que comprueba que un usuario no logeado sea redirigido a la vista de inicio de sesion.
