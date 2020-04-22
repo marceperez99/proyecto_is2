@@ -11,6 +11,7 @@ from .models import RolDeProyecto
 
 
 # FIXTURES
+
 @pytest.fixture
 def rs_admin():
     rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
@@ -22,18 +23,12 @@ def rs_admin():
 
 
 @pytest.fixture
-def usuario():
+def usuario(rs_admin):
     user = User(username='user_test', email='test@admin.com')
     user.set_password('password123')
     user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
-
-
-@pytest.fixture
-def cliente_loggeado(usuario):
-    client = Client()
-    client.login(username='user_test', password='password123')
-    return client
 
 
 @pytest.fixture
@@ -126,6 +121,12 @@ class TestModeloRolDeProyecto:
 
 @pytest.mark.django_db
 class TestVistasRolDeProyecto:
+    @pytest.fixture
+    def cliente_loggeado(self, usuario):
+        client = Client()
+        client.login(username='user_test', password='password123')
+        return client
+
     def test_nuevo_rol_de_proyecto_view(self, usuario, cliente_loggeado, rs_admin):
         """
         Test encargado de comprobar que no ocurra nigun error al cargar la pagina con un usuario que ha iniciado sesion.
@@ -136,12 +137,74 @@ class TestVistasRolDeProyecto:
         Mensaje de Error:
             No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
-        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+
         response = cliente_loggeado.get(reverse('nuevo_rol_de_proyecto'))
 
-        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. Se esperaba un status code 300'
-    # TODO: Marcelo test listar_roles_de_proyecto_view
-    # TODO: Marcelo test editar_rol_de_proyecto_view
-    # TODO: Marcelo test rol_de_proyecto_view
-    # TODO: Marcelo test eliminar_rol_de_proyecto_view
-    pass
+        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
+                                                      'Se esperaba un status code 300'
+
+    def test_listar_roles_de_proyecto_view(self, usuario, cliente_loggeado, rs_admin):
+        """
+        Test encargado de comprobar que no ocurra nigun error al cargar la vista donde se listan los roles de
+        Proyecto.
+
+        Se espera:
+            Status code de la respuesta del servidor 300.
+
+        Mensaje de Error:
+            No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+
+        response = cliente_loggeado.get(reverse('listar_roles_de_proyecto'))
+
+        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
+                                                      'Se esperaba un status code 300'
+
+    def test_editar_rol_de_proyecto_view(self, cliente_loggeado, rol_de_proyecto):
+        """
+        Test encargado de comprobar que no ocurra nigun error al cargar la vista de edición de un rol de Proyecto.
+
+        Se espera:
+            Status code de la respuesta del servidor 300.
+
+        Mensaje de Error:
+            No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        print(rol_de_proyecto, rol_de_proyecto.id)
+        response = cliente_loggeado.get(reverse('editar_rol_de_proyecto', args=(rol_de_proyecto.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
+                                                      'Se esperaba un status code 300'
+
+    def test_rol_de_proyecto_view(self, cliente_loggeado, rol_de_proyecto):
+        """
+        Test encargado de comprobar que no ocurra nigun error al cargar la vista de un rol de Proyecto.
+
+        Se espera:
+            Status code de la respuesta del servidor 300.
+
+        Mensaje de Error:
+            No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        print(rol_de_proyecto, rol_de_proyecto.id)
+        response = cliente_loggeado.get(reverse('rol_de_proyecto', args=(rol_de_proyecto.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
+                                                      'Se esperaba un status code 300'
+
+    def test_eliminar_rol_de_proyecto_view(self, cliente_loggeado, rol_de_proyecto):
+        """
+        Test encargado de comprobar que no ocurra nigun error al cargar la vista de eliminación de un rol de Proyecto.
+
+        Se espera:
+            Status code de la respuesta del servidor 300.
+
+        Mensaje de Error:
+            No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        print(rol_de_proyecto, rol_de_proyecto.id)
+        response = cliente_loggeado.get(reverse('eliminar_rol_de_proyecto', args=(rol_de_proyecto.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
+                                                      'Se esperaba un status code 300'
+
