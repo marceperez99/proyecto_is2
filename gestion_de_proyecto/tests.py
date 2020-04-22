@@ -1,5 +1,9 @@
+from http import HTTPStatus
+
 import pytest
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
+from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
@@ -16,6 +20,7 @@ def rs_admin():
     rol.save()
     return rol
 
+
 @pytest.fixture
 def usuario():
     user = User(username='usuario_test', email='usuario@gmail.com')
@@ -25,10 +30,11 @@ def usuario():
 
 
 @pytest.fixture
-def gerente():
+def gerente(rs_admin):
     user = User(username='gerente', email='gerente@gmail.com')
     user.set_password('password123')
     user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
 
 
@@ -43,7 +49,7 @@ def rol_de_proyecto():
 @pytest.fixture
 def proyecto(usuario, gerente, rol_de_proyecto):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
-                        gerente=gerente, creador=usuario)
+                        gerente=gerente, creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
     proyecto.save()
     participante_gerente = Participante.objects.create(proyecto=proyecto, usuario=gerente)
     participante_gerente.save()
@@ -79,8 +85,9 @@ class TestModeloProyecto:
         participantes = list(Participante.objects.all().filter(proyecto=proyecto))
         gerente = proyecto.participante_set.filter(usuario=proyecto.gerente)
         print([g.usuario for g in gerente])
-        assert list(proyecto.get_participantes()) == participantes, 'No se retornaron correctamente los participantes del' \
-                                                                'Proyecto'
+        assert list(
+            proyecto.get_participantes()) == participantes, 'No se retornaron correctamente los participantes del' \
+                                                            'Proyecto'
 
     # TODO: Marcelo test get_comite_de_cambios
     # TODO: Marcelo test get_fases
@@ -264,6 +271,57 @@ class TestModeloProyecto:
 
     # TODO: Hugo test eliminar_participante
 
+@pytest.mark.django_db
+class TestVistasProyecto:
+    @pytest.fixture
+    def gerente_loggeado(self, gerente):
+        client = Client()
+        client.login(username='gerente', password='password123')
+        return client
+
+    # TODO: Luis test nuevo_proyecto_view
+    # TODO: Hugo test participantes_view
+    # TODO: Hugo test participante_view
+    # TODO: Hugo test eliminar_participante_view
+    # TODO: Luis test visualizar_proyecto_view
+    # TODO: Luis test editar_proyecto_view
+    # TODO: Luis test cancelar_proyecto_view
+    # TODO: Luis test iniciar_proyecto_view
+
+    def test_nuevo_participante_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista para agregar un nuevo participante a un proyecto.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        print(gerente_loggeado)
+        response = gerente_loggeado.get(reverse('nuevo_participante', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_asignar_rol_de_proyecto_view(self, gerente_loggeado, proyecto, usuario):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de asignación de un nuevo rol de proyecto a un participante.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        participante = proyecto.get_participante(usuario)
+        response = gerente_loggeado.get(reverse('asignar_rol_de_proyecto', args=(proyecto.id, participante.id)))
+        assert response.status_code == HTTPStatus.OK, f'Hubo un error al tratar de acceder a la URL {response.content}'
+
+    # TODO: Hugo test seleccionar_miembros_del_comite_view
+    # TODO: Marcos test info_proyecto_view
+    pass
+
 
 @pytest.mark.django_db
 class TestModeloParticipante:
@@ -339,18 +397,3 @@ class TestModeloComite:
     pass
 
 
-@pytest.mark.django_db
-class TestVistasProyecto:
-    # TODO: Luis test nuevo_proyecto_view
-    # TODO: Hugo test participantes_view
-    # TODO: Hugo test participante_view
-    # TODO: Hugo test eliminar_participante_view
-    # TODO: Luis test visualizar_proyecto_view
-    # TODO: Luis test editar_proyecto_view
-    # TODO: Luis test cancelar_proyecto_view
-    # TODO: Luis test iniciar_proyecto_view
-    # TODO: Marcelo test nuevo_participante_view
-    # TODO: Marcelo test asignar_rol_de_proyecto_view
-    # TODO: Hugo test seleccionar_miembros_del_comite_view
-    # TODO: Marcos test info_proyecto_view
-    pass
