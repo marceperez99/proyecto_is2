@@ -1,26 +1,39 @@
+from http import HTTPStatus
+
 import pytest
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
 from roles_de_proyecto.models import RolDeProyecto
+from roles_de_sistema.models import RolDeSistema
 
 
 @pytest.fixture
-def usuario():
+def rs_admin():
+    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol.save()
+    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
+        rol.permisos.add(pp)
+    rol.save()
+    return rol
+
+
+@pytest.fixture
+def usuario(rs_admin):
     user = User(username='user_test', email='test@admin.com')
     user.set_password('password123')
     user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
-
 
 @pytest.fixture
 def cliente_loggeado(usuario):
     client = Client()
     client.login(username='user_test', password='password123')
     return client
-
 
 @pytest.fixture
 def rol_de_proyecto():
@@ -31,9 +44,9 @@ def rol_de_proyecto():
 
 
 @pytest.fixture
-def proyecto(usuario, rol_de_proyecto):
+def proyecto(usuario):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
-                        creador=usuario, fecha_de_creacion=timezone.now())
+                        creador=usuario, gerente=usuario, fecha_de_creacion=timezone.now())
     proyecto.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.save()
@@ -135,8 +148,38 @@ class TestModeloFase:
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestVistasFase:
-    # TODO: Marcelo test_visualizar_fase_view
-    # TODO: Marcelo test_listar_fase_view
+
+    def test_visualizar_fase_view(self, cliente_loggeado, proyecto):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de visualizar fase.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
+        fase.save()
+
+        response = cliente_loggeado.get(reverse('visualizar_fase', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_listar_fase_view(self, cliente_loggeado, proyecto):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de visualizar fase.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id, )))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
     # TODO: Luis test_nueva_fase_view
     # TODO: Luis test_editar_fase_view
     # TODO: Lios test_eliminar_fase_view
