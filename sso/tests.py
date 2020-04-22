@@ -4,11 +4,9 @@ import pytest
 from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
-
 from roles_de_sistema.models import RolDeSistema
 
 
-# Todo: Comentar
 @pytest.fixture
 def rs_admin():
     rol = RolDeSistema(nombre='Administrador', descripcion='descripcion de prueba')
