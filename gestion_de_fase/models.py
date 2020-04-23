@@ -77,7 +77,13 @@ class Fase(models.Model):
         return items
 
     def get_item_estado(self, estado):
-        # TODO: Luis comentar y hacer PU
+        """
+        Metodo que devuelve todos los item de una fase que tengan el estado que se pasa como parametro\n
+        Argumentos:\n
+            estado: cadena, estado de los items que se quieren\n
+         Retorna:\n
+            Todos los item con el estado pasado como paremetro dentro de la fase
+        """
         tipos = self.tipodeitem_set.all()
         items = []
         for tipo in tipos:

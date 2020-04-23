@@ -100,7 +100,7 @@ class AtributoBooleano(models.Model):
            tipo_de_item: TipoDeItem\n
        """
     nombre = models.CharField(max_length=100)
-    requerido = models.BooleanField()
+    requerido = models.BooleanField(default=False)
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):

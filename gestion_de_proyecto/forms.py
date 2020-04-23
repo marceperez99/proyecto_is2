@@ -4,6 +4,16 @@ from .models import Proyecto, Participante, Comite
 
 
 class ProyectoForm(forms.ModelForm):
+    """
+    Form que permite la creacion de un nuevo proyecto.
+    Es necesario espesificar el gerente del proyecto.
+
+    Campos:
+        -nombre: str, nombre del proyecto
+        -descripcion: str, descripcion del proyecto
+        -gerente: User, usuario que se le asignar el rol de gerente del proyecto
+    """
+
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
     class Meta:
@@ -11,12 +21,23 @@ class ProyectoForm(forms.ModelForm):
         fields = ('nombre', 'descripcion', 'gerente')
 
     def __init__(self, *args, **kwargs):
+        """
+        Constructor de la clase ProyectoForm.
+        Para el posible gerente, el usuario seleciona entre los usuarios logeados un gerente
+        """
         super(ProyectoForm, self).__init__(*args, **kwargs)
         self.fields['gerente'].empty_label = 'Seleccionar Gerente'
         self.fields['gerente'].queryset = Usuario.objects.filter(groups__isnull=False)
 
 
 class EditarProyectoForm(forms.ModelForm):
+    """
+    Form que permite editar un proyecto.
+
+    Campos:
+        -nombre: str, nombre del proyecto
+        -descripcion: str, descripcion del proyecto
+    """
     class Meta:
         model = Proyecto
         fields = ('nombre', 'descripcion')

@@ -5,19 +5,25 @@ from gestion_de_fase.models import Fase
 
 class FaseForm(forms.ModelForm):
     """
-    Form que se usa para la creacion de una fase.
+    Form que permite crear y editar una fase.
+    Es necesario espesificar la fase anterior al momento de crear una nueva fase, si no, esta se agregara como la primera fase
 
-    Clase Padre:
-        forms.ModelForm
+    Campos:
+        -nombre: str, nombre de la fase
+        -descripcion: str, descripcion de la nueva fase
+        -fase anterior: Fase, fase anterior a la fase que se crea o se edita
+
     """
     descripcion = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
     def __init__(self, *args, proyecto=None, **kwargs):
         """
-        Constructor del form, recibe los datos de la fase y la fase anterior
+        Constructor de la clase FaseForm.
+        Para seleccionar la fase anterior posible, se filtra las fases por el proyecto que se paso como argumento.
+
 
         Argumentos:
-            proyecto: Proyecto
+            proyecto: Proyecto, en donde se creara o editara la nueva fase
         """
         super(FaseForm, self).__init__(*args, **kwargs)
         self.fields['fase_anterior'].required = False
