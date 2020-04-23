@@ -42,16 +42,23 @@
                     <div class="col-4 h5 my-3">{{atr.plantilla.nombre}}</div>
                         <div class="col-8 my-3">
                             {% if atr.valor == None %}
-                                {% elif atr.valor == True %}
-                                    Si
-                                 {% elif atr.valor == False %}
-                                    No
-                                {% else %}
-                                    {% if atr.valor.normalize %}
-                                        {{atr.valor.normalize}}
-                                    {% else %}
+                            {% elif atr.valor == True %}
+                            Si
+                            {% elif atr.valor == False %}
+                            No
+                            {% else %}
+                            {% if atr.valor.normalize %}
+                            {{atr.valor.normalize}}
+                            {% else %}
+                            {% if atr.getTipoAtributo != "Archivo" %}
                                         {{atr.valor}}
-                                    {% endif %}
+                            {% else %}
+                            <a href="{{atr.valor}}"
+                               class="btn btn-primary mr-3 border-0 bg-color-accent">
+                                Descargar
+                            </a>
+                            {% endif %}
+                            {% endif %}
                             {% endif %}
                         </div>
                     {% endfor %}
