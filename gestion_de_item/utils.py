@@ -1,10 +1,11 @@
+from gdstorage.storage import GoogleDriveStorage
+
 import gestion_de_tipo_de_item.models as modelos
 from gestion_de_item.forms import AtributoItemNumericoForm, AtributoItemBooleanoForm, AtributoItemFechaForm, \
     AtributoItemCadenaForm, AtributoItemArchivoForm
 
 
-
-def get_atributos_forms(tipo_de_item, request,instance=None):
+def get_atributos_forms(tipo_de_item, request, instance=None):
     """
     Función utilitaria que construye una lista de forms para cada atributo del item asociado a su tipo de item.
 
@@ -51,3 +52,14 @@ def hay_ciclo(padre, hijo):
                 stack.append(padre)
                 visitado.add(padre)
     return hijo in visitado
+
+
+def upload_and_save_file_item(atributo, file, proyecto, fase, item):
+    gd_storage = GoogleDriveStorage()
+    path = '/' + proyecto.nombre + "_" + str(proyecto.id) + '/' + fase.nombre + '_' + str(fase.id) \
+           + '/' + item + '/' + str(atributo.version.version) + '/' + file.name
+    print(path)
+    gd_storage.save(path, file)
+    atributo.valor = gd_storage.url(path)
+    print(atributo.valor)
+    atributo.save()
