@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
+from pytest import fixture
 
 from roles_de_sistema.models import RolDeSistema
 
@@ -17,38 +18,60 @@ def rs_admin():
     rol.save()
     return rol
 
-# Create your tests here.
-@pytest.mark.django_db
-def test_ver_usuario_existente(rs_admin):
-    """
-    Prueba el acceso a la información de un usuario existente dentro del sistema. \n
-    Crea un usuario en la base de datos. \n
-    Inicia sesión con este nuevo usuario. \n
-    Accede a /usuarios/id con id igual a la clave primaria del usuario creado.
 
-    Resultado esperado:
-        Una respuesta HTTP con código 200
-
-    Mensaje Error:
-        No se puede acceder a '/usuarios/id' para un usuario existente.
-    """
+@pytest.fixture
+def usuario(rs_admin):
     user = User.objects.create(username='testing')
     user.set_password('12345')
     user.save()
     user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    client = Client()
-    client.login(username='testing', password='12345')
+    return user
 
-    response = client.get(reverse('perfil_de_usuario', args=(user.id,)))
-    assert response.status_code == HTTPStatus.OK, 'No se puede acceder a \'/usuarios/id\' para un usuario existente.'
+# Pruebas Unitarias
+
+
+class TestModeloUsuario:
+    """
+    Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo Usuario.
+    """
+    # TODO: Marcos test asignar_rol_a_usuario
+    # TODO: Marcos test desasignar_rol_a_usuario
+    # TODO: Marcos test get_rol_de_sistema
+    # TODO: Marcos test get_permisos_list
+    # TODO: Marcos test get_proyectos
+    # TODO: Marcos test get_proyectos_activos
+    pass
 
 
 @pytest.mark.django_db
-def test_ver_usuario_no_existente(rs_admin):
+class TestVistasUsuarios:
     """
+    Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
+    """
+    @fixture
+    def admin_loggeado(self, usuario, rs_admin):
+
+        client = Client()
+        client.login(username=usuario.username, password='12345')
+        return client
+
+    def test_ver_usuario_existente(self, admin_loggeado, usuario):
+        """
+        Prueba el acceso a la información de un usuario existente dentro del sistema. \n
+        Accede a /usuarios/id con id igual a la clave primaria del usuario creado.
+
+        Resultado esperado:
+            Una respuesta HTTP con código 200
+
+        Mensaje Error:
+            No se puede acceder a '/usuarios/id' para un usuario existente.
+        """
+        response = admin_loggeado.get(reverse('perfil_de_usuario', args=(usuario.id,)))
+        assert response.status_code == HTTPStatus.OK, 'No se puede acceder a \'/usuarios/id\' para un usuario existente.'
+
+    def test_ver_usuario_no_existente(self, rs_admin, admin_loggeado, usuario):
+        """
         Prueba el acceso a la información de un usuario no existente dentro del sistema. \n
-        Crea un usuario en la base de datos. \n
-        Inicia sesión con este nuevo usuario. \n
         Accede a /usuarios/id con id distinto al de la clave primaria del usuario creado.
 
         Resultado esperado:
@@ -57,20 +80,12 @@ def test_ver_usuario_no_existente(rs_admin):
         Mensaje Error:
             El sistema muestra información de un usuario no existente.
         """
-    user = User.objects.create(username='testing')
-    user.set_password('12345')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    client = Client()
-    client.login(username='testing', password='12345')
+        response = admin_loggeado.get(reverse('perfil_de_usuario', args=(usuario.id + 1,)))
+        assert response.status_code == HTTPStatus.NOT_FOUND, 'El sistema muestra información ' \
+                                                             'de un usuario no existente.'
 
-    response = client.get(reverse('perfil_de_usuario', args=(user.id + 1,)))
-    assert response.status_code == HTTPStatus.NOT_FOUND, 'El sistema muestra información de un usuario no existente.'
-
-
-@pytest.mark.django_db
-def test_ver_usuarios(rs_admin):
-    """
+    def test_ver_usuarios(self, admin_loggeado):
+        """
         Prueba el acceso a la lista de usuarios existentes dentro del sistema. \n
         Crea un usuario en la base de datos. \n
         Inicia sesión con este nuevo usuario. \n
@@ -82,12 +97,23 @@ def test_ver_usuarios(rs_admin):
         Mensaje Error:
             No es posible visualizar la lista de usuarios
         """
-    user = User.objects.create(username='testing')
-    user.set_password('12345')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    client = Client()
-    client.login(username='testing', password='12345')
+        response = admin_loggeado.get(reverse('usuarios'))
+        assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la lista de usuarios'
 
-    response = client.get(reverse('usuarios'))
-    assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la lista de usuarios'
+    # TODO: Marcos test usuario_asignar_rol_view
+    def test_panel_de_administracion_view(self, admin_loggeado):
+        """
+        Prueba el acceso a la lista de usuarios existentes dentro del sistema. \n
+        Crea un usuario en la base de datos. \n
+        Inicia sesión con este nuevo usuario. \n
+        Accede a /usuarios/ .
+
+        Resultado esperado:
+            Una respuesta HTTP con código 200
+
+        Mensaje Error:
+            Hubo un error al intentar aceder a la URL del Panel de Control
+        """
+        response = admin_loggeado.get(reverse('panel_de_control'))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al intentar aceder a la URL del Panel de Control'
+    # TODO: Marcos test desasignar_rol_de_sistema_view

@@ -208,7 +208,7 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    TODO: comentar
+    TODO: Luis comentar
     """
     # Aca se verifica que no existan item de este tipo
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
@@ -267,7 +267,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
             contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
-            # TODO: mañantipoa
+            # TODO: Hugo ?? mañantipoa
             # Construye un diccionario a partir de la lista de atributos
 
             atributos_dinamicos = recolectar_atributos(tipo_de_item)

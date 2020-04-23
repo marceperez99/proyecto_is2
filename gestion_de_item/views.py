@@ -15,7 +15,7 @@ from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, Atributo
     AtributoBooleano
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
-from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
+from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm,NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
 from .utils import get_atributos_forms, upload_and_save_file_item
 
@@ -230,8 +230,19 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        item.eliminar()
+        try:
+            item.eliminar()
+        except Exception as e:
+            mensaje = 'El item no puede ser eliminado debido a las siguientes razones:<br>'
 
+            errores = e.args[0]
+            print(e)
+            print(errores)
+            for error in errores:
+               mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' +  mensaje + '</ul>'
+            messages.error(request,mensaje)
+            return redirect('visualizar_item',proyecto_id,fase_id,item_id)
         return redirect('listar_items', proyecto_id, fase_id)
 
     contexto = {'item': item.version.nombre}
@@ -278,7 +289,20 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_relacionar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
-    # TODO: Luis: comentar
+    """
+    Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
+    fases adyacentes (antecesor-sucesor), de acuerdo a la opcion que elija el usuario se mostraran
+    los item aprobados de la misma fase o de la fase adyacente para ser relacionados
+    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados, de esa fase o de la adyacente \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion, verifica si es valido y la guarda \n
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item.
+    Retorna
+        - request: HttpRequest
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -296,13 +320,18 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
                 else:
                     contexto['form'] = form
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+                form = RelacionAntecesorSucesorForm(request.POST, item=item)
+                if form.is_valid():
+                    item.add_antecesor(form.cleaned_data['antecesor'])
+                else:
+                    contexto['form'] = form
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         if 'tipo' in request.GET.keys():
             if request.GET['tipo'] == 'padre-hijo':
                 contexto['form'] = RelacionPadreHijoForm(item=item)
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+                contexto['form'] = RelacionAntecesorSucesorForm(item=item)
 
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
@@ -474,12 +503,13 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
-
+    Si no es porsible cambiar el estado a No Aprobado, se muestra una lista de las razones por las
+    cuales no se puede cambiar el estado.\n
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.
         - fase_id: int, identificador unico de una fase de un proyecto.
-        - item_id: int, identificador unico del item a eliminar.
+        - item_id: int, identificador unico del item a desaprobar.
 
     Retorna:
         - HttpResponse
@@ -488,9 +518,20 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+
     if request.method == 'POST':
         if item.estado == EstadoDeItem.APROBADO:
-            item.desaprobar()
+            try:
+                item.desaprobar()
+                messages.success(request, "El item se desaprobo correctamente")
+            except Exception as e:
+                mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
+                errores = e.args[0]
+                for error in errores:
+                    mensaje = mensaje + '<li>' + error + '</li><br>'
+                mensaje = '<ul>' + mensaje + '</ul>'
+                messages.error(request, mensaje)
+
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
@@ -501,7 +542,22 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
-    # TODO comntar
+    """
+    Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
+    fases adyacentes (antecesor-sucesor).
+    Si el metodo Http con el que se realizo la peticion fue GET, le pide al usuario que confirme la eliminacion de la ralacion\n
+    Si el metodo Http con el que se realizo la peticion fue POST, se verifica que todos los item sean trazables a la primera fase
+    antes de eliminar la realcion, se muestra un mensaje si no se puede eliminar la relacion\n
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item.
+        - item_relacion_id: int, identificador unico del item
+
+    Retorna:
+        - request: HttpRequest
+    """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)

@@ -95,118 +95,201 @@ def item(tipo_de_item):
 
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
-def test_nueva_version(item):
-    item.nueva_version()
-    assert item.version.version == 2, 'No fue creada una nueva versión'
+class TestModeloItem:
+    """
+    Pruebas unitarias que comprueban el funcionamiento del Modelo Item.
+    """
+    def test_nueva_version(self, item):
+        item.nueva_version()
+        assert item.version.version == 2, 'No fue creada una nueva versión'
+
+    @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.A_APROBAR),
+                                                      (EstadoDeItem.APROBADO, EstadoDeItem.APROBADO),
+                                                      (EstadoDeItem.A_APROBAR, EstadoDeItem.A_APROBAR),
+                                                      (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
+                                                      (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
+                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
+                                                      (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
+    def test_solicitar_aprobacion_item(self, item, estado_item, esperado):
+        """
+        Prueba unitaria que verifica funcionamiento del metodo solicitar_aprobacion del modelo Item.
+
+        Se espera:
+            - Que el estado del item solo cambie a A_APROBAR si el estado actual del item es NO_APROBADO.
+
+        Mensaje de error:
+            - El metodo solicitar_aprobacion() debe dejar el item en estado {esperado} si el item está en estado
+            {estado_item}, pero el metodo retornó {item.estado}
+        """
+        item.estado = estado_item
+        try:
+            item.solicitar_aprobacion()
+        except:
+            pass
+        assert item.estado == esperado, f'El metodo solicitar_aprobacion debe dejar el item en estado {esperado} ' \
+                                        f'si el item está en estado {estado_item}, pero el metodo retornó {item.estado}'
+
+    @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.NO_APROBADO),
+                                                      (EstadoDeItem.APROBADO, EstadoDeItem.APROBADO),
+                                                      (EstadoDeItem.A_APROBAR, EstadoDeItem.APROBADO),
+                                                      (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
+                                                      (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
+                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
+                                                      (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
+    def test_aprobar_item_solicitado(self, item, estado_item, esperado):
+        """
+        Prueba Unitaria que verifica el funcionamineto del metodo aprobar del Modelo Item.
+
+        Se espera:
+            - Que el estado del item solo cambie a APROBADO si el estado actual del item es A_APROBADO.
+
+        Mensaje de error:
+            - El metodo aprobar() debe dejar el item en estado {esperado} si el item está en estado
+            {estado_item}, pero el metodo retornó {item.estado}
+        """
+        item.estado = estado_item
+        try:
+            item.aprobar()
+        except:
+            pass
+        assert item.estado == esperado, f'El metodo aprobar() debe dejar el item en estado {esperado} si el item está' \
+                                        ' en estado {estado_item}, pero el metodo retornó {item.estado}'
+
+    def test_get_versiones(self, item):
+        """
+        Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
+
+        Se espera:
+            - Que el metodo retorne la lista de versiones ordenadas descendentemente.
+
+        Mensaje de Error:
+            - La cantidad de versiones retornadas por el metodo y las que realmente estan 'guardadads en el
+            sistema no coinciden
+        """
+        item.nueva_version()
+        item.nueva_version()
+        versiones = VersionItem.objects.filter(item=item)
+
+        test_versiones = list(item.get_versiones())
+
+        versiones_ordenadas = True
+        nro_version = test_versiones[0].version
+        # Se verifica que las versiones esten en orden
+        for i in range(1, len(test_versiones)):
+            if test_versiones[i].version >= nro_version:
+                versiones_ordenadas = False
+            nro_version = test_versiones[i].version
+        condicion = versiones_ordenadas and len(versiones) == len(test_versiones)
+        assert condicion is True, 'La cantidad de versiones retornadas por el metodo y las que realmente estan ' \
+                                  'guardadads en el sistema no coinciden'
+
+    def test_desaprobar_item(self, item):
+        """
+        Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
+        TODO: Luis completar esta documentacion.
+        Fijate test_aprobar_item_solicitado y proba con todos los estados del item la prueba.
+        """
+        item.estado = EstadoDeItem.APROBADO
+        item.desaprobar()
+        assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
+
+    pass
 
 
 @pytest.mark.django_db
-def test_solicitar_aprobacion_item(item):
+class TestVistasItem:
     """
-    Prueba unitaria que verifica que al llamar al metodo solicitar_aprobacion se cambie el estado del
-    item a A_Aprobar
+    Pruebas Unitarias que comprueban el funcionamiento correcto de las vistas referentes a los Items de un Proyecto.
     """
-    item.solicitar_aprobacion()
-    assert item.estado == EstadoDeItem.A_APROBAR, 'El estado del item no cambio a A Aprobar'
 
+    def test_listar_items_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
 
-@pytest.mark.django_db
-def test_aprobar_item_solicitado(item):
-    """
-    Prueba Unitaria que verifica que al aprobar un item se cambie el estado del item a Aprobado.
-    """
-    item.solicitar_aprobacion()
-    item.aprobar()
-    assert item.estado == EstadoDeItem.APROBADO, 'El estado del item no cambio a A Aprobar'
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).
 
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('listar_items', args=(proyecto.id, item.get_fase().id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-@pytest.mark.django_db
-def test_get_versiones(item):
-    """
-    Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
-    """
-    item.nueva_version()
-    item.nueva_version()
-    versiones = VersionItem.objects.filter(item=item)
+    def test_visualizar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar un item.
 
-    test_versiones = list(item.get_versiones())
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).
 
-    versiones_ordenadas = True
-    nro_version = test_versiones[0].version
-    # Se verifica que las versiones esten en orden
-    for i in range(1, len(test_versiones)):
-        if test_versiones[i].version >= nro_version:
-            versiones_ordenadas = False
-        nro_version = test_versiones[i].version
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    assert versiones_ordenadas and len(versiones) == len(test_versiones), 'La cantidad de versiones retornadas ' \
-                                                                          'por el metodo y las que realmente estan ' \
-                                                                          'guardadads en el sistema no coinciden'
+    # TODO: Hugo: test_nuevo_item_view
 
+    # TODO: Hugo test_eliminar_item_view
 
-@pytest.mark.django_db
-def test_listar_items_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('listar_items', args=(proyecto.id, item.get_fase().id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+    def test_ver_historial_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
 
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).
 
-@pytest.mark.django_db
-def test_visualizar_item(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+    # TODO: Luis test_relacionar_item_view
 
-@pytest.mark.django_db
-def test_ver_historial_item_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+    def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
 
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).
 
-@pytest.mark.django_db
-def test_solicitar_aprobacion_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(
+            reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+    def test_aprobar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
+         de un item.
 
-@pytest.mark.django_db
-def test_aprobar_item_view(cliente_loggeado, proyecto, item):
-    """
-    Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-     de un item.
-    """
-    proyecto.estado = EstadoDeProyecto.INICIADO
-    proyecto.save()
-    response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
-    assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).
 
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
+                                                      'Se esperaba un status code 300.'
 
-@pytest.mark.django_db
-def test_desaprobar_item(item):
-    """
-    Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
-    """
-    item.estado = EstadoDeItem.APROBADO
-    item.desaprobar()
-    assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
+    # TODO: Hugo test_editar_item_view
+
+    # TODO: Luis test_desaprobar_item_view
+
+    # TODO: test_eliminar_relacion_view

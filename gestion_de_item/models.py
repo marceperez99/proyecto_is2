@@ -53,10 +53,7 @@ class Item(models.Model):
             >>> item = Item.objects.first()
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
-
-
         """
-
         version = self.version
         version.save(versionar=True)
 
@@ -86,6 +83,9 @@ class Item(models.Model):
     def get_hijos(self):
         return self.padres_item.all()
 
+    def get_sucesores(self):
+        return self.antecesores_item.all()
+
     def get_numero_version(self):
         return self.version.version
 
@@ -113,15 +113,40 @@ class Item(models.Model):
 
         Retorna: True or False (Eliminado o no)
         """
-        if self.estado == EstadoDeItem.NO_APROBADO:
-            self.estado = EstadoDeItem.ELIMINADO
-            self.save()
-            return True
-        return False
+        mensaje_error = []
+        #mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            mensaje_error.append('El item se encuentra en el estado ' + self.estado)
+            raise Exception(mensaje_error)
+        hijos = self.get_hijos()
+        sucesores = self.get_sucesores()
+        if hijos.count() != 0 or sucesores.count() != 0:
+            for hijo in hijos:
+                mensaje_error.append('El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+            for sucesor in sucesores:
+                mensaje_error.append(f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
+            raise Exception(mensaje_error)
+
+        self.estado = EstadoDeItem.ELIMINADO
+        self.save()
 
     def add_padre(self, item):
-        # TODO comentar
+        """
+        Metodo del model Item que anhade a un item pasado como parametro a la
+        lista que representa los padres del item
+        Parametros:\n
+            -item: int, identificador unico del item a la cual se anhade a la liste de padres
+        """
         self.padres.add(item)
+
+    def add_antecesor(self, item):
+        """
+        Metodo del model Item que anhade a un item pasado como parametro a la
+        lista que representa los antecesores del item
+        Parametros:\n
+            -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
+        """
+        self.antecesores.add(item)
 
     def solicitar_aprobacion(self):
         """
@@ -155,6 +180,9 @@ class Item(models.Model):
 
     def desaprobar(self):
         """
+        TODO: Luis, como el metodo lanza excepcion si es que no se puede desaprobar el item no hace
+        falta que el metodo retorne si se pudo desaprobar el item o no.Agrega a la documentacion que lanza exception
+
         Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
         Retorna: \n
             -True: El item no tiene hijos, por ende el item se puede desaprobar
@@ -166,10 +194,31 @@ class Item(models.Model):
             self.save()
             return True
         else:
+            mensaje_error = []
+            hijos = self.get_hijos()
+            for hijo in hijos:
+                mensaje_error.append(
+                    'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+
+            raise Exception(mensaje_error)
             return False
 
     def eliminar_relacion(self, item):
-        # TODO comentar y hacer PU
+        """
+        TODO: Luis, vamos a seguir el mismo disenho que con los otros metodos que cuando no se puede eliminar relacion
+        en este caso se lance una excepcion en vez de retornar True o False.
+
+        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
+
+        Parametros:
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de
+                    padres.
+        Retorna:
+            - True: Si se puede eliminar la relacion entre los dos item si que haya inconsistencia.
+            - False: Cuando la relacion no se puede eliminar, pues hay al menos un item que no es trazable
+                    a la primera fase.
+
+        """
 
         if self.padres.filter(id=item.id).exists():
             if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (

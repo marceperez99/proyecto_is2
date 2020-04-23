@@ -40,7 +40,16 @@ def get_atributos_forms(tipo_de_item, request, instance=None):
 
 
 def hay_ciclo(padre, hijo):
-    # TODO Luis: comentar y hacer PU
+    """
+    Funcion auxiliar del metodo "clean_padre", para determinar si al formar una relacion entre padre e hijo
+    esta no va a formar un ciclo. El algoritmo utilizado es DFS iterativo.\n
+    Argumentos: \n
+        - padre: item de una fase\n
+        - hijo: item de la misma fase\n
+    Retorna: \n
+        - True: si ya hay un camino directo o indirecto que conecta padre con hijo\n
+        - False: si no hay un camnino que concecte padre con hijo\n
+    """
     stack = []
     visitado = set()
     stack.append(padre)
