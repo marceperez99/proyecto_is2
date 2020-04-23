@@ -170,6 +170,33 @@
                     </div>
                 </div>
             {% endif %}
+            {% if 'pa_config_cloud' in permisos %}
+                <div class="col-12 col-md-6 p-2 my-2">
+                    <div class="card">
+                        <div class="card-header bg-color-primary">
+                            <div class="row">
+                                <h4 class="mt-1 col-auto text-white">Servicios Externos</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-10 mx-auto alert alert-warning text-center">
+                                    <i class="fas fa-exclamation-circle"></i>   Las siguientes acciones pueden afectar
+                                    funcionalidades clave del sistema. Proceda con cuidado.
+                                </div>
+                                <p class="col-12 mx-auto">Configure las credenciales utilizadas para el acceso
+                                al Sistema.</p>
+                                <a href="{% url 'configurar_sso' %}" class="col-8 my-3 mx-auto btn btn-primary bg-color-accent border-0">
+                                    Configurar Google Oauth
+                                </a>
+                                <p class="col-12 mx-auto">Configure las credenciales utilizadas para el almacenamiento
+                                    de los archivos adjuntos de los items.</p>
+                                <a href="#" class="col-8 my-3 mx-auto btn btn-primary bg-color-accent border-0">Configurar Almacenamiento en la Nube</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
