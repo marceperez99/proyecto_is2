@@ -12,7 +12,7 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
-from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
+from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm,NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
 from .utils import get_atributos_forms
 
@@ -311,13 +311,18 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
                 else:
                     contexto['form'] = form
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+                form = RelacionAntecesorSucesorForm(request.POST, item=item)
+                if form.is_valid():
+                    item.add_antecesor(form.cleaned_data['antecesor'])
+                else:
+                    contexto['form'] = form
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         if 'tipo' in request.GET.keys():
             if request.GET['tipo'] == 'padre-hijo':
                 contexto['form'] = RelacionPadreHijoForm(item=item)
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                pass  # TODO hacer cuando haya la funcionalidad de Linea Base
+                contexto['form'] = RelacionAntecesorSucesorForm(item=item)
 
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
