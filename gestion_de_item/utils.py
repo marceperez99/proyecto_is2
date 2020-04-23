@@ -63,3 +63,12 @@ def upload_and_save_file_item(atributo, file, proyecto, fase, item):
     atributo.valor = gd_storage.url(path)
     print(atributo.valor)
     atributo.save()
+
+
+def upload_and_save_file_item_2(atributo, file, proyecto, fase, item):
+    gd_storage = GoogleDriveStorage()
+    path = '/' + proyecto.nombre + "_" + str(proyecto.id) + '/' + fase.nombre + '_' + str(fase.id) \
+           + '/' + item + '/' + str(atributo.version.version) + '/' + file.name
+    print(path)
+    gd_storage.save(path, file)
+    return gd_storage.url(path)

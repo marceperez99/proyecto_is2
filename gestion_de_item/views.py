@@ -1,5 +1,3 @@
-import multiprocessing
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
@@ -17,7 +15,7 @@ from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms, upload_and_save_file_item
+from .utils import get_atributos_forms, upload_and_save_file_item_2
 
 
 @login_required
@@ -188,10 +186,12 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         atributo.version = version
 
                         if type(atributo) == AtributoItemArchivo:
-                            multiprocessing.Process(target=upload_and_save_file_item,
-                                                    args=(atributo, request.FILES[form.nombre], proyecto, fase,
-                                                          item.codigo)).start()
-                            # upload_and_save_file_item(atributo, request.FILES[form.nombre], proyecto, fase)
+                            # multiprocessing.Process(target=upload_and_save_file_item,
+                            #                         args=(atributo, request.FILES[form.nombre], proyecto, fase,
+                            #                               item.codigo)).start()
+                            atributo.valor = upload_and_save_file_item_2(atributo, request.FILES[form.nombre], proyecto,
+                                                                         fase, item.codigo)
+                            atributo.save()
                         else:
                             atributo.valor = form.cleaned_data[form.nombre]
                             atributo.save()
