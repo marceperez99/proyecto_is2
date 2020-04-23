@@ -1,20 +1,23 @@
+import multiprocessing
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib import messages
 
+from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
-from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
-from roles_de_proyecto.decorators import pp_requerido_en_fase
-from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
+from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .forms import RelacionPadreHijoForm, NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms
+from .utils import get_atributos_forms, upload_and_save_file_item
 
 
 @login_required
@@ -183,9 +186,15 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         # Asocia al atributo el tipo de item y la plantilla del atributo.
                         atributo.plantilla = form.plantilla
                         atributo.version = version
-                        atributo.valor = form.cleaned_data[form.nombre]
 
-                        atributo.save()
+                        if type(atributo) == AtributoItemArchivo:
+                            multiprocessing.Process(target=upload_and_save_file_item,
+                                                    args=(atributo, request.FILES[form.nombre], proyecto, fase,
+                                                          item.codigo)).start()
+                            # upload_and_save_file_item(atributo, request.FILES[form.nombre], proyecto, fase)
+                        else:
+                            atributo.valor = form.cleaned_data[form.nombre]
+                            atributo.save()
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
 
@@ -488,12 +497,11 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     return render(request, 'gestion_de_item/desaprobar_item.html', contexto)
 
 
-
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
-    #TODO comntar
+    # TODO comntar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -505,7 +513,8 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
                 if item.eliminar_relacion(item_relacionado):
                     messages.success(request, "La relacion se pudo eliminar correctamente")
                 else:
-                    messages.error(request, "La relacion no se pudo eliminar, pues el item dejara de ser trazale a la primera fase")
+                    messages.error(request,
+                                   "La relacion no se pudo eliminar, pues el item dejara de ser trazale a la primera fase")
             except Exception as e:
                 messages.error(request, e)
 
@@ -513,3 +522,15 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/eliminar_relacion.html', contexto)
+
+
+def download_atributo(request, proyecto_id, fase_id, item_id, url):
+    url = url.replace('\\', '/')
+    print("paraetro = " + url)
+    file = GoogleDriveStorage().open(url)
+    filename = file.name.split('/')[-1]
+    print("filename = " + filename)
+    response = HttpResponse(file, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+    return response
