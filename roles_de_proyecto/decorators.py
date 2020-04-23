@@ -27,7 +27,6 @@ def pp_requerido(permiso_de_proyecto):
             except:
                 return redirect('pp_insuficientes', proyecto_id)
             # Se verifica que el participante tenga el permiso correspondiente
-            #TODO: administrador debe ser trtado especialmente.
             if participante is not None and participante.tiene_pp(permiso_de_proyecto):
                 return view(request, proyecto_id, *args, **kwargs)
             else:
