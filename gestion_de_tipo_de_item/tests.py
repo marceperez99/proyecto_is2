@@ -1,22 +1,37 @@
 import datetime
+from http import HTTPStatus
+
 import pytest
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto, Participante
+from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
 from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
+from roles_de_sistema.models import RolDeSistema
+
+
+@pytest.fixture()
+def rs_admin():
+    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol.save()
+    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
+        rol.permisos.add(pp)
+    rol.save()
+    return rol
 
 @pytest.fixture
-def usuario():
+def usuario(rs_admin):
     user = User(username='user_test', email='test@admin.com')
     user.set_password('password123')
     user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
 
 
@@ -38,7 +53,7 @@ def rol_de_proyecto():
 @pytest.fixture
 def proyecto(usuario, rol_de_proyecto):
     proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=datetime.datetime.now(tz = timezone.utc),
-                        creador=usuario)
+                        creador=usuario,gerente = usuario,estado = EstadoDeProyecto.CONFIGURACION)
     proyecto.save()
     fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
     fase.save()
@@ -159,12 +174,94 @@ class TestUtilsTiposDeItem:
         assert len(lista_atributos) == len(
             lista_forms) and forms_adecuados, "La función atributo_form_handler no construye forms adecuados para los atributos"
 
-
+@pytest.mark.django_db
 class TestVistasTipoDeItem:
-    # TODO: Hugo test tipo_de_item_view
-    # TODO: Hugo test listar_tipo_de_item_view
-    # TODO: Hugo test nuevo_tipo_de_item_view
-    # TODO: Hugo test importar_tipo_de_item_view
-    # TODO: Luis test editar_tipo_de_item_view
+    """
+    Pruebas unitarias que verifican que las vistas sean accesibles.
+    """
+    def test_editar_tipo_de_item_view(self, cliente_loggeado, proyecto, tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista editar_tipo_de_item_view sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(reverse('editar_tipo_de_item', args=(proyecto.id, tipo_de_item.fase.id, tipo_de_item.id)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_tipo_de_item_view(self, cliente_loggeado, proyecto, tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista tipo_de_item_view sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(
+            reverse('tipo_de_item', args=(proyecto.id, tipo_de_item.fase.id, tipo_de_item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_listar_tipo_de_item_view(self, cliente_loggeado, proyecto,tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista listar_tipo_de_item_view sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(
+            reverse('tipos_de_item', args=(proyecto.id, tipo_de_item.fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_nuevo_tipo_de_item_view(self,cliente_loggeado,proyecto,tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista nuevo_tipo_de_item_view sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(
+            reverse('nuevo_tipo_de_item', args=(proyecto.id, tipo_de_item.fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_importar_tipo_de_item_view(self, cliente_loggeado, proyecto,tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista importar_tipo_de_item_view sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(
+            reverse('importar_tipo_de_item', args=(proyecto.id, tipo_de_item.fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_nuevo_tipo_de_item_importar_view(self, cliente_loggeado, proyecto,tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista nueo_tipo_de_item_view con el argumento opcional tipo_de_item sea accesible.
+
+        Resultado Esperado:
+        -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+        -Hubo un error al tratar de acceder a la URL
+        """
+        response = cliente_loggeado.get(
+            reverse('nuevo_tipo_de_item_importar', args=(proyecto.id, tipo_de_item.fase.id,tipo_de_item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
     # TODO: Marcos test eliminar_tipo_de_item_view
     pass

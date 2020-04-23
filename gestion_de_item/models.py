@@ -37,7 +37,7 @@ class Item(models.Model):
     """
     tipo_de_item = models.ForeignKey('gestion_de_tipo_de_item.TipoDeItem', on_delete=models.CASCADE)
     estado = models.CharField(max_length=40)
-    codigo = models.CharField(max_length=40)  # TODO: Hugo: factorizar generacion de codigo del item
+    codigo = models.CharField(max_length=40)
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
     antecesores = models.ManyToManyField('self', related_name='antecesores_item', symmetrical=False)
