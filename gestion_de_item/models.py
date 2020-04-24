@@ -246,7 +246,7 @@ class VersionItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='version_item')
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
-    version = models.IntegerField()  # TODO: Hugo: factorizar generacion de la version
+    version = models.IntegerField()
     peso = models.IntegerField()
 
     def get_atributos_dinamicos(self):

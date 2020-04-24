@@ -96,7 +96,17 @@ def item(tipo_de_item):
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModelosItem:
+
     def test_nueva_version(self, item):
+        """
+        Prueba unitaria que se encarga de verificar que el metodo nueva_version de un Item genere una nueva versiom
+
+        Resultado Esperado:
+            -El numero de versiones aumenta en uno.
+
+        Mensaje de Error:
+            -No fue creada una nueva versión.
+        """
         item.nueva_version()
         assert item.version.version == 2, 'No fue creada una nueva versión'
 
@@ -173,9 +183,35 @@ class TestVistasItem:
         response = cliente_loggeado.get(reverse('visualizar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    # TODO: Hugo: test_nuevo_item_view
+    def test_nuevo_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de crear un nuevo item.
 
-    # TODO: Hugo test_eliminar_item_view
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('nuevo_item', args=(proyecto.id, item.get_fase().id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_eliminar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar un item.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('eliminar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     def test_ver_historial_item_view(self, cliente_loggeado, proyecto, item):
         """
@@ -211,6 +247,15 @@ class TestVistasItem:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     def test_editar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar un item.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+        """
         proyecto.estado = EstadoDeProyecto.INICIADO
         proyecto.save()
         response = cliente_loggeado.get(reverse('editar_item', args=(proyecto.id, item.get_fase().id, item.id)))

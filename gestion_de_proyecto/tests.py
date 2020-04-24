@@ -59,7 +59,6 @@ def proyecto(usuario, gerente, rol_de_proyecto):
     fase2.save()
     fase3 = Fase(nombre='Pruebas', proyecto=proyecto, fase_anterior=fase2, fase_cerrada=False, puede_cerrarse=False)
     fase3.save()
-
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.asignar_rol_de_proyecto(rol_de_proyecto)
     participante.save()
@@ -269,7 +268,20 @@ class TestModeloProyecto:
         proyecto_prueba.iniciar()
         assert proyecto_prueba.estado == EstadoDeProyecto.INICIADO, 'No se puede iniciar el Proyecto'
 
-    # TODO: Hugo test eliminar_participante
+    def test_eliminar_participante(self, proyecto, usuario):
+        """
+        Prueba unitaria que verifica el funcionamiento de eliminar participante.
+
+        Resultado Esperado:
+            - El usuario ya no es un participante del proyecto.
+
+        Mensaje de Error:
+            - El participante no ha sido eliminado correctamente
+        """
+        proyecto.eliminar_participante(usuario)
+        participante = proyecto.get_participante(usuario)
+        assert participante is None, 'El participante no ha sido eliminado correctamente'
+
 
 @pytest.mark.django_db
 class TestVistasProyecto:
@@ -280,9 +292,56 @@ class TestVistasProyecto:
         return client
 
     # TODO: Luis test nuevo_proyecto_view
-    # TODO: Hugo test participantes_view
-    # TODO: Hugo test participante_view
-    # TODO: Hugo test eliminar_participante_view
+
+    def test_participantes_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de ver participantes de un proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
+        response = gerente_loggeado.get(reverse('participantes', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_participante_view(self, gerente_loggeado, proyecto, usuario):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de ver un participante de un proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
+        participante = proyecto.get_participante(usuario)
+        response = gerente_loggeado.get(reverse('participante', args=(proyecto.id, participante.id)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_eliminar_participante_view(self, gerente_loggeado, proyecto, usuario):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar un participante de un proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        participante = proyecto.get_participante(usuario)
+
+        response = gerente_loggeado.get(reverse('eliminar_participante', args=(proyecto.id, participante.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
+
     # TODO: Luis test visualizar_proyecto_view
     # TODO: Luis test editar_proyecto_view
     # TODO: Luis test cancelar_proyecto_view
@@ -299,7 +358,7 @@ class TestVistasProyecto:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
-        print(gerente_loggeado)
+
         response = gerente_loggeado.get(reverse('nuevo_participante', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
@@ -318,7 +377,23 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('asignar_rol_de_proyecto', args=(proyecto.id, participante.id)))
         assert response.status_code == HTTPStatus.OK, f'Hubo un error al tratar de acceder a la URL {response.content}'
 
-    # TODO: Hugo test seleccionar_miembros_del_comite_view
+    def test_seleccionar_miembros_del_comite_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de seleccionar miembros del comite.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        response = gerente_loggeado.get(reverse('asignar_miembros_comite', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
+
     # TODO: Marcos test info_proyecto_view
     pass
 
@@ -392,8 +467,24 @@ class TestModeloParticipante:
 
 @pytest.mark.django_db
 class TestModeloComite:
-    # TODO: Hugo test es_miembro
+    """
+    Pruebas unitarias que verifican el correcto funcionamiento del modelo comite
+    """
 
-    pass
+    def test_es_miembro(self, proyecto, usuario):
+        """
+        Prueba unitaria que verifica el funcionamiento del método es_miembro de un comite.
 
+        Resultado Esperado:
+            - El método retorna True debido a que el participante es miembro del comite.
 
+        Mensaje de error:
+            - El método es_miembro de un comite no reconoce al usuario
+
+        """
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        participante = proyecto.get_participante(usuario)
+        comite.miembros.add(participante)
+        assert comite.es_miembro(participante) == True, 'El método es_miembro de un comite no reconoce al usuario'
