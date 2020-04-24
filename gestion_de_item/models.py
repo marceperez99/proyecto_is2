@@ -182,20 +182,23 @@ class Item(models.Model):
         """
         Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
         Lanza:
-            Exception: si el item esta relacionado con otro item.
+            Exception: si el item esta relacionado con otro item o no esta con los estdos Aprobado o A Aprobar.
         """
-        assert self.estado == EstadoDeItem.APROBADO, 'El item debe estar en estado Aprobado para ser desaprobado'
-        if self.padres_item.all().count() == 0:
-            self.estado = EstadoDeItem.NO_APROBADO
-            self.save()
-        else:
-            mensaje_error = []
-            hijos = self.get_hijos()
-            for hijo in hijos:
-                mensaje_error.append(
-                    'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
 
-            raise Exception(mensaje_error)
+        if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
+            if self.padres_item.all().count() == 0:
+                self.estado = EstadoDeItem.NO_APROBADO
+                self.save()
+            else:
+                mensaje_error = []
+                hijos = self.get_hijos()
+                for hijo in hijos:
+                    mensaje_error.append(
+                        'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+
+                raise Exception(mensaje_error)
+        else:
+            raise Exception("El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo")
 
     def eliminar_relacion(self, item):
         """
