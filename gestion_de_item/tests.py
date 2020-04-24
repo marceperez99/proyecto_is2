@@ -155,6 +155,7 @@ class TestModeloItem:
         assert item.estado == esperado, f'El metodo aprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
 
+
     def test_get_versiones(self, item):
         """
         Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
@@ -183,17 +184,31 @@ class TestModeloItem:
         assert condicion is True, 'La cantidad de versiones retornadas por el metodo y las que realmente estan ' \
                                   'guardadads en el sistema no coinciden'
 
-    def test_desaprobar_item(self, item):
+    @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.NO_APROBADO),
+                                                      (EstadoDeItem.APROBADO, EstadoDeItem.NO_APROBADO),
+                                                      (EstadoDeItem.A_APROBAR, EstadoDeItem.NO_APROBADO),
+                                                      (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
+                                                      (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
+                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
+                                                      (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
+    def test_desaprobar_item(self, item, estado_item, esperado):
         """
-        Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.
-        TODO: Luis completar esta documentacion.
-        Fijate test_aprobar_item_solicitado y proba con todos los estados del item la prueba.
+        Prueba Unitaria que comprueba que el estado del item quede en estado No Aprobado.\n
+        Se espera:
+            Que el item quede en estado No Aprobado, si este se encuentra con los estados Aprobado, A Aprobar y
+            No Aprobado. Si se encuentra en otro estado este no cambia\n
+        Mensaje de error:
+            El metodo desaprobar() debe dejar el item en estado {esperado} si el item está en estado {estado_item},
+            pero el metodo retornó {item.estado}
         """
-        item.estado = EstadoDeItem.APROBADO
-        item.desaprobar()
-        assert item.estado == EstadoDeItem.NO_APROBADO, 'El estado del item no cambio a No aprobado'
+        item.estado = estado_item
+        try:
+            item.desaprobar()
+        except:
+            pass
+        assert item.estado == esperado, f'El metodo desaprobar() debe dejar el item en estado {esperado} si el item está' \
+                                        ' en estado {estado_item}, pero el metodo retornó {item.estado}'
 
-    pass
 
 
 @pytest.mark.django_db
@@ -255,7 +270,13 @@ class TestVistasItem:
     # TODO: Luis test_relacionar_item_view
 
     def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
-        """
+        """    @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.NO_APROBADO),
+                                                      (EstadoDeItem.APROBADO, EstadoDeItem.APROBADO),
+                                                      (EstadoDeItem.A_APROBAR, EstadoDeItem.APROBADO),
+                                                      (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
+                                                      (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
+                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
+                                                      (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
          de un item.
 
