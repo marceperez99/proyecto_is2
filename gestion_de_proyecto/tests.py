@@ -488,3 +488,21 @@ class TestModeloComite:
         participante = proyecto.get_participante(usuario)
         comite.miembros.add(participante)
         assert comite.es_miembro(participante) == True, 'El método es_miembro de un comite no reconoce al usuario'
+
+    def test_no_es_miembro(self,proyecto,usuario):
+        """
+        Prueba unitaria que verifica el funcionamiento del método es_miembro de un comite.
+
+        Resultado Esperado:
+            - El método retorna False debido a que el participante no es miembro del comite.
+
+        Mensaje de error:
+            - El método es_miembro de un comite reconoce al usuario como miembro erroneamente
+
+        """
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        participante = proyecto.get_participante(usuario)
+
+        assert comite.es_miembro(participante) == False, 'El método es_miembro de un comite reconoce al usuario como miembro erroneamente'
