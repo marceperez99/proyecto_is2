@@ -107,7 +107,6 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     Retorna:
         - HttpResponse
     """
-    # TODO: Hugo, falta prueba unitaria de la vista
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
 
@@ -217,7 +216,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Hugo, falta verificar condiciones de eliminacion y prueba unitaria de la vista
+
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
@@ -417,7 +416,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna
         - HttpResponse
     """
-    # TODO: Hugo: hacer prueba unitaria
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)

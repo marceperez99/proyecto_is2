@@ -247,7 +247,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
                 all_valid = all_valid and form.is_valid()
 
             if all_valid:
-                # TODO: Sobrecargar el save del form.
+
                 guardar_tipo_de_item(tipo_de_item, fase, request.user)
                 guardar_atributos(atributos_forms, tipo_de_item)
                 tipo_de_item = TipoDeItem.objects.get(id=tipo_de_item_id)
@@ -267,7 +267,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
         else:
             tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
             contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
-            # TODO: Hugo ?? mañantipoa
+
             # Construye un diccionario a partir de la lista de atributos
 
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
