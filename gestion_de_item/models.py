@@ -213,9 +213,16 @@ class Item(models.Model):
             if self.padres.filter(id=item.id).exists():
                 if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
                     self.padres.remove(item)
+                    return
+                else:
+                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
             elif self.antecesores.filter(id=item.id).exists():
                 if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
                     self.antecesores.remove(item)
+                    return
+                else:
+                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+
             else:
                 mensaje_error.append('Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
         else:

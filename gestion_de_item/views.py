@@ -560,7 +560,12 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
             item.eliminar_relacion(item_relacionado)
             messages.success(request, "La relacion se elimino correctamente")
         except Exception as e:
-            messages.error(request, e)
+            mensaje = 'La relacion no se puede eliminar por los siguientes motivos<br><ul>'
+            errores = e.args[0]
+            for error in errores:
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = mensaje + '</ul>'
+            messages.error(request, mensaje)
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
