@@ -555,14 +555,16 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
     item_relacionado = get_object_or_404(Item, id=item_relacion_id)
 
     if request.method == 'POST':
-        if item.estado == EstadoDeItem.APROBADO:
-            try:
-                if item.eliminar_relacion(item_relacionado):
-                    messages.success(request, "La relacion se pudo eliminar correctamente")
-                else:
-                    messages.error(request, "La relacion no se pudo eliminar, pues el item dejara de ser trazale a la primera fase")
-            except Exception as e:
-                messages.error(request, e)
+        try:
+            item.eliminar_relacion(item_relacionado)
+            messages.success(request, "La relacion se elimino correctamente")
+        except Exception as e:
+            mensaje = 'La relacion no se puede eliminar por los siguientes motivos<br><ul>'
+            errores = e.args[0]
+            for error in errores:
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = mensaje + '</ul>'
+            messages.error(request, mensaje)
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 

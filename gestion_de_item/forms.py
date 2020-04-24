@@ -242,7 +242,7 @@ class RelacionPadreHijoForm(forms.Form):
 
         """
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
-        self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO))
+        self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE).exclude(id=item.id))
         self.item = item
 
     def clean_padre(self):

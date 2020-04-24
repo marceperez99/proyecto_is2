@@ -180,19 +180,14 @@ class Item(models.Model):
 
     def desaprobar(self):
         """
-        TODO: Luis, como el metodo lanza excepcion si es que no se puede desaprobar el item no hace
-        falta que el metodo retorne si se pudo desaprobar el item o no.Agrega a la documentacion que lanza exception
-
         Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
-        Retorna: \n
-            -True: El item no tiene hijos, por ende el item se puede desaprobar
-            -False: El item tiene al menos un hijo, no se puede desaprobar
+        Lanza:
+            Exception: si el item esta relacionado con otro item.
         """
         assert self.estado == EstadoDeItem.APROBADO, 'El item debe estar en estado Aprobado para ser desaprobado'
         if self.padres_item.all().count() == 0:
             self.estado = EstadoDeItem.NO_APROBADO
             self.save()
-            return True
         else:
             mensaje_error = []
             hijos = self.get_hijos()
@@ -201,39 +196,42 @@ class Item(models.Model):
                     'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
 
             raise Exception(mensaje_error)
-            return False
 
     def eliminar_relacion(self, item):
         """
-        TODO: Luis, vamos a seguir el mismo disenho que con los otros metodos que cuando no se puede eliminar relacion
-        en este caso se lance una excepcion en vez de retornar True o False.
-
         Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de
-                    padres.
-        Retorna:
-            - True: Si se puede eliminar la relacion entre los dos item si que haya inconsistencia.
-            - False: Cuando la relacion no se puede eliminar, pues hay al menos un item que no es trazable
-                    a la primera fase.
-
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.\n
+        Lanza:
+            -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
         """
 
-        if self.padres.filter(id=item.id).exists():
-            if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
-                    self.padres.count() == 1 and self.antecesores.count() >= 1):
-                self.padres.remove(item)
-                return True
-        elif self.antecesores.filter(id=item.id).exists():
-            if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
-                    self.antecesores.count() == 1 and self.padres.count() >= 1):
-                self.antecesores.remove(item)
-                return True
-        else:
-            raise Exception("Los items no estan relacionados")
-        return False
+        mensaje_error = []
 
+        if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
+            if self.padres.filter(id=item.id).exists():
+                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
+                    self.padres.remove(item)
+                    return
+                else:
+                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+            elif self.antecesores.filter(id=item.id).exists():
+                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
+                    self.antecesores.remove(item)
+                    return
+                else:
+                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+
+            else:
+                mensaje_error.append('Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
+        else:
+            if self.estado == EstadoDeItem.EN_LINEA_BASE:
+                mensaje_error.append('El item ' + self.version.nombre + ' esta en una linea base')
+            if item.estado == EstadoDeItem.EN_LINEA_BASE:
+                mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
+
+        raise Exception(mensaje_error)
 
 class VersionItem(models.Model):
     """
