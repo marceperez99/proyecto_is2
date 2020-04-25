@@ -6,7 +6,7 @@ SECRET_KEY = settings.GOOGLE_OAUTH_SECRET_KEY
 CLIENT_ID = settings.GOOGLE_OAUTH_CLIENT_ID
 
 
-if SocialApp.objects.filter(name='gapi').exists():
+if not SocialApp.objects.filter(name='gapi').exists():
     s = Site.objects.get(domain='example.com')
     s.domain = 'localhost:8000'
     s.name = 'localhost'
