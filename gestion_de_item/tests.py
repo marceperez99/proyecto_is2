@@ -270,13 +270,7 @@ class TestVistasItem:
     # TODO: Luis test_relacionar_item_view
 
     def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
-        """    @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.NO_APROBADO),
-                                                      (EstadoDeItem.APROBADO, EstadoDeItem.APROBADO),
-                                                      (EstadoDeItem.A_APROBAR, EstadoDeItem.APROBADO),
-                                                      (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
-                                                      (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
-                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
-                                                      (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
+        """    
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
          de un item.
 
