@@ -34,3 +34,7 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles/'
+
+# Configuraciones del SSO
+GOOGLE_OAUTH_SECRET_KEY = 'sw2lVjRDgG1GtDAZVC_QmVhr'
+GOOGLE_OAUTH_CLIENT_ID = '347886323853-r72mjg1utuabev2f73ngef3tg2nqluth.apps.googleusercontent.com'
