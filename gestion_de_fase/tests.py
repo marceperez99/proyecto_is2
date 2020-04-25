@@ -8,7 +8,7 @@ from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
 from gestion_de_item.tests import tipo_de_item
-from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_de_proyecto.models import Participante, Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
@@ -215,7 +215,77 @@ class TestModeloFase:
         assert fase.get_items() == [], "El metodo get_items no retorna correctamente " \
                                        "los items de una fase."
 
-    # TODO: Luis: test para probar get_item_estado
+    def test_get_item_estado_un_estado(self, fase, tipo_de_item):
+        """
+        Prueba Unitaria que comprueba que el metodo get_item_estado retorne los item con el estados
+        especificados en los parametros de la funcion.
+
+        Se espera:
+            Que se retornen todos los items de la fase que tengan el estado especificado
+        Mensaje de error:
+            El metodo get_item_estado no retorna correctamente los items de una fase.
+
+        """
+        items = [Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.NO_APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.EN_LINEA_BASE, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="")]
+        list_item = list(fase.get_item_estado(EstadoDeItem.A_APROBAR))
+        list_a_aprobar = list(filter(lambda e: e.estado == EstadoDeItem.A_APROBAR, items))
+        condicion = all(item in list_item for item in list_a_aprobar) and all(item in list_a_aprobar for item in list_item)
+        assert condicion is True, f'El metodo get_item_estado no retorna correctamente los items de una fase'
+
+
+    def test_get_item_estado_varios_estados(self, fase, tipo_de_item):
+        """
+        Prueba Unitaria que comprueba que el metodo get_item_estado retorne los item con los estados
+        especificados en los parametros de la funcion.
+
+        Se espera:
+            Que se retornen todos los items de la fase que tengan los estados especificados
+        Mensaje de error:
+            El metodo get_item_estado no retorna correctamente los items de una fase.
+
+        """
+        items = [Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.NO_APROBADO, codigo="TT_6"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="TT_5"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo="TT_0"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo="TT_1"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.EN_LINEA_BASE, codigo="TT_2"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="TT_3"),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.EN_LINEA_BASE, codigo="TT_4")]
+        list_item = list(fase.get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE))
+        list_estados = list(filter(lambda e: e.estado == EstadoDeItem.APROBADO or e.estado == EstadoDeItem.EN_LINEA_BASE, items))
+        condicion = all(item in list_item for item in list_estados) and all(item in list_estados for item in list_item)
+        assert condicion is True, f'El metodo get_item_estado no retorna correctamente los items de una fase'
+
+
+    def test_get_item_estado_ninguno(self, fase, tipo_de_item):
+        """
+        Prueba Unitaria que comprueba que el metodo get_item_estado retorne un objeto null, al no encontrar ningun item
+        con el estado especificado.
+
+        Se espera:
+            Que se retornen null
+        Mensaje de error:
+            El metodo get_item_estado no retorna lo esperado.
+
+        """
+        items = [Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.NO_APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.APROBADO, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.EN_LINEA_BASE, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo=""),
+                 Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="")]
+        list_item = list(fase.get_item_estado(EstadoDeItem.ELIMINADO))
+        list_null = list(filter(lambda e: e.estado == EstadoDeItem.ELIMINADO, items))
+        condicion = all(item in list_item for item in list_null) and all(item in list_null for item in list_item)
+        assert condicion is True, f'El metodo get_item_estado no retorna lo esperado.'
+
 
 
 @pytest.mark.filterwarnings('ignore::RuntimeWarning')
@@ -256,7 +326,54 @@ class TestVistasFase:
         response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    # TODO: Luis test_nueva_fase_view
-    # TODO: Luis test_editar_fase_view
-    # TODO: Lios test_eliminar_fase_view
-    pass
+
+    def test_nueva_fase_view(self, cliente_loggeado, proyecto):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de nueva fase.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.CONFIGURACION
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('nueva_fase', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+    def test_editar_fase_view(self, cliente_loggeado, proyecto, fase):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de editar fase.
+
+        Se espera:
+            Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            Hubo un error al tratar de acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.CONFIGURACION
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('editar_fase', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+    def test_eliminar_fase_view(self, cliente_loggeado, proyecto, fase):
+            """
+            Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+            vista de eliminar fase.
+
+            Se espera:
+                Que la respuesta HTTP sea OK.
+
+            Mensaje de Error:
+                Hubo un error al tratar de acceder a la URL
+            """
+            proyecto.estado = EstadoDeProyecto.CONFIGURACION
+            proyecto.save()
+            response = cliente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
+            assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
