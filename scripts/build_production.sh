@@ -52,9 +52,9 @@ DB_HOST=${input:-$DB_HOST}
 read -p "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 # Lectura de variables de entorno de SSO
-GOOGLE_OAUTH_SECREY_KEY=""
-read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECREY_KEY]: " input
-GOOGLE_OAUTH_SECREY_KEY=${input:-$GOOGLE_OAUTH_SECREY_KEY}
+GOOGLE_OAUTH_SECRET_KEY=""
+read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
+GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
 GOOGLE_OAUTH_CLIENT_ID=""
 read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
@@ -80,7 +80,7 @@ echo "DB_NOMBRE=\"$DB_NAME\"" ;
 echo "DB_PASSWORD=\"$DB_PASS\"" ;
 echo "DB_HOST=\"$DB_HOST\"";
 echo "DB_PORT=\"$DB_PORT\"";
-echo "GOOGLE_OAUTH_SECREY_KEY=\"$GOOGLE_OAUTH_SECREY_KEY\"";
+echo "GOOGLE_OAUTH_SECRET_KEY=\"$GOOGLE_OAUTH_SECRET_KEY\"";
 echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
 echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
 echo "DEBUG_VALUE=False";
