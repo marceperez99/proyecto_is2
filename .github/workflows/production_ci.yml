@@ -47,14 +47,3 @@ jobs:
     - name: Run Tests with pytest
       run: |
         pipenv run pytest
-    - name: Create requirements.txt
-      run: pipenv run pip freeze > requirements.txt
-    - name: Commit files
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Actualiza archivo requirements.txt" -a
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
