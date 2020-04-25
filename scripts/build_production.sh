@@ -73,6 +73,7 @@ virtualenv venv -p python3
 source venv/bin/activate
 python --version
 
+SECRET_KEY=$(openssl rand -base64 32)
 #Creacion de variables de entorno
 { echo "DB_USUARIO=\"$DB_USER\"";
 echo "DB_NOMBRE=\"$DB_NAME\"" ;
@@ -82,7 +83,8 @@ echo "DB_PORT=\"$DB_PORT\"";
 echo "GOOGLE_OAUTH_SECREY_KEY=\"$GOOGLE_OAUTH_SECREY_KEY\"";
 echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
 echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
-echo "DEBUG_VALUE=False"; } > "$ENV_VARIABLES_PATH"
+echo "DEBUG_VALUE=False";
+echo "SECRET_KEY=\"$SECRET_KEY\""; } > "$ENV_VARIABLES_PATH"
 
 #Descarga de codigo fuente
 cd "django" || exit 1
