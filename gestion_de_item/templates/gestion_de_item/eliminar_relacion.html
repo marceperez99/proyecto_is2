@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar Relacion{% endblock %}
+{% block content %}
+    {% include 'navBar.html'%}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row bg-white p-3 border rounded">
+            <h3 class="col-12">Eliminar Relacion</h3>
+            <hr class="col-10 mx-auto">
+            <p class="lead">Esta seguro que desea eliminar esta relacion entre items?</p>
+
+            <form method="POST" class="col-12">
+                {% csrf_token %}
+                <div class="row">
+                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Eliminar relacion">
+                    <a href="../" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

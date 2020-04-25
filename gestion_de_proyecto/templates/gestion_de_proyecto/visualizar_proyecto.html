@@ -7,17 +7,11 @@
    
     <div class="container mt-3">
         <div class="row">
-             {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                        <div class="alert alert-danger col-12">
-                            {{ message }}</div>
-                {% endif %}
-                {% endfor %}
-        {% endif %}
+            {% include 'mensajes.html' %}
             <h3 class="col-auto">{{ proyecto.nombre }}</h3>
             <div class="ml-auto">
                 {% if proyecto.estado == 'En Configuración' %}
+                    <a href="{% url 'editar_proyecto' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Editar Proyecto</a>
                     <a href="{% url 'iniciar_proyecto' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Iniciar Proyecto</a>
                 {% endif %}
                 {% if proyecto.estado == 'En Configuración' or proyecto.estado == 'Iniciado' %}
@@ -103,8 +97,7 @@
                     </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">{{proyecto.gerente.get_full_name}}</li>
-                            {% for participante in lista_participante %}
+                            {% for participante in proyecto.get_participantes %}
                                 <li class="list-group-item">{{participante.usuario.get_full_name}}</li>
                             {% endfor %}
 

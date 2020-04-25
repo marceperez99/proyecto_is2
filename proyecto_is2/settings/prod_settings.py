@@ -3,7 +3,7 @@
 """
 
 from .base import *
-
+ENVIROMENT_VARIABLES_PATH = f"{BASE_DIR}/../../auth/.env"
 # SECURITY WARNING: keep the secret key used in production secret!
 #TODO: se debe cambiar esto para obtener el SECRET KEY del entorno
 SECRET_KEY = '$ce2p+5(x@x!)8f7sqd*bmq30(b@dr!kr!55_1oz2f%1x%but$'#os.environ.get('SECRET_KEY')

@@ -25,24 +25,38 @@ class RolDeProyecto(models.Model):
 
     class Meta:
         permissions = [
+            # Gestion de Proyecto
             ('pg_iniciar_proyecto', 'Iniciar Proyecto'),
             ('pg_editar_proyecto', 'Editar Proyecto'),
             ('pg_cancelar_proyecto', 'Cancelar Proyecto'),
             ('pg_asignar_comite', 'Asignar Comite de Cambios'),
             ('pu_ver_proyecto', 'Visualizar Proyecto'),
+            # Gestion de Fases
             ('pg_crear_fase', 'Crear Fase dentro de Proyecto'),
             ('pg_f_editar_fase', 'Editar Fase dentro de Proyecto'),
             ('pg_f_eliminar_fase', 'Eliminar Fase de Proyecto'),
             ('pu_f_ver_fase', 'Visualizar Fase dentro de Proyecto'),
             ('pp_f_cerrar_fase', 'Cerrar Fase de Proyecto'),
+            # Gestion de Tipos
             ('pp_f_crear_tipo_de_item', 'Crear tipo de ítem'),
             ('pp_f_eliminar_tipo_de_item', 'Eliminar tipo de ítem'),
             ('pp_f_editar_tipo_de_item', 'Editar tipo de ítem'),
             ('pp_f_importar_tipo_de_item', 'Importar tipo de ítem'),
+            # Gestion de Participantes
             ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
             ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
             ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
             ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),
+            # Gestion de Items
+            ('pu_f_ver_item', 'Visualizar Items'),
+            ('pp_f_crear_item', 'Crear Item'),
+            ('pp_f_relacionar_item', 'Relacionar Item'),
+            ('pp_f_ver_historial_de_item', 'Visualizar Historial de Cambios de un Item'),
+            ('pp_f_eliminar_item', 'Eliminar Item'),
+            ('pp_f_modificar_item', 'Modificar Item'),
+            ('pp_f_aprobar_item', 'Aprobar cambios de un Item'),
+            ('pp_f_eliminar_relacion_entre_items', 'Eliminar Relación entre Items'),
+            ('pp_f_ver_items_eliminados', 'Visualizar Items eliminados'),
         ]
 
     def __str__(self):

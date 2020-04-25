@@ -1,4 +1,3 @@
-from django.db import models
 from django.contrib.auth.models import User, Group
 
 # Create your models here.
@@ -25,7 +24,12 @@ class Usuario(User):
         self.groups.add(group)
 
     def desasignar_rol_a_usuario(self):
-        self.groups.clear()
+        flag = True
+        if not self.get_proyectos():
+            self.groups.clear()
+        else:
+            flag = False
+        return flag
 
     def tiene_rs(self):
         return self.groups.all().exists()

@@ -1,10 +1,11 @@
+from allauth.socialaccount.models import SocialApp
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render, redirect
 
 from usuario.models import Usuario
-
+from .forms import SocialAppForm
 
 @login_required
 def index_view(request):
@@ -68,3 +69,20 @@ def sin_permiso(request):
     Vista que se encarga de avisarle al usuario que no posee permisos suficientes para lo que desea realizar
     """
     return render(request, 'sso/sin_acceso.html')
+
+@login_required
+@permission_required('roles_de_sistema.pa_config_sso', login_url='sin_permiso')
+def configurar_sso_view(request):
+    """
+    Vista que se encarga de configurar el CLIENT_ID  y el SECRET_KEY del Single Sign On.
+
+    """
+    assert SocialApp.objects.all().count() == 1
+    sa = SocialApp.objects.first()
+    form = SocialAppForm(request.POST or None, instance = sa)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+        return redirect('index')
+    contexto = {'user': request.user,'form':form}
+    return render(request,'sso/configurar.html',context = contexto)

@@ -2,10 +2,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from gestion_de_fase.models import Fase
 
-
-# Create your models here.
 class TipoDeItem(models.Model):
     """
     Modelo que representa una instancia de un tipo de item.
@@ -22,7 +19,7 @@ class TipoDeItem(models.Model):
     descripcion = models.CharField(max_length=401)
     prefijo = models.CharField(max_length=20)
     creador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    fase = models.ForeignKey(Fase, on_delete=models.CASCADE)
+    fase = models.ForeignKey('gestion_de_fase.Fase', on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField()
 
     def __str__(self):
@@ -30,7 +27,7 @@ class TipoDeItem(models.Model):
 
     def get_atributos(self):
         """
-        Método que consigue la lista completa de atributos dinámico
+        Método que consigue la lista completa de atributos dinámicos
 
         Retorna:
             atributos: lista[] atributos dinámicos asociados a este tipo de item.
@@ -44,8 +41,8 @@ class TipoDeItem(models.Model):
         return atributos
 
     def es_utilizado(self):
-        # Todo: agregar logica una vez implementado el item
-        return False
+        return self.item_set.all().count() > 0
+
 
 
 class AtributoBinario(models.Model):
@@ -103,7 +100,7 @@ class AtributoBooleano(models.Model):
            tipo_de_item: TipoDeItem\n
        """
     nombre = models.CharField(max_length=100)
-    requerido = models.BooleanField()
+    requerido = models.BooleanField(default=False)
     tipo_de_item = models.ForeignKey(TipoDeItem, on_delete=models.CASCADE)
 
     def es_requerido(self):

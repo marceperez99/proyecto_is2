@@ -10,4 +10,5 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('sin_permiso/', views.sin_permiso, name='sin_permiso'),
+    path('sso/configurar/',views.configurar_sso_view,name='configurar_sso'),
 ]

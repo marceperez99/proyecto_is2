@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Cambios{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <style>
+        [data-toggle="collapse"] .fa:before {
+            content: "\f077";
+
+        }
+        [data-toggle="collapse"].collapsed .fa:before {
+            content: "\f078";
+        }
+    </style>
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">Versiones del Item</h3>
+            <hr class="col-12">
+            <div id="list_versiones" class="col-12 col-md-10 mx-auto">
+                {% for version in item.get_versiones %}
+                    <div class="card m-2">
+                        <div class="card-header bg-color-primary text-white" id="header_version_{{ version.id }}">
+                            <div class="row">
+                                <div class="col-auto text-white mr-auto">
+                                    Version {{version.version}}
+                                </div>
+                                    {% if item.version != version %}
+                                    <a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                         Volver a esta Version
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_version_{{ version.id }}" aria-expanded="false" aria-controls="list_versiones">
+                                    <i class="fa  text-white" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="collapse_version_{{ version.id }}" class="collapse" aria-labelledby="header_version_{{ version.id }}" data-parent="#list_versiones">
+                            <div class="card-body row">
+                                <div class="col-4">Nombre:</div><div class="col-8">{{ version.nombre }}</div>
+                                    <hr class="col-10">
+                                    <div class="col-4">Descripcion:</div><div class="col-8">{{ version.descripcion }}</div>
+                                    <hr class="col-10">
+                                    <div class="col-4">Costo:</div><div class="col-8">{{ version.peso }}</div>
+                                    <hr class="col-10">
+                                    {% for atributo in version.get_atributos_dinamicos %}
+                                        <div class="col-4">{{ atributo.plantilla.nombre }}:</div><div class="col-8">
+                                            {% if atributo.valor == None %}
+                                            {% elif atributo.valor == True %}
+                                                Si
+                                             {% elif atributo.valor == False %}
+                                                No
+                                            {% else %}
+                                                {% if atributo.valor.normalize %}
+                                                    {{atributo.valor.normalize}}
+                                                {% else %}
+                                                    {{atributo.valor}}
+                                                {% endif %}
+                                        {% endif %}
+                                    </div>
+                                        <hr class="col-10">
+                                    {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -18,6 +18,7 @@ Documentación
    modules/roles_de_proyecto/roles_de_proyecto.rst
    modules/gestion_de_fase/gestion_de_fase.rst
    modules/gestion_de_tipo_de_item/gestion_de_tipo_de_item.rst
+   modules/gestion_de_item/gestion_de_item.rst
 
 Tablas e indices
 ==================

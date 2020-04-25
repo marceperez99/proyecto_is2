@@ -2,10 +2,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.urls import reverse
-
 from gestion_de_fase.forms import FaseForm
 from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 
 
@@ -70,6 +70,7 @@ def listar_fase_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_crear_fase')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def nueva_fase_view(request, proyecto_id):
     """
     Vista que se usa para la creacion y posicionamiento de una fase dentro de un proyecto \n
@@ -109,6 +110,7 @@ def nueva_fase_view(request, proyecto_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pg_f_editar_fase')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def editar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que muestra al usuario los datos actuales de la fase que se pueden modificar, si el usuario
@@ -129,6 +131,11 @@ def editar_fase_view(request, proyecto_id, fase_id):
     form = FaseForm(request.POST or None, instance=fase, proyecto=proyecto)
     if request.method == 'POST':
         if form.is_valid():
+            if Fase.objects.filter(fase_anterior=fase).exists():
+                print('Entro en el if')
+                fase_siguiente = Fase.objects.get(fase_anterior=fase)
+                fase_siguiente.fase_anterior = Fase.objects.get(id=fase.id).fase_anterior
+                fase_siguiente.save()
             fase = form.save(commit=False)
             fase.save()
             fase.posicionar_fase()
@@ -148,6 +155,7 @@ def editar_fase_view(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pg_f_eliminar_fase')
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
 def eliminar_fase_view(request, proyecto_id, fase_id):
     """
     Muestra una vista al usuario para que confirme la eliminacion de una fase. \n
