@@ -90,7 +90,8 @@ class AtributoItemArchivoForm(forms.Form):
         self.fields[self.nombre] = forms.FileField()
         self.fields[self.nombre].empty_label = 'Seleccionar un archivo'
         self.fields[self.nombre].label = plantilla.nombre
-        self.fields[self.nombre].required = self.plantilla.requerido
+
+        self.fields[self.nombre].required = self.plantilla.requerido and 'initial' not in kwargs.keys()
 
     def clean(self):
         # Falta validar el tamaño maximo del archivo
