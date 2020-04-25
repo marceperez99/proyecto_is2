@@ -14,6 +14,7 @@ pytest-django = "*"
 django-crispy-forms = "*"
 sphinx-rtd-theme = "*"
 psycopg2 = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.6"
