@@ -226,8 +226,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
             mensaje = 'El item no puede ser eliminado debido a las siguientes razones:<br>'
 
             errores = e.args[0]
-            print(e)
-            print(errores)
+
             for error in errores:
                mensaje = mensaje + '<li>' + error + '</li><br>'
             mensaje = '<ul>' +  mensaje + '</ul>'
@@ -445,7 +444,6 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                 AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,
                                         counter=counter, initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemBooleano:
-            print(atributo.valor)
             atributos_forms.append(AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
                                                             initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemFecha:

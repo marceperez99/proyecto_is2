@@ -93,7 +93,6 @@ def item(tipo_de_item):
     return item
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModeloItem:
     """
@@ -217,7 +216,6 @@ class TestModeloItem:
             pass
         assert item.estado == esperado, f'El metodo desaprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
-
 
 
 @pytest.mark.django_db

@@ -154,9 +154,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
             # Construye un diccionario a partir de la lista de atributos
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
-            print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
-            print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
@@ -271,9 +269,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
             # Construye un diccionario a partir de la lista de atributos
 
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
-            print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
-            print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/editar_tipo_de_item.html', context=contexto)
 

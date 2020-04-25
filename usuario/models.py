@@ -19,7 +19,6 @@ class Usuario(User):
     def asignar_rol_a_usuario(self, rs_id):
         self.groups.clear()
         rs = RolDeSistema.objects.get(id=rs_id)
-        print(rs.nombre)
         group = Group.objects.get(name=rs.nombre)
         self.groups.add(group)
 

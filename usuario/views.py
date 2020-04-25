@@ -69,7 +69,6 @@ def usuario_asignar_rol_view(request, usuario_id):
     if request.method == 'POST':
         form = AsignarRolDeProyectoForm(request.POST, usuario=usuario)
         if form.is_valid():
-            print(form.cleaned_data.get('Rol'))
             usuario.asignar_rol_a_usuario(form.cleaned_data.get('Rol'))
             return redirect('perfil_de_usuario', usuario_id=usuario.id)
         else:
@@ -98,7 +97,6 @@ def panel_de_administracion_view(request):
         - HttpResponse.
     """
     user = Usuario.objects.get(id=request.user.id)
-    print(user.es_administrador())
     contexto = {'user': user,
                 'permisos': user.get_permisos_list(),
                 'usuarios': Usuario.objects.all().filter(is_superuser=False),
