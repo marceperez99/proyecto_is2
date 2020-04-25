@@ -92,9 +92,9 @@ cd "$PROYECT_NAME" || exit 1
 
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 echo
-if [[ ! $REPLY == ^[Ss]$ ]]
+if [[  $REPLY =~ ^[Ss]$ ]]
 then
-    echo "
+    [[ "$0" = "$BASH_SOURCE" ]] && echo "
       <VirtualHost *:80>
         ServerAdmin webmaster@localhost
         DocumentRoot $BASE_DIR/html
@@ -116,7 +116,7 @@ then
         WSGIProcessGroup proyecto_is2
         WSGIScriptAlias / $BASE_DIR/proyecto_is2/django/proyecto_is2/proyecto_is2/wsgi.py
       </VirtualHost>
-    " #> $APACHE_DIR/000-default.conf
+    " > $APACHE_DIR/000-default.conf
 fi
 
 
