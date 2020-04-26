@@ -116,8 +116,3 @@ SOCIALACCOUNT_PROVIDERS = {
 LOGIN_URL = '/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = \
-    '/mnt/c/Users/macro/Documents/is2/proyecto_is2/proyecto_is2/settings/gdriveaccess.json'
-
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"

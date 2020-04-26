@@ -37,3 +37,5 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles/'
+
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = f'{BASE_DIR}/proyecto_is2/settings/gdriveaccess.json'
