@@ -1,10 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
-    AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
+
 # from gestion_de_item.utils import hay_ciclo
 import gestion_de_item
+from gestion_de_item.models import VersionItem, Item, EstadoDeItem
 
 
 class NuevoVersionItemForm(forms.ModelForm):
@@ -90,7 +90,7 @@ class AtributoItemArchivoForm(forms.Form):
         self.fields[self.nombre] = forms.FileField()
         self.fields[self.nombre].empty_label = 'Seleccionar un archivo'
         self.fields[self.nombre].label = plantilla.nombre
-        self.fields[self.nombre].required = self.plantilla.requerido
+        self.fields[self.nombre].required = self.plantilla.requerido and 'initial' not in kwargs.keys()
 
     def clean(self):
         # Falta validar el tamaño maximo del archivo
