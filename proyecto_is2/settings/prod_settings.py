@@ -39,3 +39,5 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT')
 # Configuraciones del SSO
 GOOGLE_OAUTH_SECRET_KEY = os.environ.get('GOOGLE_OAUTH_SECRET_KEY')
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+SOCIALAPP_DOMAIN = "localhost"
+SOCIALAPP_NAME = "localhost"

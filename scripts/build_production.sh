@@ -56,7 +56,7 @@ GOOGLE_OAUTH_SECRET_KEY=""
 read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
 GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
 GOOGLE_OAUTH_CLIENT_ID=""
-read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
+read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
 cd "$BASE_DIR" || exit 1
