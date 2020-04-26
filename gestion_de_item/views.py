@@ -1,8 +1,11 @@
+import multiprocessing
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from gdstorage.storage import GoogleDriveStorage
 
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
@@ -13,9 +16,10 @@ from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, Atributo
     AtributoBooleano
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
-from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm,NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
+from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm, NuevoVersionItemForm, EditarItemForm, \
+    AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms, upload_and_save_file_item_2
+from .utils import get_atributos_forms, upload_and_save_file_item  # , upload_and_save_file_item_2
 
 
 @login_required
@@ -168,6 +172,8 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         elif anterior.get_fase() == fase:
                             item.padres.add(anterior)
 
+                    list_atributos_id = []
+                    list_files = []
                     # Crea los atributos dinamicos del item.
                     for form in atributo_forms:
                         if type(form.plantilla) == AtributoCadena:
@@ -185,16 +191,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         atributo.plantilla = form.plantilla
                         atributo.version = version
 
-                        if type(atributo) == AtributoItemArchivo:
-                            # multiprocessing.Process(target=upload_and_save_file_item,
-                            #                         args=(atributo, request.FILES[form.nombre], proyecto, fase,
-                            #                               item.codigo)).start()
-                            atributo.valor = upload_and_save_file_item_2(atributo, request.FILES[form.nombre], proyecto,
-                                                                         fase, item.codigo)
+                        if type(atributo) == AtributoItemArchivo and form.cleaned_data[form.nombre] is not None:
                             atributo.save()
+                            list_atributos_id.append(atributo.id)
+                            list_files.append(request.FILES[form.nombre])
                         else:
                             atributo.valor = form.cleaned_data[form.nombre]
                             atributo.save()
+
+                    if len(list_atributos_id) > 0:
+                        gd_storage = GoogleDriveStorage()
+                        multiprocessing.Process(target=upload_and_save_file_item,
+                                                args=(gd_storage, list_atributos_id, list_files, proyecto, fase,
+                                                      item.codigo)).start()
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
 
@@ -239,10 +248,10 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
             print(e)
             print(errores)
             for error in errores:
-               mensaje = mensaje + '<li>' + error + '</li><br>'
-            mensaje = '<ul>' +  mensaje + '</ul>'
-            messages.error(request,mensaje)
-            return redirect('visualizar_item',proyecto_id,fase_id,item_id)
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' + mensaje + '</ul>'
+            messages.error(request, mensaje)
+            return redirect('visualizar_item', proyecto_id, fase_id, item_id)
         return redirect('listar_items', proyecto_id, fase_id)
 
     contexto = {'item': item.version.nombre}
@@ -480,13 +489,31 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                 item.version = version
 
                 # Crea nuevos atributos dinamicos relacionados a esta nueva version
+                list_atributos_id = []
+                list_files = []
                 counter = 0
                 for form, atributo in zip(atributos_forms, atributos_dinamicos):
                     counter = counter + 1
                     atributo.version = version
-                    atributo.valor = form.cleaned_data['valor_' + str(counter)]
-                    atributo.pk = None
-                    atributo.save()
+                    if type(atributo) == AtributoItemArchivo and \
+                            form.cleaned_data['valor_' + str(counter)] is not None and type(
+                        form.cleaned_data['valor_' + str(counter)]) != type('str'):
+                        print(f'atributo: {form.cleaned_data["valor_" + str(counter)]}')
+                        list_files.append(request.FILES[form.nombre])
+                        atributo.valor = None
+                        atributo.pk = None
+                        atributo.save()
+                        list_atributos_id.append(atributo.id)
+                    else:
+                        atributo.valor = form.cleaned_data['valor_' + str(counter)]
+                        atributo.pk = None
+                        atributo.save()
+
+                if len(list_atributos_id) > 0:
+                    gd_storage = GoogleDriveStorage()
+                    multiprocessing.Process(target=upload_and_save_file_item,
+                                            args=(gd_storage, list_atributos_id, list_files, proyecto, fase,
+                                                  item.codigo)).start()
                 # Finaliza el proceso de editar
                 item.save()
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
