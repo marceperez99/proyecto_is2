@@ -15,6 +15,8 @@ django-crispy-forms = "*"
 sphinx-rtd-theme = "*"
 psycopg2 = "*"
 python-dotenv = "*"
+django-googledrive-storage = "*"
+httplib2 = "==0.15.0"
 
 [requires]
 python_version = "3.6"

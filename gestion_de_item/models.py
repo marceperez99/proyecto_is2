@@ -278,7 +278,9 @@ class AtributoItemArchivo(models.Model):
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
     valor = models.CharField(max_length=500, null=True)
-    # TODO: Marcos, podes cambiar esto si ves necesario. Puede llamarse valor tambien para ser estandar.
+
+    def getTipoAtributo(self):
+        return "Archivo"
 
 
 class AtributoItemBooleano(models.Model):
@@ -291,6 +293,9 @@ class AtributoItemBooleano(models.Model):
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBooleano', on_delete=models.CASCADE)
     valor = models.BooleanField(null=True)
 
+    def getTipoAtributo(self):
+        return "Booleano"
+
 
 class AtributoItemFecha(models.Model):
     """
@@ -300,6 +305,9 @@ class AtributoItemFecha(models.Model):
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoFecha', on_delete=models.CASCADE)
     valor = models.DateField(null=True)
+
+    def getTipoAtributo(self):
+        return "Fecha"
 
 
 class AtributoItemNumerico(models.Model):
@@ -311,6 +319,10 @@ class AtributoItemNumerico(models.Model):
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoNumerico', on_delete=models.CASCADE)
     valor = models.DecimalField(decimal_places=20, max_digits=40, null=True)
 
+    def getTipoAtributo(self):
+        return "Numerico"
+
+
 
 class AtributoItemCadena(models.Model):
     """
@@ -320,3 +332,6 @@ class AtributoItemCadena(models.Model):
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoCadena', on_delete=models.CASCADE)
     valor = models.CharField(max_length=500, null=True)
+
+    def getTipoAtributo(self):
+        return "Cadena"
