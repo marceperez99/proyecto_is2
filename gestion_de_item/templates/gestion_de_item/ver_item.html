@@ -53,10 +53,10 @@
                             {% if atr.getTipoAtributo != "Archivo" %}
                                         {{atr.valor}}
                             {% else %}
-                            <a href="{{atr.valor}}"
-                               class="btn btn-primary mr-3 border-0 bg-color-accent">
-                                Descargar
-                            </a>
+                            <button class="btn btn-primary mr-3 border-0 bg-color-accent"
+                                    onclick="window.open('{{atr.valor}}')">
+                                Ver Archivo
+                            </button>
                             {% endif %}
                             {% endif %}
                             {% endif %}
