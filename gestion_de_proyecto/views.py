@@ -111,7 +111,6 @@ def participante_view(request, proyecto_id, participante_id):
     if participante.rol is None:
         raise Http404()
 
-    print(participante.get_pp_por_fase())
     contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto,
                 'rol_de_proyecto': {'pp_por_proyecto': participante.rol.get_pp_por_proyecto(),
                                     'pp_por_fase': participante.get_pp_por_fase()},

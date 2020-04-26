@@ -83,7 +83,6 @@ def item(tipo_de_item):
     return item
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModeloFase:
     """
@@ -288,7 +287,6 @@ class TestModeloFase:
 
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestVistasFase:
     """

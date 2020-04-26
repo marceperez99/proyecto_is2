@@ -164,8 +164,6 @@ class AtributoItemNumericoForm(forms.Form):
         self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.DecimalField(max_digits=plantilla.max_digitos,
                                                       decimal_places=plantilla.max_decimales)
-        print(plantilla.max_digitos)
-        print(plantilla.max_decimales)
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
 
@@ -215,7 +213,6 @@ class AtributoItemFechaForm(forms.Form):
         Argumentos:
             - plantilla: AtributoFecha
         """
-        print(fecha, counter)
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
