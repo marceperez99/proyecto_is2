@@ -16,6 +16,4 @@ urlpatterns = [
     path('nuevo/', views.nuevo_item_view, name='nuevo_item'),
     path('nuevo/<int:tipo_de_item_id>/', views.nuevo_item_view, name='nuevo_item_tipo'),
     path('<int:item_id>/editar/', views.editar_item_view, name='editar_item'),
-    path('<int:item_id>/download_atributo/<url>', views.download_atributo, name='download_atributo'),
-
 ]

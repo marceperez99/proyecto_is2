@@ -82,20 +82,18 @@ def upload_and_save_file_item(gd_storage, atributo_id, file, proyecto, fase, ite
         - Void
     """
     db.close_old_connections()
-    print(f'cant atributos: {len(atributo_id)}')
+
     for i in range(0, len(atributo_id)):
-        print(f'archivo nro{i}')
+
         atributo = AtributoItemArchivo.objects.get(id=atributo_id[i])
-        # atributo = get_object_or_404(AtributoItemArchivo, id=atributo_id[i])
-        path = f'/PROY-{proyecto.nombre}-ID{proyecto.id}_/FASE-{fase.nombre}-ID{fase.id}_/ITEM-{item}_/ATRIB-{atributo.plantilla.nombre}_/VERS{atributo.version.version}_/FILENAME-{
-        file[i].name}'
-        print(path)
+        path = f'/PROY-{proyecto.nombre}-ID{proyecto.id}_/' \
+               f'FASE-{fase.nombre}-ID{fase.id}_/ITEM-{item}_/ATRIB-{atributo.plantilla.nombre}_/' \
+               f'VERS{atributo.version.version}_/FILENAME-{file[i].name}'
+
         gd_storage.save(path, file[i])
         atributo.valor = gd_storage.url(path)
-        print(atributo.valor)
-        atributo.save()
 
-    print("archivos subidos")
+        atributo.save()
 
 
 def upload_and_save_file_item_2(atributo, file, proyecto, fase, item):

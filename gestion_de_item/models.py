@@ -114,7 +114,7 @@ class Item(models.Model):
         Retorna: True or False (Eliminado o no)
         """
         mensaje_error = []
-        #mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
+        # mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
         if self.estado != EstadoDeItem.NO_APROBADO:
             mensaje_error.append('El item se encuentra en el estado ' + self.estado)
             raise Exception(mensaje_error)
@@ -122,9 +122,11 @@ class Item(models.Model):
         sucesores = self.get_sucesores()
         if hijos.count() != 0 or sucesores.count() != 0:
             for hijo in hijos:
-                mensaje_error.append('El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+                mensaje_error.append(
+                    'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
             for sucesor in sucesores:
-                mensaje_error.append(f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
+                mensaje_error.append(
+                    f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
             raise Exception(mensaje_error)
 
         self.estado = EstadoDeItem.ELIMINADO
@@ -214,20 +216,25 @@ class Item(models.Model):
 
         if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
             if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
+                        self.padres.count() == 1 and self.antecesores.count() >= 1):
                     self.padres.remove(item)
                     return
                 else:
-                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+                    mensaje_error.append(
+                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
             elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
+                        self.antecesores.count() == 1 and self.padres.count() >= 1):
                     self.antecesores.remove(item)
                     return
                 else:
-                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+                    mensaje_error.append(
+                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
 
             else:
-                mensaje_error.append('Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
+                mensaje_error.append(
+                    'Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
         else:
             if self.estado == EstadoDeItem.EN_LINEA_BASE:
                 mensaje_error.append('El item ' + self.version.nombre + ' esta en una linea base')
@@ -235,6 +242,7 @@ class Item(models.Model):
                 mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
 
         raise Exception(mensaje_error)
+
 
 class VersionItem(models.Model):
     """
@@ -321,7 +329,6 @@ class AtributoItemNumerico(models.Model):
 
     def getTipoAtributo(self):
         return "Numerico"
-
 
 
 class AtributoItemCadena(models.Model):

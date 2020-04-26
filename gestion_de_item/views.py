@@ -301,8 +301,10 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
     fases adyacentes (antecesor-sucesor), de acuerdo a la opcion que elija el usuario se mostraran
     los item aprobados de la misma fase o de la fase adyacente para ser relacionados
-    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados, de esa fase o de la adyacente \n
-    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion, verifica si es valido y la guarda \n
+    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados,
+    de esa fase o de la adyacente \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion,
+    verifica si es valido y la guarda \n
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.
@@ -423,7 +425,8 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
-    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
+    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una
+    nueva versión de este.
 
     Argumentos:
         - request: HttpRequest,
@@ -494,8 +497,8 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                     counter = counter + 1
                     atributo.version = version
                     if type(atributo) == AtributoItemArchivo and \
-                            form.cleaned_data['valor_' + str(counter)] is not None and type(
-                        form.cleaned_data['valor_' + str(counter)]) != type('str'):
+                            form.cleaned_data['valor_' + str(counter)] is not None and \
+                            type(form.cleaned_data['valor_' + str(counter)]) != type('str'):
                         print(f'atributo: {form.cleaned_data["valor_" + str(counter)]}')
                         list_files.append(request.FILES[form.nombre])
                         atributo.valor = None
