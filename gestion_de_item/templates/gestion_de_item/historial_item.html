@@ -24,7 +24,7 @@
                                 <div class="col-auto text-white mr-auto">
                                     Version {{version.version}}
                                 </div>
-                                    {% if item.version != version %}
+                                    {% if item.version != version and item.estado in lista_estados_item %}
                                     <a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                          Volver a esta Version
                                     </a>
