@@ -93,12 +93,12 @@ def item(tipo_de_item):
     return item
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestModeloItem:
     """
     Pruebas unitarias que comprueban el funcionamiento del Modelo Item.
     """
+
     def test_nueva_version(self, item):
         """
         Prueba unitaria que se encarga de verificar que el metodo nueva_version de un Item genere una nueva versiom
@@ -164,7 +164,6 @@ class TestModeloItem:
         assert item.estado == esperado, f'El metodo aprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
 
-
     def test_get_versiones(self, item):
         """
         Prueba Unitaria que verifica que el metodo get_versiones retorne la lista con todas las versiones de un item.
@@ -217,7 +216,6 @@ class TestModeloItem:
             pass
         assert item.estado == esperado, f'El metodo desaprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
-
 
 
 @pytest.mark.django_db

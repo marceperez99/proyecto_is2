@@ -1,6 +1,5 @@
 import os
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Application definition
 INSTALLED_APPS = [
@@ -21,13 +20,13 @@ INSTALLED_APPS = [
     'gestion_de_tipo_de_item',
     'gestion_de_item',
 
-
     'allauth',  # <--
     'allauth.account',  # <--
     'allauth.socialaccount',  # <--
     'allauth.socialaccount.providers.google',  # <--
     'crispy_forms',
 
+    'gdstorage',
 ]
 
 MIDDLEWARE = [
@@ -77,7 +76,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 LANGUAGE_CODE = 'es-us'
@@ -96,8 +94,8 @@ STATICFILES_DIRS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
- 'django.contrib.auth.backends.ModelBackend',
- 'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 SITE_ID = 1

@@ -1,15 +1,16 @@
 """
     Configuraciones del proyecto a ser usadas en un entorno de Produccion
 """
-
+from dotenv import load_dotenv
 from .base import *
-ENVIROMENT_VARIABLES_PATH = f"{BASE_DIR}/../../auth/.env"
+
+ENVIROMENT_VARIABLES_PATH = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'auth', '.env')
+load_dotenv(ENVIROMENT_VARIABLES_PATH)
 # SECURITY WARNING: keep the secret key used in production secret!
-#TODO: se debe cambiar esto para obtener el SECRET KEY del entorno
-SECRET_KEY = '$ce2p+5(x@x!)8f7sqd*bmq30(b@dr!kr!55_1oz2f%1x%but$'#os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG_VALUE')
 
 ALLOWED_HOSTS = ['*']
 
@@ -19,11 +20,11 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'proyecto_is2',
-        'USER': 'proyecto_admin',
-        'PASSWORD': 'Pr0yect0Adm1n',
-        'HOST': 'localhost',
-        'DATABASE_PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USUARIO'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'DATABASE_PORT': os.environ.get('DB_PORT'),
 
     }
 }
@@ -32,4 +33,13 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/var/www/proyecto_is2/site/public/static/'
+STATIC_ROOT = os.environ.get('STATIC_ROOT')
+
+
+# Configuraciones del SSO
+GOOGLE_OAUTH_SECRET_KEY = os.environ.get('GOOGLE_OAUTH_SECRET_KEY')
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+
+
+# Configuracion de Celery
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')

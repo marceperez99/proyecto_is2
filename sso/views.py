@@ -41,8 +41,7 @@ def login_view(request):
         HttpResponse
     """
     contexto = None
-    if (request.user.is_authenticated):
-        print(request.user.first_name)
+    if request.user.is_authenticated:
         return redirect('index')
     else:
 
