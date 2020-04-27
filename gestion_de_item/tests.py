@@ -98,6 +98,7 @@ class TestModeloItem:
     """
     Pruebas unitarias que comprueban el funcionamiento del Modelo Item.
     """
+
     def test_nueva_version(self, item):
         """
         Prueba unitaria que se encarga de verificar que el metodo nueva_version de un Item genere una nueva versiom
@@ -162,7 +163,6 @@ class TestModeloItem:
             pass
         assert item.estado == esperado, f'El metodo aprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
-
 
     def test_get_versiones(self, item):
         """
