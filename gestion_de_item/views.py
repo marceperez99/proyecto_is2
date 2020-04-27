@@ -165,9 +165,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                             "peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.antecesores.add(anterior)
+                            item.add_antecesor(anterior)
                         elif anterior.get_fase() == fase:
-                            item.padres.add(anterior)
+                            item.add_padre(anterior)
 
                     list_atributos_id = []
                     list_files = []
@@ -276,6 +276,7 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {
         'item': item,
         'user': request.user,
+        'lista_estados_item': [EstadoDeItem.NO_APROBADO, ],
         'breadcrumb': {'pagina_actual': 'Historial de Cambios',
                        'links': [
                            {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
