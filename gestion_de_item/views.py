@@ -1,12 +1,9 @@
 import multiprocessing
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from gdstorage.storage import GoogleDriveStorage
-
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
@@ -19,7 +16,7 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm, NuevoVersionItemForm, EditarItemForm, \
     AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms, upload_and_save_file_item  # , upload_and_save_file_item_2
+from .utils import get_atributos_forms, upload_and_save_file_item
 
 
 @login_required
