@@ -162,9 +162,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                                                                          "es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.antecesores.add(anterior)
+                            item.add_antecesor(anterior)
                         elif anterior.get_fase() == fase:
-                            item.padres.add(anterior)
+                            item.add_padre(anterior)
 
                     # Crea los atributos dinamicos del item.
                     for form in atributo_forms:
@@ -477,6 +477,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                     atributo.valor = form.cleaned_data['valor_' + str(counter)]
                     atributo.pk = None
                     atributo.save()
+
                 # Finaliza el proceso de editar
                 item.save()
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
