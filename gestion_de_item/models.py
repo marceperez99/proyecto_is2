@@ -40,8 +40,6 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
-    antecesores = models.ManyToManyField('self', related_name='antecesores_item', symmetrical=False)
-    padres = models.ManyToManyField('self', related_name='padres_item', symmetrical=False)
 
     # No cambiar save() o se rompe
     def nueva_version(self):
@@ -75,16 +73,16 @@ class Item(models.Model):
         return self.version.peso
 
     def get_antecesores(self):
-        return self.antecesores.all()
+        return self.version.antecesores.all()
 
     def get_padres(self):
-        return self.padres.all()
+        return self.version.padres.all()
 
     def get_hijos(self):
-        return self.padres_item.all()
+        return self.hijos.all()
 
     def get_sucesores(self):
-        return self.antecesores_item.all()
+        return self.sucesores.all()
 
     def get_numero_version(self):
         return self.version.version
@@ -139,7 +137,7 @@ class Item(models.Model):
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
-        self.padres.add(item)
+        self.version.padres.add(item)
 
     def add_antecesor(self, item):
         """
@@ -148,7 +146,7 @@ class Item(models.Model):
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
-        self.antecesores.add(item)
+        self.version.antecesores.add(item)
 
     def solicitar_aprobacion(self):
         """
@@ -188,12 +186,12 @@ class Item(models.Model):
         """
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
-            if self.padres_item.all().count() == 0:
+            hijos = self.get_hijos()
+            if len(hijos) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
                 mensaje_error = []
-                hijos = self.get_hijos()
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
@@ -262,6 +260,9 @@ class VersionItem(models.Model):
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()
     peso = models.IntegerField()
+    # Relaciones
+    antecesores = models.ManyToManyField('gestion_de_item.Item', related_name='sucesores')
+    padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
 
     def get_atributos_dinamicos(self):
         atributos = list(self.atributoitemnumerico_set.all())
