@@ -34,6 +34,15 @@ class Fase(models.Model):
     def __str__(self):
         return self.nombre
 
+    def es_primera_fase(self):
+        """
+        Metodo que retorna si la fase es la primera fase del proyecto.
+
+        Retorna:
+            - True si la fase es la primera fase del proyecto, False en caso contrario
+        """
+        return self.fase_anterior is None
+
     def posicionar_fase(self):
         """
         Metodo que sirve para el posicionamiento de una nueva fase dento del proyecto, lo posiona correctamente

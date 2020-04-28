@@ -331,7 +331,19 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {'proyecto': proyecto,
                 'fase': fase,
                 'item': item,
-                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO)
+                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO),
+                'breadcrumb': {'pagina_actual': 'Relacionar Items',
+                               'links': [
+                                   {'nombre': proyecto.nombre,
+                                    'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                   {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                   {'nombre': fase.nombre,
+                                    'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                   {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                   {'nombre': item.version.nombre,
+                                    'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))},
+                               ]
+                               }
                 }
     if request.method == 'POST':
         if 'tipo' in request.GET.keys():
@@ -353,7 +365,11 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
             if request.GET['tipo'] == 'padre-hijo':
                 contexto['form'] = RelacionPadreHijoForm(item=item)
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                contexto['form'] = RelacionAntecesorSucesorForm(item=item)
+                if fase.es_primera_fase():
+                    messages.error(request, "No se puede agregar un antecesor a un item de la primera fase")
+                    return redirect("visualizar_item", proyecto.id, fase.id, item.id)
+                else:
+                    contexto['form'] = RelacionAntecesorSucesorForm(item=item)
 
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
@@ -548,7 +564,6 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                         atributo.save()
 
                 if len(list_atributos_id) > 0:
-
                     # Comentar linea de abajo para que la subida de archivos sea asincrona
                     # upload_and_save_file_item(list_atributos_id)
                     # Comentar linea de abajo para que la subida de archivos sea sincrona
