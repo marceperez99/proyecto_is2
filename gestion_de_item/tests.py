@@ -218,6 +218,12 @@ class TestModeloItem:
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
 
 
+    #TODO Luis falta pruebas unitaria de: add_padre
+    #TODO Luis falta pruebas unitaria de: add_antecesor
+    #TODO Luis falta pruebas unitaria de: hay_ciclo
+    #TODO Luis falta pruebas unitaria de: eliminar_relacion
+
+
 @pytest.mark.django_db
 class TestVistasItem:
     """
