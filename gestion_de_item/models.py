@@ -88,10 +88,23 @@ class Item(models.Model):
         return self.version.padres.all()
 
     def get_hijos(self):
-        return self.hijos.all()
+        #TODO Luis comentar
+        hijos = self.hijos.all()
+        lista_hijos = []
+        for hijo in hijos:
+            if hijo == hijo.item.version and hijo.item.estado != EstadoDeItem.ELIMINADO:
+                lista_hijos.append(hijo.item.id)
+        return Item.objects.filter(id__in=lista_hijos)
 
     def get_sucesores(self):
-        return self.sucesores.all()
+        # TODO Luis comentar
+        sucesores = self.sucesores.all()
+        lista_sucesores = []
+        for sucesor in sucesores:
+            if sucesor == sucesor.item.version and sucesor.item.estado != EstadoDeItem.ELIMINADO:
+                lista_sucesores.append(sucesor.item.id)
+        return Item.objects.filter(id__in=lista_sucesores)
+
 
     def get_numero_version(self):
         return self.version.version
@@ -142,19 +155,21 @@ class Item(models.Model):
     def add_padre(self, item):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los padres del item
+        lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
+        self.nueva_version()
         self.version.padres.add(item)
 
     def add_antecesor(self, item):
         """
-        Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los antecesores del item
+        Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
+        antecesores del item, creando tambien una nueva version del item con esta nueva relacion.
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
+        self.nueva_version()
         self.version.antecesores.add(item)
 
     def solicitar_aprobacion(self):
@@ -212,6 +227,8 @@ class Item(models.Model):
     def eliminar_relacion(self, item):
         """
         Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
+        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una
+        relacion implica una nueva version del item
 
         Parametros:
             - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.\n
@@ -223,16 +240,18 @@ class Item(models.Model):
 
         if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
             if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
-                        self.padres.count() == 1 and self.antecesores.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_padres() > 1 or (
+                        self.get_padres() == 1 and self.get_antecesores() >= 1):
+                    self.nueva_version()
                     self.padres.remove(item)
                     return
                 else:
                     mensaje_error.append(
                         'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
             elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
-                        self.antecesores.count() == 1 and self.padres.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_antecesores() > 1 or (
+                        self.get_antecesores() == 1 and self.get_padres() >= 1):
+                    self.nueva_version()
                     self.antecesores.remove(item)
                     return
                 else:
