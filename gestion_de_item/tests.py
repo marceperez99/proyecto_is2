@@ -366,10 +366,23 @@ class TestVistasItem:
                                                       'Se esperaba un status code 300.'
 
 
+    def test_relacionar_item_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de relacionar item.\n
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).\n
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('desaprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
+                                                      'Se esperaba un status code 300.'
+
 
 
 
 
 
     # TODO: Luis test_eliminar_relacion_view
-    # TODO: Luis test_relacionar_item_view
