@@ -1,9 +1,8 @@
-import multiprocessing
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from gdstorage.storage import GoogleDriveStorage
+
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
@@ -16,7 +15,8 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm, NuevoVersionItemForm, EditarItemForm, \
     AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms, upload_and_save_file_item
+from .tasks import upload_and_save_file_item
+from .utils import get_atributos_forms  # , upload_and_save_file_item
 
 
 @login_required
@@ -170,7 +170,6 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                             item.add_padre(anterior)
 
                     list_atributos_id = []
-                    list_files = []
                     # Crea los atributos dinamicos del item.
                     for form in atributo_forms:
                         if type(form.plantilla) == AtributoCadena:
@@ -189,18 +188,17 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         atributo.version = version
 
                         if type(atributo) == AtributoItemArchivo and form.cleaned_data[form.nombre] is not None:
+                            atributo.archivo_temporal = request.FILES[form.nombre]
                             atributo.save()
                             list_atributos_id.append(atributo.id)
-                            list_files.append(request.FILES[form.nombre])
+                            # list_files.append(request.FILES[form.nombre])
                         else:
                             atributo.valor = form.cleaned_data[form.nombre]
                             atributo.save()
 
                     if len(list_atributos_id) > 0:
-                        gd_storage = GoogleDriveStorage()
-                        multiprocessing.Process(target=upload_and_save_file_item,
-                                                args=(gd_storage, list_atributos_id, list_files, proyecto, fase,
-                                                      item.codigo)).start()
+                        # gd_storage = GoogleDriveStorage()
+                        upload_and_save_file_item(list_atributos_id)
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
 
@@ -489,30 +487,28 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
                 # Crea nuevos atributos dinamicos relacionados a esta nueva version
                 list_atributos_id = []
-                list_files = []
                 counter = 0
                 for form, atributo in zip(atributos_forms, atributos_dinamicos):
                     counter = counter + 1
                     atributo.version = version
-                    if type(atributo) == AtributoItemArchivo and \
-                            form.cleaned_data['valor_' + str(counter)] is not None and \
-                            type(form.cleaned_data['valor_' + str(counter)]) != type('str'):
-                        print(f'atributo: {form.cleaned_data["valor_" + str(counter)]}')
-                        list_files.append(request.FILES[form.nombre])
-                        atributo.valor = None
-                        atributo.pk = None
+
+                    atributo.pk = None
+                    for key in request.FILES.keys():
+                        print("key: " + key)
+                    if form.nombre in request.FILES.keys():
+                        print('form.nombre: ' + form.nombre)
+                        print(request.FILES[form.nombre])
+                        atributo.archivo_temporal = request.FILES[form.nombre]
                         atributo.save()
                         list_atributos_id.append(atributo.id)
                     else:
-                        atributo.valor = form.cleaned_data['valor_' + str(counter)]
-                        atributo.pk = None
+                        atributo.valor = form.cleaned_data["valor_" + str(counter)]
                         atributo.save()
 
                 if len(list_atributos_id) > 0:
-                    gd_storage = GoogleDriveStorage()
-                    multiprocessing.Process(target=upload_and_save_file_item,
-                                            args=(gd_storage, list_atributos_id, list_files, proyecto, fase,
-                                                  item.codigo)).start()
+                    # gd_storage = GoogleDriveStorage()
+                    upload_and_save_file_item(list_atributos_id)
+
                 # Finaliza el proceso de editar
                 item.save()
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)

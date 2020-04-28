@@ -54,7 +54,11 @@
                                         {{atr.valor}}
                             {% else %}
                             <button class="btn btn-primary mr-3 border-0 bg-color-accent"
-                                    onclick="window.open('{{atr.valor}}')">
+                                    {% if atr.valor_is_none %}
+                                    disabled="true"
+                                    {% else %}
+                                    onclick="window.open('{{atr.valor.url}}')"
+                                    {% endif %}>
                                 Ver Archivo
                             </button>
                             {% endif %}
