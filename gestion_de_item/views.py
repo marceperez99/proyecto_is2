@@ -230,7 +230,8 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna:
         - HttpResponse
     """
-
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
@@ -248,7 +249,20 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
             return redirect('visualizar_item', proyecto_id, fase_id, item_id)
         return redirect('listar_items', proyecto_id, fase_id)
 
-    contexto = {'item': item.version.nombre}
+    contexto = {'item': item.version.nombre,
+                'breadcrumb': {'pagina_actual': 'Desaprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 
 
@@ -377,7 +391,20 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Solicitar Aprobación Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
 
 
@@ -411,7 +438,20 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Aprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/aprobar_item.html', contexto)
 
 
@@ -515,7 +555,20 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     # En caso de que un form este mal o no sea un POST
     if not all_valid:
         contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'item': item,
-                    'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version}
+                    'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version,
+                    'breadcrumb': {'pagina_actual': 'Modificar Item',
+                                   'links': [{'nombre': proyecto.nombre,
+                                              'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                             {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                             {'nombre': fase.nombre,
+                                              'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                             {'nombre': 'Items',
+                                              'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                             {'nombre': item,
+                                              'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                             ]
+                                   }
+                    }
         return render(request, 'gestion_de_item/editar_item.html', context=contexto)
 
 
@@ -556,7 +609,21 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Desaprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
+
     return render(request, 'gestion_de_item/desaprobar_item.html', contexto)
 
 
