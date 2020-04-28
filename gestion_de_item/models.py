@@ -97,7 +97,12 @@ class Item(models.Model):
         return Item.objects.filter(id__in=lista_hijos)
 
     def get_sucesores(self):
-        # TODO Luis comentar
+        """
+        Metodo del model item, que filtra y retorna los item cuya version mas actual tenga como
+        antecesor el item en cuestion.\n
+        Retorna:
+            -Item que cumplan las condiciones especificadas.
+        """
         sucesores = self.sucesores.all()
         lista_sucesores = []
         for sucesor in sucesores:
