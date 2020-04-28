@@ -88,10 +88,23 @@ class Item(models.Model):
         return self.version.padres.all()
 
     def get_hijos(self):
-        return self.hijos.all().filter(version=self.version).exclude(item__estado=EstadoDeItem.ELIMINADO)
+        #TODO Luis comentar
+        hijos = self.hijos.all()
+        lista_hijos = []
+        for hijo in hijos:
+            if hijo == hijo.item.version and hijo.item.estado != EstadoDeItem.ELIMINADO:
+                lista_hijos.append(hijo.item.id)
+        return Item.objects.filter(id__in=lista_hijos)
 
     def get_sucesores(self):
-        return self.sucesores.all().filter(version=self.version).exclude(item__estado=EstadoDeItem.ELIMINADO)
+        # TODO Luis comentar
+        sucesores = self.sucesores.all()
+        lista_sucesores = []
+        for sucesor in sucesores:
+            if sucesor == sucesor.item.version and sucesor.item.estado != EstadoDeItem.ELIMINADO:
+                lista_sucesores.append(sucesor.item.id)
+        return Item.objects.filter(id__in=lista_sucesores)
+
 
     def get_numero_version(self):
         return self.version.version
