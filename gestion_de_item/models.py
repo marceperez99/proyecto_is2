@@ -139,9 +139,10 @@ class Item(models.Model):
 
     def eliminar(self):
         """
-        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.
-
-        Retorna: True or False (Eliminado o no)
+        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.\n
+        Lanza:
+            -Exception: si el item tiene un estado diferente a No Aprobado, o el item tiene una relacion (padre-hijo) o
+            (antececesor-sucesor) con otro item
         """
         mensaje_error = []
         # mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
@@ -241,7 +242,8 @@ class Item(models.Model):
         relacion implica una nueva version del item
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.\n
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de
+             padres.\n
         Lanza:
             -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
         """
