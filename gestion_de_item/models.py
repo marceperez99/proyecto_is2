@@ -139,7 +139,7 @@ class Item(models.Model):
     def add_padre(self, item):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los padres del item, creando tambien una nueva version de otem con esta nueva relacion
+        lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
@@ -148,11 +148,12 @@ class Item(models.Model):
 
     def add_antecesor(self, item):
         """
-        Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los antecesores del item
+        Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
+        antecesores del item, creando tambien una nueva version del item con esta nueva relacion.
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
+        self.nueva_version()
         self.version.antecesores.add(item)
 
     def solicitar_aprobacion(self):
