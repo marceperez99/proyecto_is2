@@ -78,11 +78,13 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+    participante = proyecto.get_participante(request.user)
     contexto = {
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
+        'permisos': participante.get_permisos_de_proyecto_list()+participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
             {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
@@ -615,17 +617,16 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        if item.estado == EstadoDeItem.APROBADO:
-            try:
-                item.desaprobar()
-                messages.success(request, "El item se desaprobo correctamente")
-            except Exception as e:
-                mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
-                errores = e.args[0]
-                for error in errores:
-                    mensaje = mensaje + '<li>' + error + '</li><br>'
-                mensaje = '<ul>' + mensaje + '</ul>'
-                messages.error(request, mensaje)
+        try:
+            item.desaprobar()
+            messages.success(request, "El item se desaprobo correctamente")
+        except Exception as e:
+            mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
+            errores = e.args[0]
+            for error in errores:
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' + mensaje + '</ul>'
+            messages.error(request, mensaje)
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
