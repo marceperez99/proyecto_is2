@@ -321,12 +321,13 @@ class AtributoItemArchivo(models.Model):
         return "Archivo"
 
     def archivo_pendiente(self):
-        print('condicion arcjpend: ' + ('true' if self.archivo_temporal is None else 'false') +
-              'and' + ('true' if self.valor is not None else 'false'))
-        return self.archivo_temporal is None and self.valor is not None
+        # TODO: Marcos, documentar
+        return self.archivo_temporal.name != ''
 
-    def valor_is_none(self):
-        return self.valor is None
+    def archivo_subido(self):
+        # TODO: marcos, comentar
+        return self.valor.name != ''
+
 
 class AtributoItemBooleano(models.Model):
     """

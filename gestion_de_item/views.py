@@ -197,8 +197,10 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                             atributo.save()
 
                     if len(list_atributos_id) > 0:
-                        # gd_storage = GoogleDriveStorage()
-                        upload_and_save_file_item(list_atributos_id)
+                        # Comentar linea de abajo para que la subida de archivos sea asincrona
+                        # upload_and_save_file_item(list_atributos_id)
+                        # Comentar linea de abajo para que la subida de archivos sea sincrona
+                        upload_and_save_file_item.delay(list_atributos_id)
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
 
@@ -546,8 +548,11 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                         atributo.save()
 
                 if len(list_atributos_id) > 0:
-                    # gd_storage = GoogleDriveStorage()
-                    upload_and_save_file_item(list_atributos_id)
+
+                    # Comentar linea de abajo para que la subida de archivos sea asincrona
+                    # upload_and_save_file_item(list_atributos_id)
+                    # Comentar linea de abajo para que la subida de archivos sea sincrona
+                    upload_and_save_file_item.delay(list_atributos_id)
 
                 # Finaliza el proceso de editar
                 item.save()
