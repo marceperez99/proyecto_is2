@@ -1,5 +1,8 @@
 from django.db import models
+from gdstorage.storage import GoogleDriveStorage
 
+# Define Google Drive Storage
+gd_storage = GoogleDriveStorage()
 
 # Create your models here.
 
@@ -286,11 +289,19 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
-    valor = models.CharField(max_length=500, null=True)
+    valor = models.FileField(upload_to='items/', storage=gd_storage, null=True)
+    archivo_temporal = models.FileField(upload_to='items/', null=True)
 
     def getTipoAtributo(self):
         return "Archivo"
 
+    def archivo_pendiente(self):
+        print('condicion arcjpend: ' + ('true' if self.archivo_temporal is None else 'false') +
+              'and' + ('true' if self.valor is not None else 'false'))
+        return self.archivo_temporal is None and self.valor is not None
+
+    def valor_is_none(self):
+        return self.valor is None
 
 class AtributoItemBooleano(models.Model):
     """
