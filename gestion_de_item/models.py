@@ -54,11 +54,17 @@ class Item(models.Model):
         """
         version = self.version
         version.save(versionar=True)
-
+        # Agrega los atributos dinamicos del item
         for atributo in self.get_atributos_dinamicos():
             atributo.pk = None
             atributo.version = version
             atributo.save()
+        # Agrega los padres del item
+        for item in self.get_padres():
+            version.padres.add(item)
+        # Agrega los antecesores del item
+        for item in self.get_antecesores():
+            version.antecesores.add(item)
 
         self.version = version
         self.save()
