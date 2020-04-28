@@ -224,8 +224,8 @@ class Item(models.Model):
 
         if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
             if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
-                        self.padres.count() == 1 and self.antecesores.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_padres() > 1 or (
+                        self.get_padres() == 1 and self.get_antecesores() >= 1):
                     self.nueva_version()
                     self.padres.remove(item)
                     return
@@ -233,8 +233,8 @@ class Item(models.Model):
                     mensaje_error.append(
                         'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
             elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
-                        self.antecesores.count() == 1 and self.padres.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_antecesores() > 1 or (
+                        self.get_antecesores() == 1 and self.get_padres() >= 1):
                     self.nueva_version()
                     self.antecesores.remove(item)
                     return
