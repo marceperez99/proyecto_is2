@@ -88,7 +88,12 @@ class Item(models.Model):
         return self.version.padres.all()
 
     def get_hijos(self):
-        #TODO Luis comentar
+        """
+        Metodo del model item, filtra y retorna los items cuya version mas actual tenga como
+        padre el item en cuestion.\n
+        Retorna:
+            -Item que cumplan las condiciones especificadas.
+        """
         hijos = self.hijos.all()
         lista_hijos = []
         for hijo in hijos:
@@ -98,7 +103,7 @@ class Item(models.Model):
 
     def get_sucesores(self):
         """
-        Metodo del model item, que filtra y retorna los item cuya version mas actual tenga como
+        Metodo del model item, filtra y retorna los items cuya version mas actual tenga como
         antecesor el item en cuestion.\n
         Retorna:
             -Item que cumplan las condiciones especificadas.
