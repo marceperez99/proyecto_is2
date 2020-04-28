@@ -350,6 +350,7 @@ class TestVistasItem:
         proyecto.save()
         response = cliente_loggeado.get(reverse('editar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-    # TODO: Luis test_desaprobar_item_view
 
-    # TODO: test_eliminar_relacion_view
+
+    # TODO: Luis test_desaprobar_item_view
+    # TODO: Luis test_eliminar_relacion_view

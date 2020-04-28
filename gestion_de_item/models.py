@@ -200,8 +200,7 @@ class Item(models.Model):
 
     def aprobar(self):
         """
-        Metodo que cambia el estado del Item de A Aprobar A Aprobado.
-
+        Metodo que cambia el estado del Item de A Aprobar A Aprobado.\n
         Requiere:
             Item debe estar en el estado A_APROBAR
         Lanza:
@@ -216,6 +215,8 @@ class Item(models.Model):
     def desaprobar(self):
         """
         Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
+        El metodo verifica primero el estado del item sea el adecuado y que este no tenga ninguna relacion
+        (padre-hijo) para que se pueda desaprobar.
         Lanza:
             Exception: si el item esta relacionado con otro item o no esta con los estdos Aprobado o A Aprobar.
         """
