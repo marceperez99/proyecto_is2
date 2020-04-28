@@ -139,7 +139,7 @@ class Item(models.Model):
 
     def eliminar(self):
         """
-        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.\n
+        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO.\n
         Lanza:
             -Exception: si el item tiene un estado diferente a No Aprobado, o el item tiene una relacion (padre-hijo) o
             (antececesor-sucesor) con otro item
@@ -166,7 +166,7 @@ class Item(models.Model):
     def add_padre(self, item):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.
+        lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
@@ -176,7 +176,7 @@ class Item(models.Model):
     def add_antecesor(self, item):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
-        antecesores del item, creando tambien una nueva version del item con esta nueva relacion.
+        antecesores del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
@@ -200,7 +200,8 @@ class Item(models.Model):
 
     def aprobar(self):
         """
-        Metodo que cambia el estado del Item de A Aprobar A Aprobado.\n
+        Metodo que cambia el estado del Item de A Aprobar A Aprobado.
+        El estado del item tiene que estar en A Aprobar.\n
         Requiere:
             Item debe estar en el estado A_APROBAR
         Lanza:
@@ -214,9 +215,9 @@ class Item(models.Model):
 
     def desaprobar(self):
         """
-        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
+        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.
         El metodo verifica primero el estado del item sea el adecuado y que este no tenga ninguna relacion
-        (padre-hijo) para que se pueda desaprobar.
+        (padre-hijo) para que se pueda desaprobar.\n
         Lanza:
             Exception: si el item esta relacionado con otro item o no esta con los estdos Aprobado o A Aprobar.
         """
