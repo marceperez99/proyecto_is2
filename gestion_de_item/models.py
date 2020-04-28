@@ -85,7 +85,7 @@ class Item(models.Model):
         return self.version.padres.all()
 
     def get_hijos(self):
-        return self.hijos.all()
+        return self.hijos.all().filter(version=self.version).exclude(item__estado=EstadoDeItem.ELIMINADO)
 
     def get_sucesores(self):
         return self.sucesores.all().filter(version=self.version).exclude(item__estado=EstadoDeItem.ELIMINADO)
