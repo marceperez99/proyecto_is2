@@ -211,6 +211,8 @@ class Item(models.Model):
     def eliminar_relacion(self, item):
         """
         Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
+        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una
+        relacion implica una nueva version del item
 
         Parametros:
             - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.\n
@@ -224,6 +226,7 @@ class Item(models.Model):
             if self.padres.filter(id=item.id).exists():
                 if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (
                         self.padres.count() == 1 and self.antecesores.count() >= 1):
+                    self.nueva_version()
                     self.padres.remove(item)
                     return
                 else:
@@ -232,6 +235,7 @@ class Item(models.Model):
             elif self.antecesores.filter(id=item.id).exists():
                 if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (
                         self.antecesores.count() == 1 and self.padres.count() >= 1):
+                    self.nueva_version()
                     self.antecesores.remove(item)
                     return
                 else:
