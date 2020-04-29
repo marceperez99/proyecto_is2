@@ -155,7 +155,8 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                     # Asocia esta versión al item creado.
                     version.item = item
-                    version.save(versionar=True)
+                    version.version = 1
+                    version.save()
                     # Actualiza la version del item a esta versión creada.
                     item.version = version
                     item.save()
@@ -542,7 +543,9 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
             # Si todos los formularios son validos
             if all_valid:
-                version = form_version.save()
+                version = form_version.save(commit = False)
+                version.version = item.version.version + 1
+                version.save()
                 # Relaciona el item a esta version
                 item.version = version
 
@@ -672,7 +675,8 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
         - request: HttpRequest
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    fase = get_object_or_404(proyecto.fase_set
+                             , id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     item_relacionado = get_object_or_404(Item, id=item_relacion_id)
 

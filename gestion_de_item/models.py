@@ -4,6 +4,7 @@ from gdstorage.storage import GoogleDriveStorage
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
 
+
 # Create your models here.
 
 
@@ -55,8 +56,13 @@ class Item(models.Model):
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
         """
-        version = self.version
-        version.save(versionar=True)
+
+        version = VersionItem(nombre=self.version.nombre, descripcion=self.version.descripcion, peso=self.version.peso,
+                              item=self, version=self.version.version + 1)
+        version.save()
+
+        # version.save(versionar=True)
+        assert version != self.version
         # Agrega los atributos dinamicos del item
         for atributo in self.get_atributos_dinamicos():
             atributo.pk = None
@@ -64,6 +70,7 @@ class Item(models.Model):
             atributo.save()
         # Agrega los padres del item
         for item in self.get_padres():
+            print('Un padre de este item es:' + str(item))
             version.padres.add(item)
         # Agrega los antecesores del item
         for item in self.get_antecesores():
@@ -313,11 +320,7 @@ class VersionItem(models.Model):
         atributos += list(self.atributoitemarchivo_set.all())
         return atributos
 
-    def save(self, *args, versionar=True, **kwargs):
-        if versionar:
-            self.pk = None
-            self.version = self.item.version_item.all().count() + 1
-        super(VersionItem, self).save(*args, **kwargs)
+
 
 
 class AtributoItemArchivo(models.Model):

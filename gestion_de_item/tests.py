@@ -87,6 +87,7 @@ def item(tipo_de_item):
     version.descripcion = ""
     version.nombre = ""
     version.peso = 2
+    version.version = 1
     version.save()
     item.version = version
     item.save()
