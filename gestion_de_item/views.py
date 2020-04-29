@@ -353,15 +353,16 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
                 form = RelacionPadreHijoForm(request.POST, item=item)
                 if form.is_valid():
                     item.add_padre(form.cleaned_data['padre'])
+                    return redirect('visualizar_item', proyecto_id, fase_id, item_id)
                 else:
                     contexto['form'] = form
             elif request.GET['tipo'] == 'antecesor-sucesor':
                 form = RelacionAntecesorSucesorForm(request.POST, item=item)
                 if form.is_valid():
                     item.add_antecesor(form.cleaned_data['antecesor'])
+                    return redirect('visualizar_item', proyecto_id, fase_id, item_id)
                 else:
                     contexto['form'] = form
-        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         if 'tipo' in request.GET.keys():
             if request.GET['tipo'] == 'padre-hijo':

@@ -115,7 +115,6 @@ class Item(models.Model):
                 lista_sucesores.append(sucesor.item.id)
         return Item.objects.filter(id__in=lista_sucesores)
 
-
     def get_numero_version(self):
         return self.version.version
 

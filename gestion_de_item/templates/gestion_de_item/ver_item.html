@@ -50,12 +50,12 @@
                                         <div class="row ">
                                         <div class="col-auto my-auto">{{ atr.valor }}</div>
                                         <div class="col-auto ml-auto">
-                                            <a href="{{ atr.valor.url }}"
-                                               data-toggle="tooltip" data-placement="bottom" title="Descargar Archivo Adjunto"
-                                               class="btn btn-primary border-0 bg-color-accent">
-                                                <i class="fas fa-file-download"></i>
-                                            </a>
-                                            {% if 'pp_f_modificar_item' in permisos and item.estado == 'No Aprobado' %}
+                                                <a href="{{ atr.valor.url }}"
+                                                   data-toggle="tooltip" data-placement="bottom" title="Descargar Archivo Adjunto"
+                                                   class="btn btn-primary border-0 bg-color-accent">
+                                                    <i class="fas fa-file-download"></i>
+                                                </a>
+                                            {% if not atr.plantilla.requerido and 'pp_f_modificar_item' in permisos and item.estado == 'No Aprobado' %}
                                                 <a href="#"
                                                    data-toggle="tooltip" data-placement="bottom" title="Eliminar Archivo Adjunto"
                                                    class="btn btn-danger bg-color-danger">
@@ -147,7 +147,7 @@
                                                     <tbody>
                                                         {% for antecesor in item.get_antecesores %}
                                                             <tr>
-                                                            <td>{{ antecesor.get_version }}</td><td>{{ antecesor }}</td>
+                                                            <td>{{ antecesor.codigo }}</td><td>{{ antecesor }}</td>
                                                             <td class="text-right">
                                                                 <a href="{% url 'visualizar_item' proyecto.id fase.id antecesor.id %}" class="btn btn-primary border-0">
                                                                     <i class="fas fa-eye"></i> Visualizar
@@ -175,7 +175,7 @@
                                                 <tbody>
                                                     {% for hijo in item.get_hijos %}
                                                         <tr>
-                                                            <td>{{ hijo.get_version }}</td><td>{{ hijo }}</td>
+                                                            <td>{{ hijo.codigo }}</td><td>{{ hijo }}</td>
                                                             <td class="text-right">
                                                                 <a href="{% url 'visualizar_item' proyecto.id fase.id hijo.id %}" class="btn btn-primary border-0">
                                                                     <i class="fas fa-eye"></i> Visualizar
@@ -203,7 +203,7 @@
                                                 <tbody>
                                                     {% for sucesor in item.get_sucesores %}
                                                         <tr>
-                                                            <td>{{ sucesor.get_version }}</td><td>{{ sucesor }}</td>
+                                                            <td>{{ sucesor.codigo }}</td><td>{{ sucesor }}</td>
                                                             <td class="text-right">
                                                                 <a href="{% url 'visualizar_item' proyecto.id fase.id sucesor.id %}" class="btn btn-primary border-0">
                                                                     <i class="fas fa-eye"></i> Visualizar
