@@ -40,14 +40,15 @@
                     <div class="col-4 h5 my-3">Version</div>
                     <div class="col-8 my-3">{{ item.version.version }}</div>
                     {% for atr in item.get_atributos_dinamicos %}
+
                     <div class="col-4 h5 my-3 align-self-center">{{atr.plantilla.nombre}}</div>
-                        <div class="col-7 my-3 border rounded mr-1 p-2">
+                        <div class="col-7 my-3  mr-1 p-2">
                             {% if atr.getTipoAtributo == 'Archivo' %}
                                 {% if atr.archivo_pendiente %}
                                     Archivo pendiente de subir
                                 {% else %}
                                     {% if atr.archivo_subido %}
-                                        <div class="row ">
+                                        <div class="row border rounded py-2">
                                         <div class="col-auto my-auto">{{ atr.valor }}</div>
                                         <div class="col-auto ml-auto">
                                                 <a href="{{ atr.valor.url }}"
@@ -68,14 +69,19 @@
                                         Aun no se subio un archivo
                                     {% endif %}
                                 {% endif %}
-                            {% else %}
-                                {% if atr.valor == None %}
-                                {% elif atr.valor == True %}
-                                    Si
-                                {% elif atr.valor == False %}
-                                    No
-                                {% else %}
-                                    {{atr.valor.normalize}}
+                            {% else  %}
+                                {% if atr.valor != None %}
+                                    {% if atr.getTipoAtributo == 'Booleano' %}
+                                        {% if atr.valor %}
+                                            Si
+                                        {% else %}
+                                            No
+                                        {% endif %}
+                                    {% elif atr.getTipoAtributo == 'Numerico' %}
+                                        {{ atr.valor.normalize }}
+                                    {% else %}
+                                        {{ atr.valor }}
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                         </div>
