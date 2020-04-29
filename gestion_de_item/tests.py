@@ -324,6 +324,7 @@ class TestVistasItem:
             reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
+
     def test_aprobar_item_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
@@ -386,9 +387,10 @@ class TestVistasItem:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
 
+
     def test_eliminar_relacion_item_view(self, cliente_loggeado, proyecto, item):
         """
-        Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar relacion item.\n
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar relacion.\n
         Se espera:
             - Status code de la respuesta del servidor HTTPStatus.OK (300).\n
         Mensaje de Error:
@@ -396,6 +398,7 @@ class TestVistasItem:
         """
         proyecto.estado = EstadoDeProyecto.INICIADO
         proyecto.save()
-        response = cliente_loggeado.get(reverse('eliminar_item', args=(proyecto.id, item.get_fase().id, item.id)))
+        response = cliente_loggeado.get(reverse('eliminar_relacion_item', args=(proyecto.id, item.get_fase().id,
+                                                                           item.id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
