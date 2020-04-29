@@ -3,15 +3,7 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
-<style>
-    [data-toggle="collapse"] .fa:before {
-      content: "\f077";
-    }
 
-    [data-toggle="collapse"].collapsed .fa:before {
-      content: "\f078";
-    }
-  </style>
     <div class="container mt-3">
         <div class="row">
             <h3 class="col-8">Lista de Tipos de Item de la Fase</h3>
@@ -23,28 +15,15 @@
                         <div class="card-header bg-color-primary" id="header_tipo_{{forloop.counter}}">
                             <div class="row">
                                 <div class="col-auto text-white mr-auto">{{tipo_de_item.nombre}}</div>
-                                <a class="btn bg-color-accent text-white font-weight-bold btn-sm"
+                                <a class="col-auto ml-auto mr-2 btn bg-color-accent text-white font-weight-bold btn-sm"
                                    href="{% url 'tipo_de_item' proyecto.id fase.id tipo_de_item.id %}">
                                     <i class="fas fa-eye"></i>
                                     &nbsp Visualizar
                                 </a>
-                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse_tipo{{forloop.counter}}" aria-expanded="false" aria-controls="list_projects">
-                                    <i class="fa text-white" aria-hidden="true"></i>
-                                </button>
+
                             </div>
                         </div>
-                        <div id="collapse_tipo{{forloop.counter}}" class="collapse" aria-labelledby="header_tipo_{{forloop.counter}}" data-parent="#lista_tipos">
-                                <div class="card-body row">
-                                    <div class="col col-sm-2">Descripción:</div>
-                                    <div class="col col-sm-10"><p>Descipcion del Proyecto</p></div>
-                                    <div class="col col-sm-2"><p style="text-decoration: underline;">Fecha de Creación:</p></div>
-                                    <div class="col col-sm-10"><p>00/00/0000</p></div>
-                                    <div class="col col-sm-2"><p style="text-decoration: underline;">Cantidad de Fases:</p></div>
-                                    <div class="col col-sm-10"><p>0</p></div>
-                                    <div class="col col-sm-2"><p style="text-decoration: underline;">Creador del Proyecto:</p></div>
-                                    <div class="col col-sm-10"><p>Creador Salinas</p></div>
-                                </div>
-                            </div>
+
                     </div>
                 {% empty %}
             No hay tipos de items para mostrar.
