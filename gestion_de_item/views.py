@@ -675,7 +675,7 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
         - request: HttpRequest
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    fase = get_object_or_404(proyecto, id=fase_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     item_relacionado = get_object_or_404(Item, id=item_relacion_id)
 
