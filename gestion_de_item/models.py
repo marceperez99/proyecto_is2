@@ -169,24 +169,26 @@ class Item(models.Model):
         self.estado = EstadoDeItem.ELIMINADO
         self.save()
 
-    def add_padre(self, item):
+    def add_padre(self, item,versionar = True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
         lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
-        self.nueva_version()
+        if versionar:
+            self.nueva_version()
         self.version.padres.add(item)
 
-    def add_antecesor(self, item):
+    def add_antecesor(self, item,versionar = True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
         antecesores del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
-        self.nueva_version()
+        if versionar:
+            self.nueva_version()
         self.version.antecesores.add(item)
 
     def solicitar_aprobacion(self):

@@ -543,10 +543,15 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
             # Si todos los formularios son validos
             if all_valid:
+                padres = item.get_padres()
+                antecesores = item.get_antecesores()
                 version = form_version.save(commit = False)
                 version.version = item.version.version + 1
                 version.pk = None
                 version.save()
+                #
+
+
                 # Relaciona el item a esta version
                 item.version = version
 
@@ -576,8 +581,13 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                     # Comentar linea de abajo para que la subida de archivos sea sincrona
                     upload_and_save_file_item.delay(list_atributos_id)
 
-                # Finaliza el proceso de editar
                 item.save()
+                for padre in padres:
+                    item.add_padre(padre,versionar = False)
+                for antecesor in antecesores:
+                    item.add_antecesor(antecesor,versionar = False)
+                # Finaliza el proceso de editar
+
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
     # En caso de que un form este mal o no sea un POST
     if not all_valid:
