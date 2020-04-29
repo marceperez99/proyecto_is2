@@ -545,6 +545,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
             if all_valid:
                 version = form_version.save(commit = False)
                 version.version = item.version.version + 1
+                version.pk = None
                 version.save()
                 # Relaciona el item a esta version
                 item.version = version
