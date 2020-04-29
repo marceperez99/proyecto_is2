@@ -84,7 +84,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
-        'permisos': participante.get_permisos_de_proyecto_list()+participante.get_permisos_por_fase_list(fase),
+        'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
             {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
@@ -118,7 +118,18 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     if tipo_de_item_id is None:
 
         lista_tipo_de_item = [get_dict_tipo_de_item(tipo) for tipo in TipoDeItem.objects.filter(fase=fase)]
-        contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto}
+        contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto,
+                    'breadcrumb': {'pagina_actual': 'Nuevo Item',
+                                   'links': [
+                                       {'nombre': proyecto.nombre,
+                                        'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                       {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                       {'nombre': fase.nombre,
+                                        'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                       {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                   ]
+                                   }
+                    }
         return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
     else:
         # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
@@ -211,7 +222,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
             atributo_forms = get_atributos_forms(tipo_de_item, request)
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
+                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms,
+                        'breadcrumb': {'pagina_actual': 'Nuevo Item',
+                                       'links': [
+                                           {'nombre': proyecto.nombre,
+                                            'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                           {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                           {'nombre': fase.nombre,
+                                            'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                           {'nombre': 'Items',
+                                            'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                       ]
+                                       }
+                        }
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
 
 
