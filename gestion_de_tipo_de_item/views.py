@@ -206,7 +206,19 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    TODO: Luis comentar
+    Vista que permite editar un tipo de item.
+    Si el metodo Http con el que se realizo la peticion fue GET, muestra al usuario los campos ya cargados del tipo de
+    item, con la opcion de editarlos.
+    Si el metodo Http con el que se realizo la peticion fue POST, elimina el viejo tipo de item, y crea uno nuevo
+    en base a los datos recibidos.
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - tipo_de_item_id: int, identificador unico del tipo de item.
+
+    Retorna:
+        - request: HttpRequest
     """
     # Aca se verifica que no existan item de este tipo
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
