@@ -27,13 +27,12 @@ class FaseForm(forms.ModelForm):
         """
         super(FaseForm, self).__init__(*args, **kwargs)
         self.fields['fase_anterior'].required = False
-        if 'instace' in kwargs.keys():
+        if 'instance' in kwargs.keys():
             self.fields['fase_anterior'].queryset = Fase.objects.all().filter(proyecto=proyecto).exclude(
                 id=kwargs['instance'].id)
         else:
-            self.fields['fase_anterior'].queryset = Fase.objects.all().filter(proyecto=proyecto).exclude(
-                id=kwargs['instance'].id)
-            self.fields['fase_anterior'].empty_label = 'Seleccione una Fase'
+            self.fields['fase_anterior'].queryset = Fase.objects.all().filter(proyecto=proyecto)
+        self.fields['fase_anterior'].empty_label = 'Seleccione una Fase'
 
     class Meta:
         model = Fase
