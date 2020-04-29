@@ -40,7 +40,7 @@
                     <div class="col-4 h5 my-3">Version</div>
                     <div class="col-8 my-3">{{ item.version.version }}</div>
                     {% for atr in item.get_atributos_dinamicos %}
-                    <div class="col-4 h5 my-3">{{atr.plantilla.nombre}}</div>
+                    <div class="col-4 h5 my-3 align-self-center">{{atr.plantilla.nombre}}</div>
                         <div class="col-7 my-3 border rounded mr-1 p-2">
                             {% if atr.getTipoAtributo == 'Archivo' %}
                                 {% if atr.archivo_pendiente %}
