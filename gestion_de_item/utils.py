@@ -58,7 +58,7 @@ def hay_ciclo(padre, hijo):
     visitado.add(padre)
     while len(stack) != 0:
         item = stack.pop()
-        for padre in item.padres.all():
+        for padre in item.get_padres():
             if padre not in visitado:
                 stack.append(padre)
                 visitado.add(padre)

@@ -361,7 +361,7 @@ class Participante(models.Model):
             permisos_de_proyecto += list(Permission.objects.all().filter(codename__startswith='pu_')
                                          .exclude(codename__startswith='pu_f'))
 
-            return [pp.codename for pp in permisos_de_proyecto],
+            return [pp.codename for pp in permisos_de_proyecto]
         else:
             return [pp.codename for pp in self.rol.get_pp_por_proyecto()]
 

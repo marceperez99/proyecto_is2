@@ -1,3 +1,5 @@
+import os
+
 from celery import shared_task
 
 from gestion_de_item.models import AtributoItemArchivo
@@ -27,6 +29,12 @@ def upload_and_save_file_item(id_atributos):
     """
     for atributoid in id_atributos:
         atributo = AtributoItemArchivo.objects.get(id=atributoid)
+
         atributo.valor.save(atributo.archivo_temporal.name, atributo.archivo_temporal)
+        # Se elimina el archivo del servidor
+        if atributo.archivo_temporal:
+            if os.path.isfile(atributo.archivo_temporal.path):
+                os.remove(atributo.archivo_temporal.path)
+
         atributo.archivo_temporal = None
         atributo.save()

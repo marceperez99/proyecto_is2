@@ -54,7 +54,9 @@ class RolDeProyecto(models.Model):
             ('pp_f_ver_historial_de_item', 'Visualizar Historial de Cambios de un Item'),
             ('pp_f_eliminar_item', 'Eliminar Item'),
             ('pp_f_modificar_item', 'Modificar Item'),
+            ('pp_f_solicitar_aprobacion_item', 'Solicitar Aprobacion de un Item'),
             ('pp_f_aprobar_item', 'Aprobar cambios de un Item'),
+            ('pp_f_desaprobar_item', 'Desaprobar cambios de un Item'),
             ('pp_f_eliminar_relacion_entre_items', 'Eliminar Relación entre Items'),
             ('pp_f_ver_items_eliminados', 'Visualizar Items eliminados'),
         ]

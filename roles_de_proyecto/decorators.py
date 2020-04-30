@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 
-from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_de_proyecto.models import Participante, Proyecto, EstadoDeProyecto
 
 
 def pp_requerido(permiso_de_proyecto):
@@ -27,7 +27,9 @@ def pp_requerido(permiso_de_proyecto):
             except:
                 return redirect('pp_insuficientes', proyecto_id)
             # Se verifica que el participante tenga el permiso correspondiente
-            if participante is not None and participante.tiene_pp(permiso_de_proyecto):
+            if proyecto.get_gerente() == request.user or \
+               participante is not None and participante.tiene_pp(permiso_de_proyecto) and \
+               proyecto.estado == EstadoDeProyecto.INICIADO:
                 return view(request, proyecto_id, *args, **kwargs)
             else:
                 return redirect('pp_insuficientes', proyecto_id)
@@ -58,7 +60,9 @@ def pp_requerido_en_fase(permiso_de_proyecto):
             except:
                 return redirect('pp_insuficientes', proyecto_id)
 
-            if participante is not None and participante.tiene_pp_en_fase(fase_id, permiso_de_proyecto):
+            if proyecto.get_gerente() == request.user or \
+                    participante is not None and participante.tiene_pp_en_fase(fase_id, permiso_de_proyecto) and \
+                    proyecto.estado == EstadoDeProyecto.INICIADO:
                 return view(request, proyecto_id, fase_id, *args, **kwargs)
             else:
                 return redirect('pp_insuficientes', proyecto_id)
