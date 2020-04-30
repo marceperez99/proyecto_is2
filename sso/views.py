@@ -3,9 +3,11 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from usuario.models import Usuario
 from .forms import SocialAppForm
+
 
 @login_required
 def index_view(request):
@@ -19,7 +21,7 @@ def index_view(request):
         El HttpResponse de la Vista a mostrarse
     """
 
-    if User.objects.all().count() == 1: #and not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
+    if User.objects.all().count() == 1:  # and not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
         request.user.groups.add(Group.objects.get(name="Administrador"))
     if not request.user.has_perm('roles_de_sistema.pu_acceder_sistema'):
         return redirect('sin_permiso')
@@ -69,6 +71,7 @@ def sin_permiso(request):
     """
     return render(request, 'sso/sin_acceso.html')
 
+
 @login_required
 @permission_required('roles_de_sistema.pa_config_sso', login_url='sin_permiso')
 def configurar_sso_view(request):
@@ -78,10 +81,14 @@ def configurar_sso_view(request):
     """
     assert SocialApp.objects.all().count() == 1
     sa = SocialApp.objects.first()
-    form = SocialAppForm(request.POST or None, instance = sa)
+    form = SocialAppForm(request.POST or None, instance=sa)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
         return redirect('index')
-    contexto = {'user': request.user,'form':form}
-    return render(request,'sso/configurar.html',context = contexto)
+    contexto = {'user': request.user, 'form': form,
+                'breadcrumb': {'pagina_actual': 'Configuración de Google Oauth',
+                               'links': [{'nombre': 'Panel de Control', 'url': reverse('panel_de_control')}]
+                               }
+                }
+    return render(request, 'sso/configurar.html', context=contexto)
