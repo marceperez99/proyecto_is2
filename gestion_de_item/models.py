@@ -298,10 +298,8 @@ class AtributoItemArchivo(models.Model):
     def archivo_pendiente(self):
         print('condicion arcjpend: ' + ('true' if self.archivo_temporal is None else 'false') +
               'and' + ('true' if self.valor is not None else 'false'))
-        return self.archivo_temporal is None and self.valor is not None
+        return not bool(self.archivo_temporal) and bool(self.valor)
 
-    def valor_is_none(self):
-        return self.valor is None
 
 class AtributoItemBooleano(models.Model):
     """
