@@ -601,3 +601,43 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/eliminar_relacion.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_editar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
+    """
+    Vista que permite elimianr un archivo de un item, creando una version del mismo sin dicho archivo
+
+    Argumentos:
+        - request: HttpRequest,
+        - proyecto_id: int, identificador único de un  proyecto.
+        - fase_id: int, identificador único de una fase.
+        - item_id: int, identificador único de un item.
+        - atributo_id int, dentificador único del atributo.
+
+    Retorna
+        - HttpResponse
+    """
+
+    atributo_archivo = get_object_or_404(AtributoItemArchivo, id=atributo_id)
+    file = atributo_archivo.valor
+
+    if request.method == 'POST':
+        item = get_object_or_404(Item, id=item_id)
+        atrbutos_dinamicos = item.get_atributos_dinamicos()
+
+        item.nueva_version()
+        for atributo in atrbutos_dinamicos:
+            if type(atributo) is AtributoItemArchivo and atributo.id is atributo_id:
+                atributo.valor = None
+            atributo.id = None
+            atributo.version = item.version
+            atributo.save()
+
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+
+    contexto = {'file': file, }
+    return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
