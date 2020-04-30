@@ -41,6 +41,7 @@ def listar_items(request, proyecto_id, fase_id):
         'proyecto': proyecto,
         'fase': fase,
         'items': items,
+        'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
                        'links': [
@@ -403,7 +404,7 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_aprobar_item')
+@pp_requerido_en_fase('pp_f_solicitar_aprobacion_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """

@@ -43,7 +43,7 @@ class RolDeProyecto(models.Model):
             ('pp_f_editar_tipo_de_item', 'Editar tipo de ítem'),
             ('pp_f_importar_tipo_de_item', 'Importar tipo de ítem'),
             # Gestion de Participantes
-            ('pp_ver_participante', 'Visualizar Participantes del Proyecto'),
+            ('pp_ver_participante', 'Visualizar datos de Participante del Proyecto'),
             ('pp_agregar_participante', 'Agregar Participante al Proyecto'),
             ('pp_eliminar_participante', 'Eliminar Participante del Proyecto'),
             ('pp_asignar_rp_a_participante', 'Asignar Rol de Proyecto a Participante'),

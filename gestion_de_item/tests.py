@@ -151,11 +151,12 @@ class TestModeloItem:
         Prueba Unitaria que verifica el funcionamineto del metodo aprobar del Modelo Item.
 
         Se espera:
+
             - Que el estado del item solo cambie a APROBADO si el estado actual del item es A_APROBADO.
 
         Mensaje de error:
-            - El metodo aprobar() debe dejar el item en estado {esperado} si el item está en estado
-            {estado_item}, pero el metodo retornó {item.estado}
+            - El metodo aprobar() debe dejar el item en estado {esperado} si el item está en estado {estado_item},
+                pero el metodo retornó {item.estado}.\n
         """
         item.estado = estado_item
         try:
@@ -173,8 +174,8 @@ class TestModeloItem:
             - Que el metodo retorne la lista de versiones ordenadas descendentemente.
 
         Mensaje de Error:
-            - La cantidad de versiones retornadas por el metodo y las que realmente estan 'guardadads en el
-            sistema no coinciden
+            - La cantidad de versiones retornadas por el metodo y las que realmente estan 'guardadads en el sistema no coinciden.
+
         """
         item.nueva_version()
         item.nueva_version()

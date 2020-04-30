@@ -92,8 +92,7 @@ class Usuario(User):
 
         participantes = Participante.objects.filter(usuario=self).exclude(rol=None)
         for participante in participantes:
-            if participante.proyecto.estado != EstadoDeProyecto.FINALIZADO \
-                    and participante.proyecto.estado != EstadoDeProyecto.CANCELADO:
+            if participante.proyecto.estado == EstadoDeProyecto.INICIADO:
                 proyectos.append(participante.proyecto)
 
         return proyectos

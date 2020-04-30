@@ -55,7 +55,7 @@ def nuevo_proyecto_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('pp_ver_participante')
+@pp_requerido('pu_ver_proyecto')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra los nombres y apellidos de los participantes de un proyecto, asi como el nombre del Rol que
@@ -153,7 +153,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)
     contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario,
-                'breadcrumb': {'pagina_actual': 'Editar',
+                'breadcrumb': {'pagina_actual': 'Eliminar Participante',
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto',
                                                          args=(proyecto.id,))}]}
@@ -178,8 +178,10 @@ def visualizar_proyecto_view(request, proyecto_id):
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.participante_set.all().exclude(usuario=proyecto.gerente)
+    participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
+                'permisos': participante.get_permisos_de_proyecto_list(),
                 'breadcrumb': {'pagina_actual': proyecto.nombre}, 'lista_participante': lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
 
@@ -208,7 +210,7 @@ def editar_proyecto_view(request, proyecto_id):
     if request.method == 'POST':
         proyecto = form.save(commit=False)
         proyecto.save()
-        return redirect('index')
+        return redirect('visualizar_proyecto', proyecto_id)
     contexto = {'formulario': form, 'breadcrumb': {'pagina_actual': 'Editar',
                                                    'links': [{'nombre': proyecto.nombre,
                                                               'url': reverse('visualizar_proyecto',
@@ -245,7 +247,8 @@ def cancelar_proyecto_view(request, proyecto_id):
         else:
             messages.error(request, 'No se puede cancelar un proyecto en estado "Finalizado".')
         return redirect('index')
-    return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
+    return render(request, 'gestion_de_proyecto/cancelar_proyecto.html',
+                  {'proyecto': proyecto, 'es_gerente': request.user == proyecto.gerente})
 
 
 @login_required
