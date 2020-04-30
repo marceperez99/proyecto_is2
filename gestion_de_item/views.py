@@ -750,21 +750,16 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     Retorna
         - HttpResponse
     """
-
     atributo_archivo = get_object_or_404(AtributoItemArchivo, id=atributo_id)
     file = atributo_archivo.valor
 
     if request.method == 'POST':
         item = get_object_or_404(Item, id=item_id)
-        atrbutos_dinamicos = item.get_atributos_dinamicos()
-
         item.nueva_version()
-        for atributo in atrbutos_dinamicos:
-            if type(atributo) is AtributoItemArchivo and atributo.id == atributo_id:
-                atributo.valor = None
-            atributo.id = None
-            atributo.version = item.version
-            atributo.save()
+
+        atributo = get_object_or_404(item.version.atributoitemarchivo_set, valor=atributo_archivo.valor)
+        atributo.valor = None
+        atributo.save()
 
         return redirect('visualizar_item', proyecto_id, fase_id, item_id)
 
