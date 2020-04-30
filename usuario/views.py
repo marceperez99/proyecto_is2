@@ -144,6 +144,7 @@ def desasignar_rol_de_sistema_view(request, usuario_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_config_cloud', login_url='sin_permiso')
 def configurar_cloud_view(request):
     if request.method == 'POST':
         form = ConfigCloudForm(request.POST)
