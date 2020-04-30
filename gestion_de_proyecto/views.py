@@ -153,7 +153,7 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
         proyecto.eliminar_participante(usuario)
         return redirect('participantes', proyecto_id=proyecto_id)
     contexto = {'user': request.user, 'participante': participante, 'proyecto': proyecto, 'usuario': usuario,
-                'breadcrumb': {'pagina_actual': 'Editar',
+                'breadcrumb': {'pagina_actual': 'Eliminar Participante',
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto',
                                                          args=(proyecto.id,))}]}
@@ -208,7 +208,7 @@ def editar_proyecto_view(request, proyecto_id):
     if request.method == 'POST':
         proyecto = form.save(commit=False)
         proyecto.save()
-        return redirect('index')
+        return redirect('visualizar_proyecto', proyecto_id)
     contexto = {'formulario': form, 'breadcrumb': {'pagina_actual': 'Editar',
                                                    'links': [{'nombre': proyecto.nombre,
                                                               'url': reverse('visualizar_proyecto',
