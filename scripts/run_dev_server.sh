@@ -4,6 +4,7 @@ export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings
 
 # Generacion del Entorno Virtual
 pipenv run pipenv install
+pipenv run pipenv clean
 
 #Generacion de documentacion automatica
 pwd
