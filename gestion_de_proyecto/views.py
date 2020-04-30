@@ -55,7 +55,7 @@ def nuevo_proyecto_view(request):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido('pp_ver_participante')
+@pp_requerido('pu_ver_proyecto')
 def participantes_view(request, proyecto_id):
     """
     Vista que muestra los nombres y apellidos de los participantes de un proyecto, asi como el nombre del Rol que
