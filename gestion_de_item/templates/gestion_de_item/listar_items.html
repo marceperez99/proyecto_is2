@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Items de la Fase{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
@@ -8,10 +9,22 @@
         <div class="row">
             <h3 class="col-4">Items de la Fase</h3>
             <div class="col-8 text-right">
-                {% if 'pp_f_crear_item' %}
-                    <a href="{% url 'nuevo_item' proyecto.id fase.id %}" class="btn border-0 btn-primary gb-color-accent">Nuevo Item</a>
+                {% if 'pp_f_crear_item' in permisos %}
+                    <a href="{% url 'nuevo_item' proyecto.id fase.id %}" class="btn bg-color-accent border-0 btn-primary gb-color-accent">Nuevo Item</a>
                 {% endif %}
             </div>
+            <hr class="col-12">
+            {% if 'pp_f_ver_items_eliminados' in permisos %}
+                <div class="col-12">
+                    <button id="btn_mostrar_eliminados" class="btn btn-primary bg-color-accent border-0" onclick="mostrar_items_eliminados()">
+                        Mostrar Items eliminados
+                    </button>
+                    <button id="btn_ocultar_eliminados" class="btn btn-primary bg-color-accent border-0" onclick="ocultar_items_eliminados()">
+                        Ocultar Items eliminados
+                    </button>
+                    <script src="{% static 'gestion_de_item/js/ocultar_items_eliminados.js' %}"></script>
+                </div>
+            {% endif %}
             <hr class="col-12">
 
             <div class="col-10 mx-auto bg-white border rounded p-3">
@@ -26,7 +39,7 @@
                     </thead>
                     <tbody>
                         {% for item in items %}
-                            <tr>
+                            <tr class="item_{{ item.estado}}">
                                 <td>{{ item.codigo }}</td>
                                 <td>{{ item.version.nombre }}</td>
                                 <td>{{ item.estado }}</td>

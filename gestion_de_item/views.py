@@ -41,6 +41,7 @@ def listar_items(request, proyecto_id, fase_id):
         'proyecto': proyecto,
         'fase': fase,
         'items': items,
+        'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
                        'links': [
