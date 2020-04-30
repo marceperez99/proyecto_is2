@@ -43,6 +43,13 @@ class RolDeSistema(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        """
+        Metodo que se encarga de, si es un nuevo Rol de Sistema, guardar el nuevo Rol de Sistema, y sino , guardar los
+        cambios del Rol ya existente
+
+        Retorna:
+            void
+        """
         super(RolDeSistema, self).save(*args, **kwargs)
         if Group.objects.filter(name=self.nombre).exists():
             group = Group.objects.get(name=self.nombre)
@@ -55,7 +62,6 @@ class RolDeSistema(models.Model):
 
         for permiso in self.permisos.all():
             group.permissions.add(permiso)
-
 
     def __str__(self):
         return self.nombre
@@ -71,10 +77,11 @@ class RolDeSistema(models.Model):
 
     def es_utilizado(self):
         """
-        Metodo que retorna True si existe algun usuario utilizando este Rol de Sistema en algun Sistema, False en caso contrario.
+        Metodo que retorna True si existe algun usuario utilizando este Rol de Sistema en algun Sistema,
+        False en caso contrario.
 
         Retorna:
-            Boolean
+            Booleano
         """
         group = Group.objects.get(name=self.nombre)
         return group.user_set.all().exists()

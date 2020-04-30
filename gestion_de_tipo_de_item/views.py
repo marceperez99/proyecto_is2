@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
@@ -292,14 +293,23 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    Vista que se encarga de confirmar la eliminacion de un tipo de item si es que ningun item es de ese tipo
+    Vista que se encarga de, si ningun item de ese tipo, eliminar el tipo de item recibido
+
+    Argumentos:
+        request: HttpRequest. \n
+        proyecto_id: int id que identifica unicamente a un proyecto del sistema. \n
+        fase_id: int id que identifica unicamente a una fase del sistema.\m
+        tipo_de_item_id: int id que identifica unicamente al tipo de item
+
+    Retorna:
+        HttpResponse
     """
 
     tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
 
     if request.method == 'POST':
         # pasar mensaje
-        if tipo_de_item.es_utilizado():
+        if not tipo_de_item.es_utilizado():
             tipo_de_item.delete()
 
         return redirect('tipos_de_item', proyecto_id, fase_id)

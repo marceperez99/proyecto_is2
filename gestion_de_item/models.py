@@ -339,12 +339,21 @@ class AtributoItemArchivo(models.Model):
         return "Archivo"
 
     def archivo_pendiente(self):
-        # TODO: Marcos, documentar
+        """
+        Metodo que se encarga de determinar si el atributo tiene una subida de archivo a la nube pendiente o en proceso.
+        Retorna "True" si el atributo "valor" esta vacío pero no el atributo "archivo_temporal", y "False" en caso
+        contrario; esto se debe a que inicialmete el archivo es guardado en el atributo "archivo_temporal" y cuando
+        el archivo esta completamente subido, pasa al atributo "valor"
+
+        Retorna:
+            Booleano
+        """
         return self.archivo_temporal.name != ''
 
     def archivo_subido(self):
         # TODO: marcos, comentar
         return self.valor.name != ''
+
 
 
 class AtributoItemBooleano(models.Model):

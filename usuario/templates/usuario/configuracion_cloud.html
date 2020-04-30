@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Configuracion de Cloud{% endblock %}
+{% block content %}
+{% include 'navBar.html' %}
+{% include 'breadcrumb.html' %}
+<div class="container mt-3">
+    <div class="row">
+        <h3 class="col-10">Configuración de Cloud</h3>
+        <hr class="col-12">
+        <form id="jsonform" method="POST" class="col-12 col-md-10 mx-auto border bg-white py-4 rounded">
+            {% csrf_token %}
+            <div class="col-10 mx-auto">
+                {{ form|crispy }}
+            </div>
+            <div class="row">
+                <a href="/panel_de_control"
+                   class="btn bg-color-danger text-white col-4 col-md-2 ml-auto mr-1">Cancelar</a>
+                <button type="submit" class="btn btn-primary bg-color-accent col-4 col-md-2 mr-auto mr-1">
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

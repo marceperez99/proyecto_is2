@@ -16,4 +16,6 @@ urlpatterns = [
     path('nuevo/', views.nuevo_item_view, name='nuevo_item'),
     path('nuevo/<int:tipo_de_item_id>/', views.nuevo_item_view, name='nuevo_item_tipo'),
     path('<int:item_id>/editar/', views.editar_item_view, name='editar_item'),
+    path('<int:item_id>/archivo/<int:atributo_id>/eliminar', views.eliminar_archivo_view,
+         name='eliminar_archivo_item'),
 ]
