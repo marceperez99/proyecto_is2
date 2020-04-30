@@ -760,7 +760,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 
         item.nueva_version()
         for atributo in atrbutos_dinamicos:
-            if type(atributo) is AtributoItemArchivo and atributo.id is atributo_id:
+            if type(atributo) is AtributoItemArchivo and atributo.id == atributo_id:
                 atributo.valor = None
             atributo.id = None
             atributo.version = item.version
