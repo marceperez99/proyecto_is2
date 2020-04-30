@@ -245,7 +245,8 @@ def cancelar_proyecto_view(request, proyecto_id):
         else:
             messages.error(request, 'No se puede cancelar un proyecto en estado "Finalizado".')
         return redirect('index')
-    return render(request, 'gestion_de_proyecto/cancelar_proyecto.html', {'proyecto': proyecto})
+    return render(request, 'gestion_de_proyecto/cancelar_proyecto.html',
+                  {'proyecto': proyecto, 'es_gerente': request.user == proyecto.gerente})
 
 
 @login_required
