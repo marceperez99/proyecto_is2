@@ -296,8 +296,17 @@ class AtributoItemArchivo(models.Model):
         return "Archivo"
 
     def archivo_pendiente(self):
-        print('condicion arcjpend: ' + ('true' if self.archivo_temporal is None else 'false') +
-              'and' + ('true' if self.valor is not None else 'false'))
+        """
+        Metodo que se encarga de determinar si el atributo tiene una subida de archivo a la nube pendiente o en proceso.
+        Retorna "True" si el atributo "valor" esta vacío pero no el atributo "archivo_temporal", y "False" en caso
+        contrario; esto se debe a que inicialmete el archivo es guardado en el atributo "archivo_temporal" y cuando
+        el archivo esta completamente subido, pasa al atributo "valor"
+
+        Retorna:
+            Booleano
+        """
+        print('condicion arcjpend: ' + ('true' if not self.archivo_temporal else 'false') +
+              'and' + ('true' if self.valor else 'false'))
         return not bool(self.archivo_temporal) and bool(self.valor)
 
 
