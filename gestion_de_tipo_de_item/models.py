@@ -44,7 +44,6 @@ class TipoDeItem(models.Model):
         return self.item_set.all().count() > 0
 
 
-
 class AtributoBinario(models.Model):
     """
     Modelo que representa la definición de un atributo dinámico del tipo archivo asociado a un tipo de item

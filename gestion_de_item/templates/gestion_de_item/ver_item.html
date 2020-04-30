@@ -54,13 +54,19 @@
                                         {{atr.valor}}
                             {% else %}
                             <button class="btn btn-primary mr-3 border-0 bg-color-accent"
-                                    {% if atr.valor_is_none %}
-                                    disabled="true"
-                                    {% else %}
+                                    {% if atr.valor %}
                                     onclick="window.open('{{atr.valor.url}}')"
+                                    {% else %}
+                                    disabled="true"
                                     {% endif %}>
                                 Ver Archivo
                             </button>
+                            {% if atr.valor %}
+                            <a href="archivo/{{atr.id}}/eliminar"
+                               class="mr-auto ml-3 btn btn-danger border-0 bg-color-danger">
+                                Eliminar
+                            </a>
+                            {% endif %}
                             {% endif %}
                             {% endif %}
                             {% endif %}
