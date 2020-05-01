@@ -29,12 +29,13 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_de_item_id)
-
+    participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
                 'fase': fase,
                 'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
                 'es_utilizado': tipo_de_item.es_utilizado(),
+                'permisos': participante.get_permisos_por_fase_list(fase),
                 'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto.id,))},

@@ -26,4 +26,23 @@
         </form>
 
     </div>
+    <script>
+        $("input[type=file]").each(function () {
+            console.log('Hi');
+            let input = $(this);
+            let container = $("<div></div>").attr('class','row');
+            input.parent().append(container);
+            input.attr('class','col-11');
+            container.append(input);
+
+            container.append(
+                $('<button type="button"></button>').attr('class','btn ').click(event=> {
+                    event.preventDefault();
+                    input.val('');
+                }).append( $("<i></i>").attr('class','fas fa-times') )
+            );
+
+        });
+
+    </script>
 {% endblock %}
