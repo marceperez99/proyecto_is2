@@ -37,18 +37,23 @@
                     <div class="col-4 h5 my-3">Nombre</div><div class="col-8 my-3">{{ item.version.nombre }}</div>
                     <div class="col-4 h5 my-3">Descripcion</div><div class="col-8 my-3">{{ item.version.descripcion }}</div>
                     <div class="col-4 h5 my-3">Estado</div><div class="col-8 my-3">{{ item.estado }}</div>
+                    <div class="col-4 h5 my-3">Peso</div><div class="col-8 my-3">{{ item.version.peso }}</div>
                     <div class="col-4 h5 my-3">Version</div>
                     <div class="col-8 my-3">{{ item.version.version }}</div>
                     {% for atr in item.get_atributos_dinamicos %}
-                    <div class="col-4 h5 my-3 align-self-center">{{atr.plantilla.nombre}}</div>
+                        <div class="col-4 h5 my-3 align-self-center">{{atr.plantilla.nombre}}</div>
                         <div class="col-7 my-3  mr-1 p-2">
                             {% if atr.getTipoAtributo == 'Archivo' %}
+                                <div class="row border rounded py-2">
                                 {% if atr.archivo_pendiente %}
-                                    Archivo pendiente de subir
+                                    <div class="col-12">
+                                        <i class="fas fa-circle text-warning"></i>&emsp; Subiendo archivo...
+                                    </div>
                                 {% else %}
                                     {% if atr.archivo_subido %}
-                                        <div class="row border rounded py-2">
-                                        <div class="col-auto my-auto">{{ atr.valor }}</div>
+                                        <div class="col-auto my-auto">
+                                                <i class="fas fa-circle text-success"></i>&emsp;{{ atr.valor }}
+                                            </div>
                                         <div class="col-auto ml-auto">
                                                 <a href="{{ atr.valor.url }}"
                                                    data-toggle="tooltip" data-placement="bottom" title="Descargar Archivo Adjunto"
@@ -63,10 +68,10 @@
                                                 </a>
                                             {% endif %}
                                         </div>
-                                    </div>
                                     {% else %}
-                                        Aun no se subio un archivo
+                                        <div class="col-12">Aún no se subio un archivo.</div>
                                     {% endif %}
+
                                 {% endif %}
                             {% else  %}
                                 {% if atr.valor != None %}
@@ -85,6 +90,7 @@
 
                             {% endif %}
                         </div>
+                    </div>
                     {% endfor %}
                     <hr class="col-11">
                     <h5 class="col-12 my-3">Relaciones</h5>
