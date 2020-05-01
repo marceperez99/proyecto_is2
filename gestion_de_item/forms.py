@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.db.models import Q
 from django.db.models.fields.files import FieldFile
 
@@ -96,17 +96,19 @@ class AtributoItemArchivoForm(forms.Form):
 
     def clean(self):
         # Falta validar el tamaño maximo del archivo
-        print(self.nombre)
-        archivo = self.cleaned_data[self.nombre]
 
-        if isinstance(archivo, FieldFile):
-            if archivo is not None and archivo.file.size > self.plantilla.max_tamaño * 1024 * 1024:
-                raise ValidationError(
-                    'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
-        elif isinstance(archivo, InMemoryUploadedFile):
-            if archivo is not None and archivo.size > self.plantilla.max_tamaño * 1024 * 1024:
-                raise ValidationError(
-                    'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
+        if self.nombre in self.cleaned_data:
+            archivo = self.cleaned_data[self.nombre]
+            if isinstance(archivo, FieldFile):
+                if archivo is not None and archivo.file.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.file.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
+            elif isinstance(archivo, TemporaryUploadedFile):
+                if archivo is not None and archivo.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
         return self.cleaned_data
 
 
