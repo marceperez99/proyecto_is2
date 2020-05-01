@@ -71,8 +71,8 @@
                                     {% else %}
                                         <div class="col-12">Aún no se subio un archivo.</div>
                                     {% endif %}
-
                                 {% endif %}
+                                </div>
                             {% else  %}
                                 {% if atr.valor != None %}
                                     {% if atr.getTipoAtributo == 'Booleano' %}
@@ -90,7 +90,6 @@
 
                             {% endif %}
                         </div>
-                    </div>
                     {% endfor %}
                     <hr class="col-11">
                     <h5 class="col-12 my-3">Relaciones</h5>
