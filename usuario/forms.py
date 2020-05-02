@@ -1,4 +1,8 @@
+import json
+
 from django import forms
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from roles_de_sistema.models import RolDeSistema
 
@@ -30,6 +34,8 @@ class ConfigCloudForm(forms.Form):
     Clase Padre:
         form.ModelForm
     """
+    credenciales = forms.CharField(widget=forms.Textarea, label='Json de Configuración del Cloud')
+
     def __init__(self, *args, **kwargs):
         """
         Constructor del Formulario.
@@ -37,4 +43,15 @@ class ConfigCloudForm(forms.Form):
         Agrega un campo TextArea para escribir en él las configuraciones del json
         """
         super(ConfigCloudForm, self).__init__(*args, **kwargs)
-        self.fields['Json de Configuración del Cloud'] = forms.CharField(widget=forms.Textarea)
+        f = open(settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE)
+        credenciales = str(f.read())
+        self.fields['credenciales'].initial = credenciales
+
+    def clean_credenciales(self):
+        data = self.cleaned_data['credenciales']
+        try:
+            json.loads(data)
+        except:
+            raise ValidationError('El contenido pasado no corresponde al formato JSON')
+
+        return data

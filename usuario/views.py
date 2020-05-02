@@ -148,14 +148,14 @@ def desasignar_rol_de_sistema_view(request, usuario_id):
 def configurar_cloud_view(request):
     if request.method == 'POST':
         form = ConfigCloudForm(request.POST)
-        if form.is_valid() and len(form.cleaned_data.get('Json de Configuración del Cloud')) > 0:
+        if form.is_valid() and len(form.cleaned_data.get('credenciales')) > 0:
             json = open(settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE, 'w')
-            json.write(form.cleaned_data.get('Json de Configuración del Cloud'))
+            json.write(form.cleaned_data.get('credenciales'))
             json.close()
-            print(form.cleaned_data.get('Json de Configuración del Cloud'))
-        return redirect('panel_de_control')
-
-    form = ConfigCloudForm()
+            print(form.cleaned_data.get('credenciales'))
+            return redirect('panel_de_control')
+    else:
+        form = ConfigCloudForm()
     contexto = {'form': form, 'breadcrumb': {'pagina_actual': 'Configuracion Cloud',
                                              'links': [{'nombre': 'Panel de Administracion',
                                                         'url': reverse('panel_de_control')}]}}
