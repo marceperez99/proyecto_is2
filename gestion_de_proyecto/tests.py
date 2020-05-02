@@ -1,9 +1,11 @@
 from http import HTTPStatus
+
 import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from roles_de_proyecto.models import RolDeProyecto
@@ -791,5 +793,11 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('asignar_miembros_comite', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
-    # TODO: Marcos test info_proyecto_view
-    pass
+    def test_info_proyecto_view(self, gerente_loggeado, proyecto):
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        response = gerente_loggeado.get(reverse('info_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de ver la iformacion del protyecto '
+
+    # pass
