@@ -1,10 +1,12 @@
 import datetime
 from http import HTTPStatus
+
 import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import TipoDeItem
@@ -311,8 +313,8 @@ class TestVistasItem:
 
     def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
         """
-        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
-         de un item.
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de \
+        visualizar el historial de cambios de un item.
 
         Se espera:
             - Status code de la respuesta del servidor HTTPStatus.OK (300).
