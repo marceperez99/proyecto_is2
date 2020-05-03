@@ -309,4 +309,17 @@ class TestVistasUsuarios:
         """
         response = admin_loggeado.get(reverse('desasignar_rol_de_sistema', args=(usuario.id,)))
         assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la vista de desasignacion de rol '
-    # TODO: Marcos test configurar_cloud_view
+
+    def test_configurar_cloud_view(self, admin_loggeado):
+        """
+        Prueba unitaria que se encarga de verificar que la vista \
+        configurar_cloud_view se cargue correctamente
+
+        Resultado esperado:
+            Una respuesta HTTP con código 200
+
+        Mensaje Error:
+            No es posible visualizar la vista de configuracion del cloud
+        """
+        response = admin_loggeado.get(reverse('config_cloud'))
+        assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la vista de configuracion del cloud '
