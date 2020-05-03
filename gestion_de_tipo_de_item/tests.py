@@ -276,17 +276,30 @@ class TestVistasTipoDeItem:
 
     def test_nuevo_tipo_de_item_importar_view(self, cliente_loggeado, proyecto, tipo_de_item):
         """
-        Prueba unitaria que verifica que la vista nueo_tipo_de_item_view con el argumento opcional tipo_de_item sea accesible.
+        Prueba unitaria que verifica que la vista nueo_tipo_de_item_view con el \
+        argumento opcional tipo_de_item sea accesible.
 
         Resultado Esperado:
-        -Una respuesta HTTP con codigo 200.
+            -Una respuesta HTTP con codigo 200.
 
         Mensaje de Error:
-        -Hubo un error al tratar de acceder a la URL
+            -Hubo un error al tratar de acceder a la URL
         """
         response = cliente_loggeado.get(
             reverse('nuevo_tipo_de_item_importar', args=(proyecto.id, tipo_de_item.fase.id, tipo_de_item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
 
-    # TODO: Marcos test eliminar_tipo_de_item_view
-    pass
+    def test_eliminar_tipo_de_item_view(self, cliente_loggeado, proyecto, tipo_de_item):
+        """
+        Prueba unitaria que verifica que la vista eliminar_tipo_de_item_view con el \
+        argumento opcional tipo_de_item sea accesible.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL.
+        """
+        response = cliente_loggeado.get(
+            reverse('nuevo_tipo_de_item_importar', args=(proyecto.id, tipo_de_item.fase.id, tipo_de_item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
