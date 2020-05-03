@@ -59,6 +59,12 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
+GDRIVE_JSON_PATH="$BASE_DIR/$PROYECT_NAME/auth/gdriveaccess.json"
+read -p "Ingrese el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive : " input
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
+
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH"
+
 cd "$BASE_DIR" || exit 1
 
 #Creacion de directorios del sistema
@@ -82,7 +88,8 @@ echo "DB_PORT=\"$DB_PORT\"";
 echo "GOOGLE_OAUTH_SECREY_KEY=\"$GOOGLE_OAUTH_SECREY_KEY\"";
 echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
 echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
-echo "DEBUG_VALUE=False"; } > "$ENV_VARIABLES_PATH"
+echo "DEBUG_VALUE=False";
+echo "GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\""; } > "$ENV_VARIABLES_PATH"
 
 #Descarga de codigo fuente
 cd "django" || exit 1

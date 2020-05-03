@@ -40,6 +40,9 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT')
 GOOGLE_OAUTH_SECRET_KEY = os.environ.get('GOOGLE_OAUTH_SECRET_KEY')
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 
+# Configuracion del Google Drive Storage
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.environ.get('GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE')
+
 
 # Configuracion de Celery
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
