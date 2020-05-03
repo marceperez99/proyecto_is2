@@ -1,8 +1,10 @@
 from http import HTTPStatus
+
 import pytest
 from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
+
 from usuario.models import Usuario
 from .models import RolDeSistema
 
@@ -47,7 +49,20 @@ class TestModeloRolDeSistema:
     """
     Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo RolDeSistema
     """
-    # TODO: Marcos test get_permisos en el caso de que si retorne una lista
+
+    def test_get_permisos(self, rol_de_sistema):
+        """
+        Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al \
+        tratar de obtener los permisos de un rol creado sin permisos retorne una lista \
+        vacia
+
+        Se espera:
+            Que el metodo get_permisos retorne la lista de permisos del Rol de Sistema.
+
+        Mensaje de Error:
+            No se pudo traer la lsta de permisos correctamente
+        """
+        assert len(rol_de_sistema.get_permisos()) > 0, 'No se pudo traer la lsta de permisos correctamente'
 
     def test_roldesistema_lista_de_permisos_vacia(self):
         """
