@@ -295,5 +295,18 @@ class TestVistasUsuarios:
         """
         response = admin_loggeado.get(reverse('panel_de_control'))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al intentar aceder a la URL del Panel de Control'
-    # TODO: Marcos test desasignar_rol_de_sistema_view
+
+    def test_usuario_desasignar_rol_view(self, admin_loggeado, usuario):
+        """
+        Prueba unitaria que se encarga de verificar que la vista \
+        desasignar_rol_de_sistema_view se cargue correctamente
+
+        Resultado esperado:
+            Una respuesta HTTP con código 200
+
+        Mensaje Error:
+            No es posible visualizar la vista de desasignacion de rol
+        """
+        response = admin_loggeado.get(reverse('desasignar_rol_de_sistema', args=(usuario.id,)))
+        assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la vista de desasignacion de rol '
     # TODO: Marcos test configurar_cloud_view
