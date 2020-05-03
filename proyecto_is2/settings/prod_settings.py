@@ -20,7 +20,7 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME'),
+        'NAME': os.environ.get('DB_NOMBRE'),
         'USER': os.environ.get('DB_USUARIO'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
@@ -46,3 +46,6 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.environ.get('GOOGLE_DRIVE_STORAGE_JSON_K
 
 # Configuracion de Celery
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+SOCIALAPP_DOMAIN = "localhost"
+SOCIALAPP_NAME = "localhost"
+
