@@ -794,10 +794,18 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
     def test_info_proyecto_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de ver informacion del proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
         comite = Comite()
         comite.proyecto = proyecto
         comite.save()
         response = gerente_loggeado.get(reverse('info_proyecto', args=(proyecto.id,)))
-        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de ver la iformacion del protyecto '
-
-    # pass
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
