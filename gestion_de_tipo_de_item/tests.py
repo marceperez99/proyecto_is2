@@ -6,7 +6,9 @@ from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
+from gestion_de_item.models import Item
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
@@ -132,8 +134,20 @@ class TestModeloTipoDeItem:
     """
     Pruebas unitarias que comprueban el funcionamiento de los metodos del Modelo TipoDeItem
     """
-    # TODO: Marcos test es_utilizado
-    pass
+
+    def test_es_utilizado(self, tipo_de_item):
+        """
+        Prueba unitaria que verifica si algún item es del tipo de item actual.
+
+        Resultado esperado:
+            True si algun item es del tipo de item de actual y False si no.
+
+        Mensaje de Error:
+            El tipo de item no fue asociado correctamente al item
+        """
+        item = Item(tipo_de_item=tipo_de_item)
+        item.save()
+        assert tipo_de_item.es_utilizado(), 'El tipo de item no fue asociado correctamente al item '
 
 
 @pytest.mark.django_db
