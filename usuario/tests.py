@@ -266,7 +266,20 @@ class TestVistasUsuarios:
         response = admin_loggeado.get(reverse('usuarios'))
         assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la lista de usuarios'
 
-    # TODO: Marcos test usuario_asignar_rol_view
+    def test_usuario_asignar_rol_view(self, admin_loggeado, usuario):
+        """
+        Prueba unitaria que se encarga de verificar que la vista \
+        usuario_asignar_rol_view se cargue correctamente
+
+        Resultado esperado:
+            Una respuesta HTTP con código 200
+
+        Mensaje Error:
+            No es posible visualizar la vista de asignacion de rol
+        """
+        response = admin_loggeado.get(reverse('asignar_rol_de_sistema', args=(usuario.id,)))
+        assert response.status_code == HTTPStatus.OK, 'No es posible visualizar la vista de asignacion de rol '
+
     def test_panel_de_administracion_view(self, admin_loggeado):
         """
         Prueba el acceso a la lista de usuarios existentes dentro del sistema. \n
