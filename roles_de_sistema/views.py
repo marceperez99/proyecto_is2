@@ -131,7 +131,6 @@ def rol_de_sistema_view(request, id_rol):
     Retorna:
         HttpResponse
     """
-    # TODO: Marcos: hacer prueba unitaria de esta vista
     rol = get_object_or_404(RolDeSistema, id=id_rol)
 
     user = Usuario.objects.get(id=request.user.id)
@@ -167,7 +166,6 @@ def eliminar_rol_de_sistema_view(request, id_rol):
     Retorna:
         HttpResponse
     """
-    # TODO: Marcos: hacer prueba unitaria de esta vista
     rol = get_object_or_404(RolDeSistema, pk=id_rol)
     contexto = {'user': request.user, 'rol': rol,
                 'breadcrumb': {'pagina_actual': 'Eliminar Rol',
