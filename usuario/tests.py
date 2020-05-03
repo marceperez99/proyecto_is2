@@ -119,7 +119,23 @@ class TestModeloUsuario:
         usuario = Usuario.objects.get(id=usuario.id)
         assert usuario.es_administrador(), 'El metodo es_administrador no esta funcionando correctamente '
 
-    # TODO: Marcos test get_permisos_list
+    def test_get_permisos_list(self, usuario, rs_admin):
+        """
+        Prueba unitaria encargada de probar metodo get_permisos_list para asegurarse \
+        que se traiga correctamente la lista de permisos del usuario.
+
+        Se espera:
+            Que el metodo get_permisos_list retorne la lsita de permisos del usuario.
+
+        Mensaje de Error:
+            No se trae corectamente la lista de permisos de usuario
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        ps_rol = [ps.codename for ps in rs_admin.get_permisos()]
+        ps_user = usuario.get_permisos_list()
+        assert all(p in ps_rol for p in ps_user) and all(p in ps_user for p in ps_rol), \
+            'No se trae corectamente la lista de permisos de usuario '
+
     # TODO: Marcos test get_proyectos
     # TODO: Marcos test get_proyectos_activos
     pass
