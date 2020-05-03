@@ -4,9 +4,9 @@ import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
-from pytest import fixture
 
 from roles_de_sistema.models import RolDeSistema
+from usuario.models import Usuario
 
 
 @pytest.fixture
@@ -20,6 +20,16 @@ def rs_admin():
 
 
 @pytest.fixture
+def rol_de_sistema():
+    rs = RolDeSistema(nombre='RSTest',
+                      descripcion='Descripcion del rol')
+    rs.save()
+    for permiso in Permission.objects.all().filter(codename__startswith='ps_'):
+        rs.permisos.add(permiso)
+    return rs
+
+
+@pytest.fixture
 def usuario(rs_admin):
     user = User.objects.create(username='testing')
     user.set_password('12345')
@@ -30,12 +40,30 @@ def usuario(rs_admin):
 # Pruebas Unitarias
 
 
+@pytest.mark.django_db
 class TestModeloUsuario:
     """
     Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo Usuario.
     """
-    # TODO: Marcos test asignar_rol_a_usuario
-    # TODO: Marcos test desasignar_rol_a_usuario
+
+    def test_asignar_rol_a_usuario(self, usuario, rol_de_sistema):
+        """
+        Prueba unitaria encargada de probar metodo asignar_rol_a_usuario para asegurarse que el \
+        rol asignado sea el mismo que le guardado en el usuario.
+
+        Se espera:
+            Que el metodo asignar_rol_a_usuario asigne el rol de sistema al usuario.
+
+        Mensaje de Error:
+            El rol de sistema no se asignó correctamente
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        usuario.asignar_rol_a_usuario(rol_de_sistema.id)
+        assert RolDeSistema.objects.get(nombre=usuario.groups.all()[0].name) == rol_de_sistema, \
+            'El rol de sistema no se asignó correctamente '
+
+
+
     # TODO: Marcos test get_rol_de_sistema
     # TODO: Marcos test get_permisos_list
     # TODO: Marcos test get_proyectos
@@ -48,7 +76,8 @@ class TestVistasUsuarios:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
     """
-    @fixture
+
+    @pytest.fixture
     def admin_loggeado(self, usuario, rs_admin):
 
         client = Client()
@@ -117,3 +146,4 @@ class TestVistasUsuarios:
         response = admin_loggeado.get(reverse('panel_de_control'))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al intentar aceder a la URL del Panel de Control'
     # TODO: Marcos test desasignar_rol_de_sistema_view
+    # TODO: Marcos test configurar_cloud_view
