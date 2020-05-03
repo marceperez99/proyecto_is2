@@ -117,7 +117,23 @@ class TestVistasRolDeSistema:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a los Roles de Sistema.
     """
-    # TODO: Marcos test listar_roles_de_sistema_view
+
+    def test_listar_roles_de_sistema_view(self, usuario, cliente_loggeado, rs_admin):
+        """
+        Prueba unitaria encargada de verificar que el vista listar_roles_de_sistema_view
+
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        response = cliente_loggeado.get(reverse('nuevo_rol_de_sistema'))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
+
     # TODO: Marcos test editar_rol_de_sistema_view
     # TODO: Marcos test rol_de_sistema_view
     # TODO: Marcos test eliminar_rol_de_sistema_view
