@@ -252,10 +252,11 @@ class Item(models.Model):
         relacion implica una nueva version del item
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de
-             padres.\n
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.
+
         Lanza:
             -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
+
         """
 
         mensaje_error = []

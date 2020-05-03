@@ -128,8 +128,7 @@ class TestModeloItem:
             - Que el estado del item solo cambie a A_APROBAR si el estado actual del item es NO_APROBADO.
 
         Mensaje de error:
-            - El metodo solicitar_aprobacion() debe dejar el item en estado {esperado} si el item está en estado
-            {estado_item}, pero el metodo retornó {item.estado}
+            - El metodo solicitar_aprobacion() debe dejar el item en estado {esperado} si el item está en estado {estado_item}, pero el metodo retornó {item.estado}
         """
         item.estado = estado_item
         try:
