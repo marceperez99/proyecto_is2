@@ -11,7 +11,7 @@ from usuario.models import Usuario
 
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
+    rol = RolDeSistema(nombre='Administrador', descripcion='descripcion de prueba')
     rol.save()
     for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
         rol.permisos.add(pp)
@@ -91,6 +91,33 @@ class TestModeloUsuario:
         usuario = Usuario.objects.get(id=usuario.id)
         assert usuario.get_rol_de_sistema() == rs_admin, 'El rol de sistema no se trajo correctamente '
 
+    def test_tiene_rs(self, usuario):
+        """
+        Prueba unitaria encargada de probar metodo tiene_rs para verificar si el \
+        usuario tiene algun rol de sistema asignado.
+
+        Se espera:
+            Que el metodo tiene_rs returne True si el usuario tiene asignado un Rol de Sistea.
+
+        Mensaje de Error:
+            El metodo tiene_rs no esta funcionando correctamente
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        assert usuario.tiene_rs(), 'El metodo tiene_rs no esta funcionando correctamente '
+
+    def test_es_administrador(self, usuario):
+        """
+        Prueba unitaria encargada de probar metodo es_administrador para verificar si \
+        el usuario tiene el rol de administrador.
+
+        Se espera:
+            Que el metodo es_administrador returne True si el usuario tiene asignado un Rol de Sistea.
+
+        Mensaje de Error:
+            El metodo es_administrador no esta funcionando correctamente
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        assert usuario.es_administrador(), 'El metodo es_administrador no esta funcionando correctamente '
 
     # TODO: Marcos test get_permisos_list
     # TODO: Marcos test get_proyectos
