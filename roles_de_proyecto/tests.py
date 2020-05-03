@@ -274,7 +274,6 @@ class TestVistasRolDeProyecto:
         Mensaje de Error:
             No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
-        print(rol_de_proyecto, rol_de_proyecto.id)
         response = cliente_loggeado.get(reverse('editar_rol_de_proyecto', args=(rol_de_proyecto.id,)))
 
         assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
@@ -290,7 +289,6 @@ class TestVistasRolDeProyecto:
         Mensaje de Error:
             No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
-        print(rol_de_proyecto, rol_de_proyecto.id)
         response = cliente_loggeado.get(reverse('rol_de_proyecto', args=(rol_de_proyecto.id,)))
 
         assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \
@@ -306,7 +304,6 @@ class TestVistasRolDeProyecto:
         Mensaje de Error:
             No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
-        print(rol_de_proyecto, rol_de_proyecto.id)
         response = cliente_loggeado.get(reverse('eliminar_rol_de_proyecto', args=(rol_de_proyecto.id,)))
 
         assert response.status_code == HTTPStatus.OK, 'No se obtuvo la pagina correctamente. ' \

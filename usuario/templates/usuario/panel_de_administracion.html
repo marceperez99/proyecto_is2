@@ -5,7 +5,7 @@
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row">
-            <h3 class="col-12">Panel de Administracion</h3>
+            <h3 class="col-10">Panel de Administracion</h3>
             <hr class="col-12">
             <div class="col-12 p-1">
                 {% if 'ps_ver_proyecto' in permisos %}
@@ -191,7 +191,7 @@
                                 </a>
                                 <p class="col-12 mx-auto">Configure las credenciales utilizadas para el almacenamiento
                                     de los archivos adjuntos de los items.</p>
-                                <a href="#" class="col-8 my-3 mx-auto btn btn-primary bg-color-accent border-0">Configurar Almacenamiento en la Nube</a>
+                                <a href="{% url 'config_cloud' %}" class="col-8 my-3 mx-auto btn btn-primary bg-color-accent border-0">Configurar Almacenamiento en la Nube</a>
                             </div>
                         </div>
                     </div>

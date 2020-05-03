@@ -1,17 +1,18 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.db.models import Q
-from gestion_de_item.models import VersionItem, Item, EstadoDeItem, AtributoItemArchivo, AtributoItemCadena, \
-    AtributoItemNumerico, AtributoItemBooleano, AtributoItemFecha
-# from gestion_de_item.utils import hay_ciclo
+from django.db.models.fields.files import FieldFile
+
 import gestion_de_item
+from gestion_de_item.models import VersionItem, EstadoDeItem, Item
 
 
 class NuevoVersionItemForm(forms.ModelForm):
     """
     Form que permite la creación de un nuevo item. Solicita los atributos no dinamicos del item.
-    Es necesario especificar un padre o un sucesor para el nuevo item si es que no se encuentra en la primera fase del proyecto.
-
+    Es necesario especificar un padre o un sucesor para el nuevo item si es que no se encuentra en la primera fase del
+    proyecto.
 
     Campos:
         - nombre: str, nombre del nuevo ítem.
@@ -28,7 +29,8 @@ class NuevoVersionItemForm(forms.ModelForm):
     def __init__(self, *args, tipo_de_item=None, **kwargs):
         """
         Constructor de la clase NuevoVersionItemForm.
-        Los items candidatos para el campo Antecesor/Padre son seleccionados de la fase anterior aquellos que estan en una linea base y de la fase actual si estan aprobados o en linea base.
+        Los items candidatos para el campo Antecesor/Padre son seleccionados de la fase anterior aquellos que estan en
+        una linea base y de la fase actual si estan aprobados o en linea base.
 
         Argumentos:
             - tipo_de_item: TipoDeITem, el tipo de item al quen pertenece este item.
@@ -90,11 +92,23 @@ class AtributoItemArchivoForm(forms.Form):
         self.fields[self.nombre] = forms.FileField()
         self.fields[self.nombre].empty_label = 'Seleccionar un archivo'
         self.fields[self.nombre].label = plantilla.nombre
-        self.fields[self.nombre].required = self.plantilla.requerido
+        self.fields[self.nombre].required = self.plantilla.requerido and 'initial' not in kwargs.keys()
 
     def clean(self):
         # Falta validar el tamaño maximo del archivo
 
+        if self.nombre in self.cleaned_data:
+            archivo = self.cleaned_data[self.nombre]
+            if isinstance(archivo, FieldFile):
+                if archivo is not None and archivo.file.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.file.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
+            elif isinstance(archivo, TemporaryUploadedFile):
+                if archivo is not None and archivo.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
         return self.cleaned_data
 
 
@@ -163,8 +177,7 @@ class AtributoItemNumericoForm(forms.Form):
         self.nombre = 'valor_' + str(counter)
         self.fields[self.nombre] = forms.DecimalField(max_digits=plantilla.max_digitos,
                                                       decimal_places=plantilla.max_decimales)
-        print(plantilla.max_digitos)
-        print(plantilla.max_decimales)
+
         self.fields[self.nombre].label = self.plantilla.nombre
         self.fields[self.nombre].required = self.plantilla.requerido
 
@@ -214,7 +227,6 @@ class AtributoItemFechaForm(forms.Form):
         Argumentos:
             - plantilla: AtributoFecha
         """
-        print(fecha, counter)
         super(AtributoItemFechaForm, self).__init__(*args, **kwargs)
         self.plantilla = plantilla
         self.nombre = 'valor_' + str(counter)
@@ -242,7 +254,9 @@ class RelacionPadreHijoForm(forms.Form):
 
         """
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
-        self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE).exclude(id=item.id))
+        self.fields['padre'] = forms.ModelChoiceField(
+            queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE).exclude(
+                id=item.id))
         self.item = item
 
     def clean_padre(self):
@@ -273,7 +287,8 @@ class RelacionAntecesorSucesorForm(forms.Form):
     def __init__(self, *args, item=None, **kwargs):
         """
         Constructor de la clase RelacionAntecesorSucesorForm.
-        Los items candidatos para el campo Antecesor son seleccionados de la fase anterior aquellos que estan en una linea base.
+        Los items candidatos para el campo Antecesor son seleccionados de la fase anterior aquellos que estan en una
+        linea base.
 
         Argumentos:
             - item: Item, items de la fase anterior que cumplan que esten en una linea base
@@ -283,4 +298,3 @@ class RelacionAntecesorSucesorForm(forms.Form):
         self.fields['antecesor'] = forms.ModelChoiceField(
             queryset=item.get_fase().fase_anterior.get_item_estado(EstadoDeItem.EN_LINEA_BASE))
         self.item = item
-

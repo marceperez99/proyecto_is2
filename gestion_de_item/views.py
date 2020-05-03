@@ -1,20 +1,22 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib import messages
 
+from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
     AtributoItemArchivo, AtributoItemBooleano
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
-from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
-from roles_de_proyecto.decorators import pp_requerido_en_fase
-from gestion_de_fase.models import Fase
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
     AtributoBooleano
-from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm,NuevoVersionItemForm, EditarItemForm, AtributoItemArchivoForm, \
+from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+from roles_de_proyecto.decorators import pp_requerido_en_fase
+from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm, NuevoVersionItemForm, EditarItemForm, \
+    AtributoItemArchivoForm, \
     AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
-from .utils import get_atributos_forms
+from .tasks import upload_and_save_file_item
+from .utils import get_atributos_forms  # , upload_and_save_file_item
 
 
 @login_required
@@ -39,6 +41,7 @@ def listar_items(request, proyecto_id, fase_id):
         'proyecto': proyecto,
         'fase': fase,
         'items': items,
+        'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
                        'links': [
@@ -76,11 +79,13 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+    participante = proyecto.get_participante(request.user)
     contexto = {
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
+        'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
             {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
@@ -114,7 +119,18 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
     if tipo_de_item_id is None:
 
         lista_tipo_de_item = [get_dict_tipo_de_item(tipo) for tipo in TipoDeItem.objects.filter(fase=fase)]
-        contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto}
+        contexto = {'user': request.user, 'lista_tipo_de_item': lista_tipo_de_item, 'fase': fase, 'proyecto': proyecto,
+                    'breadcrumb': {'pagina_actual': 'Nuevo Item',
+                                   'links': [
+                                       {'nombre': proyecto.nombre,
+                                        'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                       {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                       {'nombre': fase.nombre,
+                                        'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                       {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                   ]
+                                   }
+                    }
         return render(request, 'gestion_de_item/seleccionar_tipo_de_item.html', context=contexto)
     else:
         # Si es llamado con un tipo de item, permite crear un nuevo tipo de item.
@@ -151,21 +167,24 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 
                     # Asocia esta versión al item creado.
                     version.item = item
-                    version.save(versionar=True)
+                    version.version = 1
+                    version.save()
                     # Actualiza la version del item a esta versión creada.
                     item.version = version
                     item.save()
 
                     # Si se seleccionó un item a relacionar
                     if anterior is not None:
-                        assert anterior.get_fase() == fase.fase_anterior or anterior.get_fase() == fase, "El sistema " \
-                                                                                                         "es inconsistente: El item anterior no peretence a esta fase ni a la fase anterior "
+                        assert anterior.get_fase() == fase.fase_anterior or \
+                               anterior.get_fase() == fase, "El sistema es inconsistente: El item anterior no " \
+                                                            "peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.antecesores.add(anterior)
+                            item.add_antecesor(anterior)
                         elif anterior.get_fase() == fase:
-                            item.padres.add(anterior)
+                            item.add_padre(anterior)
 
+                    list_atributos_id = []
                     # Crea los atributos dinamicos del item.
                     for form in atributo_forms:
                         if type(form.plantilla) == AtributoCadena:
@@ -182,9 +201,21 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                         # Asocia al atributo el tipo de item y la plantilla del atributo.
                         atributo.plantilla = form.plantilla
                         atributo.version = version
-                        atributo.valor = form.cleaned_data[form.nombre]
 
-                        atributo.save()
+                        if type(atributo) == AtributoItemArchivo and form.cleaned_data[form.nombre] is not None:
+                            atributo.archivo_temporal = request.FILES[form.nombre]
+                            atributo.save()
+                            list_atributos_id.append(atributo.id)
+                            # list_files.append(request.FILES[form.nombre])
+                        else:
+                            atributo.valor = form.cleaned_data[form.nombre]
+                            atributo.save()
+
+                    if len(list_atributos_id) > 0:
+                        # Comentar linea de abajo para que la subida de archivos sea asincrona
+                        # upload_and_save_file_item(list_atributos_id)
+                        # Comentar linea de abajo para que la subida de archivos sea sincrona
+                        upload_and_save_file_item.delay(list_atributos_id)
 
                     return redirect('listar_items', proyecto_id=proyecto_id, fase_id=fase_id)
 
@@ -193,7 +224,19 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
             form = NuevoVersionItemForm(request.POST or None, tipo_de_item=tipo_de_item)
             atributo_forms = get_atributos_forms(tipo_de_item, request)
             contexto = {'user': request.user, 'form': form, 'fase': fase, 'proyecto': proyecto,
-                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms}
+                        'tipo_de_item': tipo_de_item, 'atributo_forms': atributo_forms,
+                        'breadcrumb': {'pagina_actual': 'Nuevo Item',
+                                       'links': [
+                                           {'nombre': proyecto.nombre,
+                                            'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                           {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                           {'nombre': fase.nombre,
+                                            'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                           {'nombre': 'Items',
+                                            'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                       ]
+                                       }
+                        }
             return render(request, 'gestion_de_item/nuevo_item.html', context=contexto)
 
 
@@ -216,7 +259,8 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna:
         - HttpResponse
     """
-
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
@@ -226,16 +270,28 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
             mensaje = 'El item no puede ser eliminado debido a las siguientes razones:<br>'
 
             errores = e.args[0]
-            print(e)
-            print(errores)
+
             for error in errores:
-               mensaje = mensaje + '<li>' + error + '</li><br>'
-            mensaje = '<ul>' +  mensaje + '</ul>'
-            messages.error(request,mensaje)
-            return redirect('visualizar_item',proyecto_id,fase_id,item_id)
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' + mensaje + '</ul>'
+            messages.error(request, mensaje)
+            return redirect('visualizar_item', proyecto_id, fase_id, item_id)
         return redirect('listar_items', proyecto_id, fase_id)
 
-    contexto = {'item': item.version.nombre}
+    contexto = {'item': item.version.nombre,
+                'breadcrumb': {'pagina_actual': 'Desaprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/eliminar_item.html', context=contexto)
 
 
@@ -261,6 +317,7 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {
         'item': item,
         'user': request.user,
+        'lista_estados_item': [EstadoDeItem.NO_APROBADO, ],
         'breadcrumb': {'pagina_actual': 'Historial de Cambios',
                        'links': [
                            {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -283,8 +340,10 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
     fases adyacentes (antecesor-sucesor), de acuerdo a la opcion que elija el usuario se mostraran
     los item aprobados de la misma fase o de la fase adyacente para ser relacionados
-    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados, de esa fase o de la adyacente \n
-    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion, verifica si es valido y la guarda \n
+    Si el metodo Http con el que se realizo la peticion fue GET, se traer todos los item aprobados,
+    de esa fase o de la adyacente \n
+    Si el metodo Http con el que se realizo la peticion fue POST se toman los datos de la relacion,
+    verifica si es valido y la guarda \n
     Argumentos:
         - request: HttpRequest
         - proyecto_id: int, identificador unico de un proyecto del sistema.
@@ -299,7 +358,19 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {'proyecto': proyecto,
                 'fase': fase,
                 'item': item,
-                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO)
+                'items_aprobados': fase.get_item_estado(EstadoDeItem.APROBADO),
+                'breadcrumb': {'pagina_actual': 'Relacionar Items',
+                               'links': [
+                                   {'nombre': proyecto.nombre,
+                                    'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                   {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                   {'nombre': fase.nombre,
+                                    'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                   {'nombre': 'Items', 'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                   {'nombre': item.version.nombre,
+                                    'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))},
+                               ]
+                               }
                 }
     if request.method == 'POST':
         if 'tipo' in request.GET.keys():
@@ -307,28 +378,33 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
                 form = RelacionPadreHijoForm(request.POST, item=item)
                 if form.is_valid():
                     item.add_padre(form.cleaned_data['padre'])
+                    return redirect('visualizar_item', proyecto_id, fase_id, item_id)
                 else:
                     contexto['form'] = form
             elif request.GET['tipo'] == 'antecesor-sucesor':
                 form = RelacionAntecesorSucesorForm(request.POST, item=item)
                 if form.is_valid():
                     item.add_antecesor(form.cleaned_data['antecesor'])
+                    return redirect('visualizar_item', proyecto_id, fase_id, item_id)
                 else:
                     contexto['form'] = form
-        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         if 'tipo' in request.GET.keys():
             if request.GET['tipo'] == 'padre-hijo':
                 contexto['form'] = RelacionPadreHijoForm(item=item)
             elif request.GET['tipo'] == 'antecesor-sucesor':
-                contexto['form'] = RelacionAntecesorSucesorForm(item=item)
+                if fase.es_primera_fase():
+                    messages.error(request, "No se puede agregar un antecesor a un item de la primera fase")
+                    return redirect("visualizar_item", proyecto.id, fase.id, item.id)
+                else:
+                    contexto['form'] = RelacionAntecesorSucesorForm(item=item)
 
     return render(request, 'gestion_de_item/relacionar_item.html', contexto)
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_aprobar_item')
+@pp_requerido_en_fase('pp_f_solicitar_aprobacion_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """
@@ -361,7 +437,20 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Solicitar Aprobación Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/solicitar_aprobacion.html', contexto)
 
 
@@ -395,17 +484,31 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Aprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
     return render(request, 'gestion_de_item/aprobar_item.html', contexto)
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_editar_item')
+@pp_requerido_en_fase('pp_f_modificar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
-    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una nueva versión de este.
+    Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una
+    nueva versión de este.
 
     Argumentos:
         - request: HttpRequest,
@@ -445,7 +548,6 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
                 AtributoItemArchivoForm(request.POST or None, request.FILES, plantilla=atributo.plantilla,
                                         counter=counter, initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemBooleano:
-            print(atributo.valor)
             atributos_forms.append(AtributoItemBooleanoForm(request.POST, plantilla=atributo.plantilla, counter=counter,
                                                             initial={'valor_' + str(counter): atributo.valor}))
         elif type(atributo) == AtributoItemFecha:
@@ -465,31 +567,76 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
             # Si todos los formularios son validos
             if all_valid:
-                version = form_version.save()
+                padres = item.get_padres()
+                antecesores = item.get_antecesores()
+                version = form_version.save(commit = False)
+                version.version = item.version.version + 1
+                version.pk = None
+                version.save()
+                #
+
+
                 # Relaciona el item a esta version
                 item.version = version
 
                 # Crea nuevos atributos dinamicos relacionados a esta nueva version
+                list_atributos_id = []
                 counter = 0
                 for form, atributo in zip(atributos_forms, atributos_dinamicos):
                     counter = counter + 1
                     atributo.version = version
-                    atributo.valor = form.cleaned_data['valor_' + str(counter)]
+
                     atributo.pk = None
-                    atributo.save()
-                # Finaliza el proceso de editar
+                    for key in request.FILES.keys():
+                        print("key: " + key)
+                    if form.nombre in request.FILES.keys():
+                        print('form.nombre: ' + form.nombre)
+                        print(request.FILES[form.nombre])
+                        atributo.archivo_temporal = request.FILES[form.nombre]
+                        atributo.save()
+                        list_atributos_id.append(atributo.id)
+                    else:
+                        atributo.valor = form.cleaned_data["valor_" + str(counter)]
+                        atributo.save()
+
+                if len(list_atributos_id) > 0:
+                    # Comentar linea de abajo para que la subida de archivos sea asincrona
+                    # upload_and_save_file_item(list_atributos_id)
+                    # Comentar linea de abajo para que la subida de archivos sea sincrona
+                    upload_and_save_file_item.delay(list_atributos_id)
+
                 item.save()
+                for padre in padres:
+                    item.add_padre(padre,versionar = False)
+                for antecesor in antecesores:
+                    item.add_antecesor(antecesor,versionar = False)
+                # Finaliza el proceso de editar
+
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
     # En caso de que un form este mal o no sea un POST
     if not all_valid:
         contexto = {'user': request.user, 'proyecto': proyecto, 'fase': fase, 'item': item,
-                    'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version}
+                    'version_actual': version_actual, 'atributos_forms': atributos_forms, 'form_version': form_version,
+                    'breadcrumb': {'pagina_actual': 'Modificar Item',
+                                   'links': [{'nombre': proyecto.nombre,
+                                              'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                             {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                             {'nombre': fase.nombre,
+                                              'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                             {'nombre': 'Items',
+                                              'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                             {'nombre': item,
+                                              'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                             ]
+                                   }
+                    }
         return render(request, 'gestion_de_item/editar_item.html', context=contexto)
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
@@ -510,28 +657,41 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
 
     if request.method == 'POST':
-        if item.estado == EstadoDeItem.APROBADO:
-            try:
-                item.desaprobar()
-                messages.success(request, "El item se desaprobo correctamente")
-            except Exception as e:
-                mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
-                errores = e.args[0]
-                for error in errores:
-                    mensaje = mensaje + '<li>' + error + '</li><br>'
-                mensaje = '<ul>' + mensaje + '</ul>'
-                messages.error(request, mensaje)
+        try:
+            item.desaprobar()
+            messages.success(request, "El item se desaprobo correctamente")
+        except Exception as e:
+            mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
+            errores = e.args[0]
+            for error in errores:
+                mensaje = mensaje + '<li>' + error + '</li><br>'
+            mensaje = '<ul>' + mensaje + '</ul>'
+            messages.error(request, mensaje)
 
         return redirect('visualizar_item', proyecto.id, fase.id, item.id)
 
-    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
-    return render(request, 'gestion_de_item/desaprobar_item.html', contexto)
+    contexto = {'proyecto': proyecto, 'fase': fase, 'item': item,
+                'breadcrumb': {'pagina_actual': 'Desaprobar Item',
+                               'links': [{'nombre': proyecto.nombre,
+                                          'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                         {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                         {'nombre': fase.nombre,
+                                          'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                         {'nombre': 'Items',
+                                          'url': reverse('listar_items', args=(proyecto.id, fase.id))},
+                                         {'nombre': item,
+                                          'url': reverse('visualizar_item', args=(proyecto.id, fase.id, item.id))}
+                                         ]
+                               }
+                }
 
+    return render(request, 'gestion_de_item/desaprobar_item.html', contexto)
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
     Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
@@ -550,7 +710,8 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
         - request: HttpRequest
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    fase = get_object_or_404(proyecto.fase_set
+                             , id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     item_relacionado = get_object_or_404(Item, id=item_relacion_id)
 
@@ -570,3 +731,38 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 
     contexto = {'proyecto': proyecto, 'fase': fase, 'item': item}
     return render(request, 'gestion_de_item/eliminar_relacion.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_editar_item')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
+    """
+    Vista que permite elimianr un archivo de un item, creando una version del mismo sin dicho archivo
+
+    Argumentos:
+        - request: HttpRequest,
+        - proyecto_id: int, identificador único de un  proyecto.
+        - fase_id: int, identificador único de una fase.
+        - item_id: int, identificador único de un item.
+        - atributo_id int, dentificador único del atributo.
+
+    Retorna
+        - HttpResponse
+    """
+    atributo_archivo = get_object_or_404(AtributoItemArchivo, id=atributo_id)
+    file = atributo_archivo.valor
+
+    if request.method == 'POST':
+        item = get_object_or_404(Item, id=item_id)
+        item.nueva_version()
+
+        atributo = get_object_or_404(item.version.atributoitemarchivo_set, valor=atributo_archivo.valor)
+        atributo.valor = None
+        atributo.save()
+
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+
+    contexto = {'file': file, }
+    return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)

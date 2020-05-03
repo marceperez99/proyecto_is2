@@ -24,7 +24,7 @@
                                 <div class="col-auto text-white mr-auto">
                                     Version {{version.version}}
                                 </div>
-                                    {% if item.version != version %}
+                                    {% if item.version != version and item.estado in lista_estados_item %}
                                     <a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                          Volver a esta Version
                                     </a>
@@ -59,7 +59,21 @@
                                     </div>
                                         <hr class="col-10">
                                     {% endfor %}
-                            </div>
+                                    <div class="col-4">Padres del Item</div>
+                                        <ul class="col-8">
+                                            {% for padre in version.padres.all %}
+                                                <li>{{ padre }}</li>
+                                            {% endfor %}
+
+                                        </ul>
+                                     <hr class="col-10">
+                                    <div class="col-4">Antecesores del Item</div>
+                                            <ul class="col-8">
+                                                {% for antecesor in version.antecesor.all %}
+                                                    <li>{{ antecesor }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                    </div>
                         </div>
                     </div>
                 {% endfor %}

@@ -136,7 +136,6 @@ class TestModeloTipoDeItem:
     pass
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.django_db
 class TestUtilsTiposDeItem:
     """

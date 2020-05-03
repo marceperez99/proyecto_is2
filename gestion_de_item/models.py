@@ -1,4 +1,8 @@
 from django.db import models
+from gdstorage.storage import GoogleDriveStorage
+
+# Define Google Drive Storage
+gd_storage = GoogleDriveStorage()
 
 
 # Create your models here.
@@ -40,8 +44,6 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
-    antecesores = models.ManyToManyField('self', related_name='antecesores_item', symmetrical=False)
-    padres = models.ManyToManyField('self', related_name='padres_item', symmetrical=False)
 
     # No cambiar save() o se rompe
     def nueva_version(self):
@@ -54,13 +56,25 @@ class Item(models.Model):
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
         """
-        version = self.version
-        version.save(versionar=True)
 
+        version = VersionItem(nombre=self.version.nombre, descripcion=self.version.descripcion, peso=self.version.peso,
+                              item=self, version=self.version.version + 1)
+        version.save()
+
+        # version.save(versionar=True)
+        assert version != self.version
+        # Agrega los atributos dinamicos del item
         for atributo in self.get_atributos_dinamicos():
             atributo.pk = None
             atributo.version = version
             atributo.save()
+        # Agrega los padres del item
+        for item in self.get_padres():
+            print('Un padre de este item es:' + str(item))
+            version.padres.add(item)
+        # Agrega los antecesores del item
+        for item in self.get_antecesores():
+            version.antecesores.add(item)
 
         self.version = version
         self.save()
@@ -75,16 +89,38 @@ class Item(models.Model):
         return self.version.peso
 
     def get_antecesores(self):
-        return self.antecesores.all()
+        return self.version.antecesores.all()
 
     def get_padres(self):
-        return self.padres.all()
+        return self.version.padres.all()
 
     def get_hijos(self):
-        return self.padres_item.all()
+        """
+        Metodo del model item, filtra y retorna los items cuya version mas actual tenga como
+        padre el item en cuestion.\n
+        Retorna:
+            -Item que cumplan las condiciones especificadas.
+        """
+        hijos = self.hijos.all()
+        lista_hijos = []
+        for hijo in hijos:
+            if hijo == hijo.item.version and hijo.item.estado != EstadoDeItem.ELIMINADO:
+                lista_hijos.append(hijo.item.id)
+        return Item.objects.filter(id__in=lista_hijos)
 
     def get_sucesores(self):
-        return self.antecesores_item.all()
+        """
+        Metodo del model item, filtra y retorna los items cuya version mas actual tenga como
+        antecesor el item en cuestion.\n
+        Retorna:
+            -Item que cumplan las condiciones especificadas.
+        """
+        sucesores = self.sucesores.all()
+        lista_sucesores = []
+        for sucesor in sucesores:
+            if sucesor == sucesor.item.version and sucesor.item.estado != EstadoDeItem.ELIMINADO:
+                lista_sucesores.append(sucesor.item.id)
+        return Item.objects.filter(id__in=lista_sucesores)
 
     def get_numero_version(self):
         return self.version.version
@@ -109,12 +145,13 @@ class Item(models.Model):
 
     def eliminar(self):
         """
-        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO. En caso de exito retorna True.
-
-        Retorna: True or False (Eliminado o no)
+        Meétodo del model Item que permite cambiar el estado de un item a ELIMINADO.\n
+        Lanza:
+            -Exception: si el item tiene un estado diferente a No Aprobado, o el item tiene una relacion (padre-hijo) o
+            (antececesor-sucesor) con otro item
         """
         mensaje_error = []
-        #mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
+        # mensaje_error.append('El ítem no puede ser eliminado debido a las siguientes razones:')
         if self.estado != EstadoDeItem.NO_APROBADO:
             mensaje_error.append('El item se encuentra en el estado ' + self.estado)
             raise Exception(mensaje_error)
@@ -122,31 +159,37 @@ class Item(models.Model):
         sucesores = self.get_sucesores()
         if hijos.count() != 0 or sucesores.count() != 0:
             for hijo in hijos:
-                mensaje_error.append('El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
+                mensaje_error.append(
+                    'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
             for sucesor in sucesores:
-                mensaje_error.append(f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
+                mensaje_error.append(
+                    f'El item es el antecesor del item {sucesor.version.nombre} con codigo  {sucesor.codigo}')
             raise Exception(mensaje_error)
 
         self.estado = EstadoDeItem.ELIMINADO
         self.save()
 
-    def add_padre(self, item):
+    def add_padre(self, item,versionar = True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los padres del item
+        lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de padres
         """
-        self.padres.add(item)
+        if versionar:
+            self.nueva_version()
+        self.version.padres.add(item)
 
-    def add_antecesor(self, item):
+    def add_antecesor(self, item,versionar = True):
         """
-        Metodo del model Item que anhade a un item pasado como parametro a la
-        lista que representa los antecesores del item
+        Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
+        antecesores del item, creando tambien una nueva version del item con esta nueva relacion.\n
         Parametros:\n
             -item: int, identificador unico del item a la cual se anhade a la liste de antecesores
         """
-        self.antecesores.add(item)
+        if versionar:
+            self.nueva_version()
+        self.version.antecesores.add(item)
 
     def solicitar_aprobacion(self):
         """
@@ -166,7 +209,7 @@ class Item(models.Model):
     def aprobar(self):
         """
         Metodo que cambia el estado del Item de A Aprobar A Aprobado.
-
+        El estado del item tiene que estar en A Aprobar.\n
         Requiere:
             Item debe estar en el estado A_APROBAR
         Lanza:
@@ -180,18 +223,20 @@ class Item(models.Model):
 
     def desaprobar(self):
         """
-        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.\n
+        Metodo que cambia el estado de un item de 'Aprobado' a 'No Aprobado'.
+        El metodo verifica primero el estado del item sea el adecuado y que este no tenga ninguna relacion
+        (padre-hijo) para que se pueda desaprobar.\n
         Lanza:
             Exception: si el item esta relacionado con otro item o no esta con los estdos Aprobado o A Aprobar.
         """
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
-            if self.padres_item.all().count() == 0:
+            hijos = self.get_hijos()
+            if len(hijos) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
                 mensaje_error = []
-                hijos = self.get_hijos()
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
@@ -203,31 +248,42 @@ class Item(models.Model):
     def eliminar_relacion(self, item):
         """
         Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
+        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una
+        relacion implica una nueva version del item
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.\n
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.
+
         Lanza:
             -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
+
         """
 
         mensaje_error = []
 
         if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
             if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.padres.count() > 1 or (self.padres.count() == 1 and self.antecesores.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_padres() > 1 or (
+                        self.get_padres() == 1 and self.get_antecesores() >= 1):
+                    self.nueva_version()
                     self.padres.remove(item)
                     return
                 else:
-                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+                    mensaje_error.append(
+                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
             elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.antecesores.count() > 1 or (self.antecesores.count() == 1 and self.padres.count() >= 1):
+                if self.get_fase().fase_anterior is None or self.get_antecesores() > 1 or (
+                        self.get_antecesores() == 1 and self.get_padres() >= 1):
+                    self.nueva_version()
                     self.antecesores.remove(item)
                     return
                 else:
-                    mensaje_error.append('No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
+                    mensaje_error.append(
+                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
 
             else:
-                mensaje_error.append('Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
+                mensaje_error.append(
+                    'Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
         else:
             if self.estado == EstadoDeItem.EN_LINEA_BASE:
                 mensaje_error.append('El item ' + self.version.nombre + ' esta en una linea base')
@@ -235,6 +291,7 @@ class Item(models.Model):
                 mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
 
         raise Exception(mensaje_error)
+
 
 class VersionItem(models.Model):
     """
@@ -254,6 +311,9 @@ class VersionItem(models.Model):
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()
     peso = models.IntegerField()
+    # Relaciones
+    antecesores = models.ManyToManyField('gestion_de_item.Item', related_name='sucesores')
+    padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
 
     def get_atributos_dinamicos(self):
         atributos = list(self.atributoitemnumerico_set.all())
@@ -263,11 +323,7 @@ class VersionItem(models.Model):
         atributos += list(self.atributoitemarchivo_set.all())
         return atributos
 
-    def save(self, *args, versionar=True, **kwargs):
-        if versionar:
-            self.pk = None
-            self.version = self.item.version_item.all().count() + 1
-        super(VersionItem, self).save(*args, **kwargs)
+
 
 
 class AtributoItemArchivo(models.Model):
@@ -277,8 +333,28 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
-    valor = models.CharField(max_length=500, null=True)
-    # TODO: Marcos, podes cambiar esto si ves necesario. Puede llamarse valor tambien para ser estandar.
+    valor = models.FileField(upload_to='items/', storage=gd_storage, null=True)
+    archivo_temporal = models.FileField(upload_to='items/', null=True)
+
+    def getTipoAtributo(self):
+        return "Archivo"
+
+    def archivo_pendiente(self):
+        """
+        Metodo que se encarga de determinar si el atributo tiene una subida de archivo a la nube pendiente o en proceso.
+        Retorna "True" si el atributo "valor" esta vacío pero no el atributo "archivo_temporal", y "False" en caso
+        contrario; esto se debe a que inicialmete el archivo es guardado en el atributo "archivo_temporal" y cuando
+        el archivo esta completamente subido, pasa al atributo "valor"
+
+        Retorna:
+            Booleano
+        """
+        return self.archivo_temporal.name != ''
+
+    def archivo_subido(self):
+        # TODO: marcos, comentar
+        return self.valor.name != ''
+
 
 
 class AtributoItemBooleano(models.Model):
@@ -291,6 +367,9 @@ class AtributoItemBooleano(models.Model):
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBooleano', on_delete=models.CASCADE)
     valor = models.BooleanField(null=True)
 
+    def getTipoAtributo(self):
+        return "Booleano"
+
 
 class AtributoItemFecha(models.Model):
     """
@@ -300,6 +379,9 @@ class AtributoItemFecha(models.Model):
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoFecha', on_delete=models.CASCADE)
     valor = models.DateField(null=True)
+
+    def getTipoAtributo(self):
+        return "Fecha"
 
 
 class AtributoItemNumerico(models.Model):
@@ -311,6 +393,9 @@ class AtributoItemNumerico(models.Model):
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoNumerico', on_delete=models.CASCADE)
     valor = models.DecimalField(decimal_places=20, max_digits=40, null=True)
 
+    def getTipoAtributo(self):
+        return "Numerico"
+
 
 class AtributoItemCadena(models.Model):
     """
@@ -320,3 +405,6 @@ class AtributoItemCadena(models.Model):
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoCadena', on_delete=models.CASCADE)
     valor = models.CharField(max_length=500, null=True)
+
+    def getTipoAtributo(self):
+        return "Cadena"

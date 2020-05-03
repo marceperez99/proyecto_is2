@@ -1,17 +1,21 @@
 {% extends 'base.html'%}
 {% load crispy_forms_tags %}
-{% block title %}Elminar Ítem{%endblock title%}
+{% block title %}Eliminar Ítem{%endblock title%}
 {% block content %}
 {% include 'navBar.html' %}
 <div class="container mt-3">
-    <div class="row">
-        <h3>Eliminar Ítem</h3>
+    <div class="row ">
+        {% include 'breadcrumb.html' %}
+        <h3 class="col-12">Eliminar Ítem</h3>
         <hr class="col-12">
-        <form method="POST" class="col-12 col-md-10 mx-auto row">
+        <form method="POST" class="col-12 col-md-10 mx-auto  border rounded p-3 bg-white">
             {% csrf_token %}
-            <h2 class="mb-5">Eliminar el ítem "{{item}}"</h2>
-            <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Aceptar</button>
-            <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="../">Cancelar</a>
+            <div class="row">
+                <h2 class="mb-5 col-10 mx-auto">Eliminar el ítem "{{item}}"</h2>
+                <hr class="col-10">
+                <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Aceptar</button>
+                <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="../">Cancelar</a>
+            </div>
         </form>
     </div>
 </div>

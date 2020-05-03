@@ -155,7 +155,7 @@ class TestModeloProyecto:
 
         participantes = list(Participante.objects.all().filter(proyecto=proyecto))
         gerente = proyecto.participante_set.filter(usuario=proyecto.gerente)
-        print([g.usuario for g in gerente])
+
         assert list(
             proyecto.get_participantes()) == participantes, 'No se retornaron correctamente los participantes del' \
                                                             'Proyecto'
@@ -211,7 +211,6 @@ class TestModeloProyecto:
         permisos = list(rol_de_proyecto.permisos.all())
         fases = list(Fase.objects.all().filter(proyecto=proyecto))
         permisos_por_fase = {fases[0]: permisos}
-        print(proyecto.participante_set.all()[0].usuario == usuario)
         proyecto.asignar_rol_de_proyecto(usuario, rol_de_proyecto, permisos_por_fase)
         # Comprobacion de postcondicion
         condicion = proyecto.participante_set.get(usuario=usuario).rol == rol_de_proyecto
@@ -683,6 +682,9 @@ class TestModeloComite:
 
 @pytest.mark.django_db
 class TestVistasProyecto:
+    """
+    Pruebas unitarias correspondientes al funcionamiento correcto de las Vistas relacionadas a Proyectos.
+    """
     @pytest.fixture
     def gerente_loggeado(self, gerente):
         client = Client()

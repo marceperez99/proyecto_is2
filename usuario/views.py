@@ -1,12 +1,14 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+
 from gestion_de_proyecto.models import Proyecto
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
-from .forms import AsignarRolDeProyectoForm
+from .forms import AsignarRolDeSistemaForm, ConfigCloudForm
 from .models import Usuario
 
 
@@ -67,15 +69,14 @@ def usuario_asignar_rol_view(request, usuario_id):
     usuario = get_object_or_404(Usuario, pk=usuario_id)
 
     if request.method == 'POST':
-        form = AsignarRolDeProyectoForm(request.POST, usuario=usuario)
+        form = AsignarRolDeSistemaForm(request.POST, usuario=usuario)
         if form.is_valid():
-            print(form.cleaned_data.get('Rol'))
             usuario.asignar_rol_a_usuario(form.cleaned_data.get('Rol'))
             return redirect('perfil_de_usuario', usuario_id=usuario.id)
         else:
             messages.error(request, "No se pudo asignar Rol de Sistema")
     else:
-        form = AsignarRolDeProyectoForm(usuario=usuario)
+        form = AsignarRolDeSistemaForm(usuario=usuario)
 
     contexto = {'usuario': usuario, 'user': request.user, 'form': form}
     return render(request, 'usuario/asignar_rs.html', contexto)
@@ -98,7 +99,6 @@ def panel_de_administracion_view(request):
         - HttpResponse.
     """
     user = Usuario.objects.get(id=request.user.id)
-    print(user.es_administrador())
     contexto = {'user': user,
                 'permisos': user.get_permisos_list(),
                 'usuarios': Usuario.objects.all().filter(is_superuser=False),
@@ -140,3 +140,23 @@ def desasignar_rol_de_sistema_view(request, usuario_id):
         return redirect('perfil_de_usuario', usuario_id=usuario_id)
 
     return render(request, 'usuario/desasignar_rs.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.pa_config_cloud', login_url='sin_permiso')
+def configurar_cloud_view(request):
+    if request.method == 'POST':
+        form = ConfigCloudForm(request.POST)
+        if form.is_valid() and len(form.cleaned_data.get('credenciales')) > 0:
+            json = open(settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE, 'w')
+            json.write(form.cleaned_data.get('credenciales'))
+            json.close()
+            print(form.cleaned_data.get('credenciales'))
+            return redirect('panel_de_control')
+    else:
+        form = ConfigCloudForm()
+    contexto = {'form': form, 'breadcrumb': {'pagina_actual': 'Configuracion Cloud',
+                                             'links': [{'nombre': 'Panel de Administracion',
+                                                        'url': reverse('panel_de_control')}]}}
+    return render(request, 'usuario/configuracion_cloud.html', contexto)

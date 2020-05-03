@@ -7,11 +7,15 @@
         <div class="row">
             <div class="col-12 row">
                 <h3 class="mr-auto">Tipo de Item</h3>
-                <a href="{% url 'editar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}"
-                   class="btn btn-primary bg-color-accent">Editar Tipo de Item</a>
                 {% if not es_utilizado %}
-                <a href="{% url 'eliminar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}"
-                   class="btn btn-danger bg-color-danger ml-2">Eliminar Tipo de Item</a>
+                    {% if 'pp_f_editar_tipo_de_item' in permisos %}
+                        <a href="{% url 'editar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}"
+                           class="btn btn-primary bg-color-accent border-0">Editar Tipo de Item</a>
+                    {% endif %}
+                    {% if 'pp_f_eliminar_tipo_de_item' in permisos %}
+                        <a href="{% url 'eliminar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}"
+                           class="btn btn-danger bg-color-danger ml-2 border-0">Eliminar Tipo de Item</a>
+                    {% endif %}
                 {% endif %}
             </div>
             <hr class="col-12">
@@ -39,7 +43,6 @@
                             <h6 class="col-3">Tipo:</h6><p class=" col-8">Texto</p>
                         </div>
                     </div>
-
                     {% for atributo in tipo_de_item.atributos_dinamicos %}
                         <div class="card mt-2 col-10 p-0 mx-auto">
                             <h5 class="card-header bg-color-primary text-white">{{atributo.nombre}}</h5>
@@ -51,7 +54,7 @@
                                     <h6 class="col-3">Cantidad Maxima de Caracteres:</h6><p class=" col-8">{{atributo.max_longitud}}</p>
                                 {% endif %}
                                 {% if atributo.max_tamaño %}
-                                    <h6 class="col-3">Tamaño Maximo del Archivo(en GB):</h6><p class=" col-8">{{atributo.max_tamaño}}</p>
+                                    <h6 class="col-3">Tamaño Maximo del Archivo(en MB):</h6><p class=" col-8">{{atributo.max_tamaño}}</p>
                                 {% endif %}
                                 {% if atributo.max_digitos %}
                                     <h6 class="col-3">Cantidad Maxima de Digitos del Numero:</h6><p class=" col-8">{{atributo.max_digitos}}</p>

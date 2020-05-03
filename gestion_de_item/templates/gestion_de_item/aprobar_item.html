@@ -5,9 +5,11 @@
     {% include 'navBar.html'%}
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
-        <div class="row bg-white p-3 border rounded">
-            <h3 class="col-12">Aprobar Item</h3>
-            <hr class="col-10 mx-auto">
+        <h3 class="col-12">Aprobar Item</h3>
+        <hr>
+        <div class="row">
+            <div class="col-10 mx-auto bg-white p-3 border rounded">
+
             <p class="lead">Esta seguro que desea aceptar la Solicitud de Aprobacion de este Item?</p>
 
             <form method="POST" class="col-12">
@@ -18,5 +20,7 @@
                 </div>
             </form>
         </div>
+        </div>
+
     </div>
 {% endblock %}

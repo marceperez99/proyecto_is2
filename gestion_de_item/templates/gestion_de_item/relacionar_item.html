@@ -26,8 +26,12 @@
                     <div class="row">
                         <h3 class="col-12">Seleccione el tipo de relacion que desea hacer</h3>
                         <p class="col-12"></p>
-                        <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}?tipo=padre-hijo" class="btn btn-primary col-auto ml-auto mr-3">Relacionar con un item de la misma fase</a>
-                        <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}?tipo=antecesor-sucesor " class="btn btn-primary col-auto mr-auto">Relacionar con un item de la fase anterior</a>
+                        {% if not fase.es_primera_fase %}
+                            <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}?tipo=padre-hijo" class="btn btn-primary col-auto ml-auto mr-3">Relacionar con un item de la misma fase</a>
+                            <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}?tipo=antecesor-sucesor " class="btn btn-primary col-auto mr-auto">Relacionar con un item de la fase anterior</a>
+                        {% else %}
+                            <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}?tipo=padre-hijo" class="btn btn-primary col-auto mx-auto">Relacionar con un item de la misma fase</a>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}

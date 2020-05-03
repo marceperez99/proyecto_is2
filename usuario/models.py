@@ -19,7 +19,6 @@ class Usuario(User):
     def asignar_rol_a_usuario(self, rs_id):
         self.groups.clear()
         rs = RolDeSistema.objects.get(id=rs_id)
-        print(rs.nombre)
         group = Group.objects.get(name=rs.nombre)
         self.groups.add(group)
 
@@ -93,8 +92,7 @@ class Usuario(User):
 
         participantes = Participante.objects.filter(usuario=self).exclude(rol=None)
         for participante in participantes:
-            if participante.proyecto.estado != EstadoDeProyecto.FINALIZADO \
-                    and participante.proyecto.estado != EstadoDeProyecto.CANCELADO:
+            if participante.proyecto.estado == EstadoDeProyecto.INICIADO:
                 proyectos.append(participante.proyecto)
 
         return proyectos

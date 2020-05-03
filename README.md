@@ -13,6 +13,24 @@
    Luis anibal Perez Miranda
 
 
+### Intalación del entorno de desarrollo
+    
+    1. Se debe descargar un servidor de redis para poder ejecutar las tareas de forma asincrona.
+    
+        - sudo apt-get install redis-server
+       
+       Para hacer que el servidor de redis se ejecute al iniciar la computadora
+       
+        - sudo systemctl enable redis-server.service   
+        
+    2. Para correr el servidor ejecutar:
+        
+        - python manage.py runserver --settings=proyecto_is2.settings.dev_settings
+     
+     Para iniciar un worker de celery
+     
+        - celery -A proyecto_is2 worker -l info 
+
 ### Estandar para documentar el codigo
 
 ```python

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
@@ -28,12 +29,13 @@ def tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     tipo_de_item = get_object_or_404(fase.tipodeitem_set, id=tipo_de_item_id)
-
+    participante = proyecto.get_participante(request.user)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
                 'fase': fase,
                 'tipo_de_item': get_dict_tipo_de_item(tipo_de_item),
                 'es_utilizado': tipo_de_item.es_utilizado(),
+                'permisos': participante.get_permisos_por_fase_list(fase),
                 'breadcrumb': {'pagina_actual': tipo_de_item.nombre,
                                'links': [{'nombre': proyecto.nombre,
                                           'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -154,9 +156,7 @@ def nuevo_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None)
             contexto['form'] = TipoDeItemForm(request.POST or None, proyecto=proyecto, instance=tipo_de_item)
             # Construye un diccionario a partir de la lista de atributos
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
-            print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
-            print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/nuevo_tipo_de_item.html', context=contexto)
 
@@ -208,7 +208,19 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    TODO: Luis comentar
+    Vista que permite editar un tipo de item.
+    Si el metodo Http con el que se realizo la peticion fue GET, muestra al usuario los campos ya cargados del tipo de
+    item, con la opcion de editarlos.
+    Si el metodo Http con el que se realizo la peticion fue POST, elimina el viejo tipo de item, y crea uno nuevo
+    en base a los datos recibidos.
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - tipo_de_item_id: int, identificador unico del tipo de item.
+
+    Retorna:
+        - request: HttpRequest
     """
     # Aca se verifica que no existan item de este tipo
     proyecto = get_object_or_404(Proyecto, pk=proyecto_id)
@@ -271,9 +283,7 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
             # Construye un diccionario a partir de la lista de atributos
 
             atributos_dinamicos = recolectar_atributos(tipo_de_item)
-            print(atributos_dinamicos)
             atributos_forms = atributo_form_handler(atributos_dinamicos)
-            print(atributos_forms)
             contexto['atributos_seleccionados'] = atributos_forms
     return render(request, 'gestion_de_tipo_de_item/editar_tipo_de_item.html', context=contexto)
 
@@ -284,14 +294,23 @@ def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    Vista que se encarga de confirmar la eliminacion de un tipo de item si es que ningun item es de ese tipo
+    Vista que se encarga de, si ningun item de ese tipo, eliminar el tipo de item recibido
+
+    Argumentos:
+        request: HttpRequest. \n
+        proyecto_id: int id que identifica unicamente a un proyecto del sistema. \n
+        fase_id: int id que identifica unicamente a una fase del sistema.\m
+        tipo_de_item_id: int id que identifica unicamente al tipo de item
+
+    Retorna:
+        HttpResponse
     """
 
     tipo_de_item = get_object_or_404(TipoDeItem, id=tipo_de_item_id)
 
     if request.method == 'POST':
         # pasar mensaje
-        if tipo_de_item.es_utilizado():
+        if not tipo_de_item.es_utilizado():
             tipo_de_item.delete()
 
         return redirect('tipos_de_item', proyecto_id, fase_id)

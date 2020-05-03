@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Configuracion de Cloud{% endblock %}
+{% block content %}
+{% include 'navBar.html' %}
+{% include 'breadcrumb.html' %}
+<div class="container mt-3">
+    <div class="row">
+        <h3 class="col-10">Configuración de Cloud</h3>
+        <hr class="col-12">
+        <form id="jsonform" method="POST" class="col-12 col-md-10 mx-auto border bg-white py-4 rounded">
+            {% csrf_token %}
+            <div class="col-10 mx-auto">
+                {{ form|crispy }}
+            </div>
+            <div class="col-10 mx-auto text-muted my-3">
+                Para mas informacion sobre como obtener el archivo JSON con las credenciales haga click
+                <a href="https://django-storages.readthedocs.io/en/latest/backends/gcloud.html">aquí.</a>
+            </div>
+            <div class="row">
+
+                <button type="submit" class="btn btn-primary bg-color-accent border-0 col-4 col-md-2 ml-auto mr-1">
+                    Guardar
+                </button>
+                <a href="/panel_de_control"
+                   class="btn btn-danger bg-color-danger border-0 col-4 col-md-2 mr-auto mr-1">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
