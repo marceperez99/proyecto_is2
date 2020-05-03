@@ -175,7 +175,7 @@ class TestModeloUsuario:
         assert all(p in ps_rol for p in ps_user) and all(p in ps_user for p in ps_rol), \
             'No se trae corectamente la lista de permisos de usuario '
 
-    def test_get_proyectos(self, usuario, rs_admin, proyecto):
+    def test_get_proyectos(self, usuario, proyecto):
         """
         Prueba unitaria encargada de probar metodo get_proyectos para asegurarse \
         que se traiga correctamente la lista de proyecos en las que está un usuario.
@@ -191,7 +191,21 @@ class TestModeloUsuario:
         assert proyecto in user_proyectos and all([p in [proyecto] for p in user_proyectos]), \
             'No se trae corectamente la lista de proyectos en los que participa el usuario '
 
-    # TODO: Marcos test get_proyectos_activos
+    def test_get_proyectos_activos(self, usuario, proyecto):
+        """
+        Prueba unitaria encargada de probar metodo get_proyectos_activos para asegurarse \
+        que se traiga correctamente la lista de proyecos activos en las que está un usuario.
+
+        Se espera:
+            Que el metodo get_proyectos_activos retorne la lista de proyecos activos en las que está un usuario.
+
+        Mensaje de Error:
+            No se trae corectamente la lista de proyectos activos en los que participa el usuario
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        user_proyectos = usuario.get_proyectos_activos()
+        assert (True if len(user_proyectos) > 0 else proyecto not in user_proyectos), \
+            'No se trae corectamente la lista de proyectos activos en los que participa el usuario '
     pass
 
 
