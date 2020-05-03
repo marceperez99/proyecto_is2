@@ -511,9 +511,9 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     nueva versión de este.
 
     Argumentos:
-        - request: HttpRequest,
-        - proyecto_id: int, identificador único de un  proyecto.
-        - fase_id: int, identificador único de una fase.
+        - request: HttpRequest.\n
+        - proyecto_id: int, identificador único de un  proyecto.\n
+        - fase_id: int, identificador único de una fase.\n
         - item_id: int, identificador único de un item a editar.
 
     Retorna
