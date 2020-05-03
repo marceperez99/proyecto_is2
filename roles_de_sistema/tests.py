@@ -120,7 +120,8 @@ class TestVistasRolDeSistema:
 
     def test_listar_roles_de_sistema_view(self, usuario, cliente_loggeado, rs_admin):
         """
-        Prueba unitaria encargada de verificar que el vista listar_roles_de_sistema_view
+        Prueba unitaria encargada de verificar que la vista listar_roles_de_sistema_view \
+        se muestre correctamente
 
         Se espera:
             HttpResponse 200
@@ -129,12 +130,28 @@ class TestVistasRolDeSistema:
             Hubo un error al cargar la pagina
         """
         usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
-        response = cliente_loggeado.get(reverse('nuevo_rol_de_sistema'))
+        response = cliente_loggeado.get(reverse('listar_roles_de_sistema'))
 
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
 
+    def test_editar_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin, rol_de_sistema):
+        """
+        Prueba unitaria encargada de verificar que la vista editar_rol_de_sistema_view \
+        se muestre correctamente
 
-    # TODO: Marcos test editar_rol_de_sistema_view
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        usuario.save()
+
+        response = cliente_loggeado.get(reverse('editar_rol_de_sistema', args=(rol_de_sistema.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
     # TODO: Marcos test rol_de_sistema_view
     # TODO: Marcos test eliminar_rol_de_sistema_view
     def test_nuevo_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin):
