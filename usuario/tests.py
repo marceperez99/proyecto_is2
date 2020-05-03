@@ -62,7 +62,20 @@ class TestModeloUsuario:
         assert RolDeSistema.objects.get(nombre=usuario.groups.all()[0].name) == rol_de_sistema, \
             'El rol de sistema no se asignó correctamente '
 
+    def test_desasignar_rol_a_usuario(self, usuario, rol_de_sistema):
+        """
+        Prueba unitaria encargada de probar metodo desasignar_rol_a_usuario para asegurarse que el \
+        rol sea correctamente desasignado del usuario.
 
+        Se espera:
+            Que el metodo desasignar_rol_a_usuario desasigne el rol de sistema del usuario.
+
+        Mensaje de Error:
+            El rol de sistema no se desasignó correctamente
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        usuario.desasignar_rol_a_usuario()
+        assert len(usuario.groups.all()) == 0, 'El rol de sistema no se desasignó correctamente '
 
     # TODO: Marcos test get_rol_de_sistema
     # TODO: Marcos test get_permisos_list
@@ -76,7 +89,6 @@ class TestVistasUsuarios:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
     """
-
     @pytest.fixture
     def admin_loggeado(self, usuario, rs_admin):
 
