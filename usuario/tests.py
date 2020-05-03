@@ -4,7 +4,11 @@ import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
+from gestion_de_fase.models import Fase
+from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 from usuario.models import Usuario
 
@@ -37,6 +41,41 @@ def usuario(rs_admin):
     user.groups.add(Group.objects.get(name=rs_admin.nombre))
     return user
 
+
+@pytest.fixture
+def gerente(rs_admin):
+    user = User(username='gerente', email='gerente@gmail.com')
+    user.set_password('password123')
+    user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
+    return user
+
+
+@pytest.fixture
+def rol_de_proyecto():
+    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
+    rol.save()
+    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
+    return rol
+
+
+@pytest.fixture
+def proyecto(usuario, gerente, rol_de_proyecto):
+    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
+                        gerente=gerente, creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
+    proyecto.save()
+    participante_gerente = Participante.objects.create(proyecto=proyecto, usuario=gerente)
+    participante_gerente.save()
+    fase1 = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
+    fase1.save()
+    fase2 = Fase(nombre='Desarrollo', proyecto=proyecto, fase_anterior=fase1, fase_cerrada=False, puede_cerrarse=False)
+    fase2.save()
+    fase3 = Fase(nombre='Pruebas', proyecto=proyecto, fase_anterior=fase2, fase_cerrada=False, puede_cerrarse=False)
+    fase3.save()
+    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
+    participante.asignar_rol_de_proyecto(rol_de_proyecto)
+    participante.save()
+    return proyecto
 # Pruebas Unitarias
 
 
@@ -136,7 +175,22 @@ class TestModeloUsuario:
         assert all(p in ps_rol for p in ps_user) and all(p in ps_user for p in ps_rol), \
             'No se trae corectamente la lista de permisos de usuario '
 
-    # TODO: Marcos test get_proyectos
+    def test_get_proyectos(self, usuario, rs_admin, proyecto):
+        """
+        Prueba unitaria encargada de probar metodo get_proyectos para asegurarse \
+        que se traiga correctamente la lista de proyecos en las que está un usuario.
+
+        Se espera:
+            Que el metodo get_proyectos retorne la lista de proyecos en las que está un usuario.
+
+        Mensaje de Error:
+            No se trae corectamente la lista de proyectos en los que participa el usuario
+        """
+        usuario = Usuario.objects.get(id=usuario.id)
+        user_proyectos = usuario.get_proyectos()
+        assert proyecto in user_proyectos and all([p in [proyecto] for p in user_proyectos]), \
+            'No se trae corectamente la lista de proyectos en los que participa el usuario '
+
     # TODO: Marcos test get_proyectos_activos
     pass
 
