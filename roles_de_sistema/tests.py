@@ -62,7 +62,10 @@ class TestModeloRolDeSistema:
         Mensaje de Error:
             No se pudo traer la lsta de permisos correctamente
         """
-        assert len(rol_de_sistema.get_permisos()) > 0, 'No se pudo traer la lsta de permisos correctamente'
+        ps_rol = rol_de_sistema.get_permisos()
+        ps_list = Permission.objects.all().filter(codename__startswith='ps_')
+        assert all(p in ps_rol for p in ps_list) and all(p in ps_list for p in ps_rol), \
+            'No se pudo traer la lsta de permisos correctamente'
 
     def test_roldesistema_lista_de_permisos_vacia(self):
         """
