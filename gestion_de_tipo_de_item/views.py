@@ -299,7 +299,7 @@ def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     Argumentos:
         request: HttpRequest. \n
         proyecto_id: int id que identifica unicamente a un proyecto del sistema. \n
-        fase_id: int id que identifica unicamente a una fase del sistema.\m
+        fase_id: int id que identifica unicamente a una fase del sistema.\n
         tipo_de_item_id: int id que identifica unicamente al tipo de item
 
     Retorna:
