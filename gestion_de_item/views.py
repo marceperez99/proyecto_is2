@@ -81,6 +81,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
     participante = proyecto.get_participante(request.user)
     contexto = {
+        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION,
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
