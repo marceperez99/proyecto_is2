@@ -291,7 +291,12 @@ class Item(models.Model):
                 mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
 
         raise Exception(mensaje_error)
+    def esta_en_linea_base(self):
+        """
+        TODO: actually completar el metodo
 
+        """
+        return True
 
 
 class VersionItem(models.Model):

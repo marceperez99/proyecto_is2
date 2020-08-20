@@ -767,3 +767,20 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 
     contexto = {'file': file, }
     return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
+
+def debe_modificar_view(request,proyecto_id,fase_id,item_id):
+    """
+    TODO: comentar
+    """
+
+    item = get_object_or_404(Item,id=item_id)
+    proyecto = get_object_or_404(Proyecto,id=proyecto_id)
+    fase = get_object_or_404(Fase,id=fase_id)
+    if not item.esta_en_linea_base():
+        #Encapsular
+        item.estado = "A modificar"
+        item.save()
+        return redirect('visualizar_item',proyecto_id,fase_id,item_id)
+    else:
+        contexto = {'item':item, 'fase':fase,'proyecto':proyecto}
+        return render(request,'gestion_de_item/debe_modificar.html',context=contexto)
