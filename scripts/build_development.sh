@@ -21,10 +21,16 @@ DB_NAME="proyecto_is2_dev"
 DB_USER="proyecto_user_test"
 DB_PASS="Pr0yect0Test"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
+TAG="iteracion_3"
 
 #Obtencion del codigo del repositorio remoto
 git clone $GIT_URL
-cd proyecto_is2
+cd proyecto_is2 || exit 1
+read -p "Ingrese el tag que desea cargar [$TAG]: " input
+TAG=${input:-$TAG}
+# Se accede al tag correspondiente
+git checkout tags/"$TAG" -b "$TAG"
+
 #Lectura de los datos de la Base de datos
 read -p "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
 POSTGRES_USER=${input:-$POSTGRES_USER}

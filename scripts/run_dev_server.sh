@@ -15,7 +15,8 @@ cd ..
 pipenv run python manage.py migrate
 #Creacion de Rol de Sistema Administrador
 pipenv run python manage.py shell < scripts/create_admin.py
-#TODO  falta script para crear datos dentro del Sistema
+#TODO: Descomentar linea de abajo cuando se tenga un archivo data.json bien hecho
+# pipenv run python manage.py loaddata data.json
 #Ejecucion de pruebas unitarias
 pipenv run pytest
 #Ejecucion del servidor
