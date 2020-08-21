@@ -172,5 +172,24 @@ def mi_perfil_view(request):
     user = get_object_or_404(Usuario,id=user.id)
 
     permisos =[Permission.objects.get(codename = x) for x in user.get_permisos_list()]
-    contexto = {'user':user,'permisos':permisos}
+    proyectos_activos = user.get_proyectos_activos()
+    proyectos_no_activos = []
+    proyectos_no_activos = proyectos_no_activos + user.get_proyectos(estado='Finalizado')
+    proyectos_no_activos = proyectos_no_activos + user.get_proyectos(estado='Cancelado')
+    roles_activos = []
+    roles_no_activos = []
+    for proyecto in proyectos_activos:
+        if proyecto.gerente != user:
+            roles_activos.append(proyecto.get_participante(user).rol.nombre)
+        else:
+            roles_activos.append('Gerente')
+    proyectos_activos = zip(proyectos_activos,roles_activos)
+    for proyecto in proyectos_no_activos:
+        if proyecto.gerente != user:
+            roles_no_activos.append(proyecto.get_participante(user).rol.nombre)
+        else:
+            roles_no_activos.append('Gerente')
+    proyectos_no_activos = zip(proyectos_no_activos,roles_no_activos)
+
+    contexto = {'user':user,'permisos':permisos,'proyectos_activos':proyectos_activos,'proyectos_no_activos': proyectos_no_activos}
     return render(request,'usuario/mi_perfil.html',context=contexto)

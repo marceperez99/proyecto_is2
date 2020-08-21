@@ -60,7 +60,7 @@ class Usuario(User):
         else:
             return []
 
-    def get_proyectos(self):
+    def get_proyectos(self,estado=None):
         """
         Método que retorna la lista de proyectos en los que el usuario participa.
 
@@ -71,18 +71,23 @@ class Usuario(User):
 
         proyectos = []
         proyectos_set = Proyecto.objects.filter(gerente = user)
+        if estado is not None:
+            proyectos_set = proyectos_set.filter(estado=estado)
         for proyecto in proyectos_set:
             proyectos.append(proyecto)
         participantes = Participante.objects.filter(usuario = user).exclude(rol = None)
         for participante in participantes:
-            proyectos.append(participante.proyecto)
+            if estado is None:
+                proyectos.append(participante.proyecto)
+            elif participante.proyecto.estado == estado:
+                    proyectos.append(participante.proyecto)
 
         return proyectos
 
     def get_proyectos_activos(self):
         """
         Metodo que retorna la lista de Proyectos Iniciados, y los proyectos En Configuracion
-        , en los que participa un Usuario.
+        en los que participa un Usuario.
 
         Retorna:
             list(): Lista de Proyectos en los participa el usuario
