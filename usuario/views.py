@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.contrib.auth.models import Permission
 
 from gestion_de_proyecto.models import Proyecto
 from roles_de_proyecto.models import RolDeProyecto
@@ -160,3 +161,16 @@ def configurar_cloud_view(request):
                                              'links': [{'nombre': 'Panel de Administracion',
                                                         'url': reverse('panel_de_control')}]}}
     return render(request, 'usuario/configuracion_cloud.html', contexto)
+
+
+
+
+@login_required()
+@permission_required('roles_de_sistema.pu_acceder_sistema',login_url='sin_permiso')
+def mi_perfil_view(request):
+    user = request.user
+    user = get_object_or_404(Usuario,id=user.id)
+
+    permisos =[Permission.objects.get(codename = x) for x in user.get_permisos_list()]
+    contexto = {'user':user,'permisos':permisos}
+    return render(request,'usuario/mi_perfil.html',context=contexto)

@@ -38,7 +38,7 @@ class Usuario(User):
 
     def get_rol_de_sistema(self):
         """
-        Metodo que retorna el rol de Sistema que tiene asignado el usuairo.
+        Metodo que retorna el rol de Sistema que tiene asignado el usuario.
 
         Retorna:
             RolDeSistema: objeto con los datos del rol de sistema asignado al usuario.
