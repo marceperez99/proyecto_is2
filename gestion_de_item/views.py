@@ -75,13 +75,13 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     Requiere permisos de Proyecto:
         pu_f_ver_fase: Visualizar Fase de Proyecto
     """
-
+    usuario = request.user
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     participante = proyecto.get_participante(request.user)
     contexto = {
-        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION,
+        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(usuario,fase,'pp_f_decidir_sobre_items_en_revision'),
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
@@ -570,12 +570,11 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
             if all_valid:
                 padres = item.get_padres()
                 antecesores = item.get_antecesores()
-                version = form_version.save(commit = False)
+                version = form_version.save(commit=False)
                 version.version = item.version.version + 1
                 version.pk = None
                 version.save()
                 #
-
 
                 # Relaciona el item a esta version
                 item.version = version
@@ -608,9 +607,9 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 
                 item.save()
                 for padre in padres:
-                    item.add_padre(padre,versionar = False)
+                    item.add_padre(padre, versionar=False)
                 for antecesor in antecesores:
-                    item.add_antecesor(antecesor,versionar = False)
+                    item.add_antecesor(antecesor, versionar=False)
                 # Finaliza el proceso de editar
 
                 return redirect('visualizar_item', proyecto_id=proyecto_id, fase_id=fase_id, item_id=item_id)
@@ -768,7 +767,11 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     contexto = {'file': file, }
     return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
 
-def debe_modificar_view(request,proyecto_id,fase_id,item_id):
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que muestra una pantalla de confirmación para marcar un item como A modificar si este se encuentra en una linea base.
     En caso de no estar en una linea base, redirige el usuario a la vista del item con el nuevo estado a modificar.
@@ -781,15 +784,14 @@ def debe_modificar_view(request,proyecto_id,fase_id,item_id):
     Retorna:
         -HttpResponse
     """
-
-    item = get_object_or_404(Item,id=item_id)
-    proyecto = get_object_or_404(Proyecto,id=proyecto_id)
-    fase = get_object_or_404(Fase,id=fase_id)
+    item = get_object_or_404(Item, id=item_id)
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(Fase, id=fase_id)
     if not item.esta_en_linea_base():
-        #Encapsular
+        # Encapsular
         item.estado = "A modificar"
         item.save()
-        return redirect('visualizar_item',proyecto_id,fase_id,item_id)
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
-        contexto = {'item':item, 'fase':fase,'proyecto':proyecto}
-        return render(request,'gestion_de_item/debe_modificar.html',context=contexto)
+        contexto = {'item': item, 'fase': fase, 'proyecto': proyecto}
+        return render(request, 'gestion_de_item/debe_modificar.html', context=contexto)
