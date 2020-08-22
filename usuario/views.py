@@ -163,15 +163,20 @@ def configurar_cloud_view(request):
     return render(request, 'usuario/configuracion_cloud.html', contexto)
 
 
-
-
 @login_required()
-@permission_required('roles_de_sistema.pu_acceder_sistema',login_url='sin_permiso')
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 def mi_perfil_view(request):
+    """
+    Vista que muestra a un usuario sus datos dentro del ststema: nombre completo, correo, rol de sistema, permisos de sistema y proyectos en los que participa.
+    Argumentos:
+        -request: HttpRequest
+    Retorna:
+        -HttpResponse
+    """
     user = request.user
-    user = get_object_or_404(Usuario,id=user.id)
+    user = get_object_or_404(Usuario, id=user.id)
 
-    permisos =[Permission.objects.get(codename = x) for x in user.get_permisos_list()]
+    permisos = [Permission.objects.get(codename=x) for x in user.get_permisos_list()]
     proyectos_activos = user.get_proyectos_activos()
     proyectos_no_activos = []
     proyectos_no_activos = proyectos_no_activos + user.get_proyectos(estado='Finalizado')
@@ -183,13 +188,14 @@ def mi_perfil_view(request):
             roles_activos.append(proyecto.get_participante(user).rol.nombre)
         else:
             roles_activos.append('Gerente')
-    proyectos_activos = zip(proyectos_activos,roles_activos)
+    proyectos_activos = zip(proyectos_activos, roles_activos)
     for proyecto in proyectos_no_activos:
         if proyecto.gerente != user:
             roles_no_activos.append(proyecto.get_participante(user).rol.nombre)
         else:
             roles_no_activos.append('Gerente')
-    proyectos_no_activos = zip(proyectos_no_activos,roles_no_activos)
+    proyectos_no_activos = zip(proyectos_no_activos, roles_no_activos)
 
-    contexto = {'user':user,'permisos':permisos,'proyectos_activos':proyectos_activos,'proyectos_no_activos': proyectos_no_activos}
-    return render(request,'usuario/mi_perfil.html',context=contexto)
+    contexto = {'user': user, 'permisos': permisos, 'proyectos_activos': proyectos_activos,
+                'proyectos_no_activos': proyectos_no_activos}
+    return render(request, 'usuario/mi_perfil.html', context=contexto)
