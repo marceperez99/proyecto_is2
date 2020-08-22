@@ -770,7 +770,16 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 
 def debe_modificar_view(request,proyecto_id,fase_id,item_id):
     """
-    TODO: comentar
+    Vista que muestra una pantalla de confirmación para marcar un item como A modificar si este se encuentra en una linea base.
+    En caso de no estar en una linea base, redirige el usuario a la vista del item con el nuevo estado a modificar.
+
+    Argumentos:
+        -request: HttpRequest
+        -proyecto_id: int , id del proyecto.
+        -fase_id: int, id de la fase.
+        -item_id: int, id del item.
+    Retorna:
+        -HttpResponse
     """
 
     item = get_object_or_404(Item,id=item_id)
