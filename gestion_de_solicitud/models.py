@@ -16,8 +16,6 @@ class SolicitudDeCambio(models.Model):
     descripcion = models.CharField(max_length=500)
     fecha = models.DateTimeField()
     numero_de_miembros = models.IntegerField()
-    votos_a_favor = models.IntegerField(default=0)
-    votos_en_contra = models.IntegerField(default=0)
 
 class Asignacion(models.Model):
     """
