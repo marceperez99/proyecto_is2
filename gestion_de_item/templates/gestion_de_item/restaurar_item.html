@@ -7,12 +7,12 @@
         <div class="row bg-white p-3 border rounded">
             <h3 class="col-12">Restaurar Item</h3>
             <hr class="col-10 mx-auto">
-            <p class="lead">Esta seguro que desea eliminar esta relacion entre items?</p>
+            <p class="lead">Seguro que desea restaurar el item a esta version anterior ?</p>
 
             <form method="POST" class="col-12">
                 {% csrf_token %}
                 <div class="row">
-                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Eliminar relacion">
+                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Restaurar Item">
                     <a href="../" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
                 </div>
             </form>
