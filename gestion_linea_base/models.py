@@ -16,3 +16,8 @@ class LineaBase(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def romper(self):
+        # TODO comentar e incluir en planilla y probar
+        self.estado = EstadoLineaBase.ROTA
+        self.save()

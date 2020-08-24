@@ -90,6 +90,5 @@ def solicitud(linea_base, participante):
 class TestUtils:
 
     def test_cancelar_solicitud(self, solicitud):
-        resultado = cancelar_solicitud(solicitud)
-
-        assert resultado, 'No se cancelo la solicitud correctamente'
+        cancelar_solicitud(solicitud)
+        assert solicitud.estado == EstadoSolicitud.RECHAZADA, 'No se cancelo la solicitud correctamente'

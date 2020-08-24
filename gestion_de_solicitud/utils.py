@@ -12,7 +12,6 @@ def cancelar_solicitud(solicitud):
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
     solicitud.estado = EstadoSolicitud.RECHAZADA
     # TODO: notificar a solicitante que la solicitud fue cancelada
-    return True
 
 
 def aprobar_solicitud(solicitud: SolicitudDeCambio):
@@ -38,5 +37,6 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
                 sucesor.solicitar_revision()
 
     solicitud.estado = EstadoSolicitud.APROBADA
-    return True
+    # TODO notificar a usuarios de cambios
+
 
