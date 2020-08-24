@@ -26,8 +26,6 @@ class Fase(models.Model):
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto', on_delete=models.CASCADE,null=True)
     descripcion = models.CharField(max_length=300)
     fase_anterior = models.ForeignKey('gestion_de_fase.Fase', on_delete=models.SET_NULL, null=True)
-    #items = models.ForeignKey('Item', on_delete=models.CASCADE)
-    #lineaBase = models.ForeignKey('LineaBase', on_delete=models.CASCADE, verbose_name="Linea Base")
     fase_cerrada = models.BooleanField(verbose_name="Fase Cerrada")
     puede_cerrarse = models.BooleanField(verbose_name="Puede Cerrarse")
 
