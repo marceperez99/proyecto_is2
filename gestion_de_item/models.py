@@ -318,8 +318,8 @@ class Item(models.Model):
         Parametros:
             - version: int, identificador unico de la version a la cual se desea regresar
         """
-        nueva_version = version
-        nueva_version.pk = None
+        nueva_version = VersionItem(nombre=version.nombre, descripcion=version.descripcion, peso=version.peso,
+                                    item=version.item)
         nueva_version.version = self.get_numero_version() + 1
         nueva_version.save()
         for atributo in version.get_atributos_dinamicos():
@@ -331,9 +331,9 @@ class Item(models.Model):
             if padre.estado == EstadoDeItem.APROBADO:
                 nueva_version.padres.add(padre)
 
-        for antecesor in version.antecesor.all():
+        for antecesor in version.antecesores.all():
             if antecesor.estado == EstadoDeItem.EN_LINEA_BASE:
-                nueva_version.antecesor.add(antecesor)
+                nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
         self.save()

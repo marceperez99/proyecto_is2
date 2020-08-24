@@ -317,6 +317,8 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {
         'item': item,
         'user': request.user,
+        'proyecto': proyecto,
+        'fase': fase,
         'lista_estados_item': [EstadoDeItem.NO_APROBADO, ],
         'breadcrumb': {'pagina_actual': 'Historial de Cambios',
                        'links': [
@@ -796,7 +798,8 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
         if item.puede_restaurarse(version):
             item.restaurar(version)
             messages.success(request, "El item pudo restaurarse a una version anterior correctamente")
-        messages.error(request, "El item no puede restaurarse a una version anterior, pues deja de ser trazable  la primera fase")
+        else:
+            messages.error(request, "El item no puede restaurarse a una version anterior, pues deja de ser trazable  la primera fase")
         return redirect('visualizar_item', proyecto_id, fase_id, item_id)
 
     else:
