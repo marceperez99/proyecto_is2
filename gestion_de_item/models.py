@@ -310,8 +310,6 @@ class Item(models.Model):
             return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
                    version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
 
-
-
     def restaurar(self, version):
         """
         Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
@@ -337,6 +335,14 @@ class Item(models.Model):
 
         self.version = nueva_version
         self.save()
+
+    def solicitar_revision(self):
+        # TODO: comentar y probar
+        self.estado = EstadoDeItem.EN_REVISION
+
+    def solicitar_modificacion(self, usuario_encargado):
+        # TODO: comentar y probar
+        self.estado = EstadoDeItem.A_MODIFICAR
 
 
 class VersionItem(models.Model):

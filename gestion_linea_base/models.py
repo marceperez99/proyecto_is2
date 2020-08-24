@@ -2,6 +2,12 @@ from django.db import models
 from gestion_de_item.models import Item
 
 
+class EstadoLineaBase:
+    COMPROMETIDA = 'Comprometida'
+    ROTA = 'Rota'
+    CERRADA = 'CERRADA'
+
+
 class LineaBase(models.Model):
     # TODO: Marcos, documentar.
     nombre = models.CharField(max_length=50)
