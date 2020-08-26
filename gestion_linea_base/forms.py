@@ -11,9 +11,10 @@ class AsignacionForm(forms.Form):
 
     motivo = forms.CharField(label='comentario', max_length=200, required=False)
 
-    def __init__(self, *args, proyecto_id, **kwargs):
+    def __init__(self, *args, proyecto_id,item = None, **kwargs):
         super(AsignacionForm, self).__init__(*args, **kwargs)
         self.proyecto_id = proyecto_id
+        self.item = item
         #TODO: Conseguir los participantes con permiso de modificar (?
 
 class SolicitudForm(forms.Form):

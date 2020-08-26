@@ -9,6 +9,7 @@
         <form method="POST" class="mx-auto col-12 col-md-10 row  border bg-white p-3 rounded">
             {% csrf_token %}
             {{solicitud_form | crispy }}
+            {{ formset.management_form }}
             {% for form in formset %}
              <div class="col-10 mx-auto">
                  {{form.item.version.nombre}}
