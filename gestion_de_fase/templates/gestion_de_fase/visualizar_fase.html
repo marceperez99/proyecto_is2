@@ -69,27 +69,31 @@
                             <div class="row">
                                 <span class="col-12 col-md-8 my-auto text-white">Líneas Base</span>
                                 <div class="col-12 col-md-4 text-right">
-                                    <a href="#" class="btn border-0 btn-primary bg-color-accent">Gestionar Líneas Base</a>
+                                    <a href="{% url 'listar_linea_base' proyecto.id fase.id %}" class="btn border-0 btn-primary bg-color-accent">Gestionar Líneas Base</a>
                                 </div>
                             </div>
                         </div>
                     <div class="card-body">
-                        {% if fase.lineasbase_set %}
+                        {% if fase.get_lineas_base %}
+                        <div style="max-height: 300px; overflow: scroll;">
                             <table class="table border rounded">
                                 <thead>
-                                <tr><th>Nombre de Item</th><th>Tipo de Item</th><th></th></tr>
+                                <tr><th>Nombre de LB</th><th>Estado</th><th></th></tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>Nombre de Item</td>
-                                    <td>Requerimiento Funcional</td>
-                                    <td>
-                                        <a href="#" class="btn bg-color-accent text-white">
-                                            <i class="fas fa-eye"></i> Visualizar</a>
-                                    </td>
-                                </tr>
+                                {% for lb in fase.get_lineas_base %}
+                                    <tr>
+                                        <td>{{lb.nombre}}</td>
+                                        <td>{{lb.estado}}</td>
+                                        <td>
+                                            <a href="" class="btn bg-color-accent text-white">
+                                                <i class="fas fa-eye"></i> Visualizar</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                                 </tbody>
                             </table>
+                        </div>
                         {% else %}
                             <h5>Aún no se han generado Líneas Base dentro de la Fase.</h5>
                         {% endif %}
