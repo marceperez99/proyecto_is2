@@ -11,7 +11,7 @@ from .forms import SocialAppForm
 
 @login_required
 def index_view(request):
-    """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al template que muestra el
+    """Esta función se encarga de, una vez que el usuario haya iniciado sesión, redirigirla al templates que muestra el
     menú pricipal
 
     Argumentos:
