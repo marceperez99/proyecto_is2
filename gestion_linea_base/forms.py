@@ -29,6 +29,6 @@ class LineaBaseForm(forms.ModelForm):
             widget=forms.CheckboxSelectMultiple,
             choices=[(i.id, i.version.nombre) for i in Item.objects.filter(
                 estado=EstadoDeItem.APROBADO,
-                tipo_de_item__fase__proyecto_id=proyecto.id, lineabase=None)],
+                tipo_de_item__fase__proyecto_id=proyecto.id)],
             label='Items'
         )
