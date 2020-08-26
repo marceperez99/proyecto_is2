@@ -180,9 +180,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                             "peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.add_antecesor(anterior)
+                            item.add_antecesor(anterior,versionar = False)
                         elif anterior.get_fase() == fase:
-                            item.add_padre(anterior)
+                            item.add_padre(anterior,versionar = False)
 
                     list_atributos_id = []
                     # Crea los atributos dinamicos del item.
