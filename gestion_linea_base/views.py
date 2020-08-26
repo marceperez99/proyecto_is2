@@ -6,12 +6,13 @@ from gestion_linea_base.forms import AsignacionForm, SolicitudForm
 
 
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
+
     # TODO:Cambiar para tener solo los items de la linea base
     items = list(Item.objects.all())
 
     solicitud_form = SolicitudForm()
     asignacion_formset = formset_factory(AsignacionForm, extra=len(items), can_delete=False)
-    formset = asignacion_formset()
+    formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id})
     for form, item in zip(formset, items):
         form.item = item
     contexto = {'formset': formset, 'solicitud_form': solicitud_form,'len' : len(formset)}
