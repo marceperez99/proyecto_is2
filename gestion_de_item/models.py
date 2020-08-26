@@ -292,6 +292,52 @@ class Item(models.Model):
 
         raise Exception(mensaje_error)
 
+    def puede_restaurarse(self, version):
+        """
+        Metodo de model Item que verifica si un item puede o no volver a una version pasada.
+        Una version va a poder restaurarse si, el item esta en la primera fase, o si esta en una fase siguiente
+        al menos tiene que tener un padre aprobado, o al menos un antecesor en linea base.\n
+        Parametros:
+            - version: int, identificador unico de la version a la cual se desea regresar
+
+        Retorna:
+            -True: Si el item puede restaurarse a una version anterior
+            -False: Si el item no puede restaurarse a una version anterior
+        """
+        if self.get_fase().es_primera():
+            return True
+        else:
+            return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
+                   version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
+
+
+
+    def restaurar(self, version):
+        """
+        Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
+        Parametros:
+            - version: int, identificador unico de la version a la cual se desea regresar
+        """
+        nueva_version = VersionItem(nombre=version.nombre, descripcion=version.descripcion, peso=version.peso,
+                                    item=version.item)
+        nueva_version.version = self.get_numero_version() + 1
+        nueva_version.save()
+        for atributo in version.get_atributos_dinamicos():
+            atributo.pk = None
+            atributo.version = nueva_version
+            atributo.save()
+
+        for padre in version.padres.all():
+            if padre.estado == EstadoDeItem.APROBADO:
+                nueva_version.padres.add(padre)
+
+        for antecesor in version.antecesores.all():
+            if antecesor.estado == EstadoDeItem.EN_LINEA_BASE:
+                nueva_version.antecesores.add(antecesor)
+
+        self.version = nueva_version
+        self.save()
+
 
 class VersionItem(models.Model):
     """

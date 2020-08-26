@@ -59,6 +59,7 @@ class RolDeProyecto(models.Model):
             ('pp_f_desaprobar_item', 'Desaprobar cambios de un Item'),
             ('pp_f_eliminar_relacion_entre_items', 'Eliminar Relación entre Items'),
             ('pp_f_ver_items_eliminados', 'Visualizar Items eliminados'),
+            ('pp_f_restaurar_version', 'Restaurar un Item a una version anterior'),
         ]
 
     def __str__(self):
