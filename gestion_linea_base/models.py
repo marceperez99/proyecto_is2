@@ -1,6 +1,5 @@
 from django.db import models
 from gestion_de_item.models import Item
-from gestion_de_fase.models import Fase
 
 
 class EstadoLineaBase:
