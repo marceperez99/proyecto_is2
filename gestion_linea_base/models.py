@@ -3,11 +3,9 @@ from gestion_de_item.models import Item
 
 
 class EstadoLineaBase:
-    CERRADO = "Cerrado"
+    CERRADO = "Cerrada"
     COMPROMETIDA = "Comprometida"
     ROTA = "Rota"
-
-
 
 class LineaBase(models.Model):
     # TODO: Marcos, documentar.
@@ -19,6 +17,11 @@ class LineaBase(models.Model):
     def __str__(self):
         return self.nombre
 
+
+    def romper(self):
+        # TODO comentar e incluir en planilla y probar
+        self.estado = EstadoLineaBase.ROTA
+        self.save()
     def create_nombre(self, proyecto, fase):
         nro_fase = proyecto.get_fases().index(fase) + 1
         nro_lb = LineaBase.objects.filter(fase__proyecto=proyecto).__len__()+1
