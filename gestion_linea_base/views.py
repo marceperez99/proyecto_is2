@@ -8,7 +8,9 @@ from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asig
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm
 from gestion_linea_base.models import LineaBase
 
-
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase("pp_f_solicitar_rompimiento")
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     # TODO: Borrar item innecesario
     # TODO: Verificar que la linea base este cerrada
