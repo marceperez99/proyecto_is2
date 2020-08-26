@@ -65,6 +65,23 @@ def proyecto(usuario, rol_de_proyecto):
 
 
 @pytest.fixture
+def usuario_participante(rs_admin):
+    user = User(username='user_test_1', email='test1@admin.com')
+    user.set_password('password123')
+    user.save()
+    user.groups.add(Group.objects.get(name=rs_admin.nombre))
+    return user
+
+
+@pytest.fixture
+def participante(proyecto, usuario_participante, rol_de_proyecto):
+    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario_participante)
+    participante.asignar_rol_de_proyecto(rol_de_proyecto)
+    participante.save()
+    return participante
+
+
+@pytest.fixture
 def tipo_de_item(usuario, proyecto):
     tipo_de_item = TipoDeItem()
     tipo_de_item.nombre = "Requerimiento Funcional"
@@ -218,11 +235,47 @@ class TestModeloItem:
         assert item.estado == esperado, f'El metodo desaprobar() debe dejar el item en estado {esperado} si el item está' \
                                         ' en estado {estado_item}, pero el metodo retornó {item.estado}'
 
+    def test_solicitar_modificacion_item_a_usuario(self, item, participante):
+        """
+        Prueba Unitaria que comprueba que el al indicar que un item debe ser modificado este pase al estado A Modificar
+        y se asigne correctamente el usuario que debe modificar el item.\n
+        Se espera:
+            Que el item quede en estado A Modificar, el campo encargado_de_modificar del item quede con el
+            participante indicado\n
+        Mensaje de error:
+            El estado del item debe ser {EstadoDeItem.A_MODIFICAR} pero el item esta en estado {item.estado}
+            y el encargado_de_modificar deberia ser {participante} pero es {item.encargado_de_modificar}
+        """
+        # TODO incluir en archivo de documentacion
+        item.solicitar_modificacion(participante)
 
-    #TODO Luis falta pruebas unitaria de: add_padre
-    #TODO Luis falta pruebas unitaria de: add_antecesor
-    #TODO Luis falta pruebas unitaria de: hay_ciclo
-    #TODO Luis falta pruebas unitaria de: eliminar_relacion
+        condicion = item.estado == EstadoDeItem.A_MODIFICAR and item.encargado_de_modificar == participante
+        assert condicion, f'El estado del item debe ser {EstadoDeItem.A_MODIFICAR} pero el item esta en estado {item.estado} ' \
+                          f'y el encargado_de_modificar deberia ser {participante} pero es {item.encargado_de_modificar}'
+
+    def test_solicitar_revision(self, item):
+        """
+        Prueba Unitaria que el metodo solicitar_revision\n
+        Se espera:
+            Que el item quede en estado A Modificar, el campo encargado_de_modificar del item quede con el
+            participante indicado\n
+        Mensaje de error:
+            El estado del item debe ser "En Revision" pero esta en estado {item.estado}
+            y el estado_anterior deberia ser Aprobado pero es {item.estado_anterior}
+        """
+        # TODO incluir en archivo de documentacion
+        item.estado = EstadoDeItem.APROBADO
+        item.solicitar_revision()
+
+        condicion = item.estado == EstadoDeItem.EN_REVISION and item.estado_anterior == EstadoDeItem.APROBADO
+        assert condicion, f'El estado del item debe ser "En Revision" pero esta en estado {item.estado} ' \
+                          f'y el estado_anterior deberia ser Aprobado pero es {item.estado_anterior}'
+
+
+# TODO Luis falta pruebas unitaria de: add_padre
+# TODO Luis falta pruebas unitaria de: add_antecesor
+# TODO Luis falta pruebas unitaria de: hay_ciclo
+# TODO Luis falta pruebas unitaria de: eliminar_relacion
 
 
 @pytest.mark.django_db
@@ -307,7 +360,6 @@ class TestVistasItem:
         response = cliente_loggeado.get(reverse('historial_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-
     def test_solicitar_aprobacion_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar el historial de cambios
@@ -324,7 +376,6 @@ class TestVistasItem:
         response = cliente_loggeado.get(
             reverse('solicitar_aprobacion_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
 
     def test_aprobar_item_view(self, cliente_loggeado, proyecto, item):
         """
@@ -358,7 +409,6 @@ class TestVistasItem:
         response = cliente_loggeado.get(reverse('editar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-
     def test_desaprobar_item_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de desaprobar item.\n
@@ -372,7 +422,6 @@ class TestVistasItem:
         response = cliente_loggeado.get(reverse('desaprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
-
 
     def test_relacionar_item_view(self, cliente_loggeado, proyecto, item):
         """
@@ -388,7 +437,6 @@ class TestVistasItem:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
 
-
     def test_eliminar_relacion_item_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de eliminar relacion.\n
@@ -400,6 +448,6 @@ class TestVistasItem:
         proyecto.estado = EstadoDeProyecto.INICIADO
         proyecto.save()
         response = cliente_loggeado.get(reverse('eliminar_relacion_item', args=(proyecto.id, item.get_fase().id,
-                                                                           item.id, item.id)))
+                                                                                item.id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'

@@ -44,6 +44,9 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
+    encargado_de_modificar = models.ForeignKey('gestion_de_proyecto.Participante', null=True, default=None,
+                                               on_delete=models.CASCADE)
+    estado_anterior = models.CharField(max_length=40, default="")
 
     # No cambiar save() o se rompe
     def nueva_version(self):
@@ -169,7 +172,7 @@ class Item(models.Model):
         self.estado = EstadoDeItem.ELIMINADO
         self.save()
 
-    def add_padre(self, item,versionar = True):
+    def add_padre(self, item, versionar=True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
         lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.\n
@@ -180,7 +183,7 @@ class Item(models.Model):
             self.nueva_version()
         self.version.padres.add(item)
 
-    def add_antecesor(self, item,versionar = True):
+    def add_antecesor(self, item, versionar=True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
         antecesores del item, creando tambien una nueva version del item con esta nueva relacion.\n
@@ -310,8 +313,6 @@ class Item(models.Model):
             return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
                    version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
 
-
-
     def restaurar(self, version):
         """
         Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
@@ -336,6 +337,20 @@ class Item(models.Model):
                 nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
+        self.save()
+
+    def solicitar_revision(self):
+        # TODO: comentar y probar
+        assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+        self.estado_anterior = self.estado
+        self.estado = EstadoDeItem.EN_REVISION
+        self.save()
+
+    def solicitar_modificacion(self, usuario_encargado=None):
+        # TODO: comentar y probar
+
+        self.encargado_de_modificar = usuario_encargado
+        self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
 
 
@@ -370,8 +385,6 @@ class VersionItem(models.Model):
         return atributos
 
 
-
-
 class AtributoItemArchivo(models.Model):
     """
     Modelo que representa un atributo dinámico de tipo archivo de un item. Sus especificaciones estan dadas por la plantilla del attributo de tipo archivo del tipo de item correspondiente.
@@ -400,7 +413,6 @@ class AtributoItemArchivo(models.Model):
     def archivo_subido(self):
         # TODO: marcos, comentar
         return self.valor.name != ''
-
 
 
 class AtributoItemBooleano(models.Model):
