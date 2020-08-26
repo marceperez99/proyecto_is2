@@ -1,5 +1,5 @@
 from django.forms import formset_factory
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 
 from gestion_de_item.models import Item
@@ -10,8 +10,13 @@ from gestion_linea_base.models import LineaBase
 
 
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
-    linea_base = LineaBase.objects.get(id = linea_base_id)
-    # TODO:Cambiar para tener solo los items de la linea base
+    # TODO: Borrar item innecesario
+    # TODO: Verificar que la linea base este cerrada
+    # TODO: Mostrar solo participantes con permiso de modificar item
+    # TODO: DOcumentar
+    # TODO : Testear
+    # TODO: Agregar permisos
+    linea_base = LineaBase.objects.get(id=linea_base_id)
     items = linea_base.items.all()
     asignacion_formset = formset_factory(AsignacionForm, extra=items.count(), can_delete=False)
 
@@ -19,7 +24,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
 
     if request.method == 'POST':
         solicitud_form = SolicitudForm(request.POST)
-        formset = asignacion_formset(request.POST,form_kwargs={'proyecto_id': proyecto_id})
+        formset = asignacion_formset(request.POST, form_kwargs={'proyecto_id': proyecto_id, 'fase_id': fase_id})
         print(request.POST)
         if solicitud_form.is_valid() and all(form.is_valid() for form in formset):
 
@@ -29,9 +34,9 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
             solicitud.estado = EstadoSolicitud.PENDIENTE
             solicitud.fecha = timezone.now()
 
-            #Get a Linea Base
+            # Get a Linea Base
             solicitud.linea_base = linea_base
-            #Consigue el numero de miembros
+            # Consigue el numero de miembros
             comite = Comite.objects.get(proyecto=proyecto)
             solicitud.numero_de_miembros = comite.miembros.count()
 
@@ -46,13 +51,12 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.item = items[count]
                     asignacion.save()
                 count = count + 1
-            return render(request,'index')
+            return redirect('index')
     else:
         solicitud_form = SolicitudForm()
 
-        formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id})
-        for form, item in zip(formset, items):
+        formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id, 'fase_id': fase_id})
+        for form,item in zip(formset,items):
             form.item = item
-
     contexto = {'formset': formset, 'solicitud_form': solicitud_form, 'len': len(formset)}
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
