@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import permission_required, login_required
 from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -7,17 +8,19 @@ from gestion_de_proyecto.models import Comite, Proyecto
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm
 from gestion_linea_base.models import LineaBase
+from roles_de_proyecto.decorators import pp_requerido_en_fase
+
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase("pp_f_solicitar_rompimiento")
+@pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
-    # TODO: Borrar item innecesario
+
     # TODO: Verificar que la linea base este cerrada
-    # TODO: Mostrar solo participantes con permiso de modificar item
+
     # TODO: DOcumentar
     # TODO : Testear
-    # TODO: Agregar permisos
+
     linea_base = LineaBase.objects.get(id=linea_base_id)
     items = linea_base.items.all()
     asignacion_formset = formset_factory(AsignacionForm, extra=items.count(), can_delete=False)
