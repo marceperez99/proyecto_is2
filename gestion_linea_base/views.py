@@ -15,10 +15,20 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
+    """
+    Vista que permite la creación de nuevas solicitudes de rompimiento de lineas bases cerradas.
 
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+        - linea_base_id: int, id de la linea base
+    Retorna:
+        - HttpResponse
+    """
     # TODO: Verificar que la linea base este cerrada
 
-    # TODO: DOcumentar
+
     # TODO : Testear
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
