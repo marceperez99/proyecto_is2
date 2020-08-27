@@ -2,16 +2,16 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-
-from gestion_de_item.models import Item
 from gestion_de_proyecto.models import Comite, Proyecto
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm, LineaBaseForm
-from gestion_linea_base.models import LineaBase,EstadoLineaBase
+from gestion_linea_base.models import LineaBase, EstadoLineaBase
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from django.urls import reverse
-from gestion_de_item.models import Item, EstadoDeItem
+from gestion_de_item.models import EstadoDeItem
+
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
@@ -74,10 +74,10 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     contexto = {'formset': formset, 'solicitud_form': solicitud_form, 'len': len(formset)}
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
 
-@login_required
-#@permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
-def nueva_linea_base_view(request, proyecto_id, fase_id):
 
+@login_required
+# @permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
+def nueva_linea_base_view(request, proyecto_id, fase_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
@@ -90,7 +90,7 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
             for l in lineabase.items.all():
                 l.estado = EstadoDeItem.EN_LINEA_BASE
                 l.save()
-                print(str(l)+" - "+l.estado)
+                print(str(l) + " - " + l.estado)
             lineabase.save()
 
             return redirect("visualizar_fase", proyecto_id=proyecto_id, fase_id=fase_id)
@@ -99,10 +99,13 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
     contexto = {'formulario': form,
                 'breadcrumb': {'pagina_actual': 'Nueva Linea Base',
                                'links': [
-                                {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
-                                {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
-                                {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
-                                {'nombre': 'Lineas Base', 'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
+                                   {'nombre': proyecto.nombre,
+                                    'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                   {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                   {'nombre': fase.nombre,
+                                    'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                   {'nombre': 'Lineas Base',
+                                    'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
                                ]}
                 }
 
