@@ -2,7 +2,7 @@
 
 Solicitudes
 *************
-#TODO: completar
+Modulo encargado del manejo de las solicitudes del sistema.
 
 Modelos
 ==========

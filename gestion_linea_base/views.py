@@ -26,10 +26,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Verificar que la linea base este cerrada
-
-
-    # TODO : Testear
+    # TODO: Verificar que la linea base este cerrada con un fixture
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
     items = linea_base.items.all()
@@ -58,7 +55,6 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
             solicitud.save()
             count = 0
             for form in formset:
-                print(form.cleaned_data)
                 if form.cleaned_data and form.cleaned_data['modificar']:
                     asignacion = Asignacion()
                     asignacion.usuario = form.cleaned_data['usuario']
@@ -66,12 +62,13 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.item = items[count]
                     asignacion.save()
                 count = count + 1
+            # TODO: debe retornar a la vista de la linea base.
             return redirect('index')
     else:
         solicitud_form = SolicitudForm()
 
         formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id, 'fase_id': fase_id})
-        for form,item in zip(formset,items):
+        for form, item in zip(formset, items):
             form.item = item
     contexto = {'formset': formset, 'solicitud_form': solicitud_form, 'len': len(formset)}
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
