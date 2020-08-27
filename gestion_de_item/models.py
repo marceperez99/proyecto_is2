@@ -272,7 +272,7 @@ class Item(models.Model):
             raise Exception("El item dejara de ser trazable a la primera fase")
 
         self.nueva_version()
-        if item.estado == EstadoDeItem.EN_LINEA_BASE:
+        if self.version.antecesores.filter(id=item.id).exists():
             self.version.antecesores.remove(item)
         else:
             self.version.padres.remove(item)
