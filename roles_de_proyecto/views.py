@@ -79,7 +79,6 @@ def editar_rol_de_proyecto_view(request, id_rol):
 
 @login_required
 @permission_required('roles_de_sistema.pa_crear_rp', login_url='sin_permiso')
-# TODO: falta agregar que esta funcion requiere el PS de crear nuevo rol de proyecto
 def nuevo_rol_de_proyecto_view(request):
     """
     Vista que permite a un usuario crear un nuevo Rol de Proyecto dentro del sistema. \n

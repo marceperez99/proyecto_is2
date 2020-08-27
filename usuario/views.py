@@ -150,13 +150,15 @@ def configurar_cloud_view(request):
         form = ConfigCloudForm(request.POST)
         if form.is_valid() and len(form.cleaned_data.get('credenciales')) > 0:
             json = open(settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE, 'w')
-            json.write(form.cleaned_data.get('credenciales'))
+
+            json.write(form.cleaned_data.get('Json de Configuración del Cloud').replace('\n', '\\n'))
             json.close()
-            print(form.cleaned_data.get('credenciales'))
-            return redirect('panel_de_control')
-    else:
-        form = ConfigCloudForm()
-    contexto = {'form': form, 'breadcrumb': {'pagina_actual': 'Configuracion Cloud',
-                                             'links': [{'nombre': 'Panel de Administracion',
-                                                        'url': reverse('panel_de_control')}]}}
+            print(form.cleaned_data.get('Json de Configuración del Cloud'))
+        return redirect('panel_de_control')
+    json = open(settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE, 'r').read().replace('\n', '\\n')
+    form = ConfigCloudForm()
+    contexto = {'form': form, 'jsontext': json, 'breadcrumb': {'pagina_actual': 'Configuracion Cloud',
+                                                               'links': [{'nombre': 'Panel de Administracion',
+                                                                          'url': reverse('panel_de_control')}]}}
+
     return render(request, 'usuario/configuracion_cloud.html', contexto)
