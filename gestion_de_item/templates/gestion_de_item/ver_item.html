@@ -163,6 +163,10 @@
                                                                 <a href="{% url 'visualizar_item' proyecto.id fase.id antecesor.id %}" class="btn btn-primary border-0">
                                                                     <i class="fas fa-eye"></i> Visualizar
                                                                 </a>
+                                                                {% if 'pp_f_eliminar_relacion_entre_items' in permisos and item.estado == 'No Aprobado' %}
+                                                                    <a href="{% url 'eliminar_relacion_item' proyecto.id fase.id item.id antecesor.id %}" class="btn btn-danger">
+                                                                         <i class="far fa-trash-alt"></i> Eliminar</a>
+                                                                {% endif %}
                                                             </td>
                                                         </tr>
                                                     {% endfor %}
