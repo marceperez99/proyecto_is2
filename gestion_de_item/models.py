@@ -264,38 +264,20 @@ class Item(models.Model):
 
         """
 
-        mensaje_error = []
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            raise Exception("El item no esta en estado 'No Aprobado'")
+        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(id=item.id).exists():
+            raise Exception("Los item no estan relacionados")
+        if not self.get_fase().es_primera_fase() and self.version.antecesores.all().count() + self.version.padres.all().count() < 2:
+            raise Exception("El item dejara de ser trazable a la primera fase")
 
-        if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
-            if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.get_padres() > 1 or (
-                        self.get_padres() == 1 and self.get_antecesores() >= 1):
-                    self.nueva_version()
-                    self.padres.remove(item)
-                    return
-                else:
-                    mensaje_error.append(
-                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
-            elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.get_antecesores() > 1 or (
-                        self.get_antecesores() == 1 and self.get_padres() >= 1):
-                    self.nueva_version()
-                    self.antecesores.remove(item)
-                    return
-                else:
-                    mensaje_error.append(
-                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
-
-            else:
-                mensaje_error.append(
-                    'Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
+        self.nueva_version()
+        if item.estado == EstadoDeItem.EN_LINEA_BASE:
+            self.version.antecesores.remove(item)
         else:
-            if self.estado == EstadoDeItem.EN_LINEA_BASE:
-                mensaje_error.append('El item ' + self.version.nombre + ' esta en una linea base')
-            if item.estado == EstadoDeItem.EN_LINEA_BASE:
-                mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
+            self.version.padres.remove(item)
 
-        raise Exception(mensaje_error)
+
 
     def puede_restaurarse(self, version):
         """
@@ -309,7 +291,7 @@ class Item(models.Model):
             -True: Si el item puede restaurarse a una version anterior
             -False: Si el item no puede restaurarse a una version anterior
         """
-        if self.get_fase().es_primera():
+        if self.get_fase().es_primera_fase():
             return True
         else:
             return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
