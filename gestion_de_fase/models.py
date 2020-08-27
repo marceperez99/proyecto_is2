@@ -103,15 +103,3 @@ class Fase(models.Model):
     def get_lineas_base(self):
         return LineaBase.objects.filter(fase=self)
 
-    def es_primera(self):
-        """
-        Metodo que verifica que la fase en cuestion se trata de la primera fase del proyecto.
-        Argumentos:
-            self: fase, fase del proyecto
-        Retorna:
-            - True: si es la primera fase del proyecto
-            - False: si no es la primera fase del proyecto
-        """
-        if self.fase_anterior is None:
-            return True
-        return False
