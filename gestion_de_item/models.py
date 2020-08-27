@@ -1,6 +1,6 @@
 from django.db import models
 from gdstorage.storage import GoogleDriveStorage
-from .mocks import LineaBase
+
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
 
