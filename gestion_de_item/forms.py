@@ -298,3 +298,17 @@ class RelacionAntecesorSucesorForm(forms.Form):
         self.fields['antecesor'] = forms.ModelChoiceField(
             queryset=item.get_fase().fase_anterior.get_item_estado(EstadoDeItem.EN_LINEA_BASE))
         self.item = item
+
+    def clean_antecesor(self):
+        """
+        Método que verifica si ya existe una relacion entre los item, con la ayuda del metodo "get_sucesores".
+        Saltara un mensaje de error en caso de que el item se encuentre en la lista de sucesores.
+        Retorna:
+            True: si la relacion todavia no existe
+        """
+        antecesor = self.cleaned_data['antecesor']
+        if self.item in antecesor.get_sucesores():
+            raise ValidationError('La relacion ya existe')
+        else:
+            return antecesor
+
