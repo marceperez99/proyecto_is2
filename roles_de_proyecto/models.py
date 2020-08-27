@@ -21,8 +21,7 @@ class RolDeProyecto(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.CharField(max_length=200)
     permisos = models.ManyToManyField(Permission)
-
-    # creador = models.ForeignKey(User, on_delete=models.CASCADE)
+    #creador = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         permissions = [
@@ -63,6 +62,7 @@ class RolDeProyecto(models.Model):
             ('pp_f_restaurar_version', 'Restaurar un Item a una version anterior'),
             ('pp_f_solicitar_ruptura_de_linea_base', 'Solicitar ruptura de Linea Base'),
             ('pp_f_decidir_sobre_items_en_revision', 'Decidir sobre items en revisión'),
+
         ]
 
     def __str__(self):
