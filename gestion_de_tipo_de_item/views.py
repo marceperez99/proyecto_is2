@@ -208,15 +208,16 @@ def importar_tipo_de_item_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def editar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     """
-    Vista que permite editar un tipo de item.
-    Si el metodo Http con el que se realizo la peticion fue GET, muestra al usuario los campos ya cargados del tipo de
-    item, con la opcion de editarlos.
-    Si el metodo Http con el que se realizo la peticion fue POST, elimina el viejo tipo de item, y crea uno nuevo
-    en base a los datos recibidos.
+    Vista que permite editar un tipo de item.\n
+    Si el metodo Http con el que se realizo la peticion fue GET, muestra al usuario \
+    los campos ya cargados del tipo de item, con la opcion de editarlos.\n
+    Si el metodo Http con el que se realizo la peticion fue POST, elimina el viejo \
+    tipo de item, y crea uno nuevo en base a los datos recibidos.
+
     Argumentos:
-        - request: HttpRequest
-        - proyecto_id: int, identificador unico de un proyecto del sistema.
-        - fase_id: int, identificador unico de una fase de un proyecto.
+        - request: HttpRequest\n
+        - proyecto_id: int, identificador unico de un proyecto del sistema.\n
+        - fase_id: int, identificador unico de una fase de un proyecto.\n
         - tipo_de_item_id: int, identificador unico del tipo de item.
 
     Retorna:
@@ -299,7 +300,7 @@ def eliminar_tipo_de_item_view(request, proyecto_id, fase_id, tipo_de_item_id):
     Argumentos:
         request: HttpRequest. \n
         proyecto_id: int id que identifica unicamente a un proyecto del sistema. \n
-        fase_id: int id que identifica unicamente a una fase del sistema.\m
+        fase_id: int id que identifica unicamente a una fase del sistema.\n
         tipo_de_item_id: int id que identifica unicamente al tipo de item
 
     Retorna:

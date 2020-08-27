@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'gestion_de_fase',
     'gestion_de_tipo_de_item',
     'gestion_de_item',
+    'gestion_linea_base',
+    'gestion_de_solicitud',
 
     'allauth',  # <--
     'allauth.account',  # <--

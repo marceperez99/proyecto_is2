@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
-    AtributoItemArchivo, AtributoItemBooleano
+    AtributoItemArchivo, AtributoItemBooleano, VersionItem
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
@@ -80,6 +80,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     participante = proyecto.get_participante(request.user)
+    #TODO: Hugo, Agregar condicion para saber si se puede revisar, si esta en revision y se tiene el permiso ... mira la rama item_revision.
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION,
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
@@ -181,9 +182,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                             "peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.add_antecesor(anterior)
+                            item.add_antecesor(anterior,versionar = False)
                         elif anterior.get_fase() == fase:
-                            item.add_padre(anterior)
+                            item.add_padre(anterior,versionar = False)
 
                     list_atributos_id = []
                     # Crea los atributos dinamicos del item.
@@ -318,6 +319,8 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     contexto = {
         'item': item,
         'user': request.user,
+        'proyecto': proyecto,
+        'fase': fase,
         'lista_estados_item': [EstadoDeItem.NO_APROBADO, ],
         'breadcrumb': {'pagina_actual': 'Historial de Cambios',
                        'links': [
@@ -512,9 +515,9 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     nueva versión de este.
 
     Argumentos:
-        - request: HttpRequest,
-        - proyecto_id: int, identificador único de un  proyecto.
-        - fase_id: int, identificador único de una fase.
+        - request: HttpRequest.\n
+        - proyecto_id: int, identificador único de un  proyecto.\n
+        - fase_id: int, identificador único de una fase.\n
         - item_id: int, identificador único de un item a editar.
 
     Retorna
@@ -768,6 +771,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     contexto = {'file': file, }
     return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
 
+
 def debe_modificar_view(request,proyecto_id,fase_id,item_id):
     """
     TODO: comentar
@@ -784,3 +788,40 @@ def debe_modificar_view(request,proyecto_id,fase_id,item_id):
     else:
         contexto = {'item':item, 'fase':fase,'proyecto':proyecto}
         return render(request,'gestion_de_item/debe_modificar.html',context=contexto)
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_restaurar_version')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_id):
+    """
+    Vista que permite restaurar un Item a una version anterior, siempre y cuando el cambio no genere inconsistencias.
+    Si el metodo Http con el que se realizo la peticion fue GET, se le mostrara al usuario todas las veriones del item,
+    con lo que el usuario podra restaurar a la version que mejor le convenga.\n
+    Si el metodo Http con el que se realizo la peticion fue POST, se verificara si el valido restaurar a la version
+    seleccionada por el usuario, mostrando un mensaje de confirmacion o de error de acuerdoa lo que pase.\n
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+        - item_id: int, identificador unico del item.
+        - version_id: int, identificador unico de la version
+
+    Retorna:
+        - request: HttpRequest
+    """
+
+    item = get_object_or_404(Item, id=item_id)
+    version = get_object_or_404(VersionItem, id=version_id)
+    if request.method == 'POST':
+        if item.puede_restaurarse(version):
+            item.restaurar(version)
+            messages.success(request, "El item pudo restaurarse a una version anterior correctamente")
+        else:
+            messages.error(request, "El item no puede restaurarse a una version anterior, pues deja de ser trazable  la primera fase")
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+
+    else:
+        return render(request, 'gestion_de_item/restaurar_item.html')
+
+

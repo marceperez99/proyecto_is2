@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Items de la Fase{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-4">Lineas Base de la Fase</h3>
+            <div class="col-8 text-right">
+<!--                % if 'pp_f_crear_item' in permisos %}-->
+<!--                    <a href="{% url 'nuevo_item' proyecto.id fase.id %}" class="btn bg-color-accent border-0 btn-primary gb-color-accent">Nuevo LB</a>-->
+                    <a href="nuevo" class="btn bg-color-accent border-0 btn-primary gb-color-accent">Nueva LB</a>
+<!--                % endif %}-->
+            </div>
+<!--            <hr class="col-12">-->
+<!--            {% if 'pp_f_ver_items_eliminados' in permisos %}-->
+<!--                <div class="col-12">-->
+<!--                    <button id="btn_mostrar_eliminados" class="btn btn-primary bg-color-accent border-0" onclick="mostrar_items_eliminados()">-->
+<!--                        Mostrar Items eliminados-->
+<!--                    </button>-->
+<!--                    <button id="btn_ocultar_eliminados" class="btn btn-primary bg-color-accent border-0" onclick="ocultar_items_eliminados()">-->
+<!--                        Ocultar Items eliminados-->
+<!--                    </button>-->
+<!--                    <script src="{% static 'gestion_de_item/js/ocultar_items_eliminados.js' %}"></script>-->
+<!--                </div>-->
+<!--            {% endif %}-->
+<!--            <hr class="col-12">-->
+
+            <div class="col-10 mx-auto bg-white border rounded p-3">
+                <table class="table" id="lista_items">
+                    <thead>
+                    <tr class="text-center">
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                        <th>Ver</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for lb in list_lb %}
+                            <tr>
+                                <td>{{ lb.nombre }}</td>
+                                <td>{{ lb.estado }}</td>
+                                <td class="text-center">
+                                    <a href=""
+                                       class="btn btn-primary border-0 bg-color-accent">
+                                        <i class="fas fa-eye"></i>   Visualizar</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
+    <script>
+        $("#lista_items").DataTable(
+            {"columnDefs": [
+                    { "orderable": false, "targets": 3 }
+                ],
+                'language':{
+            "decimal":        "",
+            "emptyTable":     "No hay Lineas Base para mostrar",
+            "info":           '',//"Mostrando registros del  _START_ al _END_ de _TOTAL_",
+            "infoEmpty":      '',//"Showing 0 to 0 of 0 entries",
+            "infoFiltered":   "(filtered from _MAX_ total entries)",
+            "infoPostFix":    "",
+            "thousands":      ".",
+            "lengthMenu":     "Mostrar _MENU_ Lineas Base",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "search":         "Buscar Linea Base:",
+            "zeroRecords":    "No se encontraron items",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+            "aria": {
+                "sortAscending":  ": activate to sort column ascending",
+                "sortDescending": ": activate to sort column descending"
+            }
+        }});
+    </script>
+{% endblock %}

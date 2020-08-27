@@ -292,8 +292,9 @@ class TestVistasFase:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a las Fases de un Proyecto.
     """
-
-    def test_visualizar_fase_view(self, cliente_loggeado, proyecto):
+    @pytest.mark.parametrize('estado_proyecto', [(EstadoDeProyecto.CONFIGURACION),
+                                                (EstadoDeProyecto.INICIADO)])
+    def test_visualizar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de visualizar fase.
@@ -304,13 +305,16 @@ class TestVistasFase:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
         fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
         fase.save()
-
         response = cliente_loggeado.get(reverse('visualizar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_listar_fase_view(self, cliente_loggeado, proyecto):
+    @pytest.mark.parametrize('estado_proyecto', [(EstadoDeProyecto.CONFIGURACION),
+                                                (EstadoDeProyecto.INICIADO)])
+    def test_listar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de visualizar fase.
@@ -321,6 +325,8 @@ class TestVistasFase:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
         response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 

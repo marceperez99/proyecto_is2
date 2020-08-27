@@ -19,6 +19,8 @@ Documentación
    modules/gestion_de_fase/gestion_de_fase.rst
    modules/gestion_de_tipo_de_item/gestion_de_tipo_de_item.rst
    modules/gestion_de_item/gestion_de_item.rst
+   modules/gestion_de_linea_base/gestion_de_linea_base.rst
+   modules/gestion_de_solicitud/gestion_de_solicitud.rst
 
 Tablas e indices
 ==================
