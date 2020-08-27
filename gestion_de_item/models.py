@@ -250,12 +250,14 @@ class Item(models.Model):
 
     def eliminar_relacion(self, item):
         """
-        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
-        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una
+        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes. \
+        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una \
         relacion implica una nueva version del item
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.
+
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de \
+             padres.
 
         Lanza:
             -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
@@ -401,7 +403,7 @@ class AtributoItemArchivo(models.Model):
     def archivo_pendiente(self):
         """
         Metodo que se encarga de determinar si el atributo tiene una subida de archivo a la nube pendiente o en proceso.
-        Retorna "True" si el atributo "valor" esta vacío pero no el atributo "archivo_temporal", y "False" en caso
+        Retorna "True" si el atributo "name" del atributo "archivo_temporal"  no sea una cadena vacía y "False" en caso
         contrario; esto se debe a que inicialmete el archivo es guardado en el atributo "archivo_temporal" y cuando
         el archivo esta completamente subido, pasa al atributo "valor"
 
@@ -411,7 +413,14 @@ class AtributoItemArchivo(models.Model):
         return self.archivo_temporal.name != ''
 
     def archivo_subido(self):
-        # TODO: marcos, comentar
+        """
+        Metodo que se encarga de determinar si el atributo tiene un archivo subido a la nube .
+        Retorna "True" si el atributo "name" del atributo "valor" no sea una cadena vacía y "False" en caso
+        contrario; esto se debe a que solo cuando el archivo es completamente seubido a la nube, dicho campo tinene valor
+
+        Retorna:
+            Booleano
+        """
         return self.valor.name != ''
 
 
