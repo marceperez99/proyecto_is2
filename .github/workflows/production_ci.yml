@@ -47,5 +47,3 @@ jobs:
     - name: Run Tests with pytest
       run: |
         pipenv run pytest
-    - name: Create requirements.txt
-      run: pipenv run pip freeze > requirements.txt

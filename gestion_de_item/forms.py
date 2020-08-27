@@ -1,6 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.db.models import Q
+from django.db.models.fields.files import FieldFile
+
 import gestion_de_item
 from gestion_de_item.models import VersionItem, EstadoDeItem, Item
 
@@ -94,6 +97,18 @@ class AtributoItemArchivoForm(forms.Form):
     def clean(self):
         # Falta validar el tamaño maximo del archivo
 
+        if self.nombre in self.cleaned_data:
+            archivo = self.cleaned_data[self.nombre]
+            if isinstance(archivo, FieldFile):
+                if archivo is not None and archivo.file.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.file.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
+            elif isinstance(archivo, TemporaryUploadedFile):
+                if archivo is not None and archivo.size > self.plantilla.max_tamaño * 1000 * 1000:
+                    print('tamaño: ' + str(archivo.size))
+                    raise ValidationError(
+                        'El tamaño del archivo no puede superar los ' + str(self.plantilla.max_tamaño) + 'MB.')
         return self.cleaned_data
 
 
@@ -239,7 +254,9 @@ class RelacionPadreHijoForm(forms.Form):
 
         """
         super(RelacionPadreHijoForm, self).__init__(*args, **kwargs)
-        self.fields['padre'] = forms.ModelChoiceField(queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE).exclude(id=item.id))
+        self.fields['padre'] = forms.ModelChoiceField(
+            queryset=item.get_fase().get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE).exclude(
+                id=item.id))
         self.item = item
 
     def clean_padre(self):

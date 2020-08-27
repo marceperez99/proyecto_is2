@@ -684,6 +684,9 @@ class TestModeloComite:
 
 @pytest.mark.django_db
 class TestVistasProyecto:
+    """
+    Pruebas unitarias correspondientes al funcionamiento correcto de las Vistas relacionadas a Proyectos.
+    """
     @pytest.fixture
     def gerente_loggeado(self, gerente):
         client = Client()

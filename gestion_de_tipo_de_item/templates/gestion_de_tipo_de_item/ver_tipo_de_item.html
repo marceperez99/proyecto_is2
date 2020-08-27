@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12 row">
                 <h3 class="mr-auto">Tipo de Item</h3>
-                {% if not tipo_de_item.es_utilizado %}
+                {% if not es_utilizado %}
                     {% if 'pp_f_editar_tipo_de_item' in permisos %}
                         <a href="{% url 'editar_tipo_de_item' proyecto.id fase.id tipo_de_item.id %}"
                            class="btn btn-primary bg-color-accent border-0">Editar Tipo de Item</a>

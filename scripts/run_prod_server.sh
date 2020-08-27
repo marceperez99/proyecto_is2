@@ -18,9 +18,10 @@ export SECRET_KEY
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
 #Creacion de migraciones
 python manage.py migrate
-python manage.py collectstatic
 
+echo "Configuracion de SSO"
 python manage.py shell < scripts/sso_setup.py
+echo "Creacion de Rol de Sistema Administrador"
 python manage.py shell < scripts/create_admin.py
 
 #TODO: Carga de Datos en el sistema
@@ -28,6 +29,9 @@ python manage.py shell < scripts/create_admin.py
 cd docs
 make html
 cd ..
+
+#Se juntan los archivos estaticos
+python manage.py collectstatic
 
 #Ejecucion de pruebas unitarias
 pytest

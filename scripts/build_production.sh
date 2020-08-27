@@ -52,12 +52,18 @@ DB_HOST=${input:-$DB_HOST}
 read -p "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 # Lectura de variables de entorno de SSO
-GOOGLE_OAUTH_SECREY_KEY=""
-read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECREY_KEY]: " input
-GOOGLE_OAUTH_SECREY_KEY=${input:-$GOOGLE_OAUTH_SECREY_KEY}
+GOOGLE_OAUTH_SECRET_KEY=""
+read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
+GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
 GOOGLE_OAUTH_CLIENT_ID=""
-read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
+read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
+
+GDRIVE_JSON_PATH="$BASE_DIR/$PROYECT_NAME/auth/gdriveaccess.json"
+read -p "Ingrese el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive : " input
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
+
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH"
 
 cd "$BASE_DIR" || exit 1
 
@@ -73,16 +79,20 @@ virtualenv venv -p python3
 source venv/bin/activate
 python --version
 
+SECRET_KEY=$(openssl rand -base64 32)
 #Creacion de variables de entorno
 { echo "DB_USUARIO=\"$DB_USER\"";
 echo "DB_NOMBRE=\"$DB_NAME\"" ;
 echo "DB_PASSWORD=\"$DB_PASS\"" ;
 echo "DB_HOST=\"$DB_HOST\"";
 echo "DB_PORT=\"$DB_PORT\"";
-echo "GOOGLE_OAUTH_SECREY_KEY=\"$GOOGLE_OAUTH_SECREY_KEY\"";
+echo "GOOGLE_OAUTH_SECRET_KEY=\"$GOOGLE_OAUTH_SECRET_KEY\"";
 echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
 echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
-echo "DEBUG_VALUE=False"; } > "$ENV_VARIABLES_PATH"
+echo "DEBUG_VALUE=False";
+echo "GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"";
+echo "SECRET_KEY=\"$SECRET_KEY\""; } > "$ENV_VARIABLES_PATH"
+
 
 #Descarga de codigo fuente
 cd "django" || exit 1
@@ -92,9 +102,9 @@ cd "$PROYECT_NAME" || exit 1
 
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 echo
-if [[ ! $REPLY == ^[Ss]$ ]]
+if [[  $REPLY =~ ^[Ss]$ ]]
 then
-    echo "
+    [[ "$0" = "$BASH_SOURCE" ]] && echo "
       <VirtualHost *:80>
         ServerAdmin webmaster@localhost
         DocumentRoot $BASE_DIR/html
@@ -116,7 +126,7 @@ then
         WSGIProcessGroup proyecto_is2
         WSGIScriptAlias / $BASE_DIR/proyecto_is2/django/proyecto_is2/proyecto_is2/wsgi.py
       </VirtualHost>
-    " #> $APACHE_DIR/000-default.conf
+    " > $APACHE_DIR/000-default.conf
 fi
 
 
