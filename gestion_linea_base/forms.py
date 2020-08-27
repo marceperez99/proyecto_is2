@@ -1,7 +1,7 @@
 from django import forms
-
+from .models import LineaBase
+from gestion_de_item.models import Item, EstadoDeItem
 from gestion_de_fase.models import Fase
-from gestion_de_item.models import Item
 from gestion_de_proyecto.models import Participante, Proyecto
 
 
@@ -29,3 +29,36 @@ class AsignacionForm(forms.Form):
 
 class SolicitudForm(forms.Form):
     razon_rompimiento = forms.CharField(label='Descripción del motivo de rompimiento', widget=forms.Textarea())
+
+
+
+class LineaBaseForm(forms.ModelForm):
+    """
+    Form que permite la creacion de una nueva Linea Base.
+    Los items a agreagar solo pudeden estar en estado "Aprobado".
+
+    Campos:
+        -items: blablala
+    """
+
+    class Meta:
+        model = LineaBase
+        fields = ('nombre', 'items',)
+
+    def __init__(self, *args, proyecto=None, fase=None, **kwargs):
+        """
+        Constructor de la clase ProyectoForm.
+        Para el posible gerente, el usuario seleciona entre los usuarios logeados un gerente
+        """
+
+        super(LineaBaseForm, self).__init__(*args, **kwargs)
+        self.fields['nombre'] = forms.CharField(initial=LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)
+                                                , disabled=True, required=False)
+        self.fields['items'] = forms.MultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            choices=[(i.id, i.version.nombre) for i in Item.objects.filter(
+                estado=EstadoDeItem.APROBADO,
+                tipo_de_item__fase=fase)],
+            label='Items'
+        )
+

@@ -10,21 +10,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:10.8
-        env:
-          POSTGRES_USER: proyecto_user_test
-          POSTGRES_PASSWORD: Pr0yect0Test
-          POSTGRES_DB: proyecto_is2_dev
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6]
 
     steps:
     - uses: actions/checkout@v2
@@ -32,8 +22,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: psycopg2 prerequisites
-      run: sudo apt-get install python-dev libpq-dev
     
     - name: Install pipenv
       run: |
@@ -43,7 +31,7 @@ jobs:
         pipenv install
  
     - name: Run migrations
-      run: pipenv run python manage.py migrate --settings=proyecto_is2.settings.dev_settings
+      run: pipenv run python manage.py migrate --settings=proyecto_is2.settings.test_settings
     - name: Run Tests with pytest
       run: |
         pipenv run pytest
