@@ -82,6 +82,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     participante = proyecto.get_participante(request.user)
     #TODO: Hugo, Agregar condicion para saber si se puede revisar, si esta en revision y se tiene el permiso ... mira la rama item_revision.
     contexto = {
+        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION,
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
@@ -771,6 +772,23 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
 
 
+def debe_modificar_view(request,proyecto_id,fase_id,item_id):
+    """
+    TODO: comentar
+    """
+
+    item = get_object_or_404(Item,id=item_id)
+    proyecto = get_object_or_404(Proyecto,id=proyecto_id)
+    fase = get_object_or_404(Fase,id=fase_id)
+    if not item.esta_en_linea_base():
+        #Encapsular
+        item.estado = "A modificar"
+        item.save()
+        return redirect('visualizar_item',proyecto_id,fase_id,item_id)
+    else:
+        contexto = {'item':item, 'fase':fase,'proyecto':proyecto}
+        return render(request,'gestion_de_item/debe_modificar.html',context=contexto)
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_restaurar_version')
@@ -805,4 +823,5 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
 
     else:
         return render(request, 'gestion_de_item/restaurar_item.html')
+
 

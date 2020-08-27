@@ -11,9 +11,20 @@
                 })
             </script>
             {% include 'mensajes.html' %}
+            {% if debe_ser_revisado %}
+                <div class="col-12 alert alert-warning">
+                    <div class="row ">
+                        <div class ="col-12 text-center mb-2 text-dark">Este item se encuentra En Revisión</div>
+                        <a href="#" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
+                        <a href="{% url 'debe_ser_modificado' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Este Item debe ser modificado</a>
+
+
+                    </div>
+                </div>
+            {% endif %}
             <h3 class="col-4">Item de Proyecto</h3>
             <div class="col-8 text-right">
-                {% if item.estado == 'No Aprobado' and 'pp_f_solicitar_aprobacion_item' in permisos %}
+                 {% if item.estado == 'No Aprobado' and 'pp_f_solicitar_aprobacion_item' in permisos %}
                     <a href="{% url 'solicitar_aprobacion_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">Solicitar Aprobación de Item</a>
 
                 {% elif item.estado == 'Listo para su aprobación' and 'pp_f_aprobar_item' in permisos %}

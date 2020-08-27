@@ -266,7 +266,8 @@ class Item(models.Model):
 
         if self.estado != EstadoDeItem.NO_APROBADO:
             raise Exception("El item no esta en estado 'No Aprobado'")
-        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(id=item.id).exists():
+        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
+                id=item.id).exists():
             raise Exception("Los item no estan relacionados")
         if not self.get_fase().es_primera_fase() and self.version.antecesores.all().count() + self.version.padres.all().count() < 2:
             raise Exception("El item dejara de ser trazable a la primera fase")
@@ -276,8 +277,6 @@ class Item(models.Model):
             self.version.antecesores.remove(item)
         else:
             self.version.padres.remove(item)
-
-
 
     def puede_restaurarse(self, version):
         """
@@ -330,9 +329,15 @@ class Item(models.Model):
         self.estado = EstadoDeItem.EN_REVISION
         self.save()
 
+    def esta_en_linea_base(self):
+        """
+        TODO: actually completar el metodo
+
+        """
+        return True
+
     def solicitar_modificacion(self, usuario_encargado=None):
         # TODO: comentar y probar
-
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
