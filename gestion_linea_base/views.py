@@ -60,6 +60,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.usuario = form.cleaned_data['usuario']
                     asignacion.solicitud = solicitud
                     asignacion.item = items[count]
+                    asignacion.motivo = form.cleaned_data['motivo']
                     asignacion.save()
                 count = count + 1
             # TODO: debe retornar a la vista de la linea base.

@@ -33,7 +33,6 @@ class SolicitudDeCambio(models.Model):
         return self.asignacion_set.all()
 
 
-
 class Asignacion(models.Model):
     """
     Modelo que representa un item y el usuario al que fue asignado dentro de una solicitud de cambio.
@@ -41,7 +40,8 @@ class Asignacion(models.Model):
     usuario = models.ForeignKey(Participante, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     solicitud = models.ForeignKey(SolicitudDeCambio, on_delete=models.CASCADE)
-    comentario = models.CharField(max_length=500)
+    motivo = models.CharField(max_length=500)
+
 
 class Voto(models.Model):
     """
