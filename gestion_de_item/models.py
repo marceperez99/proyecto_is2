@@ -55,6 +55,7 @@ class Item(models.Model):
 
         Ej:
 
+
             >>> item = Item.objects.first()
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
@@ -266,7 +267,8 @@ class Item(models.Model):
 
         if self.estado != EstadoDeItem.NO_APROBADO:
             raise Exception("El item no esta en estado 'No Aprobado'")
-        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(id=item.id).exists():
+        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
+                id=item.id).exists():
             raise Exception("Los item no estan relacionados")
         if not self.get_fase().es_primera_fase() and self.version.antecesores.all().count() + self.version.padres.all().count() < 2:
             raise Exception("El item dejara de ser trazable a la primera fase")
@@ -276,8 +278,6 @@ class Item(models.Model):
             self.version.antecesores.remove(item)
         else:
             self.version.padres.remove(item)
-
-
 
     def puede_restaurarse(self, version):
         """
@@ -336,14 +336,24 @@ class Item(models.Model):
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
-        raise Exception(mensaje_error)
+
     def esta_en_linea_base(self):
         """
         TODO: actually completar el metodo
 
         """
-        return True
+        return self.lineabase_set.filter(estado="Cerrada").exists()
 
+    def esta_en_linea_base_comprometida(self):
+        return self.lineabase_set.filter(estado="Comprometida").exists()
+    def get_linea_base(self):
+        # TODO: actually completar el metodo
+        if self.lineabase_set.filter(estado="Cerrada").exists():
+            return self.lineabase_set.get(estado="Cerrada")
+        elif self.lineabase_set.filter(estado="Comprometida").exists() :
+            return self.lineabase_set.get(estado="Comprometida")
+        else:
+            return None
 
 class VersionItem(models.Model):
     """
