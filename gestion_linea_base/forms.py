@@ -28,7 +28,8 @@ class AsignacionForm(forms.Form):
 
 
 class SolicitudForm(forms.Form):
-    razon_rompimiento = forms.CharField(label='Descripción del motivo de rompimiento', widget=forms.Textarea())
+    razon_rompimiento = forms.CharField(label='Descripción del motivo de rompimiento',
+                                        widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
 
 

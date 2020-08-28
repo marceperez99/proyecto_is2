@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
@@ -17,6 +18,7 @@ def listar_solicitudes_view(request, proyecto_id):
     solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto_id=proyecto_id).all()
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     contexto = {
+        'proyecto': proyecto,
         'solicitudes': solicitudes,
         'breadcrumb': {
             'pagina_actual': 'Fases',
@@ -33,16 +35,19 @@ def solicitud_view(request, proyecto_id, solicitud_id):
     """
         Vista que permite la visualizacion de una solicitud en particular.
     """
-    solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto_id=proyecto_id).all()
+    solicitud = get_object_or_404(SolicitudDeCambio, id=solicitud_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    participante = proyecto.get_participante(request.user)
     contexto = {
-        'solicitudes': solicitudes,
+        'proyecto': proyecto,
+        'solicitud': solicitud,
+        'usuario_ha_votado': solicitud.ya_voto(participante),
         'breadcrumb': {
             'pagina_actual': 'Fases',
             'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]
         }
     }
-    return render(request, 'gestion_de_solicitud/listar_solicitudes.html', contexto)
+    return render(request, 'gestion_de_solicitud/visualizar_solicitud.html', contexto)
 
 
 @login_required
@@ -70,7 +75,7 @@ def solicitud_votacion_view(request, proyecto_id, solicitud_id):
         if request.GET['voto'] == 'a_favor' or request.GET['voto'] == 'en_contra':
             voto.voto_a_favor = request.GET['voto'] == 'a_favor'
             voto.save()
-            return redirect('solicitud_de_cambio', proyecto.id)
+            return redirect('solicitudes_de_cambio', proyecto.id)
 
     contexto = {'proyecto': proyecto,
                 'solicitud': solicitud,
