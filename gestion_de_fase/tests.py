@@ -1,5 +1,4 @@
 from http import HTTPStatus
-
 import pytest
 from django.contrib.auth.models import User, Permission, Group
 from django.test import Client
@@ -7,17 +6,10 @@ from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
-from gestion_de_item.tests import tipo_de_item
 from gestion_de_proyecto.models import Participante, Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
-
-
-def fase_factory(proyecto, fase_anterior, data):
-    return Fase.objects.create(nombre=data['nombre'], descripcion=data['descripcion'], proyecto=proyecto,
-                               fase_anterior=fase_anterior, fase_cerrada=data['fase_cerrada'],
-                               puede_cerrarse=data['puede_cerrarse'])
 
 
 @pytest.fixture

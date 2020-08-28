@@ -12,15 +12,13 @@ from gestion_de_item.models import Item
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
-from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
-    AtributoBooleano
+from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico,\
+    AtributoFecha, AtributoBooleano
 from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 
-def tipo_de_item_factory(fase, data):
 
-    pass
 
 @pytest.fixture()
 def rs_admin():
