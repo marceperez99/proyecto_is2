@@ -71,7 +71,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
         formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id, 'fase_id': fase_id})
         for form, item in zip(formset, items):
             form.item = item
-    contexto = {'formset': formset, 'solicitud_form': solicitud_form, 'len': len(formset)}
+    contexto = {'formset': formset, 'solicitud_form': solicitud_form,'linea_base':linea_base, 'len': len(formset)}
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
 
 

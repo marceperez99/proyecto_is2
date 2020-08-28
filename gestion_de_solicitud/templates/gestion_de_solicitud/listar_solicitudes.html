@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Solicitudes de Cambio{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-auto">Solicitudes de Cambio</h3>
+            <hr class="col-12">
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Linea Base</th>
+                            <th>Fase</th>
+                            <th>Fecha de Solicitud</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for solicitud in solicitudes %}
+                        <tr>
+                            <td>{{ solicitud.linea_base}}</td>
+                            <td>{{ solicitud.linea_base.fase}}</td>
+                            <td>{{ solicitud.fecha}}</td>
+                            <td>
+                                <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}" class="btn btn-primary">
+                                    Votar
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
