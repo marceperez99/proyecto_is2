@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto, Participante
+from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 from .models import SolicitudDeCambio, EstadoSolicitud
@@ -71,7 +72,19 @@ def participante(proyecto, usuario, rol_de_proyecto):
 
 
 @pytest.fixture
-def linea_base():
+def tipo_de_item(usuario, proyecto):
+    tipo_de_item = TipoDeItem()
+    tipo_de_item.nombre = "Requerimiento Funcional"
+    tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
+    tipo_de_item.prefijo = "RF"
+    tipo_de_item.creador = usuario
+    tipo_de_item.fase = Fase.objects.get(nombre='Analisis')
+    tipo_de_item.fecha_creacion = timezone.now()
+    tipo_de_item.save()
+    return tipo_de_item
+
+@pytest.fixture
+def linea_base(tipo_de_item):
     lb = LineaBase(nombre="LB_1.1", estado='')
     lb.save()
     return lb
@@ -92,3 +105,8 @@ class TestUtils:
     def test_cancelar_solicitud(self, solicitud):
         cancelar_solicitud(solicitud)
         assert solicitud.estado == EstadoSolicitud.RECHAZADA, 'No se cancelo la solicitud correctamente'
+
+    def test_aceptar_solicitud(self, solicitud):
+
+
+        assert True

@@ -2,6 +2,7 @@ from gestion_de_item.models import EstadoDeItem
 from gestion_de_solicitud.models import EstadoSolicitud, SolicitudDeCambio
 from gestion_linea_base.models import EstadoLineaBase
 
+
 # TODO: Cargar en la planilla
 def cancelar_solicitud(solicitud):
     """
@@ -38,5 +39,3 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
 
     solicitud.estado = EstadoSolicitud.APROBADA
     # TODO notificar a usuarios de cambios
-
-

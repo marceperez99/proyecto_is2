@@ -13,6 +13,20 @@ from roles_de_sistema.models import RolDeSistema
 from usuario.models import Usuario
 
 
+def user_factory(username, password, email):
+    """
+    Factory que retorna un objeto User
+    :param username:
+    :param password:
+    :param email:
+    :return: User
+    """
+    user = User(username=username, email=email)
+    user.set_password(password)
+    user.save()
+    return user
+
+
 @pytest.fixture
 def rs_admin():
     rol = RolDeSistema(nombre='Administrador', descripcion='descripcion de prueba')
@@ -76,6 +90,8 @@ def proyecto(usuario, gerente, rol_de_proyecto):
     participante.asignar_rol_de_proyecto(rol_de_proyecto)
     participante.save()
     return proyecto
+
+
 # Pruebas Unitarias
 
 
@@ -206,6 +222,7 @@ class TestModeloUsuario:
         user_proyectos = usuario.get_proyectos_activos()
         assert (True if len(user_proyectos) > 0 else proyecto not in user_proyectos), \
             'No se trae corectamente la lista de proyectos activos en los que participa el usuario '
+
     pass
 
 
@@ -214,9 +231,9 @@ class TestVistasUsuarios:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
     """
+
     @pytest.fixture
     def admin_loggeado(self, usuario, rs_admin):
-
         client = Client()
         client.login(username=usuario.username, password='12345')
         return client

@@ -18,6 +18,9 @@ from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_ha
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 
+def tipo_de_item_factory(fase, data):
+
+    pass
 
 @pytest.fixture()
 def rs_admin():
