@@ -32,7 +32,11 @@ class SolicitudDeCambio(models.Model):
         """
         return self.asignacion_set.all()
 
+    def get_proyecto(self):
+        return self.linea_base.get_proyecto()
 
+    def ya_voto(self, participante):
+        return self.voto_set.filter(miembro=participante).exists()
 
 class Asignacion(models.Model):
     """
