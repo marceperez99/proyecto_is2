@@ -58,7 +58,6 @@ class SolicitudDeCambio(models.Model):
         comite = self.linea_base.get_proyecto().get_comite_de_cambios()
         return comite.miembros.all().count() - self.get_numero_de_votos()
 
-
 class Asignacion(models.Model):
     """
     Modelo que representa un item y el usuario al que fue asignado dentro de una solicitud de cambio.
@@ -66,6 +65,7 @@ class Asignacion(models.Model):
     usuario = models.ForeignKey(Participante, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     solicitud = models.ForeignKey(SolicitudDeCambio, on_delete=models.CASCADE)
+    motivo = models.CharField(max_length=500)
 
 
 class Voto(models.Model):

@@ -10,7 +10,7 @@ class AsignacionForm(forms.Form):
 
     usuario = forms.ModelChoiceField(label='Asignar a', queryset=Participante.objects.all(), required=False)
 
-    motivo = forms.CharField(label='comentario', max_length=200, required=False)
+    motivo = forms.CharField(label='comentario', max_length=500, required=False)
 
     def __init__(self, *args, proyecto_id, fase_id, **kwargs):
         super(AsignacionForm, self).__init__(*args, **kwargs)
@@ -22,7 +22,7 @@ class AsignacionForm(forms.Form):
             map(lambda x: x.id,
                 filter(lambda x: proyecto.tiene_permiso_de_proyecto_en_fase(x.usuario, fase, "pp_f_modificar_item"),
                        self.fields["usuario"].queryset)))
-        self.fields["usuario"].queryset = Participante.objects.all().filter(pk__in = con_permiso)
+        self.fields["usuario"].queryset = Participante.objects.all().filter(pk__in=con_permiso)
 
         # TODO: Conseguir los participantes con permiso de modificar (?
 
