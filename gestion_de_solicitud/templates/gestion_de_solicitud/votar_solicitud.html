@@ -9,13 +9,16 @@
         <hr>
         <div class="row">
             <div class="col-10 mx-auto bg-white p-3 border rounded">
-            {{ solicitud }}
-            <p class="lead">Que desea hacer ? </p>
-
+            <h4>{{ solicitud }}</h4>
+            <p class="lead">¿Que desea hacer? Solo podrá votar una vez por esta solicitud de cambios.</p>
             <div class="col-12">
                 <div class="row">
-                    <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=a_favor" class="btn btn-primary">Votar a favor</a>
-                    <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=en_contra" class="btn btn-primary">Votar en contra</a>
+                    <div class="col-6 text-center">
+                        <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=a_favor" class="btn btn-success">Votar a favor</a>
+                    </div>
+                    <div class="col-6 text-center">
+                        <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=en_contra" class="btn btn-danger">Votar en contra</a>
+                    </div>
                 </div>
             </div>
         </div>
