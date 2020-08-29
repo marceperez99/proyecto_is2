@@ -181,11 +181,12 @@ def visualizar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.participante_set.all().exclude(usuario=proyecto.gerente)
     participante = proyecto.get_participante(request.user)
-    solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto=proyecto).exclude(voto__miembro=participante)
+    solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto=proyecto).exclude(
+        voto__miembro=participante)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
                 'solicitudes': solicitudes,
-                'es_comite':proyecto.get_comite_de_cambios().es_miembro(participante),
+                'es_comite': proyecto.get_comite_de_cambios().es_miembro(participante),
                 'permisos': participante.get_permisos_de_proyecto_list(),
                 'breadcrumb': {'pagina_actual': proyecto.nombre}, 'lista_participante': lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)
