@@ -6,6 +6,7 @@ from gestion_de_solicitud.models import SolicitudDeCambio, Voto
 from django.shortcuts import get_object_or_404, redirect
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
+from gestion_de_solicitud.utils import aprobar_solicitud, cancelar_solicitud
 
 
 @login_required
@@ -75,6 +76,12 @@ def solicitud_votacion_view(request, proyecto_id, solicitud_id):
         if request.GET['voto'] == 'a_favor' or request.GET['voto'] == 'en_contra':
             voto.voto_a_favor = request.GET['voto'] == 'a_favor'
             voto.save()
+            if solicitud.get_numero_de_votos_faltantes() == 0:
+                if solicitud.get_votos_a_favor() > solicitud.get_votos_en_contra():
+                    aprobar_solicitud(solicitud)
+                else:
+                    cancelar_solicitud(solicitud)
+
             return redirect('solicitudes_de_cambio', proyecto.id)
 
     contexto = {'proyecto': proyecto,
