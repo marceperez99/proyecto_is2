@@ -58,7 +58,6 @@ def version_factory(tipo_de_item, item, nro_version, data):
         ],
         'antecesores': ['codigo_item', 'codigo_item',...]
         'padres': ['codigo_item', 'codigo_item',...]
-
     }
     :return:
     """

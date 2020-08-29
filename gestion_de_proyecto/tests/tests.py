@@ -5,7 +5,6 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
-from gestion_de_fase.tests import fase_factory
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema

@@ -13,20 +13,6 @@ from roles_de_sistema.models import RolDeSistema
 from usuario.models import Usuario
 
 
-def user_factory(username, password, email):
-    """
-    Factory que retorna un objeto User
-    :param username:
-    :param password:
-    :param email:
-    :return: User
-    """
-    user = User(username=username, email=email)
-    user.set_password(password)
-    user.save()
-    return user
-
-
 @pytest.fixture
 def rs_admin():
     rol = RolDeSistema(nombre='Administrador', descripcion='descripcion de prueba')

@@ -7,9 +7,9 @@ from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto, Participante
 from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
-from .models import SolicitudDeCambio, EstadoSolicitud
+from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud
 from gestion_linea_base.models import LineaBase
-from .utils import cancelar_solicitud
+from gestion_de_solicitud.utils import cancelar_solicitud
 
 
 @pytest.fixture

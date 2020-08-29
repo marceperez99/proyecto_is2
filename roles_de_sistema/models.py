@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Permission, Group
 from django.db import models
 
-
+Permission.objects.filter(codename__contains='ps')
 class RolDeSistema(models.Model):
     """
     Clase un Rol de Sistema dentro del sistema. Esta clase sirve además como modelo para la creación de la Base de

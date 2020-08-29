@@ -16,7 +16,10 @@ def tipo_de_item_factory(fase, data):
         'fecha_de_creacion': FechaHora,
         'atributos_dinamicos':[
             {
-                'tipo':''
+                'tipo': 'archivo',
+                'nombre': 'nombre del campo',
+                'requerido': Bool,
+                'max_tamaño': int,
             }
         ]
     }
@@ -27,19 +30,18 @@ def tipo_de_item_factory(fase, data):
     tipo_de_item = TipoDeItem.objects.create(nombre=data['nombre'], descripcion=data['descripcion'], fase=fase,
                                              prefijo=data['prefijo'], creador=creador,
                                              fecha_creacion=data['fecha_de_creacion'])
-
-    for atributo_dinamico in data['atributos_dinamicos']:
-        if atributo_dinamico['tipo'] == 'archivo':
-            atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
-        elif atributo_dinamico['tipo'] == 'cadena':
-            atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
-        elif atributo_dinamico['tipo'] == 'booleano':
-            atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
-        elif atributo_dinamico['tipo'] == 'numerico':
-            atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
-        elif atributo_dinamico['tipo'] == 'fecha':
-            atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
-        pass
+    if 'atributos_dinamicos' in data.keys():
+        for atributo_dinamico in data['atributos_dinamicos']:
+            if atributo_dinamico['tipo'] == 'archivo':
+                atributo_dinamico_archivo_factory(tipo_de_item, atributo_dinamico)
+            elif atributo_dinamico['tipo'] == 'cadena':
+                atributo_dinamico_cadena_factory(tipo_de_item, atributo_dinamico)
+            elif atributo_dinamico['tipo'] == 'booleano':
+                atributo_dinamico_booleano_factory(tipo_de_item, atributo_dinamico)
+            elif atributo_dinamico['tipo'] == 'numerico':
+                atributo_dinamico_numerico_factory(tipo_de_item, atributo_dinamico)
+            elif atributo_dinamico['tipo'] == 'fecha':
+                atributo_dinamico_fecha_factory(tipo_de_item, atributo_dinamico)
     return tipo_de_item
 
 
@@ -56,6 +58,7 @@ def atributo_dinamico_archivo_factory(tipo_de_item, data):
     }
     :return: AtributoBinario
     """
+    print(data)
     return AtributoBinario.objects.create(tipo_de_item=tipo_de_item, nombre=data['nombre'], requerido=data['requerido'],
                                           max_tamaño=data['max_tamaño'])
 
