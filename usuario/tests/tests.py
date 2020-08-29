@@ -76,6 +76,8 @@ def proyecto(usuario, gerente, rol_de_proyecto):
     participante.asignar_rol_de_proyecto(rol_de_proyecto)
     participante.save()
     return proyecto
+
+
 # Pruebas Unitarias
 
 
@@ -206,6 +208,7 @@ class TestModeloUsuario:
         user_proyectos = usuario.get_proyectos_activos()
         assert (True if len(user_proyectos) > 0 else proyecto not in user_proyectos), \
             'No se trae corectamente la lista de proyectos activos en los que participa el usuario '
+
     pass
 
 
@@ -214,9 +217,9 @@ class TestVistasUsuarios:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas relacionadas a los Usuarios del Sistema.
     """
+
     @pytest.fixture
     def admin_loggeado(self, usuario, rs_admin):
-
         client = Client()
         client.login(username=usuario.username, password='12345')
         return client

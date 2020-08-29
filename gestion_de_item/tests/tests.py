@@ -12,7 +12,7 @@ from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import TipoDeItem
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
-from .models import Item, VersionItem, EstadoDeItem
+from gestion_de_item.models import Item, VersionItem, EstadoDeItem
 
 
 @pytest.fixture
