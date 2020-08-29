@@ -18,7 +18,7 @@ urlpatterns = [
     path('<int:item_id>/editar/', views.editar_item_view, name='editar_item'),
     path('<int:item_id>/archivo/<int:atributo_id>/eliminar', views.eliminar_archivo_view,
          name='eliminar_archivo_item'),
-    path('<int:item_id>/modificar', views.debe_modificar_view, name='debe_ser_modificado'),
-    path('<int:item_id>/restaurar/<int:version_id>', views.restaurar_version_item_view, name='restaurar_item'),
+    path('<int:item_id>/modificar/',views.debe_modificar_view,name = 'debe_ser_modificado'),
+    path('<int:item_id>/restaurar/<int:version_id>/', views.restaurar_version_item_view, name='restaurar_item'),
 
 ]

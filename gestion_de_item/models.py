@@ -55,6 +55,7 @@ class Item(models.Model):
 
         Ej:
 
+
             >>> item = Item.objects.first()
             >>> item.nueva_version()
             >>> item.agregar_padre(padre)
@@ -342,6 +343,23 @@ class Item(models.Model):
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
 
+    def esta_en_linea_base(self):
+        """
+        TODO: actually completar el metodo
+
+        """
+        return self.lineabase_set.filter(estado="Cerrada").exists()
+
+    def esta_en_linea_base_comprometida(self):
+        return self.lineabase_set.filter(estado="Comprometida").exists()
+    def get_linea_base(self):
+        # TODO: actually completar el metodo
+        if self.lineabase_set.filter(estado="Cerrada").exists():
+            return self.lineabase_set.get(estado="Cerrada")
+        elif self.lineabase_set.filter(estado="Comprometida").exists() :
+            return self.lineabase_set.get(estado="Comprometida")
+        else:
+            return None
 
 class VersionItem(models.Model):
     """
