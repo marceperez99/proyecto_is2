@@ -26,7 +26,7 @@ class SolicitudDeCambio(models.Model):
     estado = models.CharField(max_length=30)
 
     def __str__(self):
-        return f'Solicitud de Ruptura de Linea Base {self.linea_base} de la fase {self.linea_base.fase}'
+        return f'Solicitud de Ruptura de Linea Base {self.linea_base}'
 
     def get_items_a_modificar(self):
         """
