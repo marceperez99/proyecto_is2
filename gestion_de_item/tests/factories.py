@@ -82,7 +82,6 @@ def version_factory(tipo_de_item, item, nro_version, data):
 
             elif atributo['tipo'] == 'fecha':
                 atributo_item_fecha_factory(tipo_de_item, version, atributo)
-    print(data)
     if 'antecesores' in data.keys():
         for antecesor in data['antecesores']:
             antecesor = Item.objects.filter(tipo_de_item__fase__proyecto=item.get_fase().proyecto).get(codigo=antecesor)

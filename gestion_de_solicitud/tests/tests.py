@@ -102,11 +102,70 @@ def solicitud(linea_base, participante):
 @pytest.mark.django_db
 class TestUtils:
 
-    def test_cancelar_solicitud(self, solicitud):
+    def test_cancelar_solicitud(self, proyecto):
+        """
+        TODO: marcelo incluir en planilla de control de documetnacion y pruebas
+        Prueba unitaria que prueba el proceso llevado a cabo al cancelar una solicitud de ruptura del LB.
+        Resultado esperado:
+            La solicitud de cambio pase al estado 'Rechazada'.
+        Mensajes de error:
+            - No se cancelo la solicitud correctamente
+        """
+        solicitud = SolicitudDeCambio.objects.get(linea_base__nombre='LB_1.1')
         cancelar_solicitud(solicitud)
         assert solicitud.estado == EstadoSolicitud.RECHAZADA, 'No se cancelo la solicitud correctamente'
 
-    def test_aceptar_solicitud(self, solicitud):
+    @pytest.mark.parametrize('solicitud', ['LB_1.1', 'LB_1.2', 'LB_2.1', 'LB_3.1'])
+    def test_aceptar_solicitud(self, proyecto, solicitud):
+        """
+        TODO: marcelo incluir en planilla de control de documetnacion y pruebas
+        Prueba unitaria que prueba el proceso llevado a cabo al aprobar una solicitud de ruptura del LB.
+        Resultado esperado:
+            La solicitud de cambio pase al estado 'Aprobada'.
 
+        Mensajes de error:
+            - El estado de la Solicitud deberia parar a Aprobada.
+            - Existen items que estan en estado A Modificar pero no estaban incluidos en la Solicitud.
+            - Solo los items que previamente estaban en Linea Base o Aprobados pasan al estado En Revision.
+            - Los hijos o sucesores de un item a modificar no pueden quedar en los estados
+            En Linea Base, Aprobado o A Aprobar.
+            - Existen items que deberian estan en Revision y no lo estan.
+        """
+        solicitud = SolicitudDeCambio.objects.get(linea_base__nombre=solicitud)
+        aprobar_solicitud(solicitud)
+        solicitud.refresh_from_db()
+
+        assert solicitud.estado == EstadoSolicitud.APROBADA, \
+            f'El estado de la Solicitud deberia parar a Aprobada'
+
+        # Se verifican los items que estaban en la linea base
+        for item in solicitud.linea_base.items.all():
+            # Si el item se encontraba en los que se deberia modificar
+            if item.estado == EstadoDeItem.A_MODIFICAR:
+                assert solicitud.asignacion_set.filter(item=item).exists(), f'Existen items que estan en estado ' \
+                                                                            f'A Modificar pero no estaban incluidos ' \
+                                                                            f'en la Solicitud'
+                # se verifican los hijos de los items a modificar
+                for hijo in item.hijos.all():
+                    hijo = hijo.item
+                    if hijo.estado == EstadoDeItem.EN_REVISION:
+                        assert hijo.estado_anterior in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO], \
+                            'Solo los items que previamente estaban en Linea Base o Aprobados pasan al estado' \
+                            'En Revision'
+                    assert hijo.estado not in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO,
+                                               EstadoDeItem.A_APROBAR], \
+                        'Los hijos o sucesores de un item a modificar no pueden quedar en los estados ' \
+                        'En Linea Base, Aprobado o A Aprobar'
+                # se verifican los sucesores de los items a modificar
+                for sucesor in item.sucesores.all():
+                    sucesor = sucesor.item
+                    if sucesor.estado == EstadoDeItem.EN_REVISION:
+                        assert sucesor.estado_anterior in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO], \
+                            'Solo los items que previamente estaban en Linea Base o Aprobados pasan al estado' \
+                            'En Revision'
+                    assert sucesor.estado not in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO,
+                                                  EstadoDeItem.A_APROBAR], \
+                        'Los hijos o sucesores de un item a modificar no pueden quedar en los estados ' \
+                        'En Linea Base, Aprobado o A Aprobar'
 
         assert True

@@ -58,7 +58,6 @@ def atributo_dinamico_archivo_factory(tipo_de_item, data):
     }
     :return: AtributoBinario
     """
-    print(data)
     return AtributoBinario.objects.create(tipo_de_item=tipo_de_item, nombre=data['nombre'], requerido=data['requerido'],
                                           max_tamaño=data['max_tamaño'])
 

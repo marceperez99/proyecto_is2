@@ -7,7 +7,6 @@ from gestion_de_item.tests.factories import item_factory
 from gestion_de_proyecto.models import Participante, Proyecto, Comite
 from gestion_de_solicitud.tests.factories import solicitud_de_cambio_factory
 from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
-from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_linea_base.tests.factories import linea_base_factory
 from roles_de_proyecto.models import RolDeProyecto
 

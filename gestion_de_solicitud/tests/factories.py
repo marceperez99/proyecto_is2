@@ -38,7 +38,9 @@ def solicitud_de_cambio_factory(proyecto, data):
 
     for asignacion in data['asignaciones']:
         asignacion_factory(solicitud, asignacion)
-
+    if 'votos' in data.keys():
+        for voto in data['votos']:
+            voto_factory(solicitud, voto)
     return solicitud
 
 

@@ -38,6 +38,7 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
                 sucesor.solicitar_revision()
 
     solicitud.estado = EstadoSolicitud.APROBADA
+    solicitud.save()
     for s in SolicitudDeCambio.objects.filter(linea_base=solicitud.linea_base, estado=EstadoSolicitud.PENDIENTE):
         s.estado = EstadoSolicitud.RECHAZADA
         s.save()
