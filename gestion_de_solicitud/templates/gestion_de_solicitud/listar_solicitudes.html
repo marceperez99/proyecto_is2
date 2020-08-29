@@ -3,10 +3,9 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
-    <div class="container mt-3">
+    <div class="container card px-5 py-3 mt-3">
         <div class="row">
             <h3 class="col-auto">Solicitudes de Cambio</h3>
-            <hr class="col-12">
 
             <div class="table-responsive">
                 <table class="table">
@@ -25,8 +24,8 @@
                             <td>{{ solicitud.linea_base.fase}}</td>
                             <td>{{ solicitud.fecha}}</td>
                             <td>
-                                <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}" class="btn btn-primary">
-                                    Votar
+                                <a href="{% url 'solicitud_de_cambio' proyecto.id solicitud.id %}" class="btn btn-primary">
+                                    Visualizar Solicitud
                                 </a>
                             </td>
                         </tr>
