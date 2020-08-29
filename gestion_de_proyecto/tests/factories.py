@@ -5,6 +5,7 @@ from gestion_de_fase.models import Fase
 from gestion_de_fase.tests.factories import fase_factory
 from gestion_de_item.tests.factories import item_factory
 from gestion_de_proyecto.models import Participante, Proyecto, Comite
+from gestion_de_solicitud.tests.factories import solicitud_de_cambio_factory
 from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_linea_base.tests.factories import linea_base_factory
@@ -14,6 +15,7 @@ from roles_de_proyecto.models import RolDeProyecto
 def proyecto_factory(data, fecha_de_creacion=timezone.now()):
     """
     Factory que retorna un objeto Proyecto
+    :param fecha_de_creacion: Fecha de creacion del Proyecto
     :param data: dict() de la forma
     {
         'nombre':'nombre_proyecto',
@@ -48,29 +50,19 @@ def proyecto_factory(data, fecha_de_creacion=timezone.now()):
             },
             items: {
                 'fase1': [
-                    {
-                        'nombre': 'Nombre de item',
-                        'descripcion': 'Descripcion',
-                        'peso': int,
-                        'atributos_dinamicos': [
-                            {
-                                'campo': 'nombre_campo',
-                                'tipo': 'tipo de valor',
-                                'valor': 'valor'
-                            },{...},...
-                        ],
-                        'antecesores': ['codigo_item', 'codigo_item',...]
-                        'padres': ['codigo_item', 'codigo_item',...]
-                    }
+                    {Item, ver item_factory}
                 ]
             },
             'lineas_base':{
                 'fase1': [
-                    LineaBase, ver linea_base_factory()
+                    {LineaBase, ver linea_base_factory()}
                 ]
-            }
+            },
+            'solicitudes':[
+                {SolicitudDeCambio, ver solicitud_de_cambio_factory},...
+            ]
     }
-    :return:
+    :return: Proyecto
     """
     gerente = User.objects.get(username=data['gerente'])
     creador = User.objects.get(username=data['creador'])
@@ -94,14 +86,18 @@ def proyecto_factory(data, fecha_de_creacion=timezone.now()):
             tipo_de_item_factory(fase, tipo)
 
     for item in data['items']:
-        tipo = TipoDeItem.objects.get(nombre=item['tipo'])
-        item_factory(tipo, item)
+        item_factory(item)
+
     for fase, lineas_base in data['lineas_base'].items():
         fase = Fase.objects.get(nombre=fase)
         for linea_base in lineas_base:
             linea_base_factory(fase, linea_base)
 
+    if 'solicitudes' in data.keys():
+        for solicitud in data['solicitudes']:
+            solicitud_de_cambio_factory(proyecto, solicitud)
 
+    return proyecto
 
 def participante_factory(proyecto, data):
     """
@@ -122,7 +118,7 @@ def participante_factory(proyecto, data):
     usuario = User.objects.get(username=data['usuario'])
     rol = RolDeProyecto.objects.get(nombre=data['rol_de_proyecto'])
     participante = Participante.objects.create(usuario=usuario, rol=rol, proyecto=proyecto)
-    permisos = {Fase.objects.get(nombre=fase): permisos for fase, permisos in data['permisos']}
+    permisos = {Fase.objects.get(nombre=fase): permisos for fase, permisos in data['permisos'].items()}
     participante.asignar_rol_de_proyecto(rol, permisos)
     return participante
 
@@ -136,7 +132,7 @@ def comite_factory(proyecto, data):
     """
     comite = Comite.objects.create(proyecto=proyecto)
     comite.save()
-    for miembro in data['miembros']:
+    for miembro in data:
         user = User.objects.get(username=miembro)
         participante = proyecto.get_participante(user)
         comite.miembros.add(participante)
