@@ -6,7 +6,7 @@ from django.test import Client
 from django.urls import reverse
 
 from usuario.models import Usuario
-from .models import RolDeSistema
+from roles_de_sistema.models import RolDeSistema
 
 
 @pytest.fixture
