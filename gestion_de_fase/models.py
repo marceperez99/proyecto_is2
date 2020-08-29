@@ -103,3 +103,6 @@ class Fase(models.Model):
     def get_lineas_base(self):
         return LineaBase.objects.filter(fase=self)
 
+
+    def get_proyecto(self):
+        return self.proyecto

@@ -25,6 +25,9 @@ class SolicitudDeCambio(models.Model):
     numero_de_miembros = models.IntegerField()
     estado = models.CharField(max_length=30)
 
+    def __str__(self):
+        return f'Solicitud de Ruptura de Linea Base {self.linea_base}'
+
     def get_items_a_modificar(self):
         """
         TODO: Marcelo Comentar
@@ -32,6 +35,28 @@ class SolicitudDeCambio(models.Model):
         """
         return self.asignacion_set.all()
 
+    def get_proyecto(self):
+        return self.linea_base.get_proyecto()
+
+    def ya_voto(self, participante):
+        return self.voto_set.filter(miembro=participante).exists()
+
+    def get_votos_a_favor(self):
+        #TODO MARCELO
+        return self.voto_set.filter(voto_a_favor=True).count()
+
+    def get_votos_en_contra(self):
+        # TODO MARCELO
+        return self.voto_set.filter(voto_a_favor=False).count()
+
+    def get_numero_de_votos(self):
+        # TODO MARCELO
+        return self.voto_set.all().count()
+
+    def get_numero_de_votos_faltantes(self):
+        # TODO MARCELO
+        comite = self.linea_base.get_proyecto().get_comite_de_cambios()
+        return comite.miembros.all().count() - self.get_numero_de_votos()
 
 
 class Asignacion(models.Model):

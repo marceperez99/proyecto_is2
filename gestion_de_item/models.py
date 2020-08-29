@@ -330,9 +330,15 @@ class Item(models.Model):
         self.estado = EstadoDeItem.EN_REVISION
         self.save()
 
+    def esta_en_linea_base(self):
+        """
+        TODO: actually completar el metodo
+
+        """
+        return True
+
     def solicitar_modificacion(self, usuario_encargado=None):
         # TODO: comentar y probar
-
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()

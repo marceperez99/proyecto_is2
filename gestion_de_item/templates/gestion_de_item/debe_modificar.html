@@ -12,7 +12,7 @@
             </script>
             {% include 'mensajes.html' %}
             <div class="col-12 alert alert-warning">
-                    <div class="row ">
+                    <div class="row">
                         <div class ="col-12 text-center mb-2 text-dark">Para modificar este item es necesario generar una solicitud de rompimiento de Linea Base. Desea continuar?</div>
                         <a href="{% url 'solicitar_rompimiento' proyecto.id fase.id linea_base.id %}" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Generar solicitud de rompimiento de linea base</a>
                         <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Cancelar</a>

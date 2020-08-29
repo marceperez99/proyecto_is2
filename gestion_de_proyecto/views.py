@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
+from gestion_de_solicitud.models import SolicitudDeCambio
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
 from .models import Proyecto, EstadoDeProyecto, Participante, Comite
@@ -180,8 +181,12 @@ def visualizar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     lista_participante = proyecto.participante_set.all().exclude(usuario=proyecto.gerente)
     participante = proyecto.get_participante(request.user)
+    solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto=proyecto).exclude(
+        voto__miembro=participante)
     contexto = {'user': request.user,
                 'proyecto': proyecto,
+                'solicitudes': solicitudes,
+                'es_comite': proyecto.get_comite_de_cambios().es_miembro(participante),
                 'permisos': participante.get_permisos_de_proyecto_list(),
                 'breadcrumb': {'pagina_actual': proyecto.nombre}, 'lista_participante': lista_participante}
     return render(request, 'gestion_de_proyecto/visualizar_proyecto.html', contexto)

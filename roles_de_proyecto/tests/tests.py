@@ -7,7 +7,7 @@ from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante
 from roles_de_sistema.models import RolDeSistema
-from .models import RolDeProyecto
+from roles_de_proyecto.models import RolDeProyecto
 
 
 # FIXTURES
@@ -216,6 +216,7 @@ class TestModeloRolDeProyecto:
 
         assert condicion is True, f'El método no retornó correctamente la lista de permisos de proyecto, ' \
                                   f'se retornó {permisos_obtenidos} y se esperaba {permisos}'
+
     pass
 
 
