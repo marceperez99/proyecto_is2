@@ -2,36 +2,33 @@ import datetime
 from http import HTTPStatus
 
 import pytest
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
+from gestion_de_item.tests.factories import item_factory
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from gestion_de_proyecto.tests.factories import participante_factory
 from gestion_de_tipo_de_item.models import TipoDeItem
-from roles_de_proyecto.models import RolDeProyecto
-from roles_de_sistema.models import RolDeSistema
-from gestion_de_item.models import Item, VersionItem, EstadoDeItem
+from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
+from gestion_de_item.models import VersionItem, EstadoDeItem
+from roles_de_sistema.tests.factories import rol_de_sistema_factory
+from usuario.tests.factories import user_factory
 
 
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
-    rol.save()
-    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
-        rol.permisos.add(pp)
-    rol.save()
-    return rol
+    return rol_de_sistema_factory('Admin', 'Administrador del Sistema',
+                                  [p.codename for p in
+                                   Permission.objects.filter(content_type__app_label='roles_de_sistema',
+                                                             codename__startswith='p')])
 
 
 @pytest.fixture
 def usuario(rs_admin):
-    user = User(username='user_test', email='test@admin.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory('user_test', 'password123', 'test@admin.com', rs_admin.nombre)
 
 
 @pytest.fixture
@@ -43,10 +40,11 @@ def cliente_loggeado(usuario):
 
 @pytest.fixture
 def rol_de_proyecto():
-    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
-    rol.save()
-    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
-    return rol
+    return rol_de_proyecto_factory({
+        'nombre': 'Desarrollador',
+        'descripcion': 'Descripcion de rol',
+        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
+    })
 
 
 @pytest.fixture
@@ -68,11 +66,7 @@ def proyecto(usuario, rol_de_proyecto):
 
 @pytest.fixture
 def usuario_participante(rs_admin):
-    user = User(username='user_test_1', email='test1@admin.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory('user_test_1', 'passrowe123', 'test1@admin.com', rs_admin.nombre)
 
 
 @pytest.fixture
@@ -98,17 +92,27 @@ def tipo_de_item(usuario, proyecto):
 
 @pytest.fixture
 def item(tipo_de_item):
-    item = Item(tipo_de_item=tipo_de_item)
-    item.estado = EstadoDeItem.NO_APROBADO
-    item.save()
-    version = VersionItem()
-    version.item = item
-    version.descripcion = ""
-    version.nombre = ""
-    version.peso = 2
-    version.version = 1
-    version.save()
-    item.version = version
+    return item_factory({
+        'tipo': 'Requerimiento Funcional',
+        'estado': EstadoDeItem.NO_APROBADO,
+        'codigo': 'RF_1',
+        'estado_anterior': '',
+        'version': 1,
+        'versiones': {
+            1: {
+                'nombre': 'Nombre de item',
+                'descripcion': 'Descripcion',
+                'peso': 5,
+            }
+        }
+
+    })
+
+
+@pytest.fixture
+def item_a_modificar(item, participante):
+    item.encargado_de_modificar = participante
+    item.estado = EstadoDeItem.A_MODIFICAR
     item.save()
     return item
 
@@ -273,6 +277,53 @@ class TestModeloItem:
         condicion = item.estado == EstadoDeItem.EN_REVISION and item.estado_anterior == EstadoDeItem.APROBADO
         assert condicion, f'El estado del item debe ser "En Revision" pero esta en estado {item.estado} ' \
                           f'y el estado_anterior deberia ser Aprobado pero es {item.estado_anterior}'
+
+    def test_puede_modificar_item_a_modificar(self, item_a_modificar, participante):
+        """
+        TODO: MArcelo
+        :param item_a_modificar:
+        :return:
+        """
+        assert item_a_modificar.puede_modificar(participante), f'El item deberia ser modificable por el usuario'
+
+    def test_puede_modificar_item_a_modificar_sin_encargado(self, rs_admin, rol_de_proyecto, proyecto,
+                                                            item_a_modificar):
+        """
+        TODO: MArcelo
+        :param item_a_modificar:
+        :return:
+        """
+        item_a_modificar.encargado_de_modificar = None
+        user = user_factory('user_test_2', 'password123', 'test2@admin.com', rs_admin.nombre)
+        participante = participante_factory(proyecto, {
+            'usuario': user.username,
+            'rol_de_proyecto': rol_de_proyecto.nombre,
+            'permisos': {
+                'Analisis': ['pp_f_modificar_item', 'pu_f_ver_fase'],
+                'Desarrollo': [],
+                'Pruebas': []
+            }
+        })
+        assert item_a_modificar.puede_modificar(participante), f'El item deberia ser modificable por el usuario'
+
+    def test_no_puede_modificar_item_a_modificar(self, rs_admin, rol_de_proyecto, proyecto, item_a_modificar):
+        """
+        TODO: MArcelo
+        :param item_a_modificar:
+        :return:
+        """
+        user = user_factory('user_test_3', 'passrowe123', 'test3@admin.com', rs_admin.nombre)
+        participante = participante_factory(proyecto, {
+            'usuario': user.username,
+            'rol_de_proyecto': rol_de_proyecto.nombre,
+            'permisos': {
+                'Analisis': ['pu_f_ver_fase'],
+                'Desarrollo': [],
+                'Pruebas': []
+            }
+        })
+        assert not item_a_modificar.puede_modificar(participante), 'El item no debe ser modificable por otro ' \
+                                                                   'usuario que no sea el asignado'
 
 
 # TODO Luis falta pruebas unitaria de: add_padre

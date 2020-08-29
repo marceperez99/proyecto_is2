@@ -352,14 +352,29 @@ class Item(models.Model):
 
     def esta_en_linea_base_comprometida(self):
         return self.lineabase_set.filter(estado="Comprometida").exists()
+
     def get_linea_base(self):
         # TODO: actually completar el metodo
         if self.lineabase_set.filter(estado="Cerrada").exists():
             return self.lineabase_set.get(estado="Cerrada")
-        elif self.lineabase_set.filter(estado="Comprometida").exists() :
+        elif self.lineabase_set.filter(estado="Comprometida").exists():
             return self.lineabase_set.get(estado="Comprometida")
         else:
             return None
+
+    def puede_modificar(self, participante):
+        """
+        TODO: Marcelo
+        :param participante:
+        :return:
+        """
+        if self.estado == EstadoDeItem.A_MODIFICAR and self.encargado_de_modificar is not None:
+            return self.encargado_de_modificar == participante
+
+        return self.estado in [EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO] and \
+               self.get_fase().get_proyecto().tiene_permiso_de_proyecto_en_fase(participante.usuario, self.get_fase(),
+                                                                                'pp_f_modificar_item')
+
 
 class VersionItem(models.Model):
     """
