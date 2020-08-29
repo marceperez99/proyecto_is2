@@ -1,102 +1,46 @@
 import pytest
-from django.contrib.auth.models import Permission, User, Group
-from django.utils import timezone
 
-from gestion_de_fase.models import Fase
-from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto, Participante
-from gestion_de_tipo_de_item.models import TipoDeItem
-from roles_de_proyecto.models import RolDeProyecto
-from roles_de_sistema.models import RolDeSistema
-from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud
-from gestion_linea_base.models import LineaBase
-from gestion_de_solicitud.utils import cancelar_solicitud
+from gestion_de_item.models import EstadoDeItem
+from gestion_de_proyecto.tests.factories import proyecto_factory
+from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
+from gestion_de_solicitud.models import EstadoSolicitud, SolicitudDeCambio
+from gestion_de_solicitud.utils import cancelar_solicitud, aprobar_solicitud
+from roles_de_sistema.tests.factories import rol_de_sistema_factory
+import gestion_de_solicitud.tests.test_case as tc
+from usuario.tests.factories import user_factory
 
 
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
-    rol.save()
-    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
-        rol.permisos.add(pp)
-    rol.save()
-    return rol
+    return rol_de_sistema_factory(tc.admin['nombre'], tc.admin['descripcion'], tc.admin['permisos'])
 
 
 @pytest.fixture
-def usuario():
-    user = User(username='usuario_test', email='usuario@gmail.com')
-    user.set_password('password123')
-    user.save()
-    return user
+def usuario1(rs_admin):
+    return user_factory(tc.user['username'], tc.user['password'], tc.user['email'],
+                        tc.user['rol_de_sistema'])
+
+
+@pytest.fixture
+def usuario2(rs_admin):
+    return user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'],
+                        tc.user2['rol_de_sistema'])
 
 
 @pytest.fixture
 def gerente(rs_admin):
-    user = User(username='gerente', email='gerente@gmail.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['email'],
+                        tc.gerente['rol_de_sistema'])
 
 
 @pytest.fixture
 def rol_de_proyecto():
-    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
-    rol.save()
-    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
-    return rol
+    return rol_de_proyecto_factory(tc.rol_de_proyecto)
 
 
 @pytest.fixture
-def proyecto(usuario, gerente):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
-                        gerente=gerente, creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
-    proyecto.save()
-    participante_gerente = Participante.objects.create(proyecto=proyecto, usuario=gerente)
-    participante_gerente.save()
-    fase1 = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase1.save()
-    fase2 = Fase(nombre='Desarrollo', proyecto=proyecto, fase_anterior=fase1, fase_cerrada=False, puede_cerrarse=False)
-    fase2.save()
-    fase3 = Fase(nombre='Pruebas', proyecto=proyecto, fase_anterior=fase2, fase_cerrada=False, puede_cerrarse=False)
-    fase3.save()
-    return proyecto
-
-
-@pytest.fixture
-def participante(proyecto, usuario, rol_de_proyecto):
-    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
-    participante.asignar_rol_de_proyecto(rol_de_proyecto)
-    participante.save()
-    return participante
-
-
-@pytest.fixture
-def tipo_de_item(usuario, proyecto):
-    tipo_de_item = TipoDeItem()
-    tipo_de_item.nombre = "Requerimiento Funcional"
-    tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
-    tipo_de_item.prefijo = "RF"
-    tipo_de_item.creador = usuario
-    tipo_de_item.fase = Fase.objects.get(nombre='Analisis')
-    tipo_de_item.fecha_creacion = timezone.now()
-    tipo_de_item.save()
-    return tipo_de_item
-
-@pytest.fixture
-def linea_base(tipo_de_item):
-    lb = LineaBase(nombre="LB_1.1", estado='')
-    lb.save()
-    return lb
-
-
-@pytest.fixture
-def solicitud(linea_base, participante):
-    solicitud = SolicitudDeCambio(numero_de_miembros=0, estado=EstadoSolicitud.PENDIENTE, linea_base=linea_base,
-                                  solicitante=participante)
-
-    solicitud.save()
-    return solicitud
+def proyecto(usuario1, usuario2, gerente, rol_de_proyecto):
+    return proyecto_factory(tc.proyecto)
 
 
 @pytest.mark.django_db
@@ -168,4 +112,23 @@ class TestUtils:
                         'Los hijos o sucesores de un item a modificar no pueden quedar en los estados ' \
                         'En Linea Base, Aprobado o A Aprobar'
 
-        assert True
+            else:
+                assert item.estado == EstadoDeItem.EN_REVISION, 'Existen items que deberian estan en Revision y no lo' \
+                                                                'estan'
+
+
+@pytest.mark.django_db
+class TestModeloSolicitudDeCambio:
+    @pytest.mark.parametrize('solicitud, nro_votos', [('LB_1.1', 3), ('LB_1.2', 1)])
+    def test_get_votos_a_favor(self, proyecto, solicitud, nro_votos):
+        """
+        TODO: MArcelo incluir en planilla de documentacion y pruebas
+        Prueba unitaria que comprueba funcionamiento
+        :param proyecto:
+        :param solicitud:
+        :param nro_votos:
+        :return:
+        """
+        solicitud = SolicitudDeCambio.objects.get(linea_base__nombre=solicitud)
+
+        assert solicitud.get_votos_a_favor() == nro_votos
