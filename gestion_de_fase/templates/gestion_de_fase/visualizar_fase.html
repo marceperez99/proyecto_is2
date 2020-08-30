@@ -131,7 +131,11 @@
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
                             {% for tipo in fase.tipodeitem_set.all %}
-                                <li onclick="location.href='{% url 'tipo_de_item' proyecto.id fase.id tipo.id %}';" class="list-group-item list-group-item-action">{{tipo}}</li>
+                                <li class="list-group-item list-group-item-action">
+                                    <a href="{% url 'tipo_de_item' proyecto.id fase.id tipo.id %}" class="text-muted">
+                                        {{tipo}}
+                                    </a>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>

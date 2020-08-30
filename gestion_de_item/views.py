@@ -4,19 +4,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
 from gestion_de_fase.models import Fase
-from gestion_de_item.models import Item, EstadoDeItem, AtributoItemFecha, AtributoItemCadena, AtributoItemNumerico, \
-    AtributoItemArchivo, AtributoItemBooleano, VersionItem
+from gestion_de_item.models import *
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
-from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico, AtributoFecha, \
-    AtributoBooleano
+from gestion_de_tipo_de_item.models import *
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from roles_de_proyecto.decorators import pp_requerido_en_fase
-from .forms import RelacionPadreHijoForm, RelacionAntecesorSucesorForm, NuevoVersionItemForm, EditarItemForm, \
-    AtributoItemArchivoForm, \
-    AtributoItemNumericoForm, AtributoItemCadenaForm, AtributoItemBooleanoForm, AtributoItemFechaForm
+
+from .forms import *
 from .tasks import upload_and_save_file_item
-from .utils import get_atributos_forms  # , upload_and_save_file_item
+from .utils import get_atributos_forms
 
 
 @login_required
@@ -80,9 +77,10 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     participante = proyecto.get_participante(request.user)
-    #TODO: Hugo, Agregar condicion para saber si se puede revisar, si esta en revision y se tiene el permiso ... mira la rama item_revision.
+    # TODO: Hugo, Agregar condicion para saber si se puede revisar, si esta en revision y se tiene el permiso ... mira la rama item_revision.
     contexto = {
-        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(usuario,fase,'pp_f_decidir_sobre_items_en_revision'),
+        'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
+            usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
         'proyecto': proyecto,
         'fase': fase,
@@ -182,9 +180,9 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
                                                             "peretence a esta fase ni a la fase anterior "
                         # Se decide si es un padre o un antecesor del item.
                         if anterior.get_fase() == fase.fase_anterior:
-                            item.add_antecesor(anterior,versionar = False)
+                            item.add_antecesor(anterior, versionar=False)
                         elif anterior.get_fase() == fase:
-                            item.add_padre(anterior,versionar = False)
+                            item.add_padre(anterior, versionar=False)
 
                     list_atributos_id = []
                     # Crea los atributos dinamicos del item.
@@ -770,6 +768,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     contexto = {'file': file, }
     return render(request, 'gestion_de_item/eliminar_archivo.html', context=contexto)
 
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
@@ -798,26 +797,9 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
         return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         linea_base = item.get_linea_base()
-        contexto = {'item': item, 'fase': fase, 'proyecto': proyecto,'linea_base':linea_base}
+        contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
         return render(request, 'gestion_de_item/debe_modificar.html', context=contexto)
 
-
-def debe_modificar_view(request,proyecto_id,fase_id,item_id):
-    """
-    TODO: comentar
-    """
-
-    item = get_object_or_404(Item,id=item_id)
-    proyecto = get_object_or_404(Proyecto,id=proyecto_id)
-    fase = get_object_or_404(Fase,id=fase_id)
-    if not item.esta_en_linea_base():
-        #Encapsular
-        item.estado = "A modificar"
-        item.save()
-        return redirect('visualizar_item',proyecto_id,fase_id,item_id)
-    else:
-        contexto = {'item':item, 'fase':fase,'proyecto':proyecto}
-        return render(request,'gestion_de_item/debe_modificar.html',context=contexto)
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
@@ -848,10 +830,9 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
             item.restaurar(version)
             messages.success(request, "El item pudo restaurarse a una version anterior correctamente")
         else:
-            messages.error(request, "El item no puede restaurarse a una version anterior, pues deja de ser trazable  la primera fase")
+            messages.error(request,
+                           "El item no puede restaurarse a una version anterior, pues deja de ser trazable  la primera fase")
         return redirect('visualizar_item', proyecto_id, fase_id, item_id)
 
     else:
         return render(request, 'gestion_de_item/restaurar_item.html')
-
-
