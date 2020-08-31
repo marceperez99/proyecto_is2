@@ -12,6 +12,7 @@ class LineaBase(models.Model):
     nombre = models.CharField(max_length=50)
     estado = models.CharField(max_length=40)
     items = models.ManyToManyField(Item)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
     fase= models.ForeignKey('gestion_de_fase.Fase', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
