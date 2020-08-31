@@ -1,15 +1,16 @@
 from http import HTTPStatus
+
 import pytest
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import User, Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
 from gestion_de_proyecto.tests.factories import proyecto_factory
 from roles_de_proyecto.models import RolDeProyecto
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
-from roles_de_sistema.models import RolDeSistema
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
 from usuario.tests.factories import user_factory
 
