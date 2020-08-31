@@ -12,6 +12,7 @@ from gestion_de_item.tests.factories import item_factory
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
 from gestion_de_proyecto.tests.factories import participante_factory
 from gestion_de_tipo_de_item.models import TipoDeItem
+from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
 from gestion_de_item.models import VersionItem, EstadoDeItem
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
@@ -53,12 +54,12 @@ def proyecto(usuario, rol_de_proyecto):
                         fecha_de_creacion=datetime.datetime.now(tz=timezone.utc),
                         creador=usuario, gerente=usuario)
     proyecto.save()
-    fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    fase = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    fase = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
+    fase1 = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False, fase_anterior=None)
+    fase1.save()
+    fase2 = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False, fase_anterior=fase1)
+    fase2.save()
+    fase3 = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False, fase_anterior=fase2)
+    fase3.save()
     participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
     participante.save()
     return proyecto
@@ -90,6 +91,17 @@ def tipo_de_item(usuario, proyecto):
     return tipo_de_item
 
 
+@pytest.fixture()
+def tipo_de_item_fase2(usuario, proyecto):
+    fase = Fase.objects.get(nombre="Desarrollo")
+    return tipo_de_item_factory(fase, {'nombre': "Requerimiento NO Funcional",
+                                       'descripcion': "Especificacion de un requerimiento NO funcional",
+                                       'prefijo': "RT",
+                                       'creador': usuario,
+                                       'fecha_de_creacion': timezone.now(),
+                                       })
+
+
 @pytest.fixture
 def item(tipo_de_item):
     return item_factory({
@@ -97,12 +109,41 @@ def item(tipo_de_item):
         'estado': EstadoDeItem.NO_APROBADO,
         'codigo': 'RF_1',
         'estado_anterior': '',
-        'version': 1,
+        'version': 2,
         'versiones': {
             1: {
                 'nombre': 'Nombre de item',
                 'descripcion': 'Descripcion',
                 'peso': 5,
+            },
+            2: {
+                'nombre': 'Nombre de item 2',
+                'descripcion': 'Descripcion 2',
+                'peso': 6,
+            }
+        }
+
+    })
+
+
+@pytest.fixture
+def item2(tipo_de_item_fase2):
+    return item_factory({
+        'tipo': 'Requerimiento NO Funcional',
+        'estado': EstadoDeItem.NO_APROBADO,
+        'codigo': 'RT_1',
+        'estado_anterior': '',
+        'version': 2,
+        'versiones': {
+            1: {
+                'nombre': 'Nombre de item',
+                'descripcion': 'Descripcion',
+                'peso': 8,
+            },
+            2: {
+                'nombre': 'Nombre 2',
+                'descripcion': 'Descripcion 2',
+                'peso': 6,
             }
         }
 
@@ -134,7 +175,7 @@ class TestModeloItem:
             -No fue creada una nueva versión.
         """
         item.nueva_version()
-        assert item.version.version == 2, 'No fue creada una nueva versión'
+        assert item.version.version == 3, 'No fue creada una nueva versión'
 
     @pytest.mark.parametrize('estado_item,esperado', [(EstadoDeItem.NO_APROBADO, EstadoDeItem.A_APROBAR),
                                                       (EstadoDeItem.APROBADO, EstadoDeItem.APROBADO),
@@ -325,11 +366,183 @@ class TestModeloItem:
         assert not item_a_modificar.puede_modificar(participante), 'El item no debe ser modificable por otro ' \
                                                                    'usuario que no sea el asignado'
 
+    def test_puede_restaurarse_estado(self, item):
+        """
+        Prueba Unitaria para el metodo puede_restaurarse item\n
+        Se espera:
+            Que el metodo de como resultado Falso, esto indica que el item no se encuntra en estado No Aprobado\n
+        Mensaje de error:
+            'El item no se puede restaurar a la version {item.version.version}, pues el item no esta con estado No Aprobado'
+        """
+        item.estado = EstadoDeItem.APROBADO
+        item.save()
+        version = item.get_versiones()[0]
+        condicion = item.puede_restaurarse(version)
+        assert condicion == False, f'El item no se puede restaurar a la version {item.version.version},' \
+                                   f'pues el item no esta con estado No Aprobado'
 
-# TODO Luis falta pruebas unitaria de: add_padre
-# TODO Luis falta pruebas unitaria de: add_antecesor
-# TODO Luis falta pruebas unitaria de: hay_ciclo
-# TODO Luis falta pruebas unitaria de: eliminar_relacion
+    def test_puede_restaurarse_fase(self, item):
+        """
+        Prueba Unitaria para el metodo puede_restaurarse item\n
+        Se espera:
+            Que el metodo de como resultado Verdadero, esto indica que el item se encuentra en la primera fase\n
+        Mensaje de error:
+            'El item no se puede restaurar a la version {item.version.version}, pues el item no esta en la primera fase'
+        """
+        version = item.get_versiones()[0]
+        condicion = item.puede_restaurarse(version)
+        assert condicion == True, f'El item no se puede restaurar a la version {item.version.version}, ' \
+                                  f'pues el item no esta en la primera fase'
+
+    def test_puede_restaurarse_antecesores(self, item, item2):
+        """
+        Prueba Unitaria para el metodo puede_restaurarse item\n
+        Se espera:
+            Que el metodo de como resultado Verdadero, esto indica que el item tiene al menos un antecesor en la version
+            a la cual quiere volver, por lo que puede ser restaurado\n
+        Mensaje de error:
+            'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
+        """
+        item.estado = EstadoDeItem.EN_LINEA_BASE
+        item.save()
+        item2.add_antecesor(item)
+        item2.save()
+        version = item2.get_versiones()[0]
+        condicion = item2.puede_restaurarse(version)
+        assert condicion == True, f'El item no se puede restaurar a la version {item2.versio.version}, ' \
+                                  f'pues en esta no trazabe a la primera fase'
+
+    def test_puede_restaurarse_padres(self, item, tipo_de_item_fase2):
+        """
+        Prueba Unitaria para el metodo puede_restaurarse item\n
+        Se espera:
+            Que el metodo de como resultado Falso, esto indica que el item tiene al menos un padre en la version
+            a la cual quiere volver, por lo que puede ser restaurado\n
+        Mensaje de error:
+            'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
+        """
+        item3 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RT_2',
+            'estado_anterior': '',
+            'version': 2,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+                2: {
+                    'nombre': 'Nombre 2',
+                    'descripcion': 'Descripcion 2',
+                    'peso': 6,
+                }
+            }
+
+        })
+        item.estado = EstadoDeItem.APROBADO
+        item.save()
+        item3.add_padre(item)
+        item.save()
+        version = item3.get_versiones()[0]
+        condicion = item3.puede_restaurarse(version)
+        assert condicion == True, f'El item no se puede restaurar a la version {item3.version.version}, ' \
+                                  f'pues en esta no es trazable a la primera fase'
+
+    def test_restaurar(self, item):
+        """
+        Prueba Unitaria para el metodo restaurar item\n
+        Se espera:
+            Que el metodo revierta los cambios el item a una version anterior, esto indica que el item tiene al menos un padre en la version
+            a la cual quiere volver, por lo que puede ser restaurado\n
+        Mensaje de error:
+            'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
+        """
+        version = item.get_versiones()[0]
+        item.restaurar(version)
+        assert item.version.nombre == version.nombre, 'No se pudo restaurar el nombre de esta version'
+        assert item.version.descripcion == version.descripcion, 'No se pudo restaurar la descripcion de esta version'
+        assert item.version.peso == version.peso, 'No se pudo restaurar el peso de esta version'
+        assert item.version.version == item.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
+
+    def test_restaurar_relaciones(self, item, item2, tipo_de_item, tipo_de_item_fase2):
+        """
+        """
+        item.estado = EstadoDeItem.EN_LINEA_BASE
+        item.save()
+        item2.estado = EstadoDeItem.APROBADO
+        item4 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.EN_LINEA_BASE,
+            'codigo': 'RF_2',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                }
+            },
+        })
+        item5 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.APROBADO,
+            'codigo': 'RT_3',
+            'estado_anterior': '',
+            'version': 2,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    }
+            },
+        })
+        item3 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RT_2',
+            'estado_anterior': '',
+            'version': 2,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'padres': ['RT_1'],
+                    'antecesores': ['RF_1']
+                },
+                2: {
+                    'nombre': 'Nombre 2',
+                    'descripcion': 'Descripcion 2',
+                    'peso': 6,
+                    'padres': ['RT_1', 'RT_3'],
+                    'antecesores': ['RF_1', 'RF_2']
+                }
+            },
+        })
+        version = item3.get_versiones()[0]
+        item3.restaurar(version)
+        print(item3.version.antecesores.all(), version.antecesores.all())
+        assert item3.version.nombre == version.nombre, 'No se pudo restaurar el nombre de esta version'
+        assert item3.version.descripcion == version.descripcion, 'No se pudo restaurar la descripcion de esta version'
+        assert item3.version.peso == version.peso, 'No se pudo restaurar el peso de esta version'
+        assert item3.version.version == item3.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
+        assert item3.version.padres.count() == version.padres.count(), 'sfsfs'
+        assert item3.version.antecesores.count() == version.antecesores.count(), 'sdfgsf'
+
+
+
+
+
+
+
+    # TODO Luis falta pruebas unitaria de: add_padre
+    # TODO Luis falta pruebas unitaria de: add_antecesor
+    # TODO Luis falta pruebas unitaria de: hay_ciclo
+    # TODO Luis falta pruebas unitaria de: eliminar_relacion
 
 
 @pytest.mark.django_db
