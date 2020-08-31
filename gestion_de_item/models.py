@@ -5,8 +5,6 @@ from gdstorage.storage import GoogleDriveStorage
 gd_storage = GoogleDriveStorage()
 
 
-# Create your models here.
-
 
 class EstadoDeItem:
     """
@@ -330,13 +328,6 @@ class Item(models.Model):
         self.estado = EstadoDeItem.EN_REVISION
         self.save()
 
-    def esta_en_linea_base(self):
-        """
-        TODO: actually completar el metodo
-
-        """
-        return True
-
     def solicitar_modificacion(self, usuario_encargado=None):
         # TODO: comentar y probar
         self.encargado_de_modificar = usuario_encargado
@@ -348,16 +339,21 @@ class Item(models.Model):
         TODO: actually completar el metodo
 
         """
+        # TODO: Hugo
         return self.lineabase_set.filter(estado="Cerrada").exists()
 
     def esta_en_linea_base_comprometida(self):
+        # TODO: Hugo
         return self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
         # TODO: actually completar el metodo
         if self.lineabase_set.filter(estado="Cerrada").exists():
+            # TODO: Hugo
             return self.lineabase_set.get(estado="Cerrada")
+        # TODO: Hugo
         elif self.lineabase_set.filter(estado="Comprometida").exists():
+            # TODO: Hugo
             return self.lineabase_set.get(estado="Comprometida")
         else:
             return None
