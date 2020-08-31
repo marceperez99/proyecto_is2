@@ -99,6 +99,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
 def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=None):
     """
     Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
@@ -244,6 +245,8 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+#TODO falta decorador de estado de item
 def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que solicita confirmación para eliminar un item.
@@ -337,6 +340,8 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_relacionar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+#Falta decorador de estado de item: estados validos: No Aprobado, A Modificar
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
@@ -408,6 +413,8 @@ def relacionar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_solicitar_aprobacion_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+#TODO falta decorador de estado de item: estados validos NO APROBADO
 def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite solicitar la aprobacion de un item que se encuentre en el estado No Aprobado.
@@ -460,6 +467,8 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_aprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO estado de item: estados validos: A Aprobar
 def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la aprobacion de un item que ha sido puesto en el estado A Aprobar.
@@ -507,6 +516,8 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_modificar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO ESTADOS DE ITEM: estados validos: No Aprobado, A Modificar
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una
@@ -521,7 +532,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna
         - HttpResponse
     """
-
+    #TODO: Hugo, si el item esta a modificar comprobar que el usuario pueda editar
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
@@ -638,6 +649,8 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO falta verificar estado de item, solo: Aprobado
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
@@ -693,6 +706,8 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO falta verificar estado de item, solo: A Modificar, No Aprobado
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
     Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
@@ -738,6 +753,8 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO falta verificar estado de item, solo: No Aprobado, A Modificar
 def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     """
     Vista que permite elimianr un archivo de un item, creando una version del mismo sin dicho archivo
@@ -773,6 +790,8 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO falta verificar estado de item, solo:En Revision
 def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que muestra una pantalla de confirmación para marcar un item como A modificar si este se encuentra en una linea base.
@@ -805,6 +824,8 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_restaurar_version')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+# TODO falta decorador fase_abierta
+# TODO falta verificar estado de item, solo: A MOdificar, No AProbado
 def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_id):
     """
     Vista que permite restaurar un Item a una version anterior, siempre y cuando el cambio no genere inconsistencias.

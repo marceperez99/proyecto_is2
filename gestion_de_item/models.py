@@ -5,8 +5,6 @@ from gdstorage.storage import GoogleDriveStorage
 gd_storage = GoogleDriveStorage()
 
 
-# Create your models here.
-
 
 class EstadoDeItem:
     """
