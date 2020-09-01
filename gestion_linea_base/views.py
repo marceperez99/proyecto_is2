@@ -31,6 +31,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     # TODO: Verificar que la linea base este cerrada con un fixture
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
+    fase = Fase.objects.get(id=fase_id)
     items = linea_base.items.all()
     asignacion_formset = formset_factory(AsignacionForm, extra=items.count(), can_delete=False)
 
@@ -73,7 +74,24 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
         formset = asignacion_formset(form_kwargs={'proyecto_id': proyecto_id, 'fase_id': fase_id})
         for form, item in zip(formset, items):
             form.item = item
-    contexto = {'formset': formset, 'solicitud_form': solicitud_form,'linea_base':linea_base, 'len': len(formset)}
+
+    contexto = {'formset': formset,
+                'solicitud_form': solicitud_form,
+                'linea_base':linea_base,
+                'len': len(formset),
+                'breadcrumb': {'pagina_actual': 'Solicitar Rompimiento',
+                               'links': [
+                                   {'nombre': proyecto.nombre,
+                                    'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                                   {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                                   {'nombre': fase.nombre,
+                                    'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                                   {'nombre': 'Lineas Base',
+                                    'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
+                                   {'nombre': linea_base.nombre,
+                                    'url': reverse('visualizar_linea_base', args=(proyecto.id, fase.id, linea_base.id))},
+                               ]}
+                }
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
 
 
@@ -146,3 +164,34 @@ def listar_linea_base_view(request, proyecto_id, fase_id):
                        }
     }
     return render(request, 'gestion_linea_base/listar_linea_base.html', contexto)
+
+
+def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
+    """
+
+    :param request:
+    :param proyecto_id:
+    :param fase_id:
+    :return:
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    lineabase = get_object_or_404(LineaBase, id=linea_base_id)
+    print("cantidad de items")
+    print(lineabase.items.all().__len__())
+    contexto = {
+        'user': request.user,
+        'proyecto': proyecto,
+        'fase': fase,
+        'lineabase': lineabase,
+        # 'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
+        'breadcrumb': {'pagina_actual': lineabase.nombre,
+                       # 'permisos': participante.get_permisos_por_fase_list(fase),
+                       'links': [
+                           {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                           {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))}
+                       ]
+                       }
+    }
+    return render(request, 'gestion_linea_base/ver_linea_base.html', contexto)
