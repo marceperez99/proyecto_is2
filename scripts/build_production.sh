@@ -56,10 +56,10 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE="apache_config.txt"
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=" ../proyecto_is2/settings/gdriveaccess.json"
 read -p "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
-
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE"
 if [ ! -f "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" ]; then
   echo "Archivo de credenciales no existente"
   exit 1
@@ -77,37 +77,40 @@ cd $PROYECT_NAME || exit 1
 #
 #
 ##Creacion y activacion del entorno virtual
-virtualenv venv -p python3 > /dev/null 2>&1
+sudo virtualenv venv -p python3
 source venv/bin/activate
 python --version
 #
 SECRET_KEY=$(openssl rand -base64 32)
 ##Creacion de variables de entorno
-{ echo "DB_USUARIO=\"$DB_USER\"";
-echo "DB_NOMBRE=\"$DB_NAME\"" ;
-echo "DB_PASSWORD=\"$DB_PASS\"" ;
-echo "DB_HOST=\"$DB_HOST\"";
-echo "DB_PORT=\"$DB_PORT\"";
-echo "GOOGLE_OAUTH_SECRET_KEY=\"$GOOGLE_OAUTH_SECRET_KEY\"";
-echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
-echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
-echo "DEBUG_VALUE=False";
-echo "GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"";
-echo "SECRET_KEY=\"$SECRET_KEY\"";
-echo "MEDIA_ROOT=\"$PROYECT_NAME/media\"";} > "$ENV_VARIABLES_PATH";
-echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH";
+echo "
+DB_USUARIO=\"$DB_USER\"
+DB_NOMBRE=\"$DB_NAME\"
+DB_PASSWORD=\"$DB_PASS\"
+DB_HOST=\"$DB_HOST\"
+DB_PORT=\"$DB_PORT\"
+GOOGLE_OAUTH_SECRET_KEY=\"$GOOGLE_OAUTH_SECRET_KEY\"
+GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"
+STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"
+DEBUG_VALUE=False
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"
+SECRET_KEY=\"$SECRET_KEY\"
+MEDIA_ROOT=\"$PROYECT_NAME/media\"
+" | sudo tee "$ENV_VARIABLES_PATH" > /dev/null;
+
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev/null;
 echo "Guardando Variables de Entorno";
 
 ##Descarga de codigo fuente
 cd "django" || exit 1
-git clone $GIT_URL --quiet
+sudo git clone $GIT_URL --quiet
 echo "Repositorio clonado"
 cd "$PROYECT_NAME" || exit 1
 TAG='iteracion_3'
 read -p "Ingrese el nombre tag que desea montar [$TAG]: " input
 TAG=${input:-$TAG}
 
-git checkout tags/"$TAG" -b "$TAG"
+sudo git checkout tags/"$TAG" -b "$TAG"
 
 
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
@@ -141,4 +144,6 @@ fi
 
 
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
-source scripts/run_server.sh -p;
+ls
+cd scripts
+source run_server.sh -p;

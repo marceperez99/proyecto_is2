@@ -1,16 +1,17 @@
 #!/bin/bash
 #Script que ejecuta el servidor
 cd ..
+python --version
 while getopts pdt: flag
 	do
 	    case "${flag}" in
 	        p)
 	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings;
-	          python -m pip install -r "requirements.txt";
+	          sudo python -m pip install -r "requirements.txt";
 	          python manage.py migrate
 	          # Se genera la documentacion.
 	          cd docs || exit 1;
-            make html;
+            sudo make html;
             cd ..;
             #Se juntan los archivos estaticos
             python manage.py collectstatic
