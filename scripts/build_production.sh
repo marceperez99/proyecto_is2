@@ -70,6 +70,8 @@ cd "$BASE_DIR" || exit 1
 
 ##Creacion de directorios del sistema
 sudo mkdir -p "$PROYECT_NAME"/{site/{logs,public},django,auth,media}
+sudo chmod -R ugo+rwx "$PROYECT_NAME/site/public"
+
 echo "- Directorios necesarios creados"
 #
 ##creacion del entorno virtual
@@ -79,6 +81,7 @@ cd $PROYECT_NAME || exit 1
 ##Creacion y activacion del entorno virtual
 python --version
 sudo virtualenv venv -p python3
+sudo chmod -R ugo+rwx venv
 source venv/bin/activate
 python --version
 python -m pip
@@ -147,6 +150,7 @@ fi
 
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
 
-cd scripts
+cd scripts || exit 1
 export VENV_PATH="/var/www/proyecto_is2/venv/bin/activate"
+read
 ./run_server.sh -p;

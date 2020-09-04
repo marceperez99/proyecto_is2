@@ -6,13 +6,14 @@ while getopts pdt: flag
 	do
 	    case "${flag}" in
 	        p)
-	          source $ "$VENV_PATH"
 	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings;
-	          sudo python -m pip install -r "requirements.txt";
+	          pip install -r "requirements.txt";
 	          python manage.py migrate
 	          # Se genera la documentacion.
 	          cd docs || exit 1;
-            sudo make html;
+	          sudo mkdir build
+	          sudo chmod ugo+rw build
+            make html;
             cd ..;
             #Se juntan los archivos estaticos
             python manage.py collectstatic
