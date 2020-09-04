@@ -141,4 +141,4 @@ fi
 
 
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
-source scripts/run_prod_server.sh "$BASE_DIR" "$PROYECT_NAME"
+source scripts/run_server.sh -p;
