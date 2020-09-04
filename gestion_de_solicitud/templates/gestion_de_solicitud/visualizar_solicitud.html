@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}{{ solicitud}}{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3 card px-5 py-3">
+        <div class="row">
+            <div class="col-sm-12 col-xl-6">
+                <h3>Solicitud de Cambio</h3>
+            </div>
+            <div class="col-3 ml-auto text-center align-self-center">
+                <h3>
+                    {% if solicitud.estado == 'Pendiente' %}
+                        <span class="badge badge-primary">Pendiente</span>
+                    {% elif solicitud.estado == 'Aprobada' %}
+                        <span class="badge badge-success">Aprobada</span>
+                    {% elif solicitud.estado == 'Rechazada' %}
+                        <span class="badge badge-danger">Rechazada</span>
+                    {% endif %}
+                </h3>
+            </div>
+            {% if not usuario_ha_votado %}
+            <div class="col-3 text-right">
+                <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}" class="btn btn-primary">Votar por Solicitud</a>
+            </div>
+            {% endif %}
+            <div class="col-sm-12">
+                <hr />
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Linea Base a romper</h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.linea_base.nombre }}</p>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Fase de la Linea Base</h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.linea_base.fase }}</p>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Solicitante</h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.solicitante }}</p>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Fecha de Solicitud</h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.fecha }}</p>
+            </div>
+            <div class="col-xl-12">
+                <h4>Votación</h4>
+                <hr />
+            </div>
+            <div class="col-xl-12">
+                <p>
+                    Han votado {{ solicitud.get_numero_de_votos }}
+                    miembros del Comite, faltan {{ solicitud.get_numero_de_votos_faltantes }}
+                    votos para finalizar la votacion.
+                </p>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Votos a Favor </h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.get_votos_a_favor }}</p>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <h6>Votos a En Contra </h6>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <p>{{ solicitud.get_votos_en_contra }}</p>
+            </div>
+            <div class="col-xl-12">
+                <h4>Cambios Propuestos</h4>
+                <hr />
+            </div>
+            <div class="col">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Codigo</th>
+                                <th>Item</th>
+                                <th>Usuario encargado</th>
+                                <th>Modificacion Necesaria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for asignacion in solicitud.get_items_a_modificar %}
+                            <tr>
+                                <td>{{ asignacion.item.codigo }}</td>
+                                <td>{{ asignacion.item }}</td>
+                                <td>{{ asignacion.usuario}}</td>
+                                <td>{{ asignacion.comentario}}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

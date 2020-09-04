@@ -1,36 +1,32 @@
 from http import HTTPStatus
-
 import pytest
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
+from gestion_de_fase.tests.factories import fase_factory
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
-from gestion_de_item.tests import tipo_de_item
-from gestion_de_proyecto.models import Participante, Proyecto, EstadoDeProyecto
-from gestion_de_tipo_de_item.models import TipoDeItem
-from roles_de_proyecto.models import RolDeProyecto
-from roles_de_sistema.models import RolDeSistema
+from gestion_de_item.tests.factories import item_factory
+from gestion_de_proyecto.models import EstadoDeProyecto
+from gestion_de_proyecto.tests.factories import proyecto_factory
+from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
+from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
+from roles_de_sistema.tests.factories import rol_de_sistema_factory
+from usuario.tests.factories import user_factory
 
 
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
-    rol.save()
-    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
-        rol.permisos.add(pp)
-    rol.save()
-    return rol
+    return rol_de_sistema_factory('Admin', 'Administrador del Sistema',
+                                  [p.codename for p in
+                                   Permission.objects.filter(content_type__app_label='roles_de_sistema',
+                                                             codename__startswith='p')])
 
 
 @pytest.fixture
 def usuario(rs_admin):
-    user = User(username='user_test', email='test@admin.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory('user_test', 'password123', 'test@admin.com', rs_admin.nombre)
 
 
 @pytest.fixture
@@ -42,45 +38,54 @@ def cliente_loggeado(usuario):
 
 @pytest.fixture
 def rol_de_proyecto():
-    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
-    rol.save()
-    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
-    return rol
+    return rol_de_proyecto_factory({
+        'nombre': 'Desarrollador',
+        'descripcion': 'Descripcion del Rol',
+        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
+    })
 
 
 @pytest.fixture
 def proyecto(usuario):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
-                        creador=usuario, gerente=usuario, fecha_de_creacion=timezone.now())
-    proyecto.save()
-    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
-    participante.save()
-    return proyecto
+    return proyecto_factory({
+        'nombre': 'Proyecto de Prueba',
+        'descripcion': 'Descripcion de Prueba',
+        'creador': usuario.username,
+        'gerente': usuario.username,
+        'estado': EstadoDeProyecto.CONFIGURACION
+    })
 
 
 @pytest.fixture()
 def fase(proyecto):
-    fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    return fase
+    return fase_factory(proyecto, None, {'nombre': 'Analisis', 'descripcion': 'Descripcion de Fase'})
 
 
 @pytest.fixture
 def tipo_de_item(fase, usuario):
-    tipo = TipoDeItem.objects.create(nombre="Requerimiento Funcional", creador=usuario,
-                                     descripcion="Especificación de un requerimiento funcional.", prefijo="RF",
-                                     fase=fase, fecha_creacion=timezone.now())
-    return tipo
+    return tipo_de_item_factory(fase, {
+        'nombre': 'Requerimiento Funcional', 'creador': usuario.username, 'fase': fase, 'prefijo': "RF",
+        'descripcion': 'Especificacion de requerimiento funcional', 'fecha_de_creacion': timezone.now()
+    })
 
 
 @pytest.fixture
 def item(tipo_de_item):
-    item = Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.NO_APROBADO, codigo="")
-    version = VersionItem.objects.create(item=item, descripcion="Descripcion del item", version=1, nombre="Item",
-                                         peso=1)
-    item.version = version
-    item.save()
-    return item
+    return item_factory({
+        'tipo': 'Requerimiento Funcional',
+        'estado': EstadoDeItem.NO_APROBADO,
+        'codigo': 'RF_1',
+        'estado_anterior': '',
+        'version': 1,
+        'versiones': {
+            1: {
+                'nombre': 'Nombre de item',
+                'descripcion': 'Descripcion',
+                'peso': 5,
+            }
+        }
+
+    })
 
 
 @pytest.mark.django_db
@@ -234,9 +239,9 @@ class TestModeloFase:
                  Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="")]
         list_item = list(fase.get_item_estado(EstadoDeItem.A_APROBAR))
         list_a_aprobar = list(filter(lambda e: e.estado == EstadoDeItem.A_APROBAR, items))
-        condicion = all(item in list_item for item in list_a_aprobar) and all(item in list_a_aprobar for item in list_item)
+        condicion = all(item in list_item for item in list_a_aprobar) and all(
+            item in list_a_aprobar for item in list_item)
         assert condicion is True, f'El metodo get_item_estado no retorna correctamente los items de una fase'
-
 
     def test_get_item_estado_varios_estados(self, fase, tipo_de_item):
         """
@@ -257,10 +262,10 @@ class TestModeloFase:
                  Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.A_APROBAR, codigo="TT_3"),
                  Item.objects.create(tipo_de_item=tipo_de_item, estado=EstadoDeItem.EN_LINEA_BASE, codigo="TT_4")]
         list_item = list(fase.get_item_estado(EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE))
-        list_estados = list(filter(lambda e: e.estado == EstadoDeItem.APROBADO or e.estado == EstadoDeItem.EN_LINEA_BASE, items))
+        list_estados = list(
+            filter(lambda e: e.estado == EstadoDeItem.APROBADO or e.estado == EstadoDeItem.EN_LINEA_BASE, items))
         condicion = all(item in list_item for item in list_estados) and all(item in list_estados for item in list_item)
         assert condicion is True, f'El metodo get_item_estado no retorna correctamente los items de una fase'
-
 
     def test_get_item_estado_ninguno(self, fase, tipo_de_item):
         """
@@ -286,14 +291,15 @@ class TestModeloFase:
         assert condicion is True, f'El metodo get_item_estado no retorna lo esperado.'
 
 
-
 @pytest.mark.django_db
 class TestVistasFase:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a las Fases de un Proyecto.
     """
 
-    def test_visualizar_fase_view(self, cliente_loggeado, proyecto):
+    @pytest.mark.parametrize('estado_proyecto', [(EstadoDeProyecto.CONFIGURACION),
+                                                 (EstadoDeProyecto.INICIADO)])
+    def test_visualizar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de visualizar fase.
@@ -304,13 +310,16 @@ class TestVistasFase:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
         fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
         fase.save()
-
         response = cliente_loggeado.get(reverse('visualizar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_listar_fase_view(self, cliente_loggeado, proyecto):
+    @pytest.mark.parametrize('estado_proyecto', [(EstadoDeProyecto.CONFIGURACION),
+                                                 (EstadoDeProyecto.INICIADO)])
+    def test_listar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de visualizar fase.
@@ -321,9 +330,10 @@ class TestVistasFase:
         Mensaje de Error:
             Hubo un error al tratar de acceder a la URL
         """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
         response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
 
     def test_nueva_fase_view(self, cliente_loggeado, proyecto):
         """
@@ -341,7 +351,6 @@ class TestVistasFase:
         response = cliente_loggeado.get(reverse('nueva_fase', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-
     def test_editar_fase_view(self, cliente_loggeado, proyecto, fase):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
@@ -358,9 +367,8 @@ class TestVistasFase:
         response = cliente_loggeado.get(reverse('editar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-
     def test_eliminar_fase_view(self, cliente_loggeado, proyecto, fase):
-            """
+        """
             Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
             vista de eliminar fase.
 
@@ -370,8 +378,7 @@ class TestVistasFase:
             Mensaje de Error:
                 Hubo un error al tratar de acceder a la URL
             """
-            proyecto.estado = EstadoDeProyecto.CONFIGURACION
-            proyecto.save()
-            response = cliente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
-            assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
+        proyecto.estado = EstadoDeProyecto.CONFIGURACION
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'

@@ -1,67 +1,75 @@
 from http import HTTPStatus
+
 import pytest
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import User, Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto, Comite
+from gestion_de_proyecto.tests.factories import proyecto_factory
 from roles_de_proyecto.models import RolDeProyecto
-from roles_de_sistema.models import RolDeSistema
+from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
+from roles_de_sistema.tests.factories import rol_de_sistema_factory
+from usuario.tests.factories import user_factory
 
 
 @pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
-    rol.save()
-    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
-        rol.permisos.add(pp)
-    rol.save()
-    return rol
+    return rol_de_sistema_factory('Admin', 'Descripcion', [p.codename for p in
+                                                           Permission.objects.filter(
+                                                               content_type__app_label='roles_de_sistema',
+                                                               codename__startswith='p')])
 
 
 @pytest.fixture
-def usuario():
-    user = User(username='usuario_test', email='usuario@gmail.com')
-    user.set_password('password123')
-    user.save()
-    return user
+def usuario(rs_admin):
+    return user_factory('usuario_test', 'password123', 'user@email.com', rs_admin.nombre)
 
 
 @pytest.fixture
 def gerente(rs_admin):
-    user = User(username='gerente', email='gerente@gmail.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory('gerente', 'password123', 'gerente@email.com', rs_admin.nombre)
 
 
 @pytest.fixture
 def rol_de_proyecto():
-    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
-    rol.save()
-    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
-    return rol
+    return rol_de_proyecto_factory({
+        'nombre': 'Desarrollador',
+        'descripcion': 'Descripcion del Rol',
+        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
+    })
 
 
 @pytest.fixture
 def proyecto(usuario, gerente, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba', fecha_de_creacion=timezone.now(),
-                        gerente=gerente, creador=usuario, estado=EstadoDeProyecto.CONFIGURACION)
-    proyecto.save()
-    participante_gerente = Participante.objects.create(proyecto=proyecto, usuario=gerente)
-    participante_gerente.save()
-    fase1 = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase1.save()
-    fase2 = Fase(nombre='Desarrollo', proyecto=proyecto, fase_anterior=fase1, fase_cerrada=False, puede_cerrarse=False)
-    fase2.save()
-    fase3 = Fase(nombre='Pruebas', proyecto=proyecto, fase_anterior=fase2, fase_cerrada=False, puede_cerrarse=False)
-    fase3.save()
-    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
-    participante.asignar_rol_de_proyecto(rol_de_proyecto)
-    participante.save()
-    return proyecto
+    return proyecto_factory({
+        'nombre': 'Proyecto de Prueba',
+        'descripcion': 'Descripcion de Prueba',
+        'creador': usuario.username,
+        'gerente': gerente.username,
+        'estado': EstadoDeProyecto.CONFIGURACION,
+        'fases': [
+            {
+                'nombre': 'Analisis',
+                'descripcion': 'Analisis de Requerimientos'
+            }, {
+                'nombre': 'Desarrollo',
+                'descripcion': 'Desarrollo de Software'
+            }, {
+                'nombre': 'Pruebas',
+                'descripcion': 'Pruebas de Software'
+            }
+        ],
+        'participantes': [
+            {
+                'usuario': usuario.username,
+                'rol_de_proyecto': 'Desarrollador',
+                'permisos': {}
+            }
+        ]
+    })
 
 
 @pytest.mark.django_db
@@ -685,6 +693,7 @@ class TestVistasProyecto:
     """
     Pruebas unitarias correspondientes al funcionamiento correcto de las Vistas relacionadas a Proyectos.
     """
+
     @pytest.fixture
     def gerente_loggeado(self, gerente):
         client = Client()
@@ -794,5 +803,19 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('asignar_miembros_comite', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
-    # TODO: Marcos test info_proyecto_view
-    pass
+    def test_info_proyecto_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de ver informacion del proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - No es posible acceder a la URL
+
+        """
+        comite = Comite()
+        comite.proyecto = proyecto
+        comite.save()
+        response = gerente_loggeado.get(reverse('info_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '

@@ -7,7 +7,7 @@ from django.utils import timezone
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Proyecto, Participante
 from roles_de_sistema.models import RolDeSistema
-from .models import RolDeProyecto
+from roles_de_proyecto.models import RolDeProyecto
 
 
 # FIXTURES
@@ -164,7 +164,6 @@ class TestModeloRolDeProyecto:
         assert condicion is True, f'Se esperaba que el metodo tiene_pp retorne {esperado} ' \
                                   f'al consultar por el permiso {permiso}'
 
-    # TODO: Marcelo test get_pp_por_proyecto
     def test_get_pp_por_proyecto(self):
         """
         Prueba unitaria encargada de comprobar el funcionamiento del método get_pp_por_proyecto
@@ -190,7 +189,6 @@ class TestModeloRolDeProyecto:
         assert condicion is True, f'El método no retornó correctamente la lista de permisos de proyecto, ' \
                                   f'se retornó {permisos_obtenidos} y se esperaba {permisos}'
 
-    # TODO: Marcelo test get_pp_por_fase
     def test_get_pp_por_fase(self):
         """
         Prueba unitaria encargada de comprobar el funcionamiento del método get_pp_por_fase
@@ -216,6 +214,7 @@ class TestModeloRolDeProyecto:
 
         assert condicion is True, f'El método no retornó correctamente la lista de permisos de proyecto, ' \
                                   f'se retornó {permisos_obtenidos} y se esperaba {permisos}'
+
     pass
 
 

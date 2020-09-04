@@ -1,10 +1,12 @@
 from http import HTTPStatus
+
 import pytest
 from django.contrib.auth.models import Permission, User, Group
 from django.test import Client
 from django.urls import reverse
+
 from usuario.models import Usuario
-from .models import RolDeSistema
+from roles_de_sistema.models import RolDeSistema
 
 
 @pytest.fixture
@@ -47,7 +49,23 @@ class TestModeloRolDeSistema:
     """
     Pruebas unitarias que comprueban el funcionamiento de los métodos del Modelo RolDeSistema
     """
-    # TODO: Marcos test get_permisos en el caso de que si retorne una lista
+
+    def test_get_permisos(self, rol_de_sistema):
+        """
+        Prueba unitaria encargada de probar metodo get_permisos para asegurarse que al \
+        tratar de obtener los permisos de un rol creado sin permisos retorne una lista \
+        vacia
+
+        Se espera:
+            Que el metodo get_permisos retorne la lista de permisos del Rol de Sistema.
+
+        Mensaje de Error:
+            No se pudo traer la lsta de permisos correctamente
+        """
+        ps_rol = rol_de_sistema.get_permisos()
+        ps_list = Permission.objects.all().filter(codename__startswith='ps_')
+        assert all(p in ps_rol for p in ps_list) and all(p in ps_list for p in ps_rol), \
+            'No se pudo traer la lsta de permisos correctamente'
 
     def test_roldesistema_lista_de_permisos_vacia(self):
         """
@@ -99,10 +117,77 @@ class TestVistasRolDeSistema:
     """
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a los Roles de Sistema.
     """
-    # TODO: Marcos test listar_roles_de_sistema_view
-    # TODO: Marcos test editar_rol_de_sistema_view
-    # TODO: Marcos test rol_de_sistema_view
-    # TODO: Marcos test eliminar_rol_de_sistema_view
+
+    def test_listar_roles_de_sistema_view(self, usuario, cliente_loggeado, rs_admin):
+        """
+        Prueba unitaria encargada de verificar que la vista listar_roles_de_sistema_view \
+        se muestre correctamente
+
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        response = cliente_loggeado.get(reverse('listar_roles_de_sistema'))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
+    def test_editar_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin, rol_de_sistema):
+        """
+        Prueba unitaria encargada de verificar que la vista editar_rol_de_sistema_view \
+        se muestre correctamente
+
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        usuario.save()
+
+        response = cliente_loggeado.get(reverse('editar_rol_de_sistema', args=(rol_de_sistema.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
+    def test_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin, rol_de_sistema):
+        """
+        Prueba unitaria encargada de verificar que la vista rol_de_sistema_view \
+        se muestre correctamente
+
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        usuario.save()
+
+        response = cliente_loggeado.get(reverse('rol_de_sistema', args=(rol_de_sistema.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
+    def test_eliminar_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin, rol_de_sistema):
+        """
+        Prueba unitaria encargada de verificar que la vista eliminar_rol_de_sistema_view \
+        se muestre correctamente
+
+        Se espera:
+            HttpResponse 200
+
+        Mensaje de Error:
+            Hubo un error al cargar la pagina
+        """
+        usuario.groups.add(Group.objects.get(name=rs_admin.nombre))
+        usuario.save()
+
+        response = cliente_loggeado.get(reverse('eliminar_rol_de_sistema', args=(rol_de_sistema.id,)))
+
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al cargar la pagina, '
+
     def test_nuevo_rol_de_sistema_view(self, usuario, cliente_loggeado, rs_admin):
         """
         Test encargado de comprobar que no ocurra nigun error al cargar la pagina con un usuario que ha iniciado sesion

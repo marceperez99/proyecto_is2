@@ -2,6 +2,7 @@ from django.db import models
 from gestion_de_item.models import Item
 
 from gestion_de_item.models import EstadoDeItem
+from gestion_linea_base.models import LineaBase
 
 
 class Fase(models.Model):
@@ -26,8 +27,6 @@ class Fase(models.Model):
     proyecto = models.ForeignKey('gestion_de_proyecto.Proyecto', on_delete=models.CASCADE,null=True)
     descripcion = models.CharField(max_length=300)
     fase_anterior = models.ForeignKey('gestion_de_fase.Fase', on_delete=models.SET_NULL, null=True)
-    #items = models.ForeignKey('Item', on_delete=models.CASCADE)
-    #lineaBase = models.ForeignKey('LineaBase', on_delete=models.CASCADE, verbose_name="Linea Base")
     fase_cerrada = models.BooleanField(verbose_name="Fase Cerrada")
     puede_cerrarse = models.BooleanField(verbose_name="Puede Cerrarse")
 
@@ -100,3 +99,10 @@ class Fase(models.Model):
 
         items = [item.id for item in items]
         return Item.objects.filter(id__in=items)
+
+    def get_lineas_base(self):
+        return LineaBase.objects.filter(fase=self)
+
+
+    def get_proyecto(self):
+        return self.proyecto
