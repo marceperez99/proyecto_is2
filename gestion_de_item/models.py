@@ -410,8 +410,8 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
-    valor = models.FileField(upload_to='items/', storage=gd_storage, null=True)
-    archivo_temporal = models.FileField(upload_to='items/', null=True)
+    valor = models.FileField(upload_to='items', storage=gd_storage, null=True)
+    archivo_temporal = models.FileField(upload_to='items', null=True)
 
     def getTipoAtributo(self):
         return "Archivo"

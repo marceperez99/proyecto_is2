@@ -8,15 +8,12 @@ dpkg -l | cut -d " " -f 3 | grep -q "^libapache2-mod-wsgi-py3" || \
  { echo "Se requiere la libreria libpq-dev para continuar" ; exit 1; }
 
 #Confirmacion de que se desea continuar
-read -p "Esta seguro que desea montar el ambiente de produccion? Este script sobreescribira el 000-default.conf de apache2. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Ss]$ ]]
-then
-    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-fi
-
+echo "---¿Esta seguro que desea montar el ambiente de produccion?---
+      Este script sobreescribira el 000-default.conf de apache2.
+Presione Enter para continuar, Ctrl+C para finalizar la instalacion"
+read -r
 #VARIABLES
-SCRIPT_PATH=$(dirname $0)
+SCRIPT_PATH=$(dirname "$0")
 POSTGRES_USER="postgres"
 POSTGRES_PASS="p0stgre5q1"
 DB_NAME="proyecto_is2"
@@ -29,11 +26,11 @@ BASE_DIR="/var/www"
 APACHE_DIR="/etc/apache2/sites-available"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
 
-# Se lee donde se ubicara el proyecto
-read -p "Ingrese el directorio donde se colocará el Sistema [$BASE_DIR]: " input
-BASE_DIR=${input:-$BASE_DIR}
+GDRIVE_JSON_PATH="$BASE_DIR/$PROYECT_NAME/auth/gdriveaccess.json"
 
-#Lectura de los datos de la Base de datos
+echo "El sistema se instalará en la carpeta $BASE_DIR"
+
+##Lectura de los datos de la Base de datos
 read -p "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
 POSTGRES_USER=${input:-$POSTGRES_USER}
 read -p "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " input
@@ -59,28 +56,33 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
-GDRIVE_JSON_PATH="$BASE_DIR/$PROYECT_NAME/auth/gdriveaccess.json"
-read -p "Ingrese el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive : " input
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE="apache_config.txt"
+read -p "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
 
-echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH"
+if [ ! -f "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" ]; then
+  echo "Archivo de credenciales no existente"
+  exit 1
+fi
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=$(cat "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE")
 
 cd "$BASE_DIR" || exit 1
 
-#Creacion de directorios del sistema
-mkdir -p "$PROYECT_NAME"/{site/{logs,public},django,auth}
-
-#creacion del entorno virtual
+##Creacion de directorios del sistema
+sudo mkdir -p "$PROYECT_NAME"/{site/{logs,public},django,auth,media}
+echo "- Directorios necesarios creados"
+#
+##creacion del entorno virtual
 cd $PROYECT_NAME || exit 1
-
-
-#Creacion y activacion del entorno virtual
-virtualenv venv -p python3
+#
+#
+##Creacion y activacion del entorno virtual
+virtualenv venv -p python3 > /dev/null 2>&1
 source venv/bin/activate
 python --version
-
+#
 SECRET_KEY=$(openssl rand -base64 32)
-#Creacion de variables de entorno
+##Creacion de variables de entorno
 { echo "DB_USUARIO=\"$DB_USER\"";
 echo "DB_NOMBRE=\"$DB_NAME\"" ;
 echo "DB_PASSWORD=\"$DB_PASS\"" ;
@@ -91,17 +93,25 @@ echo "GOOGLE_OAUTH_CLIENT_ID=\"$GOOGLE_OAUTH_CLIENT_ID\"" ;
 echo "STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"" ;
 echo "DEBUG_VALUE=False";
 echo "GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"";
-echo "SECRET_KEY=\"$SECRET_KEY\""; } > "$ENV_VARIABLES_PATH"
+echo "SECRET_KEY=\"$SECRET_KEY\"";
+echo "MEDIA_ROOT=\"$PROYECT_NAME/media\"";} > "$ENV_VARIABLES_PATH";
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH";
+echo "Guardando Variables de Entorno";
 
-
-#Descarga de codigo fuente
+##Descarga de codigo fuente
 cd "django" || exit 1
-git clone $GIT_URL
+git clone $GIT_URL --quiet
+echo "Repositorio clonado"
 cd "$PROYECT_NAME" || exit 1
+TAG='iteracion_3'
+read -p "Ingrese el nombre tag que desea montar [$TAG]: " input
+TAG=${input:-$TAG}
+
+git checkout tags/"$TAG" -b "$TAG"
 
 
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
-echo
+#echo
 if [[  $REPLY =~ ^[Ss]$ ]]
 then
     [[ "$0" = "$BASH_SOURCE" ]] && echo "
@@ -126,7 +136,7 @@ then
         WSGIProcessGroup proyecto_is2
         WSGIScriptAlias / $BASE_DIR/proyecto_is2/django/proyecto_is2/proyecto_is2/wsgi.py
       </VirtualHost>
-    " > $APACHE_DIR/000-default.conf
+    " > "$APACHE_DIR"/000-default.conf
 fi
 
 
