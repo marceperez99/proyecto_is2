@@ -77,9 +77,11 @@ cd $PROYECT_NAME || exit 1
 #
 #
 ##Creacion y activacion del entorno virtual
+python --version
 sudo virtualenv venv -p python3
 source venv/bin/activate
 python --version
+python -m pip
 #
 SECRET_KEY=$(openssl rand -base64 32)
 ##Creacion de variables de entorno
@@ -144,6 +146,7 @@ fi
 
 
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
-ls
+
 cd scripts
-source run_server.sh -p;
+export VENV_PATH="/var/www/proyecto_is2/venv/bin/activate"
+./run_server.sh -p;
