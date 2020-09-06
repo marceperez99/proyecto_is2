@@ -1,6 +1,6 @@
 TEMP_DIR=$(mktemp -d)
-GOOGLE_OAUTH_CLIENT_ID=$2
-GOOGLE_OAUTH_SECRET_KEY=$3
+GOOGLE_OAUTH_CLIENT_ID=$1
+GOOGLE_OAUTH_SECRET_KEY=$2
 SSO_KEYS="$TEMP_DIR/google_keys.json"
 
 scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$SSO_KEYS"
@@ -13,4 +13,4 @@ rm "$SSO_KEYS"
 python manage.py shell < "scripts/create_admin.py"
 
 # Se carga datos de prueba
-python manage.py loaddata scripts/data/data.json
+# python manage.py loaddata scripts/data/data.json
