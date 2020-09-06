@@ -127,9 +127,12 @@ echo "- Base de Datos creada"
 
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
 # Se instalan dependencias
+echo "- Instalando dependencias"
 pip install -r "requirements.txt" > /dev/null;
+echo "- Dependencias instaladas"
 # Se corren migraciones de Django
 python manage.py migrate
+echo "- Migraciones cargadas"
 # Se cargan datos
 
 scripts/load_data.sh  "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY"
