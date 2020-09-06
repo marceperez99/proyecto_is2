@@ -13,7 +13,7 @@ echo "---¿Esta seguro que desea montar el ambiente de produccion?---
 Presione Enter para continuar, Ctrl+C para finalizar la instalacion"
 read -r
 #VARIABLES
-SCRIPT_PATH=$(dirname "$0")
+#SCRIPT_PATH=$(dirname "$0")
 POSTGRES_USER="postgres"
 POSTGRES_PASS="p0stgre5q1"
 DB_NAME="proyecto_is2"
@@ -29,35 +29,34 @@ GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
 GDRIVE_JSON_PATH="$BASE_DIR/$PROYECT_NAME/auth/gdriveaccess.json"
 
 echo "El sistema se instalará en la carpeta $BASE_DIR"
-
 ##Lectura de los datos de la Base de datos
-read -p "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
+read -rp "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
 POSTGRES_USER=${input:-$POSTGRES_USER}
-read -p "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " input
+read -rp "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " input
 POSTGRES_PASS=${input:-$POSTGRES_PASS}
 
 ENV_VARIABLES_PATH="$BASE_DIR/$PROYECT_NAME/auth/.env"
 # Lectura de variables de entorno del proyecto
-read -p "Ingrese el nombre de la Base de datos usado por el sistema [$DB_NAME]: " input
+read -rp "Ingrese el nombre de la Base de datos usado por el sistema [$DB_NAME]: " input
 DB_NAME=${input:-$DB_NAME}
-read -p "Ingrese el usuario de PostgreSQL usado por el sistema [$DB_USER]: " input
+read -rp "Ingrese el usuario de PostgreSQL usado por el sistema [$DB_USER]: " input
 DB_USER=${input:-$DB_USER}
-read -p "Ingrese la contraseña del usuario utilizado por PostgreSQL [$DB_PASS]: " input
+read -rp "Ingrese la contraseña del usuario utilizado por PostgreSQL [$DB_PASS]: " input
 DB_PASS=${input:-$DB_PASS}
-read -p "Ingrese direccion del servicio PostgreSQL [$DB_HOST]: " input
+read -rp "Ingrese direccion del servicio PostgreSQL [$DB_HOST]: " input
 DB_HOST=${input:-$DB_HOST}
-read -p "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
+read -rp "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 # Lectura de variables de entorno de SSO
 GOOGLE_OAUTH_SECRET_KEY="k8WE0-Oeon0FnGDAo03X5IQo"
-read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
+read -rp "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
 GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
 GOOGLE_OAUTH_CLIENT_ID="628176483267-fu449k587f887bm7n5tgc8alndtb35t1.apps.googleusercontent.com"
-read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
+read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=" ../proyecto_is2/settings/gdriveaccess.json"
-read -p "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
+read -rp "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
 echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE"
 if [ ! -f "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" ]; then
@@ -73,14 +72,12 @@ sudo mkdir -p "$PROYECT_NAME"/{site/{logs,public},django,auth,media}
 sudo chmod -R ugo+rwx "$PROYECT_NAME/site/public"
 
 echo "- Directorios necesarios creados"
-#
-##creacion del entorno virtual
+
+
 cd $PROYECT_NAME || exit 1
-#
-#
 ##Creacion y activacion del entorno virtual
-sudo virtualenv venv -p python3
-sudo chmod -R ugo+rwx venv
+sudo virtualenv venv -p python3 > /dev/null
+sudo chmod -R ugo+rwx venv || exit 1
 source venv/bin/activate > /dev/null
 echo "- Entorno virtual creado"
 #
@@ -102,64 +99,41 @@ MEDIA_ROOT=\"$PROYECT_NAME/media\"
 " | sudo tee "$ENV_VARIABLES_PATH" > /dev/null;
 
 echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev/null;
-echo "Guardando Variables de Entorno";
+echo "- Variables de Entorno guardadas";
 
-##Descarga de codigo fuente
+#Descarga de codigo fuente
 cd "django" || exit 1
-sudo git clone $GIT_URL --quiet
+sudo git clone $GIT_URL --quiet || exit 1
 echo "Repositorio clonado"
 cd "$PROYECT_NAME" || exit 1
+
+# Se obtiene el tag a cargar
 TAG='iteracion_3'
-read -p "Ingrese el nombre tag que desea montar [$TAG]: " input
+read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
 TAG=${input:-$TAG}
 
 sudo git checkout tags/"$TAG" -b "$TAG"
 
-
+# Se configura apache
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 #echo
-if [[  $REPLY =~ ^[Ss]$ ]]
-then
-    [[ "$0" = "$BASH_SOURCE" ]] && echo "
-      <VirtualHost *:80>
-        ServerAdmin webmaster@localhost
-        DocumentRoot $BASE_DIR/html
-
-        ErrorLog $BASE_DIR/proyecto_is2/site/logs/error.log
-        CustomLog $BASE_DIR/proyecto_is2/site/logs/access.log combined
-
-        alias /static $BASE_DIR/proyecto_is2/site/public/static
-        <Directory $BASE_DIR/proyecto_is2/site/public/static>
-          Require all granted
-        </Directory>
-
-        <Directory $BASE_DIR/proyecto_is2/django/proyecto_is2/proyecto_is2>
-          <Files wsgi.py>
-            Require all granted
-          </Files>
-        </Directory>
-        WSGIDaemonProcess proyecto_is2 python-path=$BASE_DIR/proyecto_is2/django/proyecto_is2/ python-home=$BASE_DIR/proyecto_is2/venv
-        WSGIProcessGroup proyecto_is2
-        WSGIScriptAlias / $BASE_DIR/proyecto_is2/django/proyecto_is2/proyecto_is2/wsgi.py
-      </VirtualHost>
-    " > "$APACHE_DIR"/000-default.conf
+if [[  $REPLY =~ ^[Ss]$ ]]; then
+    scripts/data/apache_config.sh "$BASE_DIR" > "$APACHE_DIR"/000-default.conf
 fi
 
-
+# Se configura la Base de Datos
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
 echo "- Base de Datos creada"
 
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
+# Se instalan dependencias
 pip install -r "requirements.txt" > /dev/null;
+# Se corren migraciones de Django
 python manage.py migrate
-TEMP_DIR=$(mktemp -d)
-SSO_KEYS="$TEMP_DIR/google_keys.json"
-scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$SSO_KEYS"
-cat "$SSO_KEYS"
-python manage.py loaddata "$SSO_KEYS"
+# Se cargan datos
+scripts/data/load_data.sh  "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY"
 
 cd scripts || exit 1
-
+# Se corre el servidor
 export VENV_PATH="/var/www/proyecto_is2/venv/bin/activate"
-read
 ./run_server.sh -p;
