@@ -1,6 +1,5 @@
 #!/bin/bash
 #Script que ejecuta el servidor
-cd ..
 python --version
 while getopts pdt: flag
 	do

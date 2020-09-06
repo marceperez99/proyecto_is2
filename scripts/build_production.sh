@@ -148,6 +148,6 @@ python manage.py shell < "scripts/create_admin.py"
 # TODO Se carga datos de prueba
 # python manage.py loaddata scripts/data/data.json
 
-cd scripts || exit 1
+
 # Se corre el servidor
 ./run_server.sh -p;

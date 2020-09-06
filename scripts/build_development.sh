@@ -22,13 +22,15 @@ DB_USER="proyecto_user_test"
 DB_PASS="Pr0yect0Test"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
 TAG="iteracion_3"
-GDRIVE_JSON_PATH="proyecto_is2/proyecto_is2/settings/credenciales/gdriveaccess.json"
+GDRIVE_JSON_PATH="proyecto_is2/settings/credenciales/gdriveaccess.json"
 
 #Lectura de los datos de la Base de datos
 read -p "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
 POSTGRES_USER=${input:-$POSTGRES_USER}
 read -p "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " input
 POSTGRES_PASS=${input:-$POSTGRES_PASS}
+
+GOOGLE_OAUTH_SECRET_KEY="k8WE0-Oeon0FnGDAo03X5IQo"
 read -rp "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
 GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
 GOOGLE_OAUTH_CLIENT_ID="628176483267-fu449k587f887bm7n5tgc8alndtb35t1.apps.googleusercontent.com"
@@ -56,7 +58,8 @@ TAG=${input:-$TAG}
 git checkout tags/"$TAG" -b "$TAG"
 
 # Se guarda las credenciales de Google Drive
-echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev/null;
+mkdir "proyecto_is2/settings/credenciales" || exit 1
+echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH"
 
 #Creacion de nueva base de datos
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
