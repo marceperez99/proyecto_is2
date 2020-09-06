@@ -79,12 +79,9 @@ cd $PROYECT_NAME || exit 1
 #
 #
 ##Creacion y activacion del entorno virtual
-python --version
 sudo virtualenv venv -p python3
 sudo chmod -R ugo+rwx venv
 source venv/bin/activate
-python --version
-python -m pip
 #
 SECRET_KEY=$(openssl rand -base64 32)
 ##Creacion de variables de entorno
@@ -149,8 +146,18 @@ fi
 
 
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
+echo "- Base de Datos creada"
+
+export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
+pip install -r "requirements.txt";
+python manage.py migrate
+TEMP_FILE=$(mktemp)
+scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$TEMP_FILE"
+
+python manage.py loaddata "$TEMP_FILE"
 
 cd scripts || exit 1
+
 export VENV_PATH="/var/www/proyecto_is2/venv/bin/activate"
 read
 ./run_server.sh -p;
