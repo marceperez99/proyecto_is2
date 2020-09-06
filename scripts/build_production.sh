@@ -49,10 +49,10 @@ DB_HOST=${input:-$DB_HOST}
 read -p "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 # Lectura de variables de entorno de SSO
-GOOGLE_OAUTH_SECRET_KEY=""
+GOOGLE_OAUTH_SECRET_KEY="k8WE0-Oeon0FnGDAo03X5IQo"
 read -p "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
 GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
-GOOGLE_OAUTH_CLIENT_ID=""
+GOOGLE_OAUTH_CLIENT_ID="628176483267-fu449k587f887bm7n5tgc8alndtb35t1.apps.googleusercontent.com"
 read -p "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
@@ -81,7 +81,8 @@ cd $PROYECT_NAME || exit 1
 ##Creacion y activacion del entorno virtual
 sudo virtualenv venv -p python3
 sudo chmod -R ugo+rwx venv
-source venv/bin/activate
+source venv/bin/activate > /dev/null
+echo "- Entorno virtual creado"
 #
 SECRET_KEY=$(openssl rand -base64 32)
 ##Creacion de variables de entorno
@@ -149,12 +150,13 @@ scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER
 echo "- Base de Datos creada"
 
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
-pip install -r "requirements.txt";
+pip install -r "requirements.txt" > /dev/null;
 python manage.py migrate
-TEMP_FILE=$(mktemp)
-scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$TEMP_FILE"
-
-python manage.py loaddata "$TEMP_FILE"
+TEMP_DIR=$(mktemp -d)
+SSO_KEYS="$TEMP_DIR/google_keys.json"
+scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$SSO_KEYS"
+cat "$SSO_KEYS"
+python manage.py loaddata "$SSO_KEYS"
 
 cd scripts || exit 1
 
