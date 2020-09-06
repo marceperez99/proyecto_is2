@@ -131,7 +131,8 @@ pip install -r "requirements.txt" > /dev/null;
 # Se corren migraciones de Django
 python manage.py migrate
 # Se cargan datos
-scripts/data/load_data.sh  "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY"
+
+scripts/load_data.sh  "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY"
 
 cd scripts || exit 1
 # Se corre el servidor
