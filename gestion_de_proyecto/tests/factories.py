@@ -76,11 +76,11 @@ def proyecto_factory(data, fecha_de_creacion=timezone.now()):
 
     gerente = Participante.objects.create(usuario=gerente, proyecto=proyecto)
 
-    if 'comite_de_cambios' in data.keys():
-        comite_factory(proyecto, data['comite_de_cambios'])
     if 'participantes' in data.keys():
         for participante in data['participantes']:
             participante_factory(proyecto, participante)
+    if 'comite_de_cambios' in data.keys():
+        comite_factory(proyecto, data['comite_de_cambios'])
 
     if 'tipos_de_item' in data.keys():
         for fase, tipos in data['tipos_de_item'].items():
@@ -103,6 +103,7 @@ def proyecto_factory(data, fecha_de_creacion=timezone.now()):
 
     return proyecto
 
+
 def participante_factory(proyecto, data):
     """
     Factory que retorna objetos del tipo Participante
@@ -124,6 +125,8 @@ def participante_factory(proyecto, data):
     participante = Participante.objects.create(usuario=usuario, rol=rol, proyecto=proyecto)
     permisos = {Fase.objects.get(nombre=fase): permisos for fase, permisos in data['permisos'].items()}
     participante.asignar_rol_de_proyecto(rol, permisos)
+    print(permisos)
+    print(participante)
     return participante
 
 
