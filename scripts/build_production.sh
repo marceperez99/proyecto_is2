@@ -48,10 +48,10 @@ DB_HOST=${input:-$DB_HOST}
 read -rp "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 # Lectura de variables de entorno de SSO
-GOOGLE_OAUTH_SECRET_KEY="k8WE0-Oeon0FnGDAo03X5IQo"
+GOOGLE_OAUTH_SECRET_KEY=""
 read -rp "Ingrese el SECRET KEY del servicio de Google OAuth [$GOOGLE_OAUTH_SECRET_KEY]: " input
 GOOGLE_OAUTH_SECRET_KEY=${input:-$GOOGLE_OAUTH_SECRET_KEY}
-GOOGLE_OAUTH_CLIENT_ID="628176483267-fu449k587f887bm7n5tgc8alndtb35t1.apps.googleusercontent.com"
+GOOGLE_OAUTH_CLIENT_ID=""
 read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
