@@ -12,6 +12,7 @@ def cancelar_solicitud(solicitud):
     """
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
     solicitud.estado = EstadoSolicitud.RECHAZADA
+    solicitud.save()
     # TODO: notificar a solicitante que la solicitud fue cancelada
 
 
@@ -25,7 +26,7 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
 
     linea_base = solicitud.linea_base
     linea_base.estado = EstadoLineaBase.ROTA
-
+    linea_base.save()
     for asignacion in solicitud.get_items_a_modificar():
         asignacion.item.solicitar_modificacion(asignacion.usuario)
 
