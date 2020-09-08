@@ -13,7 +13,7 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 
 from .forms import *
 from .tasks import upload_and_save_file_item
-from .utils import get_atributos_forms
+from .utils import get_atributos_forms, trazar_item
 
 
 @login_required
@@ -85,6 +85,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
+        'trazabilidad': trazar_item(proyecto, item),
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},

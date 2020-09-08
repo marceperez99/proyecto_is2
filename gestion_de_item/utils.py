@@ -1,11 +1,13 @@
+import json
+
 from django import db
 from gdstorage.storage import GoogleDriveStorage
 
 import gestion_de_tipo_de_item.models as modelos
 from gestion_de_item.forms import AtributoItemNumericoForm, AtributoItemBooleanoForm, AtributoItemFechaForm, \
     AtributoItemCadenaForm, AtributoItemArchivoForm
-from gestion_de_item.models import AtributoItemArchivo
-
+from gestion_de_item.models import AtributoItemArchivo, Item
+from gestion_de_proyecto.models import Proyecto
 
 
 def get_atributos_forms(tipo_de_item, request, instance=None):
@@ -85,7 +87,6 @@ def upload_and_save_file_item(gd_storage, atributo_id, file, proyecto, fase, ite
     db.close_old_connections()
 
     for i in range(0, len(atributo_id)):
-
         atributo = AtributoItemArchivo.objects.get(id=atributo_id[i])
         path = f'/PROY-{proyecto.nombre}-ID{proyecto.id}_/' \
                f'FASE-{fase.nombre}-ID{fase.id}_/ITEM-{item}_/ATRIB-{atributo.plantilla.nombre}_/' \
@@ -103,3 +104,51 @@ def upload_and_save_file_item_2(atributo, file, proyecto, fase, item):
     print(path)
     gd_storage.save(path, file)
     return gd_storage.url(path)
+
+
+def trazar_item(proyecto: Proyecto, item: Item):
+    items = []
+    items_visitados = set()
+    queue = [item]
+
+    while len(queue) > 0:
+        item = queue.pop()
+        if item.id in items_visitados:
+            continue
+        items_visitados.add(item.id)
+        items.append(item)
+
+        for padre in item.get_padres():
+            if padre.id not in items_visitados:
+                queue.append(padre)
+
+        for antecesor in item.get_antecesores():
+            if antecesor.id not in items_visitados:
+                queue.append(antecesor)
+
+        for hijo in item.get_hijos():
+            if hijo.id not in items_visitados:
+                queue.append(hijo)
+
+        for sucesor in item.get_sucesores():
+            if sucesor.id not in items_visitados:
+                queue.append(sucesor)
+
+    return json.dumps([
+        {
+            "fase": fase.nombre,
+            "items": [
+                {
+                    "codigo": item.codigo,
+                    "data": {
+                        "nombre": str(item),
+                        "peso": item.get_peso()
+                    },
+                    "hijos": [hijo.codigo for hijo in item.get_hijos()],
+                    "sucesores": [sucesor.codigo for sucesor in item.get_sucesores()]
+                }
+                for item in items if item.get_fase().id == fase.id
+            ]
+        }
+        for fase in proyecto.get_fases()
+    ])
