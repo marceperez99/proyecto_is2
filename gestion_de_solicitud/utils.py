@@ -27,6 +27,7 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
     linea_base = solicitud.linea_base
     linea_base.estado = EstadoLineaBase.ROTA
     linea_base.save()
+    # se solicita la modificacion de los items especificados
     for asignacion in solicitud.get_items_a_modificar():
         asignacion.item.solicitar_modificacion(asignacion.usuario)
 
@@ -37,6 +38,11 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
         for sucesor in asignacion.item.get_sucesores():
             if sucesor.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:
                 sucesor.solicitar_revision()
+
+    # Se ponen los demas items en la linea base en revision
+    for item in linea_base.items.all():
+        if item.estado == EstadoDeItem.EN_LINEA_BASE:
+            item.solicitar_revision()
 
     solicitud.estado = EstadoSolicitud.APROBADA
     solicitud.save()
