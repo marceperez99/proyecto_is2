@@ -167,7 +167,7 @@ class TestModeloItem:
                                                       (EstadoDeItem.A_APROBAR, EstadoDeItem.APROBADO),
                                                       (EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.EN_LINEA_BASE),
                                                       (EstadoDeItem.ELIMINADO, EstadoDeItem.ELIMINADO),
-                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.A_MODIFICAR),
+                                                      (EstadoDeItem.A_MODIFICAR, EstadoDeItem.APROBADO),
                                                       (EstadoDeItem.EN_REVISION, EstadoDeItem.EN_REVISION), ])
     def test_aprobar_item_solicitado(self, item, estado_item, esperado):
         """
@@ -280,18 +280,31 @@ class TestModeloItem:
 
     def test_puede_modificar_item_a_modificar(self, item_a_modificar, participante):
         """
-        TODO: MArcelo
-        :param item_a_modificar:
-        :return:
+        TODO: Marcelo incluir en la planilla
+        Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
+        correctamente que un participante asignado para modificar un item puede modificar el item.
+
+        Se espera:
+            - Que el metodo retorne True.
+
+        Mensaje de Error:
+            - El item deberia ser modificable por el usuario.
         """
         assert item_a_modificar.puede_modificar(participante), f'El item deberia ser modificable por el usuario'
 
     def test_puede_modificar_item_a_modificar_sin_encargado(self, rs_admin, rol_de_proyecto, proyecto,
                                                             item_a_modificar):
         """
-        TODO: MArcelo
-        :param item_a_modificar:
-        :return:
+        TODO: Marcelo cargar en la planilla
+        Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
+        correctamente que un participante pueda modificar un item que ha sido puesto para ser modificado \
+        por cualquier usuario con el permiso correspondiente.
+
+        Se espera:
+            - Que el metodo retorne True.
+
+        Mensaje de Error:
+            - El item deberia ser modificable por el usuario.
         """
         item_a_modificar.encargado_de_modificar = None
         user = user_factory('user_test_2', 'password123', 'test2@admin.com', rs_admin.nombre)
@@ -308,9 +321,15 @@ class TestModeloItem:
 
     def test_no_puede_modificar_item_a_modificar(self, rs_admin, rol_de_proyecto, proyecto, item_a_modificar):
         """
-        TODO: MArcelo
-        :param item_a_modificar:
-        :return:
+        TODO: Marcelo cargar en la planilla
+        Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
+        correctamente que un participante, que no fue asignado para modificar un item, no puede el item.
+
+        Se espera:
+            - Que el metodo retorne False.
+
+        Mensaje de Error:
+            - El item no debe ser modificable por otro usuario que no sea el asignado
         """
         user = user_factory('user_test_3', 'passrowe123', 'test3@admin.com', rs_admin.nombre)
         participante = participante_factory(proyecto, {
@@ -330,7 +349,9 @@ class TestModeloItem:
 # TODO Luis falta pruebas unitaria de: add_antecesor
 # TODO Luis falta pruebas unitaria de: hay_ciclo
 # TODO Luis falta pruebas unitaria de: eliminar_relacion
-
+# TODO Hugo test_eliminar_item
+# TODO Luis test_puede_restaurarse
+# TODO Luis test_restaurar
 
 @pytest.mark.django_db
 class TestVistasItem:
@@ -443,6 +464,8 @@ class TestVistasItem:
             - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
         proyecto.estado = EstadoDeProyecto.INICIADO
+        item.estado = EstadoDeItem.A_APROBAR
+        item.save()
         proyecto.save()
         response = cliente_loggeado.get(reverse('aprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
@@ -472,6 +495,8 @@ class TestVistasItem:
             - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
         """
         proyecto.estado = EstadoDeProyecto.INICIADO
+        item.estado = EstadoDeItem.APROBADO
+        item.save()
         proyecto.save()
         response = cliente_loggeado.get(reverse('desaprobar_item', args=(proyecto.id, item.get_fase().id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
@@ -505,3 +530,6 @@ class TestVistasItem:
                                                                                 item.id, item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
+
+    # TODO Hugo: test_debe_modificar_view
+    # TODO Luis: test_restaurar_version_item_view

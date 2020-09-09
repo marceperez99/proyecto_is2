@@ -29,7 +29,7 @@ def estado_item(*estados):
                 else:
                     cadena = estados[-1]
                 messages.error(request, 'El Item debe estar en el Estado ' + cadena)
-                return redirect('visualizar_proyecto', proyecto_id)
+                return redirect('visualizar_item', proyecto_id, fase_id, item_id)
 
         return inner
 
