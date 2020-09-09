@@ -108,7 +108,7 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
         if form.is_valid():
             lineabase = form.save()
             lineabase.fase = get_object_or_404(Fase, id=fase_id)
-            lineabase.estado = EstadoLineaBase.CERRADO
+            lineabase.estado = EstadoLineaBase.CERRADA
             # TODO: Marcos Por que haces self=None??, este metodo asi como esta podria ser una \
             #  funcion utilitaria nomas, a no ser que dentro del metodo mismo setees el nombre de la LB
             lineabase.nombre = LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)

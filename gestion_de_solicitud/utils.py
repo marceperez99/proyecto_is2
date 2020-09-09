@@ -7,8 +7,8 @@ def cancelar_solicitud(solicitud):
     """
     # TODO: Cargar en la planilla
     Funcion utilitaria que implementa la cancelacion de una solicitud de Ruptura de Linea Base
-    :param solicitud: SolicitudDeCambio
-    :return:
+    Argumentos:
+     - solicitud: SolicitudDeCambio
     """
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
     solicitud.estado = EstadoSolicitud.RECHAZADA
