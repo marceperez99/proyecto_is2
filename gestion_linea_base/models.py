@@ -24,6 +24,7 @@ class LineaBase(models.Model):
         self.estado = EstadoLineaBase.ROTA
         self.save()
     def create_nombre(self, proyecto, fase):
+
         nro_fase = proyecto.get_fases().index(fase) + 1
         nro_lb = LineaBase.objects.filter(fase__proyecto=proyecto).__len__()+1
         return "LB_"+str(nro_fase)+"_"+str(nro_lb)

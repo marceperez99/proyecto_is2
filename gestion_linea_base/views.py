@@ -28,7 +28,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Verificar que la linea base este cerrada con un fixture
+    # TODO: Verificar que la linea base no este Rota
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
     fase = Fase.objects.get(id=fase_id)
@@ -66,7 +66,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.motivo = form.cleaned_data['motivo']
                     asignacion.save()
                 count = count + 1
-            # TODO: debe retornar a la vista de la linea base.
+            # TODO: Hugo debe retornar a la vista de la linea base.
             return redirect('index')
     else:
         solicitud_form = SolicitudForm()
@@ -100,6 +100,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
 # TODO Marcos, falta usar decoradores para comprobar permisos de proyecto, comprobar estado de Proyecto: solo Iniciado
 # TODO Marcos, falta comprobar que la fase este abierta
 def nueva_linea_base_view(request, proyecto_id, fase_id):
+    # TODO: Marcos documentar e incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
@@ -108,6 +109,8 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
             lineabase = form.save()
             lineabase.fase = get_object_or_404(Fase, id=fase_id)
             lineabase.estado = EstadoLineaBase.CERRADO
+            # TODO: Marcos Por que haces self=None??, este metodo asi como esta podria ser una \
+            #  funcion utilitaria nomas, a no ser que dentro del metodo mismo setees el nombre de la LB
             lineabase.nombre = LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)
             for l in lineabase.items.all():
                 l.estado = EstadoDeItem.EN_LINEA_BASE
@@ -141,6 +144,7 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
 # TODO Marcos, falta verificar permisos de proyecto
 def listar_linea_base_view(request, proyecto_id, fase_id):
     """
+    TODO: Marcos terminar documentacion y incluir en la planilla
     Vista que permite la visualizacion de los items creados dentro de la fase.
     Si el usuario cuenta con el permiso de proyecto
 
@@ -168,7 +172,7 @@ def listar_linea_base_view(request, proyecto_id, fase_id):
 
 def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
     """
-
+    TODO: Marcos documentar y registrar en planilla
     :param request:
     :param proyecto_id:
     :param fase_id:
@@ -190,7 +194,9 @@ def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
                        'links': [
                            {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
                            {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
-                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))}
+                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                           {'nombre': 'Lineas Base',
+                            'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
                        ]
                        }
     }
