@@ -333,7 +333,7 @@ class Item(models.Model):
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: comentar
+        # TODO: Marcelo comentar
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
