@@ -314,11 +314,11 @@ class Item(models.Model):
             atributo.save()
 
         for padre in version.padres.all():
-            if padre.estado in [EstadoDeItem.APROBADO,EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
+            if padre.estado in [EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.padres.add(padre)
 
         for antecesor in version.antecesores.all():
-            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE,EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
+            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
