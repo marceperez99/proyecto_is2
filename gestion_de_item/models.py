@@ -326,6 +326,7 @@ class Item(models.Model):
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
+        #TODO: Si el item se encuentra en linea base debe comprometerse.
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):

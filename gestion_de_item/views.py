@@ -736,10 +736,10 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
             item.eliminar_relacion(item_relacionado)
             messages.success(request, "La relacion se elimino correctamente")
         except Exception as e:
-            mensaje = 'La relacion no se puede eliminar por los siguientes motivos<br><ul>'
+            mensaje = 'La relacion no se puede eliminar por el siguientes motivo:<br><ul>'
             errores = e.args[0]
-            for error in errores:
-                mensaje = mensaje + '<li>' + error + '</li><br>'
+            print(errores)
+            mensaje = mensaje + '<li>' + errores + '</li><br>'
             mensaje = mensaje + '</ul>'
             messages.error(request, mensaje)
 
@@ -790,6 +790,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
+
 # TODO falta decorador fase_abierta
 # TODO falta verificar estado de item, solo:En Revision
 def debe_modificar_view(request, proyecto_id, fase_id, item_id):
@@ -810,9 +811,17 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(Fase, id=fase_id)
 
     if not item.esta_en_linea_base_comprometida():
-        # Encapsular
-        item.estado = "A modificar"
-        item.save()
+        # Coloca el estado del item en A modificar.
+        item.solicitar_modificacion()
+
+        hijos = item.get_hijos()
+        sucesores = item.get_sucesores()
+        dependencias = list(hijos) + list(sucesores)
+
+        for dependencia in dependencias:
+            if dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:
+                dependencia.solicitar_revision()
+
         return redirect('visualizar_item', proyecto_id, fase_id, item_id)
     else:
         linea_base = item.get_linea_base()
@@ -825,7 +834,7 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_restaurar_version')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 # TODO falta decorador fase_abierta
-# TODO falta verificar estado de item, solo: A MOdificar, No AProbado
+# TODO falta verificar estado de item, solo: A Modificar, No Aprobado
 def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_id):
     """
     Vista que permite restaurar un Item a una version anterior, siempre y cuando el cambio no genere inconsistencias.
