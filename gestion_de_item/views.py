@@ -797,8 +797,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 # TODO Hugo falta verificar estado de item, solo:En Revision
 def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     """
-    Vista que muestra una pantalla de confirmación para marcar un item como A modificar si este se encuentra en una linea base.
-    En caso de no estar en una linea base, redirige el usuario a la vista del item con el nuevo estado a modificar.
+    Vista que muestra dos  pantallas de confirmación para marcar un item como A modificar dependiendo de si este se encuentra en una linea base o no.
 
     Argumentos:
         -request: HttpRequest
@@ -811,24 +810,37 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     item = get_object_or_404(Item, id=item_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
+    if request.method == 'POST':
 
-    if not item.esta_en_linea_base_comprometida():
-        # Coloca el estado del item en A modificar.
-        item.solicitar_modificacion()
+        if not item.esta_en_linea_base():
+            # Coloca el estado del item en A modificar.
+            item.solicitar_modificacion()
 
-        hijos = item.get_hijos()
-        sucesores = item.get_sucesores()
-        dependencias = list(hijos) + list(sucesores)
+            hijos = item.get_hijos()
+            sucesores = item.get_sucesores()
+            dependencias = list(hijos) + list(sucesores)
 
-        for dependencia in dependencias:
-            if dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:
-                dependencia.solicitar_revision()
+            for dependencia in dependencias:
+                if dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:
+                    dependencia.solicitar_revision()
 
-        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+            return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+        else:
+            linea_base = item.get_linea_base()
+            return redirect('solicitar_rompimiento',proyecto_id,fase_id,linea_base.id)
     else:
-        linea_base = item.get_linea_base()
-        contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
-        return render(request, 'gestion_de_item/debe_modificar.html', context=contexto)
+        if not item.esta_en_linea_base():
+            hijos = item.get_hijos()
+            sucesores = item.get_sucesores()
+            dependencias = list(hijos) + list(sucesores)
+            item_afectados = list(filter(lambda dependencia: dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE],dependencias))
+            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto,'item_afectados':item_afectados,'hay_items_afectados': len(item_afectados)>0}
+            return render(request,'gestion_de_item/confirmar_modificacion_no_linea_base.html',context = contexto)
+
+        else:
+            linea_base = item.get_linea_base()
+            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
+            return render(request, 'gestion_de_item/confirmar_modificacion_linea_base.html', context=contexto)
 
 
 @login_required
