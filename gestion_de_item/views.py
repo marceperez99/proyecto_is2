@@ -84,6 +84,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
             usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
+        'puede_modificar': item.puede_modificar(proyecto.get_participante(request.user)),
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -536,11 +537,13 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
         - HttpResponse
     """
     #TODO: Hugo, si el item esta a modificar comprobar que el usuario pueda editar
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     version_actual = item.version
-
+    if not item.puede_modificar(proyecto.get_participante(request.user)):
+        return redirect('sin_permiso')
     # Carga todos los formularios
 
     form_version = EditarItemForm(request.POST or None, instance=version_actual)
