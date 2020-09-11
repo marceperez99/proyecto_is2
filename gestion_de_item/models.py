@@ -342,12 +342,20 @@ class Item(models.Model):
         """
         Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
         """
 
         return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
+
+        """
         if self.lineabase_set.filter(estado="Cerrada").exists():
 
             return self.lineabase_set.get(estado="Cerrada")
