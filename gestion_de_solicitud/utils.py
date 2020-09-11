@@ -3,12 +3,12 @@ from gestion_de_solicitud.models import EstadoSolicitud, SolicitudDeCambio
 from gestion_linea_base.models import EstadoLineaBase
 
 
-# TODO: Cargar en la planilla
 def cancelar_solicitud(solicitud):
     """
+    # TODO: Cargar en la planilla
     Funcion utilitaria que implementa la cancelacion de una solicitud de Ruptura de Linea Base
-    :param solicitud: SolicitudDeCambio
-    :return:
+    Argumentos:
+     - solicitud: SolicitudDeCambio
     """
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
     solicitud.estado = EstadoSolicitud.RECHAZADA
@@ -19,14 +19,16 @@ def cancelar_solicitud(solicitud):
 def aprobar_solicitud(solicitud: SolicitudDeCambio):
     """
     Funcion utilitaria que aprueba la solicitud de ruptura de linea base
-    :param solicitud:
-    :return:
+    Argumentos:
+     - solicitud: Solicitud
+
     """
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
 
     linea_base = solicitud.linea_base
     linea_base.estado = EstadoLineaBase.ROTA
     linea_base.save()
+    # se solicita la modificacion de los items especificados
     for asignacion in solicitud.get_items_a_modificar():
         asignacion.item.solicitar_modificacion(asignacion.usuario)
 
@@ -36,7 +38,13 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
 
         for sucesor in asignacion.item.get_sucesores():
             if sucesor.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:
+                # TODO: se necesita poner en estado Comprometida a la LB
                 sucesor.solicitar_revision()
+
+    # Se ponen los demas items en la linea base en revision
+    for item in linea_base.items.all():
+        if item.estado == EstadoDeItem.EN_LINEA_BASE:
+            item.solicitar_revision()
 
     solicitud.estado = EstadoSolicitud.APROBADA
     solicitud.save()
