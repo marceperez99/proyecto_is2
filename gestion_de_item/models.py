@@ -292,8 +292,10 @@ class Item(models.Model):
         if self.get_fase().es_primera_fase():
             return True
         else:
-            return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
-                   version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
+            return version.padres.filter(
+                estado__in=[EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]).count() > 0 or \
+                   version.antecesores.filter(estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR,
+                                                          EstadoDeItem.EN_REVISION]).count() > 0
 
     def restaurar(self, version):
         """
@@ -312,11 +314,11 @@ class Item(models.Model):
             atributo.save()
 
         for padre in version.padres.all():
-            if padre.estado == EstadoDeItem.APROBADO:
+            if padre.estado in [EstadoDeItem.APROBADO,EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.padres.add(padre)
 
         for antecesor in version.antecesores.all():
-            if antecesor.estado == EstadoDeItem.EN_LINEA_BASE:
+            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE,EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
@@ -327,7 +329,7 @@ class Item(models.Model):
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
-        #TODO: Si el item se encuentra en linea base debe comprometerse.
+        # TODO: Si el item se encuentra en linea base debe comprometerse.
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
