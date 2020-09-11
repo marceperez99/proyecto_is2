@@ -66,7 +66,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.motivo = form.cleaned_data['motivo']
                     asignacion.save()
                 count = count + 1
-            # TODO: Hugo debe retornar a la vista de la linea base.
+
             return redirect('visualizar_linea_base',proyecto_id,fase_id,linea_base_id)
     else:
         solicitud_form = SolicitudForm()

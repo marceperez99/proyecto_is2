@@ -416,8 +416,10 @@ class VersionItem(models.Model):
 
     def get_atributos_dinamicos(self):
         """
-        TODO: Hugo falta documentar
-        :return:
+        Método para conseguir los atributos dinamicos relacioandos al item
+
+        Retorna:
+            - Lista de atributos dinamicos relacionados al item.
         """
         atributos = list(self.atributoitemnumerico_set.all())
         atributos += list(self.atributoitemfecha_set.all())
