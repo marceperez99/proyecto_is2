@@ -338,24 +338,19 @@ class Item(models.Model):
 
     def esta_en_linea_base(self):
         """
-        TODO: actually completar el metodo
+        Método que retorna True si el item se encuentra dentro de una linea base.
 
         """
-        # TODO: Hugo cambiar y combinar con esta_en_linea_base_comprometida
-        return self.lineabase_set.filter(estado="Cerrada").exists()
 
-    def esta_en_linea_base_comprometida(self):
-        # TODO: Hugo
-        return self.lineabase_set.filter(estado="Comprometida").exists()
+        return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
-        # TODO: Hugo actually completar el metodo, cambiar estados usados en el filter
+
         if self.lineabase_set.filter(estado="Cerrada").exists():
-            # TODO: Hugo
+
             return self.lineabase_set.get(estado="Cerrada")
-        # TODO: Hugo
+
         elif self.lineabase_set.filter(estado="Comprometida").exists():
-            # TODO: Hugo
             return self.lineabase_set.get(estado="Comprometida")
         else:
             return None
