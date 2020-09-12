@@ -2,7 +2,10 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from gestion_de_proyecto.models import Comite, Proyecto
+
+from gestion_de_fase.decorators import fase_abierta
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Comite, Proyecto, EstadoDeProyecto
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm, LineaBaseForm
 from gestion_linea_base.models import LineaBase, EstadoLineaBase
@@ -16,6 +19,9 @@ from gestion_de_item.models import EstadoDeItem
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
 # TODO falta decorador de estado de proyecto y estado de fase
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+@fase_abierta()
+
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     """
     Vista que permite la creación de nuevas solicitudes de rompimiento de lineas bases cerradas.
