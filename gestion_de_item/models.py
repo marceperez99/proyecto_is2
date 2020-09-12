@@ -289,6 +289,9 @@ class Item(models.Model):
             -True: Si el item puede restaurarse a una version anterior
             -False: Si el item no puede restaurarse a una version anterior
         """
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            return False
+
         if self.get_fase().es_primera_fase():
             return True
         else:

@@ -90,7 +90,7 @@ def version_factory(tipo_de_item, item, nro_version, data):
     if 'padres' in data.keys():
         for padre in data['padres']:
             padre = Item.objects.filter(tipo_de_item__fase=item.get_fase()).get(codigo=padre)
-            version.antecesores.add(padre)
+            version.padres.add(padre)
 
     return version
 
