@@ -127,7 +127,7 @@ def item(tipo_de_item):
 
 
 @pytest.fixture
-def item2(tipo_de_item_fase2):
+def item2(tipo_de_item_fase2, item):
     return item_factory({
         'tipo': 'Requerimiento NO Funcional',
         'estado': EstadoDeItem.NO_APROBADO,
@@ -139,6 +139,7 @@ def item2(tipo_de_item_fase2):
                 'nombre': 'Nombre de item',
                 'descripcion': 'Descripcion',
                 'peso': 8,
+                'antecesores': ['RF_1'],
             },
             2: {
                 'nombre': 'Nombre 2',
@@ -367,6 +368,7 @@ class TestModeloItem:
                                                                    'usuario que no sea el asignado'
 
     def test_puede_restaurarse_estado(self, item):
+        #TODO subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -376,12 +378,13 @@ class TestModeloItem:
         """
         item.estado = EstadoDeItem.APROBADO
         item.save()
-        version = item.get_versiones()[0]
+        version = item.get_versiones()[1]
         condicion = item.puede_restaurarse(version)
         assert condicion == False, f'El item no se puede restaurar a la version {item.version.version},' \
                                    f'pues el item no esta con estado No Aprobado'
 
     def test_puede_restaurarse_fase(self, item):
+        # TODO subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -389,12 +392,13 @@ class TestModeloItem:
         Mensaje de error:
             'El item no se puede restaurar a la version {item.version.version}, pues el item no esta en la primera fase'
         """
-        version = item.get_versiones()[0]
+        version = item.get_versiones()[1]
         condicion = item.puede_restaurarse(version)
         assert condicion == True, f'El item no se puede restaurar a la version {item.version.version}, ' \
                                   f'pues el item no esta en la primera fase'
 
     def test_puede_restaurarse_antecesores(self, item, item2):
+        # TODO subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -405,14 +409,13 @@ class TestModeloItem:
         """
         item.estado = EstadoDeItem.EN_LINEA_BASE
         item.save()
-        item2.add_antecesor(item)
-        item2.save()
-        version = item2.get_versiones()[0]
+        version = item2.get_versiones()[1]
         condicion = item2.puede_restaurarse(version)
-        assert condicion == True, f'El item no se puede restaurar a la version {item2.versio.version}, ' \
+        assert condicion == True, f'El item no se puede restaurar a la version {item2.version.version}, ' \
                                   f'pues en esta no trazabe a la primera fase'
 
-    def test_puede_restaurarse_padres(self, item, tipo_de_item_fase2):
+    def test_puede_restaurarse_padres(self, item, item2, tipo_de_item_fase2):
+        # TODO subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -421,6 +424,8 @@ class TestModeloItem:
         Mensaje de error:
             'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
         """
+        item2.estado = EstadoDeItem.APROBADO
+        item2.save()
         item3 = item_factory({
             'tipo': 'Requerimiento NO Funcional',
             'estado': EstadoDeItem.NO_APROBADO,
@@ -432,6 +437,7 @@ class TestModeloItem:
                     'nombre': 'Nombre de item',
                     'descripcion': 'Descripcion',
                     'peso': 8,
+                    'padres': ['RT_1']
                 },
                 2: {
                     'nombre': 'Nombre 2',
@@ -443,14 +449,13 @@ class TestModeloItem:
         })
         item.estado = EstadoDeItem.APROBADO
         item.save()
-        item3.add_padre(item)
-        item.save()
-        version = item3.get_versiones()[0]
+        version = item3.get_versiones()[1]
         condicion = item3.puede_restaurarse(version)
         assert condicion == True, f'El item no se puede restaurar a la version {item3.version.version}, ' \
                                   f'pues en esta no es trazable a la primera fase'
 
     def test_restaurar(self, item):
+        # TODO subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo restaurar item\n
         Se espera:
@@ -459,7 +464,7 @@ class TestModeloItem:
         Mensaje de error:
             'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
         """
-        version = item.get_versiones()[0]
+        version = item.get_versiones()[1]
         item.restaurar(version)
         assert item.version.nombre == version.nombre, 'No se pudo restaurar el nombre de esta version'
         assert item.version.descripcion == version.descripcion, 'No se pudo restaurar la descripcion de esta version'
@@ -467,7 +472,9 @@ class TestModeloItem:
         assert item.version.version == item.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
 
     def test_restaurar_relaciones(self, item, item2, tipo_de_item, tipo_de_item_fase2):
+        # TODO subir en la planilla de funciones
         """
+
         """
         item.estado = EstadoDeItem.EN_LINEA_BASE
         item.save()
@@ -523,15 +530,15 @@ class TestModeloItem:
                 }
             },
         })
-        version = item3.get_versiones()[0]
+        version = item3.get_versiones()[1]
         item3.restaurar(version)
-        print(item3.version.antecesores.all(), version.antecesores.all())
         assert item3.version.nombre == version.nombre, 'No se pudo restaurar el nombre de esta version'
         assert item3.version.descripcion == version.descripcion, 'No se pudo restaurar la descripcion de esta version'
         assert item3.version.peso == version.peso, 'No se pudo restaurar el peso de esta version'
         assert item3.version.version == item3.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
-        assert item3.version.padres.count() == version.padres.count(), 'sfsfs'
-        assert item3.version.antecesores.count() == version.antecesores.count(), 'sdfgsf'
+        assert item3.version.padres.count() == 0, 'No se puede restaurar a la version anterior'
+        assert item3.version.antecesores.count() == version.antecesores.count(), f'No se restauro correctamente ' \
+                                                                                 f'a la version {item3.version.version}'
 
 
 
