@@ -333,7 +333,7 @@ class Item(models.Model):
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: comentar
+        # TODO: Marcelo comentar
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
@@ -342,12 +342,20 @@ class Item(models.Model):
         """
         Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
         """
 
         return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
+
+        """
         if self.lineabase_set.filter(estado="Cerrada").exists():
 
             return self.lineabase_set.get(estado="Cerrada")
@@ -408,8 +416,10 @@ class VersionItem(models.Model):
 
     def get_atributos_dinamicos(self):
         """
-        TODO: Hugo falta documentar
-        :return:
+        Método para conseguir los atributos dinamicos relacioandos al item
+
+        Retorna:
+            - Lista de atributos dinamicos relacionados al item.
         """
         atributos = list(self.atributoitemnumerico_set.all())
         atributos += list(self.atributoitemfecha_set.all())

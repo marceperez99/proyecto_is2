@@ -31,7 +31,7 @@
                     <a href="{% url 'aprobar_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">Aprobar Item</a>
                     <a href="{% url 'desaprobar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">Cancelar Aprobación</a>
                 {% endif %}
-                {% if item.estado == 'No Aprobado' and 'pp_f_modificar_item' in permisos %}
+                {% if puede_modificar %}
                     <a href="{% url 'editar_item' proyecto.id fase.id item.id %}" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
                 {% endif %}
                 {% if item.estado == 'Aprobado' and 'pp_f_desaprobar_item' in permisos %}

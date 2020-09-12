@@ -79,11 +79,11 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     participante = proyecto.get_participante(request.user)
-    # TODO: Hugo, Agregar condicion para saber si se puede revisar, si esta en revision y se tiene el permiso ... mira la rama item_revision.
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
             usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
         'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
+        'puede_modificar': item.puede_modificar(proyecto.get_participante(request.user)),
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -101,7 +101,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_crear_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO HUGO falta decorador fase_abierta
+@fase_abierta()
 def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=None):
     """
     Viste que permite la creación de un nuevo item despues de seleccionar el tipo de item al que corresponde.
@@ -247,13 +247,13 @@ def nuevo_item_view(request, proyecto_id, fase_id, tipo_de_item_id=None, item=No
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_eliminar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO HUGO falta decorador fase_abierta
-# TODO HUGO falta decorador de estado de item
+@fase_abierta()
+@estado_item(EstadoDeItem.NO_APROBADO)
 def eliminar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que solicita confirmación para eliminar un item.
     La eliminación consiste en cambiar el estado del item al estado ELIMINADO.
-    Solo es posible eliminar un item si este se encuentra en estado CREADO.
+    Solo es posible eliminar un item si este se encuentra en estado No Aprobado.
 
     Argumentos:
         - request: HttpRequest
@@ -343,8 +343,8 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_relacionar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO falta decorador fase_abierta
-#Falta decorador de estado de item: estados validos: No Aprobado, A Modificar
+@fase_abierta()
+@estado_item(EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR)
 def relacionar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite relacionar dos item de una misma fase (padre-hijo) o de
@@ -519,8 +519,8 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_modificar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO falta decorador fase_abierta
-# TODO ESTADOS DE ITEM: estados validos: No Aprobado, A Modificar
+@fase_abierta()
+@estado_item(EstadoDeItem.NO_APROBADO,EstadoDeItem.A_MODIFICAR)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una
@@ -535,12 +535,13 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
     Retorna
         - HttpResponse
     """
-    #TODO: Hugo, si el item esta a modificar comprobar que el usuario pueda editar
+
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
     version_actual = item.version
-
+    if not item.puede_modificar(proyecto.get_participante(request.user)):
+        return redirect('sin_permiso')
     # Carga todos los formularios
 
     form_version = EditarItemForm(request.POST or None, instance=version_actual)
@@ -709,7 +710,8 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO Luis falta decorador fase_abierta
+@fase_abierta()
+@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
 # TODO Luis falta verificar estado de item, solo: A Modificar, No Aprobado
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
@@ -756,8 +758,8 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_editar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO falta decorador fase_abierta
-# TODO falta verificar estado de item, solo: No Aprobado, A Modificar
+@fase_abierta()
+@estado_item(EstadoDeItem.NO_APROBADO,EstadoDeItem.A_MODIFICAR)
 def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     """
     Vista que permite elimianr un archivo de un item, creando una version del mismo sin dicho archivo
@@ -793,8 +795,8 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO Hugo falta decorador fase_abierta
-# TODO Hugo falta verificar estado de item, solo:En Revision
+@fase_abierta()
+@estado_item(EstadoDeItem.EN_REVISION)
 def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que muestra dos  pantallas de confirmación para marcar un item como A modificar dependiendo de si este se encuentra en una linea base o no.
@@ -827,15 +829,18 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
             return redirect('visualizar_item', proyecto_id, fase_id, item_id)
         else:
             linea_base = item.get_linea_base()
-            return redirect('solicitar_rompimiento',proyecto_id,fase_id,linea_base.id)
+            return redirect('solicitar_rompimiento', proyecto_id, fase_id, linea_base.id)
     else:
         if not item.esta_en_linea_base():
             hijos = item.get_hijos()
             sucesores = item.get_sucesores()
             dependencias = list(hijos) + list(sucesores)
-            item_afectados = list(filter(lambda dependencia: dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE],dependencias))
-            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto,'item_afectados':item_afectados,'hay_items_afectados': len(item_afectados)>0}
-            return render(request,'gestion_de_item/confirmar_modificacion_no_linea_base.html',context = contexto)
+            item_afectados = list(
+                filter(lambda dependencia: dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE],
+                       dependencias))
+            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'item_afectados': item_afectados,
+                        'hay_items_afectados': len(item_afectados) > 0}
+            return render(request, 'gestion_de_item/confirmar_modificacion_no_linea_base.html', context=contexto)
 
         else:
             linea_base = item.get_linea_base()
@@ -847,8 +852,8 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_restaurar_version')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO Luis falta decorador fase_abierta
-# TODO Luis falta verificar estado de item, solo: A MOdificar, No AProbado
+@fase_abierta()
+@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
 def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_id):
     """
     Vista que permite restaurar un Item a una version anterior, siempre y cuando el cambio no genere inconsistencias.
