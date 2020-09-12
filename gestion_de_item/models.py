@@ -233,7 +233,8 @@ class Item(models.Model):
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
             hijos = self.get_hijos()
-            if len(hijos) == 0:
+            sucesores = self.get_sucesores()
+            if len(hijos)+len(sucesores) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
@@ -241,10 +242,12 @@ class Item(models.Model):
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
-
+                for sucesor in sucesores:
+                    mensaje_error.append(
+                        'El item es el antecesor del item ' + sucesor.version.nombre + ' con código ' + sucesor.codigo)
                 raise Exception(mensaje_error)
         else:
-            raise Exception("El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo")
+            raise Exception(["El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo"])
 
     def eliminar_relacion(self, item):
         """

@@ -82,8 +82,17 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
             usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
-        'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO,
+        'puede_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO and
+                                participante.tiene_pp_en_fase(fase, 'pp_f_eliminar_item'),
+        "puede_pedir_modificacion": item.estado == EstadoDeItem.NO_APROBADO and
+                                    participante.tiene_pp_en_fase(fase, 'pp_f_solicitar_aprobacion_item'),
+
+        "puede_aprobar": item.estado == EstadoDeItem.A_APROBAR and
+                         participante.tiene_pp_en_fase(fase, 'pp_f_aprobar_item'),
+        "puede_desaprobar": item.estado == EstadoDeItem.APROBADO and
+                            participante.tiene_pp_en_fase(fase, 'pp_f_desaprobar_item'),
         'puede_modificar': item.puede_modificar(proyecto.get_participante(request.user)),
+        'puede_terminar_aprobacion': item.estado == EstadoDeItem.A_MODIFICAR and item.puede_modificar(proyecto.get_participante(request.user)),
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -468,7 +477,6 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_aprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR)
@@ -489,6 +497,14 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+    tiene_permiso = proyecto.tiene_permiso_de_proyecto_en_fase(request.user, fase, "pp_f_aprobar_item")
+    item_a_modificar = item.estado == EstadoDeItem.A_MODIFICAR
+    item_a_aprobar = item.estado == EstadoDeItem.A_APROBAR
+    usuario_encargado = item.puede_modificar(proyecto.get_participante(request.user))
+
+    if not ((item_a_aprobar and tiene_permiso) or (item_a_modificar and usuario_encargado)):
+        return redirect('sin_permiso')
+
     if request.method == 'POST':
         try:
             item.aprobar()
@@ -520,7 +536,7 @@ def aprobar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_modificar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.NO_APROBADO,EstadoDeItem.A_MODIFICAR)
+@estado_item(EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR)
 def editar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite editar un los atributos de un ítem. Cualquier modificación del item generara una
@@ -679,10 +695,11 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
             item.desaprobar()
             messages.success(request, "El item se desaprobo correctamente")
         except Exception as e:
-            mensaje = 'El item no puede ser desaprobado debido a las siguientes razones:<br>'
+            mensaje = '<p class="lead">El item no puede ser desaprobado debido a las siguientes razones:<br><p>'
             errores = e.args[0]
+
             for error in errores:
-                mensaje = mensaje + '<li>' + error + '</li><br>'
+                mensaje = f"{mensaje}<li>{error}</li><br>"
             mensaje = '<ul>' + mensaje + '</ul>'
             messages.error(request, mensaje)
 
@@ -711,7 +728,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
+@estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
 # TODO Luis falta verificar estado de item, solo: A Modificar, No Aprobado
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
@@ -741,7 +758,7 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
             item.eliminar_relacion(item_relacionado)
             messages.success(request, "La relacion se elimino correctamente")
         except Exception as e:
-            mensaje = 'La relacion no se puede eliminar por el siguientes motivo:<br><ul>'
+            mensaje = '<p class="lead">La relacion no se puede eliminar por el siguientes motivo</p>:<br><ul>'
             errores = e.args[0]
             print(errores)
             mensaje = mensaje + '<li>' + errores + '</li><br>'
@@ -759,7 +776,7 @@ def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_rel
 @pp_requerido_en_fase('pp_f_editar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.NO_APROBADO,EstadoDeItem.A_MODIFICAR)
+@estado_item(EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR)
 def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
     """
     Vista que permite elimianr un archivo de un item, creando una version del mismo sin dicho archivo
@@ -853,7 +870,7 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_restaurar_version')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
+@estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
 def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_id):
     """
     Vista que permite restaurar un Item a una version anterior, siempre y cuando el cambio no genere inconsistencias.
