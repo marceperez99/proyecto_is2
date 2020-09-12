@@ -8,8 +8,11 @@
         <div class="row bg-white p-3 border rounded">
             <h3 class="col-12">Solicitar Aprobacion de Item</h3>
             <hr class="col-10 mx-auto">
-            <p class="lead">Esta seguro que desea Solicitar la Aprobacion de este Item?</p>
+            <p class="h5 col-12">Esta seguro que desea Solicitar la Aprobacion de este Item?</p>
 
+            <p class="lead col-12">
+                Una vez Aprobado, el item solo podrá ser modificado si este se vuelve a Desaprobar.
+            </p>
             <form method="POST" class="col-12">
                 {% csrf_token %}
                 <div class="row">

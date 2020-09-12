@@ -10,8 +10,9 @@
         <div class="row">
             <div class="col-10 mx-auto bg-white p-3 border rounded">
 
-            <p class="lead">Esta seguro que desea aceptar la Solicitud de Aprobacion de este Item?</p>
-
+            <p class="h5">Esta seguro que desea Aprobar este Item?</p>
+            <p class="lead">Este item no podrá ser modificado mientras esté en el estado Aprobado,
+                se deberá Desaprobar el item si se desea modificarlo.</p>
             <form method="POST" class="col-12">
                 {% csrf_token %}
                 <div class="row">
