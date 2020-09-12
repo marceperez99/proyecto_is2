@@ -1,133 +1,120 @@
-import datetime
 from http import HTTPStatus
 
 import pytest
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import Item
-from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
+from gestion_de_proyecto.models import EstadoDeProyecto
+from gestion_de_proyecto.tests.factories import proyecto_factory
 from gestion_de_tipo_de_item.forms import AtributoCadenaForm, AtributoArchivoForm, AtributoBooleanoForm, \
     AtributoNumericoForm, AtributoFechaForm
-from gestion_de_tipo_de_item.models import TipoDeItem, AtributoBinario, AtributoCadena, AtributoNumerico,\
-    AtributoFecha, AtributoBooleano
+from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from gestion_de_tipo_de_item.utils import recolectar_atributos, atributo_form_handler
-from roles_de_proyecto.models import RolDeProyecto
-from roles_de_sistema.models import RolDeSistema
+from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
+from roles_de_sistema.tests.factories import rol_de_sistema_factory
+from usuario.tests.factories import user_factory
 
 
-
-@pytest.fixture()
+@pytest.fixture
 def rs_admin():
-    rol = RolDeSistema(nombre='Admin', descripcion='descripcion de prueba')
-    rol.save()
-    for pp in Permission.objects.filter(content_type__app_label='roles_de_sistema', codename__startswith='p'):
-        rol.permisos.add(pp)
-    rol.save()
-    return rol
+    return rol_de_sistema_factory('Admin', 'Descripcion', [p.codename for p in
+                                                           Permission.objects.filter(
+                                                               content_type__app_label='roles_de_sistema',
+                                                               codename__startswith='p')])
 
 
 @pytest.fixture
 def usuario(rs_admin):
-    user = User(username='user_test', email='test@admin.com')
-    user.set_password('password123')
-    user.save()
-    user.groups.add(Group.objects.get(name=rs_admin.nombre))
-    return user
+    return user_factory('usuario_test', 'password123', 'user@email.com', rs_admin.nombre)
 
 
 @pytest.fixture
 def cliente_loggeado(usuario):
     client = Client()
-    client.login(username='user_test', password='password123')
+    client.login(username='usuario_test', password='password123')
     return client
 
 
 @pytest.fixture
 def rol_de_proyecto():
-    rol = RolDeProyecto(nombre='Desarrollador', descripcion='Descripcion del rol')
-    rol.save()
-    rol.asignar_permisos(list(Permission.objects.all().filter(codename__startswith='pp_')))
-    return rol
+    return rol_de_proyecto_factory({
+        'nombre': 'Desarrollador',
+        'descripcion': 'Descripcion del Rol',
+        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
+    })
 
 
 @pytest.fixture
-def proyecto(usuario, rol_de_proyecto):
-    proyecto = Proyecto(nombre='Proyecto Prueba', descripcion='Descripcion de prueba',
-                        fecha_de_creacion=datetime.datetime.now(tz=timezone.utc),
-                        creador=usuario, gerente=usuario, estado=EstadoDeProyecto.CONFIGURACION)
-    proyecto.save()
-    fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    fase = Fase(nombre='Desarrollo', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    fase = Fase(nombre='Pruebas', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-    fase.save()
-    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario)
-    participante.save()
-    return proyecto
+def proyecto(usuario):
+    return proyecto_factory({
+        'nombre': 'Proyecto de Prueba',
+        'descripcion': 'Descripcion de Prueba',
+        'creador': usuario.username,
+        'gerente': usuario.username,
+        'estado': EstadoDeProyecto.CONFIGURACION,
+        'fases': [
+            {
+                'nombre': 'Analisis',
+                'descripcion': 'Analisis de Requerimientos'
+            }, {
+                'nombre': 'Desarrollo',
+                'descripcion': 'Desarrollo de Software'
+            }, {
+                'nombre': 'Pruebas',
+                'descripcion': 'Pruebas de Software'
+            }
+        ],
+    })
 
 
 @pytest.fixture
 def tipo_de_item(usuario, proyecto):
-    tipo_de_item = TipoDeItem()
-    tipo_de_item.nombre = "Requerimiento Funcional"
-    tipo_de_item.descripcion = "Especificación de un requerimiento funcional."
-
-    tipo_de_item.prefijo = "RF"
-    tipo_de_item.creador = usuario
-    tipo_de_item.fase = Fase.objects.get(nombre='Analisis')
-    tipo_de_item.fecha_creacion = timezone.now()
-    tipo_de_item.save()
-    return tipo_de_item
+    fase = Fase.objects.get(nombre='Analisis')
+    return tipo_de_item_factory(fase, {
+        'nombre': 'Requerimiento Funcional',
+        'descripcion': 'Especificación de un requerimiento funcional.',
+        'prefijo': 'RF',
+        'creador': usuario.username,
+        'fecha_de_creacion': timezone.now(),
+        'atributos_dinamicos': [
+            {
+                'tipo': 'archivo',
+                'nombre': 'Diagrama del caso de uso',
+                'requerido': False,
+                'max_tamaño': 5,
+            }, {
+                'tipo': 'cadena',
+                'nombre': 'Descripcion',
+                'requerido': True,
+                'max_longitud': 5,
+            }, {
+                'tipo': 'fecha',
+                'nombre': 'Fecha de Cierre',
+                'requerido': True,
+            }, {
+                'tipo': 'numerico',
+                'nombre': 'Costo del Caso de Uso',
+                'requerido': False,
+                'max_digitos': 2,
+                'max_decimales': 2
+            }, {
+                'tipo': 'booleano',
+                'nombre': 'Cierto',
+                'requerido': True,
+            },
+        ]
+    })
 
 
 @pytest.fixture
 def atributos(tipo_de_item):
-    atributos = []
-    abin = AtributoBinario()
-    abin.requerido = False
-    abin.max_tamaño = 5
-    abin.nombre = "Diagrama del caso de uso"
-    abin.tipo_de_item = tipo_de_item
-    abin.save()
-
-    acad = AtributoCadena()
-    acad.nombre = "Descripción"
-    acad.requerido = True
-    acad.max_longitud = 400
-    acad.tipo_de_item = tipo_de_item
-    acad.save()
-
-    adate = AtributoFecha()
-    adate.nombre = "Fecha de Cierre"
-    adate.requerido = True
-    adate.tipo_de_item = tipo_de_item
-    adate.save()
-
-    anum = AtributoNumerico()
-    anum.nombre = "Costo del caso de uso"
-    anum.requerido = False
-    anum.max_digitos = 2
-    anum.max_decimales = 2
-    anum.tipo_de_item = tipo_de_item
-    anum.save()
-
-    abool = AtributoBooleano()
-    abool.nombre = "Cierto"
-    abool.requerido = True
-    abool.tipo_de_item = tipo_de_item
-    abool.save()
-
-    atributos.append(abin)
-    atributos.append(acad)
-    atributos.append(abool)
-    atributos.append(adate)
-    atributos.append(anum)
-    return atributos
+    return list(tipo_de_item.atributobinario_set.all()) + list(tipo_de_item.atributobooleano_set.all()) \
+           + list(tipo_de_item.atributocadena_set.all()) + list(tipo_de_item.atributofecha_set.all()) + \
+           list(tipo_de_item.atributonumerico_set.all())
 
 
 @pytest.mark.django_db
@@ -216,7 +203,6 @@ class TestVistasTipoDeItem:
         """
         response = cliente_loggeado.get(
             reverse('editar_tipo_de_item', args=(proyecto.id, tipo_de_item.fase.id, tipo_de_item.id)))
-
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
 
     def test_tipo_de_item_view(self, cliente_loggeado, proyecto, tipo_de_item):

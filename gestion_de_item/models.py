@@ -5,9 +5,6 @@ from gdstorage.storage import GoogleDriveStorage
 gd_storage = GoogleDriveStorage()
 
 
-# Create your models here.
-
-
 class EstadoDeItem:
     """
     Clase que especifica todos los estados en los que se puede encontrar un tipo de item
@@ -219,7 +216,7 @@ class Item(models.Model):
         Lanza:
             Exception: si el item no esta en el estado A_APROBAR
         """
-        if self.estado == EstadoDeItem.A_APROBAR:
+        if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:
@@ -281,6 +278,7 @@ class Item(models.Model):
 
     def puede_restaurarse(self, version):
         """
+        TODO: Luis incluir en planilla
         Metodo de model Item que verifica si un item puede o no volver a una version pasada.
         Una version va a poder restaurarse si, el item esta en la primera fase, o si esta en una fase siguiente
         al menos tiene que tener un padre aprobado, o al menos un antecesor en linea base.\n
@@ -297,11 +295,14 @@ class Item(models.Model):
         if self.get_fase().es_primera_fase():
             return True
         else:
-            return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
-                   version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
+            return version.padres.filter(
+                estado__in=[EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]).count() > 0 or \
+                   version.antecesores.filter(estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR,
+                                                          EstadoDeItem.EN_REVISION]).count() > 0
 
     def restaurar(self, version):
         """
+        TODO: Luis incluir en planilla
         Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
         Parametros:
             - version: int, identificador unico de la version a la cual se desea regresar
@@ -316,50 +317,52 @@ class Item(models.Model):
             atributo.save()
 
         for padre in version.padres.all():
-            if padre.estado == EstadoDeItem.APROBADO:
+            if padre.estado in [EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.padres.add(padre)
 
         for antecesor in version.antecesores.all():
-            if antecesor.estado == EstadoDeItem.EN_LINEA_BASE:
+            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
         self.save()
 
     def solicitar_revision(self):
-        # TODO: comentar y probar
+        # TODO: comentar
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
+        # TODO: Si el item se encuentra en linea base debe comprometerse.
         self.save()
 
-    def esta_en_linea_base(self):
-        """
-        TODO: actually completar el metodo
-
-        """
-        return True
-
     def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: comentar y probar
+        # TODO: Marcelo comentar
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
 
     def esta_en_linea_base(self):
         """
-        TODO: actually completar el metodo
+        Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
         """
-        return self.lineabase_set.filter(estado="Cerrada").exists()
 
-    def esta_en_linea_base_comprometida(self):
-        return self.lineabase_set.filter(estado="Comprometida").exists()
+        return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
-        # TODO: actually completar el metodo
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
+
+        Retorna:
+            -Booleano
+
+        """
         if self.lineabase_set.filter(estado="Cerrada").exists():
+
             return self.lineabase_set.get(estado="Cerrada")
+
         elif self.lineabase_set.filter(estado="Comprometida").exists():
             return self.lineabase_set.get(estado="Comprometida")
         else:
@@ -367,10 +370,23 @@ class Item(models.Model):
 
     def puede_modificar(self, participante):
         """
-        TODO: Marcelo
-        :param participante:
-        :return:
+        TODO: Marcelo incluir en la planilla
+        Metodo que retorna un Booleano indicando si el item puede ser modificado por un participante \
+        del proyecto pasado como parametro. Este metodo retornara True si:
+            - El item esta en el estado "No Aprobado" y el participante tiene permisos dentro de la \
+            para modificar el item.
+            - El item esta en el estado "A Modificar" y el campo "encargado" del item es igual al participante.
+            - El item esta en el estado "A Modificar" y el campo "encargado" no esta seteado y el participante tiene \
+            permiso de modificar el item.
+
+        Argumentos:
+            - participante: Participante
+
+        Retorna:
+            - True: si el participante puede modificar el item
+            - True: en caso contrario
         """
+
         if self.estado == EstadoDeItem.A_MODIFICAR and self.encargado_de_modificar is not None:
             return self.encargado_de_modificar == participante
 
@@ -402,6 +418,12 @@ class VersionItem(models.Model):
     padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
 
     def get_atributos_dinamicos(self):
+        """
+        Método para conseguir los atributos dinamicos relacioandos al item
+
+        Retorna:
+            - Lista de atributos dinamicos relacionados al item.
+        """
         atributos = list(self.atributoitemnumerico_set.all())
         atributos += list(self.atributoitemfecha_set.all())
         atributos += list(self.atributoitemcadena_set.all())
@@ -417,8 +439,8 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
-    valor = models.FileField(upload_to='items/', storage=gd_storage, null=True)
-    archivo_temporal = models.FileField(upload_to='items/', null=True)
+    valor = models.FileField(upload_to='items', storage=gd_storage, null=True)
+    archivo_temporal = models.FileField(upload_to='items', null=True)
 
     def getTipoAtributo(self):
         return "Archivo"

@@ -43,7 +43,7 @@
                                 <td>{{ lb.nombre }}</td>
                                 <td>{{ lb.estado }}</td>
                                 <td class="text-center">
-                                    <a href=""
+                                    <a href="{% url 'visualizar_linea_base' proyecto.id fase.id lb.id %}"
                                        class="btn btn-primary border-0 bg-color-accent">
                                         <i class="fas fa-eye"></i>   Visualizar</a>
                                 </td>

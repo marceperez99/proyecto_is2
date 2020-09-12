@@ -70,33 +70,39 @@ def proyecto_factory(data, fecha_de_creacion=timezone.now()):
                                        gerente=gerente, creador=creador, estado=data['estado'])
 
     fase_anterior = None
-    for fase in data['fases']:
-        fase_anterior = fase_factory(proyecto, fase_anterior, fase)
+    if 'fases' in data.keys():
+        for fase in data['fases']:
+            fase_anterior = fase_factory(proyecto, fase_anterior, fase)
+
     gerente = Participante.objects.create(usuario=gerente, proyecto=proyecto)
 
-    comite_factory(proyecto, data['comite_de_cambios'])
+    if 'participantes' in data.keys():
+        for participante in data['participantes']:
+            participante_factory(proyecto, participante)
+    if 'comite_de_cambios' in data.keys():
+        comite_factory(proyecto, data['comite_de_cambios'])
 
-    for participante in data['participantes']:
-        participante_factory(proyecto, participante)
+    if 'tipos_de_item' in data.keys():
+        for fase, tipos in data['tipos_de_item'].items():
+            fase = Fase.objects.get(nombre=fase)
+            for tipo in tipos:
+                tipo_de_item_factory(fase, tipo)
 
-    for fase, tipos in data['tipos_de_item'].items():
-        fase = Fase.objects.get(nombre=fase)
-        for tipo in tipos:
-            tipo_de_item_factory(fase, tipo)
-
-    for item in data['items']:
-        item_factory(item)
-
-    for fase, lineas_base in data['lineas_base'].items():
-        fase = Fase.objects.get(nombre=fase)
-        for linea_base in lineas_base:
-            linea_base_factory(fase, linea_base)
+    if 'items' in data.keys():
+        for item in data['items']:
+            item_factory(item)
+    if 'lineas_base' in data.keys():
+        for fase, lineas_base in data['lineas_base'].items():
+            fase = Fase.objects.get(nombre=fase)
+            for linea_base in lineas_base:
+                linea_base_factory(fase, linea_base)
 
     if 'solicitudes' in data.keys():
         for solicitud in data['solicitudes']:
             solicitud_de_cambio_factory(proyecto, solicitud)
 
     return proyecto
+
 
 def participante_factory(proyecto, data):
     """
@@ -119,6 +125,8 @@ def participante_factory(proyecto, data):
     participante = Participante.objects.create(usuario=usuario, rol=rol, proyecto=proyecto)
     permisos = {Fase.objects.get(nombre=fase): permisos for fase, permisos in data['permisos'].items()}
     participante.asignar_rol_de_proyecto(rol, permisos)
+    print(permisos)
+    print(participante)
     return participante
 
 

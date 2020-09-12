@@ -59,7 +59,8 @@ def asignacion_factory(solicitud, data):
     item = Item.objects.get(codigo=data['item'])
     user = User.objects.get(username=data['encargado'])
     participante = solicitud.linea_base.fase.proyecto.get_participante(user)
-    return Asignacion.objects.create(solicitud=solicitud, usuario=participante, item=item)
+    motivo = data['motivo'] if 'motivo' in data.keys() else ""
+    return Asignacion.objects.create(solicitud=solicitud, usuario=participante, item=item, motivo=motivo)
 
 
 def voto_factory(solicitud, data):
