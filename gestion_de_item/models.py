@@ -2,6 +2,8 @@ from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
+
+
 gd_storage = GoogleDriveStorage()
 
 
@@ -331,15 +333,31 @@ class Item(models.Model):
         self.save()
 
     def solicitar_revision(self):
-        # TODO: comentar
+        """
+        Metodo que pone en el estado "En Revision" al item, ademas, si el item esta en una linea
+        base Cerrada pone a esta linea base en el estado "Comprometida".
+        # TODO: Cargar en la planilla
+        """
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+
+        if self.estado == EstadoDeItem.EN_LINEA_BASE:
+            linea_base = self.get_linea_base()
+            if linea_base.esta_cerrada():
+                linea_base.comprometer()
+
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
-        # TODO: Si el item se encuentra en linea base debe comprometerse.
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: Marcelo comentar
+        """
+        # TODO: cargar en la planilla
+        Método que hace que el item pase al estado "A Modificar", además, si se especifica un usuario encargado
+        se guardará el usuario que tendrá la responsabilidad de modificar el item.
+
+        Argumentos:
+            - usuario_encargado: Participante
+        """
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
@@ -360,7 +378,6 @@ class Item(models.Model):
 
         Retorna:
             -Booleano
-
         """
         if self.lineabase_set.filter(estado="Cerrada").exists():
 
