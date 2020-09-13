@@ -16,5 +16,5 @@ Vistas
 
 Pruebas Unitarias
 ==================
-.. automodule:: gestion_linea_base.tests
+.. automodule:: gestion_linea_base.tests.tests
     :members:
