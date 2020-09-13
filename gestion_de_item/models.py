@@ -339,13 +339,14 @@ class Item(models.Model):
         # TODO: Cargar en la planilla
         """
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+
+        if self.estado == EstadoDeItem.EN_LINEA_BASE:
+            linea_base = self.get_linea_base()
+            if linea_base.esta_cerrada():
+                linea_base.comprometer()
+
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
-
-        linea_base = self.get_linea_base()
-        if linea_base.esta_cerrada():
-            linea_base.comprometer()
-
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
