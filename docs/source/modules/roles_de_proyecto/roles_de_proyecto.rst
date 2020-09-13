@@ -7,6 +7,9 @@ Módulo de encargado del manejo de los Roles de Proyecto.
 Un rol de Proyecto es un conjunto de permisos de Proyecto que puede ser asignado a
 un usuario dentro de un Proyecto.
 
+Cada Rol de Proyecto esta conformado por un nombre, una descripcion y un conjunto de permisos
+2de Proyecto.
+
 Los permisos de Proyecto incluidos en un Rol de Proyecto son utilizados como base para asignar a
 los participantes de un proyecto los permisos correspondientes, al momento de asignar un rol de
 Proyecto, el sistema solicitará al usuario que esté asignando el rol a otro participante que
@@ -33,5 +36,5 @@ Decoradores
 
 Pruebas Unitarias
 ==================
-.. automodule:: roles_de_proyecto.tests
+.. automodule:: roles_de_proyecto.tests.tests
     :members:

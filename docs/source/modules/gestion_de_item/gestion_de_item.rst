@@ -20,5 +20,5 @@ Vistas
 
 Pruebas Unitarias
 ==================
-.. automodule:: gestion_de_item.tests
+.. automodule:: gestion_de_item.tests.tests
     :members:
