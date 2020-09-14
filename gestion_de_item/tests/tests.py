@@ -387,7 +387,7 @@ class TestModeloItem:
                                                                    'usuario que no sea el asignado'
 
     def test_puede_restaurarse_estado(self, item):
-        #TODO subir en la planilla de funciones
+        #TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -417,7 +417,7 @@ class TestModeloItem:
                                   f'pues el item no esta en la primera fase'
 
     def test_puede_restaurarse_antecesores(self, item, item2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -434,7 +434,7 @@ class TestModeloItem:
                                   f'pues en esta no trazabe a la primera fase'
 
     def test_puede_restaurarse_padres(self, item, item2, tipo_de_item_fase2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -474,7 +474,7 @@ class TestModeloItem:
                                   f'pues en esta no es trazable a la primera fase'
 
     def test_restaurar(self, item):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo restaurar, este en particular comprueba si restaura los atributos del item\n
         Se espera:
@@ -490,7 +490,7 @@ class TestModeloItem:
         assert item.version.version == item.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
 
     def test_restaurar_relaciones(self, item, item2, tipo_de_item, tipo_de_item_fase2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo restaurar, este en particular comprueba si restaura las relaciones del item\n
         Se espera:
@@ -572,6 +572,7 @@ class TestModeloItem:
 
 
     def test_add_padre(self, item, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo add_padre\n
         Se espera:
@@ -606,6 +607,7 @@ class TestModeloItem:
                                                                         ' 1 con respecto a la ultima'
 
     def test_add_antecesor(self, item, tipo_de_item, tipo_de_item_fase2):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo add_antecesor\n
         Se espera:
@@ -664,6 +666,7 @@ class TestModeloItem:
                                              EstadoDeItem.ELIMINADO,
                                              ])
     def test_eliminar_relacion_estado(self, item, tipo_de_item, estado_item):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoc en los estados de los item en los
         cuales queremos eliminar su relacion con otro.\n
@@ -695,6 +698,7 @@ class TestModeloItem:
 
 
     def test_eliminar_relacion_no_existe_test(self, item, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoca en la inexistencia de las relaciones
         entre dos item.\n
@@ -723,6 +727,7 @@ class TestModeloItem:
         assert "Los item no estan relacionados" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
 
     def test_eliminar_relacion_dejara_de_ser_trazable(self, tipo_de_item, tipo_de_item_fase2):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoca en que los item sigan siendo
         trazables a la primera fase, se probaran los item que esten en las fases mayores a la primera.\n
@@ -784,6 +789,7 @@ class TestModeloItem:
 
 
     def test_eliminar_relacion_padre(self, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo eliminar relacion, esta prueba verifica que las relaciones ya
         no existan, mas especificamente, que el item B ya no este en la lista de padres del item A.\n
@@ -829,6 +835,7 @@ class TestModeloItem:
 
 
     def test_eliminar_relacion_antecesor(self, item, tipo_de_item, tipo_de_item_fase2):
+        #TODO Luis, Agregar en la planilla
         """
         Prueba Unitaria para el metodo eliminar relacion, esta prueba verifica que las relaciones ya
         no existan, mas especificamente, que el item B ya no este en la lista de antecesores del item A.\n
@@ -1057,6 +1064,7 @@ class TestVistasItem:
 
 
     def test_restaurar_version_item_view(self, cliente_loggeado, proyecto, item):
+        #TODO Luis, Agregar en la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de restaurar version.\n
         Se espera:
