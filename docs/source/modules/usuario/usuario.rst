@@ -16,5 +16,5 @@ Modelos
 
 Pruebas Unitarias
 =======================
-.. automodule:: usuario.tests
+.. automodule:: usuario.tests.tests
     :members:

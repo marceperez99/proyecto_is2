@@ -295,7 +295,6 @@ class TestModeloItem:
             El estado del item debe ser {EstadoDeItem.A_MODIFICAR} pero el item esta en estado {item.estado}
             y el encargado_de_modificar deberia ser {participante} pero es {item.encargado_de_modificar}
         """
-        # TODO incluir en archivo de documentacion
         item.solicitar_modificacion(participante)
 
         condicion = item.estado == EstadoDeItem.A_MODIFICAR and item.encargado_de_modificar == participante
@@ -312,7 +311,6 @@ class TestModeloItem:
             El estado del item debe ser "En Revision" pero esta en estado {item.estado}
             y el estado_anterior deberia ser Aprobado pero es {item.estado_anterior}
         """
-        # TODO incluir en archivo de documentacion
         item.estado = EstadoDeItem.APROBADO
         item.solicitar_revision()
 
@@ -322,7 +320,6 @@ class TestModeloItem:
 
     def test_puede_modificar_item_a_modificar(self, item_a_modificar, participante):
         """
-        TODO: Marcelo incluir en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante asignado para modificar un item puede modificar el item.
 
@@ -337,7 +334,6 @@ class TestModeloItem:
     def test_puede_modificar_item_a_modificar_sin_encargado(self, rs_admin, rol_de_proyecto, proyecto,
                                                             item_a_modificar):
         """
-        TODO: Marcelo cargar en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante pueda modificar un item que ha sido puesto para ser modificado \
         por cualquier usuario con el permiso correspondiente.
@@ -363,7 +359,6 @@ class TestModeloItem:
 
     def test_no_puede_modificar_item_a_modificar(self, rs_admin, rol_de_proyecto, proyecto, item_a_modificar):
         """
-        TODO: Marcelo cargar en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante, que no fue asignado para modificar un item, no puede el item.
 

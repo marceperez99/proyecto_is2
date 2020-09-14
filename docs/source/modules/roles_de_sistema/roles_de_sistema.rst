@@ -15,5 +15,5 @@ Modelos
 
 Pruebas unitarias
 ==========================
-.. automodule:: roles_de_sistema.tests
+.. automodule:: roles_de_sistema.tests.tests
     :members:

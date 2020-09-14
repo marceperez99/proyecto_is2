@@ -48,7 +48,6 @@ class TestUtils:
 
     def test_cancelar_solicitud(self, proyecto):
         """
-        TODO: marcelo incluir en planilla de control de documetnacion y pruebas
         Prueba unitaria que prueba el proceso llevado a cabo al cancelar una solicitud de ruptura del LB.
         Resultado esperado:
             La solicitud de cambio pase al estado 'Rechazada'.
@@ -62,7 +61,6 @@ class TestUtils:
     @pytest.mark.parametrize('solicitud', ['LB_1.1', 'LB_1.2', 'LB_2.1', 'LB_3.1'])
     def test_aceptar_solicitud(self, proyecto, solicitud):
         """
-        TODO: marcelo incluir en planilla de control de documetnacion y pruebas
         Prueba unitaria que prueba el proceso llevado a cabo al aprobar una solicitud de ruptura del LB.
         Resultado esperado:
             La solicitud de cambio pase al estado 'Aprobada'.
@@ -122,13 +120,17 @@ class TestModeloSolicitudDeCambio:
     @pytest.mark.parametrize('solicitud, nro_votos', [('LB_1.1', 3), ('LB_1.2', 1)])
     def test_get_votos_a_favor(self, proyecto, solicitud, nro_votos):
         """
-        TODO: MArcelo incluir en planilla de documentacion y pruebas
-        Prueba unitaria que comprueba funcionamiento
-        :param proyecto:
-        :param solicitud:
-        :param nro_votos:
-        :return:
+        Prueba unitaria que comprueba funcionamiento del metodo get_votos_a_favor.
+
+        Se espera:
+
+            - Que el metodo retorne correctamente el numero de votos a favor que tiene una solicitud.
+        Mensaje de error:
+            - No se retornó correctamente el numero de votos a favor, se esperaba {nro_votos} pero se retornó {votos}
+
         """
         solicitud = SolicitudDeCambio.objects.get(linea_base__nombre=solicitud)
+        votos = solicitud.get_votos_a_favor()
 
-        assert solicitud.get_votos_a_favor() == nro_votos
+        assert votos == nro_votos, f"No se retornó correctamente el numero de votos a favor, se esperaba {nro_votos} " \
+                                   f"pero se retornó {votos}"

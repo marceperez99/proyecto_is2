@@ -35,7 +35,6 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - Asingacion[]
-        TODO: Marcelo incluir en planilla
         """
         return self.asignacion_set.all()
 
@@ -45,11 +44,15 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - Proyecto
-        TODO: Marcelo incluir en planilla
         """
         return self.linea_base.get_proyecto()
 
     def ya_voto(self, participante):
+        """
+        TODO: Luis documentar, probar y registrar en la planilla
+        :param participante:
+        :return:
+        """
         return self.voto_set.filter(miembro=participante).exists()
 
     def get_votos_a_favor(self):
@@ -58,7 +61,6 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - int
-        TODO: Marcelo incluir en planilla
         """
         return self.voto_set.filter(voto_a_favor=True).count()
 
@@ -68,7 +70,6 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - int
-        TODO: Marcelo incluir en planilla
         """
         return self.voto_set.filter(voto_a_favor=False).count()
 
@@ -78,7 +79,6 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - int
-        TODO: Marcelo incluir en planilla
         """
         return self.voto_set.all().count()
 
@@ -88,7 +88,6 @@ class SolicitudDeCambio(models.Model):
 
         Retorna:
             - int
-        TODO: Marcelo incluir en planilla
         """
         comite = self.linea_base.get_proyecto().get_comite_de_cambios()
         return comite.miembros.all().count() - self.get_numero_de_votos()

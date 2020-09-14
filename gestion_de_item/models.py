@@ -2,6 +2,8 @@ from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
+
+
 gd_storage = GoogleDriveStorage()
 
 
@@ -233,7 +235,8 @@ class Item(models.Model):
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
             hijos = self.get_hijos()
-            if len(hijos) == 0:
+            sucesores = self.get_sucesores()
+            if len(hijos)+len(sucesores) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
@@ -241,10 +244,12 @@ class Item(models.Model):
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
-
+                for sucesor in sucesores:
+                    mensaje_error.append(
+                        'El item es el antecesor del item ' + sucesor.version.nombre + ' con código ' + sucesor.codigo)
                 raise Exception(mensaje_error)
         else:
-            raise Exception("El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo")
+            raise Exception(["El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo"])
 
     def eliminar_relacion(self, item):
         """
@@ -328,15 +333,29 @@ class Item(models.Model):
         self.save()
 
     def solicitar_revision(self):
-        # TODO: comentar
+        """
+        Metodo que pone en el estado "En Revision" al item, ademas, si el item esta en una linea
+        base Cerrada pone a esta linea base en el estado "Comprometida".
+        """
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+
+        if self.estado == EstadoDeItem.EN_LINEA_BASE:
+            linea_base = self.get_linea_base()
+            if linea_base.esta_cerrada():
+                linea_base.comprometer()
+
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
-        # TODO: Si el item se encuentra en linea base debe comprometerse.
         self.save()
 
     def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: Marcelo comentar
+        """
+        Método que hace que el item pase al estado "A Modificar", además, si se especifica un usuario encargado
+        se guardará el usuario que tendrá la responsabilidad de modificar el item.
+
+        Argumentos:
+            - usuario_encargado: Participante
+        """
         self.encargado_de_modificar = usuario_encargado
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
@@ -348,7 +367,7 @@ class Item(models.Model):
         Retorna:
             -Booleano
         """
-
+        # TODO: Hugo, cambiar eso de abajo de estado="Cerrada" y agregar a planilla de documentacion
         return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
 
     def get_linea_base(self):
@@ -357,7 +376,6 @@ class Item(models.Model):
 
         Retorna:
             -Booleano
-
         """
         if self.lineabase_set.filter(estado="Cerrada").exists():
 
@@ -370,7 +388,6 @@ class Item(models.Model):
 
     def puede_modificar(self, participante):
         """
-        TODO: Marcelo incluir en la planilla
         Metodo que retorna un Booleano indicando si el item puede ser modificado por un participante \
         del proyecto pasado como parametro. Este metodo retornara True si:
             - El item esta en el estado "No Aprobado" y el participante tiene permisos dentro de la \

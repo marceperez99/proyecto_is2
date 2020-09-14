@@ -16,5 +16,5 @@ Vistas
 
 Pruebas Unitarias
 ==================
-.. automodule:: gestion_de_solicitud.tests
+.. automodule:: gestion_de_solicitud.tests.tests
     :members:
