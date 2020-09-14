@@ -18,10 +18,8 @@ from gestion_de_item.models import EstadoDeItem
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
-# TODO falta decorador de estado de proyecto y estado de fase
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     """
     Vista que permite la creación de nuevas solicitudes de rompimiento de lineas bases cerradas.
