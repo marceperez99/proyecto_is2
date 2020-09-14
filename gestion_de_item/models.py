@@ -267,7 +267,7 @@ class Item(models.Model):
 
         """
 
-        if self.estado != EstadoDeItem.NO_APROBADO:
+        if self.estado not in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR ]:
             raise Exception("El item no esta en estado 'No Aprobado'")
         if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
                 id=item.id).exists():

@@ -730,8 +730,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
-# TODO Luis falta verificar estado de item, solo: A Modificar, No Aprobado
+@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
     Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
