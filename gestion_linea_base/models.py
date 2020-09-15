@@ -26,9 +26,27 @@ class LineaBase(models.Model):
 
     def create_nombre(self, proyecto, fase):
         nro_fase = proyecto.get_fases().index(fase) + 1
+        # TODO: Marcos, no se numeran bien las lineas base, por ejemplo, si ya existen LB_1_1  y LB_1_2, si quiero crear
+        #  la primera LB en la segunda fase esto hace que se llame LB_2_3 en vez de LB_2_1
         nro_lb = LineaBase.objects.filter(fase__proyecto=proyecto).__len__() + 1
         return "LB_" + str(nro_fase) + "_" + str(nro_lb)
 
     def get_proyecto(self):
         # TODO comentar e incluir en planilla y probar
         return self.fase.get_proyecto()
+
+    def comprometer(self):
+        """
+        TODO: cargar en la planilla
+        :return:
+        """
+        assert self.estado == EstadoLineaBase.CERRADA
+        self.estado = EstadoLineaBase.COMPROMETIDA
+        self.save()
+
+    def esta_cerrada(self):
+        """
+        TODO: cargar en la planilla
+        :return:
+        """
+        return self.estado == EstadoLineaBase.CERRADA

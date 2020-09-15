@@ -92,7 +92,8 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         "puede_desaprobar": item.estado == EstadoDeItem.APROBADO and
                             participante.tiene_pp_en_fase(fase, 'pp_f_desaprobar_item'),
         'puede_modificar': item.puede_modificar(proyecto.get_participante(request.user)),
-        'puede_terminar_aprobacion': item.estado == EstadoDeItem.A_MODIFICAR and item.puede_modificar(proyecto.get_participante(request.user)),
+        'puede_terminar_aprobacion': item.estado == EstadoDeItem.A_MODIFICAR and item.puede_modificar(
+            proyecto.get_participante(request.user)),
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
@@ -328,13 +329,14 @@ def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
-    # TODO: Marcelo solo se puede revertir un item si este esta en estado No Aprobado o A Modificar
+    participante = proyecto.get_participante(request.user)
     contexto = {
         'item': item,
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
-        'lista_estados_item': [EstadoDeItem.NO_APROBADO, ],
+        'puede_revertirse': item.estado in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR] and
+                            participante.tiene_pp_en_fase(fase, "pp_f_restaurar_version"),
         'breadcrumb': {'pagina_actual': 'Historial de Cambios',
                        'links': [
                            {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -728,8 +730,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
-# TODO Luis falta verificar estado de item, solo: A Modificar, No Aprobado
+@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
     Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de

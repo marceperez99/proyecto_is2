@@ -295,7 +295,6 @@ class TestModeloItem:
             El estado del item debe ser {EstadoDeItem.A_MODIFICAR} pero el item esta en estado {item.estado}
             y el encargado_de_modificar deberia ser {participante} pero es {item.encargado_de_modificar}
         """
-        # TODO incluir en archivo de documentacion
         item.solicitar_modificacion(participante)
 
         condicion = item.estado == EstadoDeItem.A_MODIFICAR and item.encargado_de_modificar == participante
@@ -312,7 +311,6 @@ class TestModeloItem:
             El estado del item debe ser "En Revision" pero esta en estado {item.estado}
             y el estado_anterior deberia ser Aprobado pero es {item.estado_anterior}
         """
-        # TODO incluir en archivo de documentacion
         item.estado = EstadoDeItem.APROBADO
         item.solicitar_revision()
 
@@ -322,7 +320,6 @@ class TestModeloItem:
 
     def test_puede_modificar_item_a_modificar(self, item_a_modificar, participante):
         """
-        TODO: Marcelo incluir en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante asignado para modificar un item puede modificar el item.
 
@@ -337,7 +334,6 @@ class TestModeloItem:
     def test_puede_modificar_item_a_modificar_sin_encargado(self, rs_admin, rol_de_proyecto, proyecto,
                                                             item_a_modificar):
         """
-        TODO: Marcelo cargar en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante pueda modificar un item que ha sido puesto para ser modificado \
         por cualquier usuario con el permiso correspondiente.
@@ -363,7 +359,6 @@ class TestModeloItem:
 
     def test_no_puede_modificar_item_a_modificar(self, rs_admin, rol_de_proyecto, proyecto, item_a_modificar):
         """
-        TODO: Marcelo cargar en la planilla
         Prueba unitaria que comprueba que el metodo puede_modificar del modelo Item retorna \
         correctamente que un participante, que no fue asignado para modificar un item, no puede el item.
 
@@ -387,7 +382,7 @@ class TestModeloItem:
                                                                    'usuario que no sea el asignado'
 
     def test_puede_restaurarse_estado(self, item):
-        #TODO subir en la planilla de funciones
+        #TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -417,7 +412,7 @@ class TestModeloItem:
                                   f'pues el item no esta en la primera fase'
 
     def test_puede_restaurarse_antecesores(self, item, item2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -434,7 +429,7 @@ class TestModeloItem:
                                   f'pues en esta no trazabe a la primera fase'
 
     def test_puede_restaurarse_padres(self, item, item2, tipo_de_item_fase2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
         Prueba Unitaria para el metodo puede_restaurarse item\n
         Se espera:
@@ -474,12 +469,11 @@ class TestModeloItem:
                                   f'pues en esta no es trazable a la primera fase'
 
     def test_restaurar(self, item):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
-        Prueba Unitaria para el metodo restaurar item\n
+        Prueba Unitaria para el metodo restaurar, este en particular comprueba si restaura los atributos del item\n
         Se espera:
-            Que el metodo revierta los cambios el item a una version anterior, esto indica que el item tiene al menos un padre en la version
-            a la cual quiere volver, por lo que puede ser restaurado\n
+            Que el metodo revierta los cambios del item a una version anterior, en este caso sus atributos\n
         Mensaje de error:
             'El item no se puede restaurar a la version {item.version.version}, pues en esta no es trazable a la primera fase'
         """
@@ -491,9 +485,20 @@ class TestModeloItem:
         assert item.version.version == item.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
 
     def test_restaurar_relaciones(self, item, item2, tipo_de_item, tipo_de_item_fase2):
-        # TODO subir en la planilla de funciones
+        # TODO Luis subir en la planilla de funciones
         """
-
+        Prueba Unitaria para el metodo restaurar, este en particular comprueba si restaura las relaciones del item\n
+        Se espera:
+            Que el metodo revierta los cambios del item a una version anterior, en este caso restaura las
+            relaciones, si es posible esto indica que el item tiene al menos un padre en la version
+            a la cual quiere volver, por lo que puede ser restaurado\n
+        Mensaje de error:
+            'No se pudo restaurar el nombre de esta version'
+            'No se pudo restaurar la descripcion de esta version'
+            'No se pudo restaurar el peso de esta version'
+            'El numero de la version no aumento en 1 con respecto a la ultima'
+            'No se puede restaurar a la version anterior, pues el item {item3.version.nombre} dejara de ser trazable a la primera fase'
+            'No se restauro correctamente a la version {item3.version.version}'
         """
         item.estado = EstadoDeItem.EN_LINEA_BASE
         item.save()
@@ -555,15 +560,324 @@ class TestModeloItem:
         assert item3.version.descripcion == version.descripcion, 'No se pudo restaurar la descripcion de esta version'
         assert item3.version.peso == version.peso, 'No se pudo restaurar el peso de esta version'
         assert item3.version.version == item3.version_item.all().count(), 'El numero de la version no aumento en 1 con respecto a la ultima'
-        assert item3.version.padres.count() == 0, 'No se puede restaurar a la version anterior'
+        assert item3.version.padres.count() == 0, f'No se puede restaurar a la version anterior, pues el item ' \
+                                                  f'{item3.version.nombre} dejara de ser trazable a la primera fase'
         assert item3.version.antecesores.count() == version.antecesores.count(), f'No se restauro correctamente ' \
                                                                                  f'a la version {item3.version.version}'
 
-    # TODO Luis falta pruebas unitaria de: add_padre
-    # TODO Luis falta pruebas unitaria de: add_antecesor
-    # TODO Luis falta pruebas unitaria de: eliminar_relacion
-    # TODO Hugo test_eliminar_item
 
+    def test_add_padre(self, item, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo add_padre\n
+        Se espera:
+            Cuando el metodo se usa sobre un item este debera crear una nueva version, el item pasado como
+            parametro debera ser agregado en la lista de padres del item en la nueva version\n
+        Mensaje de error:
+            'El item {item.version.nombre} no se agrego a la lista de padres del item {version.version.nombre}'
+            'El numero de la version no aumento en 1 con respecto a la ultima'
+        """
+        item.estado = EstadoDeItem.APROBADO
+        item.save()
+        item2 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RF_2',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+            }
+
+        })
+        item2.add_padre(item)
+        item2.save()
+        condicion = item2.version.padres.filter(id=item.id).exists()
+        assert condicion is True, f'El item {item.version.nombre} no se agrego a la lista de padres del item {item2.version.nombre}'
+        assert item.version.version == item.version_item.all().count(), 'El numero de la version no aumento en' \
+                                                                        ' 1 con respecto a la ultima'
+
+    def test_add_antecesor(self, item, tipo_de_item, tipo_de_item_fase2):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo add_antecesor\n
+        Se espera:
+            Cuando el metodo se usa sobre un item este debera crear una nueva version, el item pasado como
+            parametro debera ser agregado en la lista de antecesores del item en la nueva version\n
+        Mensaje de error:
+            'El item {item.version.nombre} no se agrego a la lista de antecesores del item {version.version.nombre}'
+            'El numero de la version no aumento en 1 con respecto a la ultima'
+        """
+        item.estado = EstadoDeItem.EN_LINEA_BASE
+        item.save()
+        item2 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.EN_LINEA_BASE,
+            'codigo': 'RF_9',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item 2',
+                    'descripcion': 'Descripcion',
+                    'peso': 12,
+                },
+            }
+
+        })
+
+        item3 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RT_2',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre de item 3',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'antecesores': ['RF_1']
+                },
+            }
+
+        })
+        item3.add_antecesor(item2)
+        item3.save()
+        condicion = item3.version.antecesores.filter(id=item2.id).exists()
+        assert condicion is True, f'El item {item2.version.nombre} no se agrego a la lista de antecesores del item {item3.version.nombre}'
+        assert item3.version.version == item3.version_item.all().count(), 'El numero de la version no aumento en' \
+                                                                        ' 1 con respecto a la ultima'
+
+
+    @pytest.mark.parametrize('estado_item', [EstadoDeItem.APROBADO,
+                                             EstadoDeItem.EN_LINEA_BASE,
+                                             EstadoDeItem.A_APROBAR,
+                                             EstadoDeItem.EN_REVISION,
+                                             EstadoDeItem.ELIMINADO,
+                                             ])
+    def test_eliminar_relacion_estado(self, item, tipo_de_item, estado_item):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoc en los estados de los item en los
+        cuales queremos eliminar su relacion con otro.\n
+        Se espera:
+            Que el estado del item no sea el correcto para que la relacion pueda ser eliminada, para que el metodo pueda
+            lanzar la exception correspondiente al error de estado de item incorrecto.\n
+        Mensaje de error:
+            El metodo no lanzo la exception corresponiente
+        """
+        item2 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': estado_item,
+            'codigo': 'RF_6',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'padres': ['RF_1']
+                },
+            }
+
+        })
+        with pytest.raises(Exception) as excinfo:
+            item2.eliminar_relacion(item)
+        assert "El item no esta en estado 'No Aprobado'" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
+
+
+    def test_eliminar_relacion_no_existe_test(self, item, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoca en la inexistencia de las relaciones
+        entre dos item.\n
+        Se espera:
+            Que los item no esten relacionados, y que el metodo lance la exception correspondiente a dicho error.\n
+        Mensaje de error:
+            'El metodo no lanzo la exception corresponiente'
+        """
+        item2 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RF_6',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+            }
+
+        })
+        with pytest.raises(Exception) as excinfo:
+            item2.eliminar_relacion(item)
+        assert "Los item no estan relacionados" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
+
+    def test_eliminar_relacion_dejara_de_ser_trazable(self, tipo_de_item, tipo_de_item_fase2):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo eliminar relacion, esta prueba se enfoca en que los item sigan siendo
+        trazables a la primera fase, se probaran los item que esten en las fases mayores a la primera.\n
+        Se espera:
+            Que al tratar de elimian la relacion, el metodo tire una exception diciendo que no se puede, pues el
+            item dejara de ser trazable a la primera fase.\n
+        Mensaje de error:
+            'El metodo no lanzo la exception corresponiente'
+        """
+        item_fase_1 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.EN_LINEA_BASE,
+            'codigo': 'RF_6',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+            }
+        })
+        item1_fase_2 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.APROBADO,
+            'codigo': 'RT_4',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'antecesores': ['RF_6']
+                },
+            }
+        })
+        item2_fase_2 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RT_5',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'padres': ['RT_4']
+                },
+            }
+        })
+
+        with pytest.raises(Exception) as excinfo:
+            item2_fase_2.eliminar_relacion(item1_fase_2)
+        assert "El item dejara de ser trazable a la primera fase" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
+
+
+
+    def test_eliminar_relacion_padre(self, tipo_de_item):
+        # TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo eliminar relacion, esta prueba verifica que las relaciones ya
+        no existan, mas especificamente, que el item B ya no este en la lista de padres del item A.\n
+        Se espera:
+            El el item A en la nueva version deje de tener en su lista de padres al item B.\n
+        Mensaje de error:
+            'No se elimino la relacion, el item {item2_fase_1.version.bombre} sigue teniendo como padre al item {item_fase_1.version.nombre}'
+        """
+        item_fase_1 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.APROBADO,
+            'codigo': 'RF_6',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+            }
+        })
+        item2_fase_1 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RF_5',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'padres': ['RF_6']
+                },
+            }
+        })
+        item2_fase_1.eliminar_relacion(item_fase_1)
+        item2_fase_1.save()
+        condicion = item2_fase_1.version.padres.filter(id=item_fase_1.id).exists()
+        assert condicion is False, f'No se elimino la relacion, el item {item2_fase_1.version.bombre} sigue teniendo ' \
+                                   f'como padre al item {item_fase_1.version.nombre}'
+
+
+    def test_eliminar_relacion_antecesor(self, item, tipo_de_item, tipo_de_item_fase2):
+        #TODO Luis, Agregar en la planilla
+        """
+        Prueba Unitaria para el metodo eliminar relacion, esta prueba verifica que las relaciones ya
+        no existan, mas especificamente, que el item B ya no este en la lista de antecesores del item A.\n
+        Se espera:
+            El el item A en la nueva version deje de tener en su lista de antecesores al item B.\n
+        Mensaje de error:
+            'No se elimino la relacion, el item {item2_fase_1.version.bombre} sigue teniendo como antecesor al item {item_fase_1.version.nombre}'
+        """
+        item.estado = EstadoDeItem.EN_LINEA_BASE
+        item.save()
+        item_fase_1 = item_factory({
+            'tipo': 'Requerimiento Funcional',
+            'estado': EstadoDeItem.EN_LINEA_BASE,
+            'codigo': 'RF_6',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                },
+            }
+        })
+        item_fase_2 = item_factory({
+            'tipo': 'Requerimiento NO Funcional',
+            'estado': EstadoDeItem.NO_APROBADO,
+            'codigo': 'RT_5',
+            'estado_anterior': '',
+            'version': 1,
+            'versiones': {
+                1: {
+                    'nombre': 'Nombre',
+                    'descripcion': 'Descripcion',
+                    'peso': 8,
+                    'antecesores': ['RF_6', 'RF_1']
+                },
+            }
+        })
+        item_fase_2.eliminar_relacion(item_fase_1)
+        item_fase_2.save()
+        condicion = item_fase_2.version.antecesores.filter(id=item_fase_1.id).exists()
+        assert condicion is False, f'No se elimino la relacion, el item {item_fase_2.version.bombre} sigue teniendo ' \
+                                   f'como antecesor al item {item_fase_1.version.nombre}'
+
+
+    # TODO Hugo test_eliminar_item
 
 @pytest.mark.django_db
 class TestVistasItem:
@@ -760,4 +1074,21 @@ class TestVistasItem:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 200.'
 
-    # TODO Luis: test_restaurar_version_item_view
+
+    def test_restaurar_version_item_view(self, cliente_loggeado, proyecto, item):
+        #TODO Luis, Agregar en la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de restaurar version.\n
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (300).\n
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 300.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        version = item.get_versiones()[1]
+        response = cliente_loggeado.get(reverse('eliminar_relacion_item', args=(proyecto.id, item.get_fase().id,
+                                                                                item.id, version.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
+                                                      'Se esperaba un status code 300.'
+        
