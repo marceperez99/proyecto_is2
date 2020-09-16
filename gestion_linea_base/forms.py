@@ -10,7 +10,7 @@ class AsignacionForm(forms.Form):
 
     usuario = forms.ModelChoiceField(label='Asignar a', queryset=Participante.objects.all(), required=False)
 
-    motivo = forms.CharField(label='comentario', max_length=500, required=False)
+    motivo = forms.CharField(label='Detalles de los cambios necesarios', max_length=500, required=False)
 
     def __init__(self, *args, proyecto_id, fase_id, **kwargs):
         super(AsignacionForm, self).__init__(*args, **kwargs)
