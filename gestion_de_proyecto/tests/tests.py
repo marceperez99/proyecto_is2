@@ -781,7 +781,31 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
 
-    # TODO: Luis test cancelar_proyecto_view
+
+    @pytest.mark.parametrize('estado_proyecto', [EstadoDeProyecto.CONFIGURACION,
+                                                EstadoDeProyecto.INICIADO,
+                                                ])
+    def test_cancelar_proyecto_view(self,  gerente_loggeado, proyecto, estado_proyecto):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de cancelar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
+        response = gerente_loggeado.get(reverse('cancelar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
+
+
+
     # TODO: Luis test iniciar_proyecto_view
     # TODO: Luis test visualizar_proyecto_view
 
