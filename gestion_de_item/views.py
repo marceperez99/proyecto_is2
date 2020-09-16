@@ -98,6 +98,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'fase': fase,
         'item': item,
         'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
+        'cambios':True,
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},

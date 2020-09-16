@@ -17,9 +17,13 @@
                         <div class ="col-12 text-center mb-2 text-dark">Este item se encuentra En Revisión</div>
                         <a href="#" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
                         <a href="{% url 'debe_ser_modificado' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Este Item debe ser modificado</a>
-
-
                     </div>
+                </div>
+            {% endif %}
+            {% if item.cambio_necesario and puede_modificar %}
+                <div class="col-10 mx-auto alert alert-warning">
+                    <h6>Usted ha sido asignado para modificar este item.</h6>
+                    <p>El cambio requerido es: {{ item.cambio_necesario }}</p>
                 </div>
             {% endif %}
             <h3 class="col-4">Item de Proyecto</h3>
