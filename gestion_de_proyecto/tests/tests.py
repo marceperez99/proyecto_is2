@@ -803,10 +803,22 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
 
+    def test_iniciar_proyecto_view(self,  gerente_loggeado, proyecto):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de iniciar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        response = gerente_loggeado.get(reverse('iniciar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
 
-
-    # TODO: Luis test iniciar_proyecto_view
     # TODO: Luis test visualizar_proyecto_view
 
     def test_nuevo_participante_view(self, gerente_loggeado, proyecto):
