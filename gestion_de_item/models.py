@@ -45,6 +45,7 @@ class Item(models.Model):
                                 on_delete=models.CASCADE)
     encargado_de_modificar = models.ForeignKey('gestion_de_proyecto.Participante', null=True, default=None,
                                                on_delete=models.CASCADE)
+    cambio_necesario = models.CharField(max_length=500, default="")
     estado_anterior = models.CharField(max_length=40, default="")
 
     # No cambiar save() o se rompe
@@ -348,7 +349,7 @@ class Item(models.Model):
         self.estado = EstadoDeItem.EN_REVISION
         self.save()
 
-    def solicitar_modificacion(self, usuario_encargado=None):
+    def solicitar_modificacion(self, usuario_encargado=None, cambio=""):
         """
         Método que hace que el item pase al estado "A Modificar", además, si se especifica un usuario encargado
         se guardará el usuario que tendrá la responsabilidad de modificar el item.
@@ -357,6 +358,7 @@ class Item(models.Model):
             - usuario_encargado: Participante
         """
         self.encargado_de_modificar = usuario_encargado
+        self.cambio_necesario = cambio
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
 
