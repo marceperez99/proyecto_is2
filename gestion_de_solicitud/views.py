@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
 from django.urls import reverse
-from gestion_de_solicitud.models import SolicitudDeCambio, Voto
+from gestion_de_solicitud.models import SolicitudDeCambio, Voto, EstadoSolicitud
 from django.shortcuts import get_object_or_404, redirect
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
@@ -41,7 +41,7 @@ def solicitud_view(request, proyecto_id, solicitud_id):
     contexto = {
         'proyecto': proyecto,
         'solicitud': solicitud,
-        'usuario_ha_votado': solicitud.ya_voto(participante),
+        'mostrar_boton_votar': not solicitud.ya_voto(participante) and solicitud.estado == EstadoSolicitud.PENDIENTE,
         'breadcrumb': {
             'pagina_actual': 'Fases',
             'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]

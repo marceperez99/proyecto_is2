@@ -19,7 +19,7 @@
                     {% endif %}
                 </h3>
             </div>
-            {% if not usuario_ha_votado %}
+            {% if mostrar_boton_votar %}
             <div class="col-3 text-right">
                 <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}" class="btn btn-primary">Votar por Solicitud</a>
             </div>
