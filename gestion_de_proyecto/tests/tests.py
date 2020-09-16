@@ -700,7 +700,20 @@ class TestVistasProyecto:
         client.login(username='gerente', password='password123')
         return client
 
-    # TODO: Luis test nuevo_proyecto_view
+
+    def test_nuevo_proyecto_view(self, gerente_loggeado):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de nuevo proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+        """
+        response = gerente_loggeado.get(reverse('nuevo_proyecto'))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
 
     def test_participantes_view(self, gerente_loggeado, proyecto):
         """
