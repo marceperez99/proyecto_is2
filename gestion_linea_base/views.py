@@ -101,11 +101,21 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
 
 
 @login_required
-# @permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
-# TODO Marcos, falta usar decoradores para comprobar permisos de proyecto, comprobar estado de Proyecto: solo Iniciado
-# TODO Marcos, falta comprobar que la fase este abierta
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_crear_lb')
+@fase_abierta()
 def nueva_linea_base_view(request, proyecto_id, fase_id):
-    # TODO: Marcos documentar e incluir en la planilla
+    """
+    Vista que permite la creación de nuevas Lineas de Base.
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+    Retorna:
+        - HttpResponse
+    """
+    # TODO: Marcos incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
@@ -142,16 +152,21 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# @pp_requerido_en_fase('pu_f_ver_fase')
-# @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO Marcos, falta verificar permisos de proyecto
+@pp_requerido_en_fase('pp_f_listar_lb')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def listar_linea_base_view(request, proyecto_id, fase_id):
     """
-    TODO: Marcos terminar documentacion y incluir en la planilla
     Vista que permite la visualizacion de los items creados dentro de la fase.
     Si el usuario cuenta con el permiso de proyecto
 
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+    Retorna:
+        - HttpResponse
     """
+    # TODO: Marcos incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     lis_lb = LineaBase.objects.filter(fase=fase)
@@ -175,12 +190,18 @@ def listar_linea_base_view(request, proyecto_id, fase_id):
 
 def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
     """
-    TODO: Marcos documentar y registrar en planilla
-    :param request:
-    :param proyecto_id:
-    :param fase_id:
-    :return:
+    Vista que permite la visualizacion de la Linea de Base y los items que la componen.
+    Si el usuario cuenta con el permiso de proyecto
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+        - linea_base_id: int, id de la linea base
+    Retorna:
+        - HttpResponse
     """
+    # TODO: Marcos registrar en planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     lineabase = get_object_or_404(LineaBase, id=linea_base_id)
