@@ -15,7 +15,7 @@
                 <div class="col-12 alert alert-warning">
                     <div class="row ">
                         <div class ="col-12 text-center mb-2 text-dark">Este item se encuentra En Revisión</div>
-                        <a href="#" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
+                        <a href="{% url 'no_modificar' proyecto.id fase.id item.id %}" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
                         <a href="{% url 'debe_ser_modificado' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Este Item debe ser modificado</a>
 
 
