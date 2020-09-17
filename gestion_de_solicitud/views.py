@@ -55,10 +55,16 @@ def solicitud_view(request, proyecto_id, solicitud_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitud_votacion_view(request, proyecto_id, solicitud_id):
     """
-    :param request:
-    :param proyecto_id:
-    :param solicitud_id:
-    :return:
+    Vista que permite la votacion de una solicitud de cambio, entre los participantes del comite de cambio.
+    Se verifica si el participante es miembro del comite, una ve verificado se le muestra al usuario los cambios
+    propuestos en la solicitud, este tendra que dar su voto a favor o en contra, para aprobar o rechazarla respectivamete.
+    Una vez hayan votados todos los del comite, se aprueba el cambio si os votos "a favor" son mayor a los votos "en contra".\n
+    Argumentos:
+        -request: HttpRequest
+        -proyecto_id: int, identificador unico del proyecto
+        -solicitud_id: int, identificador unico de la solicitud
+    Retorna:
+        -HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     solicitud = get_object_or_404(SolicitudDeCambio, id=solicitud_id)
