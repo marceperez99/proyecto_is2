@@ -49,3 +49,5 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 SOCIALAPP_DOMAIN = "localhost"
 SOCIALAPP_NAME = "localhost"
 
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT")
+MEDIA_URL = os.environ.get("MEDIA_URL")
