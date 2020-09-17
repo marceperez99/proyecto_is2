@@ -237,7 +237,7 @@ class Item(models.Model):
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
             hijos = self.get_hijos()
             sucesores = self.get_sucesores()
-            if len(hijos)+len(sucesores) == 0:
+            if len(hijos) + len(sucesores) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
@@ -268,7 +268,7 @@ class Item(models.Model):
 
         """
 
-        if self.estado not in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR ]:
+        if self.estado not in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR]:
             raise Exception("El item no esta en estado 'No Aprobado'")
         if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
                 id=item.id).exists():
@@ -301,7 +301,8 @@ class Item(models.Model):
             return True
         else:
             return version.padres.filter(
-                estado__in=[EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]).count() > 0 or \
+                estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                            EstadoDeItem.EN_REVISION]).count() > 0 or \
                    version.antecesores.filter(estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR,
                                                           EstadoDeItem.EN_REVISION]).count() > 0
 
@@ -321,7 +322,8 @@ class Item(models.Model):
             atributo.save()
 
         for padre in version.padres.all():
-            if padre.estado in [EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
+            if padre.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                                EstadoDeItem.EN_REVISION]:
                 nueva_version.padres.add(padre)
 
         for antecesor in version.antecesores.all():
@@ -368,7 +370,8 @@ class Item(models.Model):
             -Booleano
         """
         # TODO: Hugo, cambiar eso de abajo de estado="Cerrada" y agregar a planilla de documentacion
-        return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(estado="Comprometida").exists()
+        return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(
+            estado="Comprometida").exists()
 
     def get_linea_base(self):
         """
