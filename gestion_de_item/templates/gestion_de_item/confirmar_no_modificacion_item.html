@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}{{ item }}{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            {% include 'mensajes.html' %}
+            <div class="col-12 alert alert-warning">
+                    <div class="row">
+                        <div class ="col-12 text-center mb-2 text-dark">Si confirma que no se realizaran cambios, el item pasara a su estado anterior<br/>Si el item está en un linea de base y todos los items de la misma se encuentran en estado "Em linea de Base", la LB volverá al estado "Cerrado"<br/>¿Desea continuar?</div>
+                        <form method="POST" class="col-12">
+                            {% csrf_token %}
+                            <div class="row">
+                            <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Confirmar">
+                            <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
+                        </div>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
