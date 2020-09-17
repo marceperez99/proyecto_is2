@@ -7,7 +7,7 @@ class EstadoLineaBase:
     """
         Clase que especifica todos los estados en los que se puede encontrar una Linea de Base
 
-        Estados de un item:
+        Estados de una Linea Base:
             - CERRADA = "Cerrada"
             - COMPROMETIDA = "Comprometida"
             - ROTA = "Rota"
@@ -38,18 +38,25 @@ class LineaBase(models.Model):
         return self.nombre
 
     def romper(self):
-        # TODO comentar e incluir en planilla y probar
+        """
+        Método que cambia el estado de una Linea Base al estado ROTA.
+
+        """
         self.estado = EstadoLineaBase.ROTA
         self.save()
 
     def get_proyecto(self):
-        # TODO comentar e incluir en planilla y probar
+        """
+        Método que consigue el proyecto en el que se encuentra una linea base
+
+        Retorna:
+            - proyecto
+        """
         return self.fase.get_proyecto()
 
     def comprometer(self):
         """
-        TODO: cargar en la planilla
-        :return:
+        Método que cambia el estado de una linea base al estado Comprometida
         """
         assert self.estado == EstadoLineaBase.CERRADA
         self.estado = EstadoLineaBase.COMPROMETIDA
@@ -57,7 +64,9 @@ class LineaBase(models.Model):
 
     def esta_cerrada(self):
         """
-        TODO: cargar en la planilla
-        :return:
+        Método que retorna verdadero si la linea base se encuentra en el estado Cerrada
+
+        Retorna:
+            - Booleano
         """
         return self.estado == EstadoLineaBase.CERRADA
