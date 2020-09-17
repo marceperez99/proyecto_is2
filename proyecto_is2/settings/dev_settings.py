@@ -45,3 +45,6 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = f'{BASE_DIR}/proyecto_is2/settings/credenci
 
 # Configuracion de Celery
 CELERY_BROKER_URL = 'redis://localhost'
+
+MEDIA_ROOT = f'{BASE_DIR}/media/'
+MEDIA_URL = f'{BASE_DIR}/media/items/'
