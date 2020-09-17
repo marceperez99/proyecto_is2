@@ -70,7 +70,9 @@ cd "$BASE_DIR" || exit 1
 ##Creacion de directorios del sistema
 sudo mkdir -p "$PROYECT_NAME"/{site/{logs,public},django,auth,media}
 sudo chmod -R ugo+rwx "$PROYECT_NAME/site/public"
-
+mkdir "$PROYECT_NAME"/media/items
+sudo chmod -R ugo+rwx "$PROYECT_NAME/media/items"
+sudo chmod -R ugo+rwx "$PROYECT_NAME/site/public"
 echo "- Directorios necesarios creados"
 
 

@@ -4,7 +4,6 @@ from django.urls import reverse
 
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.tests.factories import proyecto_factory
-from gestion_linea_base.models import LineaBase
 from gestion_linea_base.utils import *
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
@@ -62,6 +61,10 @@ class TestModeloLineaBase:
 
 @pytest.mark.django_db
 class TestVistasLineasBase:
+    """
+    Pruebas unitarias que prueban las vistas del modelo Linea Base
+
+    """
 
     @pytest.fixture
     def cliente_loggeado(self, gerente):
@@ -125,7 +128,6 @@ class TestVistasLineasBase:
 
         response = cliente_loggeado.get(reverse('visualizar_linea_base', args=(proyecto.id, fase.id, linea_base.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
-
 
     def test_create_nombre_LB(self, proyecto, fase):
         assert create_nombre_LB(proyecto, fase) == 'LB_1_3', 'Hubo un error al crear el nombre'
