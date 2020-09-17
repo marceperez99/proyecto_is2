@@ -5,6 +5,7 @@ from django.urls import reverse
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.tests.factories import proyecto_factory
 from gestion_linea_base.models import LineaBase
+from gestion_linea_base.utils import *
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
 from usuario.tests.factories import user_factory
@@ -83,7 +84,50 @@ class TestVistasLineasBase:
             reverse('solicitar_rompimiento', args=(proyecto.id, fase.id, linea_base.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
 
-    # TODO: Marcos test_nueva_linea_base_view
-    # TODO: Marcos test_listar_linea_base_view
-    # TODO: Marcos test_visualizar_linea_base_view
+    def test_nueva_linea_base_view(self, cliente_loggeado, proyecto, fase):
+        """
+        Prueba unitaria que verifica que la vista nueva_linea_base_view.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+
+        response = cliente_loggeado.get(reverse('nuevo_linea_base', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_listar_linea_base_view(self, cliente_loggeado, proyecto, fase):
+        """
+        Prueba unitaria que verifica que la vista listar_linea_base_view.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+
+        response = cliente_loggeado.get(reverse('listar_linea_base', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+    def test_visualizar_linea_base_view(self, cliente_loggeado, proyecto, fase, linea_base):
+        """
+        Prueba unitaria que verifica que la vista visualizar_linea_base_view.
+
+        Resultado Esperado:
+            -Una respuesta HTTP con codigo 200.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+
+        response = cliente_loggeado.get(reverse('visualizar_linea_base', args=(proyecto.id, fase.id, linea_base.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL.'
+
+
+    def test_create_nombre_LB(self, proyecto, fase):
+        assert create_nombre_LB(proyecto, fase) == 'LB_1_3', 'Hubo un error al crear el nombre'
+
     pass
