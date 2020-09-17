@@ -2,7 +2,7 @@ from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
-
+from gestion_linea_base.models import EstadoLineaBase
 
 gd_storage = GoogleDriveStorage()
 
@@ -369,9 +369,8 @@ class Item(models.Model):
         Retorna:
             -Booleano
         """
-        # TODO: Hugo, cambiar eso de abajo de estado="Cerrada" y agregar a planilla de documentacion
-        return self.lineabase_set.filter(estado="Cerrada").exists() or self.lineabase_set.filter(
-            estado="Comprometida").exists()
+        return self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists() or self.lineabase_set.filter(
+            estado=EstadoLineaBase.COMPROMETIDA).exists()
 
     def get_linea_base(self):
         """
@@ -380,12 +379,12 @@ class Item(models.Model):
         Retorna:
             -Booleano
         """
-        if self.lineabase_set.filter(estado="Cerrada").exists():
+        if self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists():
 
-            return self.lineabase_set.get(estado="Cerrada")
+            return self.lineabase_set.get(estado=EstadoLineaBase.CERRADA)
 
-        elif self.lineabase_set.filter(estado="Comprometida").exists():
-            return self.lineabase_set.get(estado="Comprometida")
+        elif self.lineabase_set.filter(estado=EstadoLineaBase.COMPROMETIDA).exists():
+            return self.lineabase_set.get(estado=EstadoLineaBase.COMPROMETIDA)
         else:
             return None
 
