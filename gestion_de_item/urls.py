@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.listar_items, name='listar_items'),
+    path('en_revision', views.listar_items_en_revision, name='listar_items_en_revision'),
     path('nuevo/', views.nuevo_item_view, name='nuevo_item'),
     path('<int:item_id>/relacionar/', views.relacionar_item_view, name='relacionar_item'),
     path('nuevo/<int:tipo_de_item_id>/', views.nuevo_item_view, name='nuevo_item_tipo'),
@@ -18,7 +19,10 @@ urlpatterns = [
     path('<int:item_id>/editar/', views.editar_item_view, name='editar_item'),
     path('<int:item_id>/archivo/<int:atributo_id>/eliminar', views.eliminar_archivo_view,
          name='eliminar_archivo_item'),
-    path('<int:item_id>/modificar/',views.debe_modificar_view,name = 'debe_ser_modificado'),
+    path('<int:item_id>/modificar/', views.debe_modificar_view, name='debe_ser_modificado'),
+    path('<int:item_id>/no_modificar/', views.no_modificar_view, name='no_modificar'),
     path('<int:item_id>/restaurar/<int:version_id>/', views.restaurar_version_item_view, name='restaurar_item'),
 
 ]
+
+

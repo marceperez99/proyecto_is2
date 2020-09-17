@@ -10,7 +10,7 @@ from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import *
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
-from gestion_linea_base.models import EstadoLineaBase, LineaBase
+from gestion_linea_base.models import *
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .decorators import estado_item
 
@@ -58,6 +58,38 @@ def listar_items(request, proyecto_id, fase_id):
                        }
     }
     return render(request, 'gestion_de_item/listar_items.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pu_f_ver_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def listar_items_en_revision(request, proyecto_id, fase_id):
+    """
+    Vista que permite la visualizacion de los items en estado EN REVISION, creados dentro de la fase.
+    Si el usuario cuenta con el permiso de proyecto
+
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    participante = proyecto.get_participante(request.user)
+    items = fase.get_items(en_revision=True)
+    contexto = {
+        'user': request.user,
+        'proyecto': proyecto,
+        'fase': fase,
+        'items': items,
+        'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
+        'breadcrumb': {'pagina_actual': 'Items en Revisión',
+                       'permisos': participante.get_permisos_por_fase_list(fase),
+                       'links': [
+                           {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
+                           {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
+                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))}
+                       ]
+                       }
+    }
+    return render(request, 'gestion_de_item/listar_items_en_revision.html', contexto)
 
 
 @login_required
@@ -873,6 +905,45 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
             linea_base = item.get_linea_base()
             contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
             return render(request, 'gestion_de_item/confirmar_modificacion_linea_base.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+@fase_abierta()
+@estado_item(EstadoDeItem.EN_REVISION)
+def no_modificar_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que muestra la pantallas de confirmación para volver al estado anterior de un item, ya que no se modificará
+
+    Argumentos:
+        -request: HttpRequest
+        -proyecto_id: int , id del proyecto.
+        -fase_id: int, id de la fase.
+        -item_id: int, id del item.
+    Retorna:
+        -HttpResponse
+    """
+    item = get_object_or_404(Item, id=item_id)
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(Fase, id=fase_id)
+    if request.method == 'POST':
+        estadoaux = item.estado
+        item.estado = item.estado_anterior
+        item.estado_anterior = estadoaux
+        item.save()
+
+        linea_base = item.get_linea_base() if item.esta_en_linea_base() else None
+
+        if linea_base is not None and all(item.estado == EstadoDeItem.EN_LINEA_BASE for item in linea_base.items.all()):
+            linea_base.estado = EstadoLineaBase.CERRADA
+            linea_base.save()
+
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+    else:
+        contexto = {'item': item, 'fase': fase, 'proyecto': proyecto}
+        return render(request, 'gestion_de_item/confirmar_no_modificacion_item.html', context=contexto)
 
 
 @login_required

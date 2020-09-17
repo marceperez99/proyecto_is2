@@ -27,9 +27,10 @@
                 <div class="card mb-3">
                         <div class="card-header bg-color-primary">
                             <div class="row">
-                                <span class="col-12 col-md-8 my-auto text-white">Items de la Fase</span>
-                                <div class="col-12 col-md-4 text-right">
+                                <span class="col-12 col-md-4 my-auto text-white">Items de la Fase</span>
+                                <div class="col-12 col-md-8 text-right">
                                     {% if proyecto.estado != 'En Configuración' %}
+                                        <a href="{% url 'listar_items_en_revision' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Ver Items en Revisión</a>
                                         <a href="{% url 'listar_items' proyecto.id fase.id %}" class="btn border-0 btn-primary bg-color-accent">Gestionar Items</a>
                                     {% endif %}
                                 </div>

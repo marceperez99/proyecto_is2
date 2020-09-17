@@ -1,8 +1,8 @@
 from django import forms
-from .models import LineaBase
 from gestion_de_item.models import Item, EstadoDeItem
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_linea_base.utils import *
 
 
 class AsignacionForm(forms.Form):
@@ -32,7 +32,6 @@ class SolicitudForm(forms.Form):
                                         widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
 
 
-
 class LineaBaseForm(forms.ModelForm):
     """
     Form que permite la creacion de una nueva Linea Base.
@@ -53,7 +52,7 @@ class LineaBaseForm(forms.ModelForm):
         """
 
         super(LineaBaseForm, self).__init__(*args, **kwargs)
-        self.fields['nombre'] = forms.CharField(initial=LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)
+        self.fields['nombre'] = forms.CharField(initial=create_nombre_LB(proyecto=proyecto, fase=fase)
                                                 , disabled=True, required=False)
         self.fields['items'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,

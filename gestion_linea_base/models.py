@@ -3,13 +3,31 @@ from gestion_de_item.models import Item
 
 
 class EstadoLineaBase:
+    # TODO: Marcos, poner en planilla.
+    """
+        Clase que especifica todos los estados en los que se puede encontrar una Linea de Base
+
+        Estados de un item:
+            - CERRADA = "Cerrada"
+            - COMPROMETIDA = "Comprometida"
+            - ROTA = "Rota"
+        """
     CERRADA = "Cerrada"
     COMPROMETIDA = "Comprometida"
     ROTA = "Rota"
 
 
 class LineaBase(models.Model):
-    # TODO: Marcos, documentar.
+    # TODO: Marcos, poner en planilla.
+    """
+        Modelo que representa a una Linea de Base en una Fase
+
+        -nombre: Nombre del Ítem
+        -estado = EstadoLineaBase, estado en el que se encuentra el Ítem
+        -items = Lista de items que están incluidas en la Linea de Base
+        -fecha_creacion = Fecha de creación de la Linea de Base
+        -fase = Fase a la que pertenece la Linea de Base
+    """
     nombre = models.CharField(max_length=50)
     estado = models.CharField(max_length=40)
     items = models.ManyToManyField(Item)
@@ -23,13 +41,6 @@ class LineaBase(models.Model):
         # TODO comentar e incluir en planilla y probar
         self.estado = EstadoLineaBase.ROTA
         self.save()
-
-    def create_nombre(self, proyecto, fase):
-        nro_fase = proyecto.get_fases().index(fase) + 1
-        # TODO: Marcos, no se numeran bien las lineas base, por ejemplo, si ya existen LB_1_1  y LB_1_2, si quiero crear
-        #  la primera LB en la segunda fase esto hace que se llame LB_2_3 en vez de LB_2_1
-        nro_lb = LineaBase.objects.filter(fase__proyecto=proyecto).__len__() + 1
-        return "LB_" + str(nro_fase) + "_" + str(nro_lb)
 
     def get_proyecto(self):
         # TODO comentar e incluir en planilla y probar
