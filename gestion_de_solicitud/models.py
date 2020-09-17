@@ -49,9 +49,11 @@ class SolicitudDeCambio(models.Model):
 
     def ya_voto(self, participante):
         """
-        TODO: Luis Registrar en la planilla
         Medoto de la clase Solicitud de Cambio, que verifica si un participante que es miembro del comite de cambio ya
         voto. Si el participante ya voto se le redirigira a la pantala de solicitud de cambio.
+        Retorna:
+            -True: si el participante ya emitio un voto sobre la solicitud de cambio
+            _False: si el participante no emitio toavia su voto en la solicitu de cambio
         """
         return self.voto_set.filter(miembro=participante).exists()
 
