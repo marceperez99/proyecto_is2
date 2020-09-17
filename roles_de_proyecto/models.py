@@ -59,6 +59,12 @@ class RolDeProyecto(models.Model):
             ('pp_f_desaprobar_item', 'Desaprobar cambios de un Item'),
             ('pp_f_eliminar_relacion_entre_items', 'Eliminar Relación entre Items'),
             ('pp_f_ver_items_eliminados', 'Visualizar Items eliminados'),
+            ('pp_f_restaurar_version', 'Restaurar un Item a una version anterior'),
+            ('pp_f_solicitar_ruptura_de_linea_base', 'Solicitar ruptura de Linea Base'),
+            ('pp_f_decidir_sobre_items_en_revision', 'Decidir sobre items en revisión'),
+            # Gestion LB
+            ('pp_f_crear_lb', 'Crear Linea de Base'),
+            ('pp_f_listar_lb', 'Listar Lineas de Base'),
         ]
 
     def __str__(self):

@@ -60,6 +60,43 @@
                         </table>
                     </div>
                 </div>
+                {% if es_comite %}
+                <div class="card mt-2">
+                        <div class="card-header bg-color-primary text-white">
+                            <div class="row">
+                                <div class="col-auto my-auto">Solicitudes de Cambio Pendientes</div>
+                                <div class="ml-auto">
+                                    <a href="{% url 'solicitudes_de_cambio' proyecto.id %}"
+                                       class="btn btn-primary border-0 bg-color-accent mr-2">
+                                        Gestionar Solicitudes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table border rounded">
+                                <thead>
+                                    <tr><th>Linea Base</th><th>Fase</th><th></th>
+                                </thead>
+                                <tbody>
+                                {% for solicitud in solicitudes %}
+                                <tr>
+                                    <td>{{ solicitud.linea_base }}</td>
+                                    <td>{{ solicitud.linea_base.fase }}</td>
+                                    <td class="text-center">
+                                        <a href="{% url 'solicitud_de_cambio' proyecto.id solicitud.id %}"
+                                           class="btn brn-primary border-0 text-white bg-color-accent">
+                                            <i class="fas fa-eye"></i> Visualizar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <div class="col-12 col-md-4">
                 <div class="card">

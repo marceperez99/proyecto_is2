@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Votar solicitud{% endblock %}
+
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <h3 class="col-12">Votar solicitud</h3>
+        <hr>
+        <div class="row">
+            <div class="col-10 mx-auto bg-white p-3 border rounded">
+            <h4>{{ solicitud }}</h4>
+            <p class="lead">¿Que desea hacer? Solo podrá votar una vez por esta solicitud de cambios.</p>
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=a_favor" class="btn btn-success">Votar a favor</a>
+                    </div>
+                    <div class="col-6 text-center">
+                        <a href="{% url 'votar_solicitud' proyecto.id solicitud.id %}?voto=en_contra" class="btn btn-danger">Votar en contra</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </div>
+{% endblock %}

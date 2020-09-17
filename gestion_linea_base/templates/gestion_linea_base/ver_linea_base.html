@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Items de la Fase{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+
+    <div></div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-8">
+                                <h3>Linea Base</h3>
+                            </div>
+
+                            <div class="col-xl-4 text-right">
+                                {% if linea_base_cerrada  %}
+                                    <a href="solicitar_rompimiento" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i> Solicitar Ruptura de Linea Base
+                                    </a>
+                                {% endif %}
+<!--                                <button class="btn btn-primary" type="button">Solicitar Ruptura de Linea Base</button>-->
+                            </div>
+                            <div class="col-xl-12">
+                                <hr>
+                            </div>
+                            <div class="col-xl-4">
+                                <h5>Nombre de Linea Base</h5>
+                            </div>
+                            <div class="col-xl-8">
+                                <p>{{lineabase.nombre}}</p>
+                            </div>
+                            <div class="col-xl-4">
+                                <h5>Estado</h5>
+                            </div>
+                            <div class="col-xl-8">
+                                <p>{{lineabase.estado}}</p>
+                            </div>
+                            <div class="col-xl-4">
+                                <h5>Fecha de Creación</h5>
+                            </div>
+                            <div class="col-xl-8">
+                                <p>{{lineabase.fecha_creacion}}</p>
+                            </div>
+                            <div class="col-xl-12">
+                                <hr>
+                            </div>
+                            <div class="col-xl-12">
+                                <h5>Items</h5>
+                            </div>
+                            <div class="col">
+                                <div class="table-responsive border rounded">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Codigo</th>
+                                                <th class="text-center">Item</th>
+                                                <th class="text-center">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in lineabase.items.all %}
+                                            <tr>
+                                                <td>{{item.codigo}}</td>
+                                                <td>{{item.version.nombre}}</td>
+                                                <td>
+                                                    <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class="btn bg-color-accent text-white">
+                                                        <i class="fas fa-eye"></i> Visualizar</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

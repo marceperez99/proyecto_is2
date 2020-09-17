@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{ item }}{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <script>
+                $(function () {
+                     $('[data-toggle="tooltip"]').tooltip()
+                })
+            </script>
+            {% include 'mensajes.html' %}
+            <div class="col-12 alert alert-warning">
+                    <div class="row">
+                        <div class ="col-12 text-center mb-2 text-dark">Para modificar este item es necesario generar una solicitud de rompimiento de Linea Base. Desea continuar?</div>
+                        <form method="POST" class="col-12">
+                            {% csrf_token %}
+                            <div class="row">
+                            <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Generar solicitud">
+                            <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
+                        </div>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

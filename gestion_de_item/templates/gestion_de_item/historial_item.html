@@ -24,8 +24,8 @@
                                 <div class="col-auto text-white mr-auto">
                                     Version {{version.version}}
                                 </div>
-                                    {% if item.version != version and item.estado in lista_estados_item %}
-                                    <a href="#" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
+                                    {% if puede_revertirse and item.version != version %}
+                                    <a href="{% url 'restaurar_item' proyecto.id fase.id item.id version.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                          Volver a esta Version
                                     </a>
                                 {% endif %}
@@ -69,7 +69,7 @@
                                      <hr class="col-10">
                                     <div class="col-4">Antecesores del Item</div>
                                             <ul class="col-8">
-                                                {% for antecesor in version.antecesor.all %}
+                                                {% for antecesor in version.antecesores.all %}
                                                     <li>{{ antecesor }}</li>
                                                 {% endfor %}
                                             </ul>

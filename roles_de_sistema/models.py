@@ -1,7 +1,9 @@
+from tokenize import group
+
 from django.contrib.auth.models import Permission, Group
 from django.db import models
 
-
+Permission.objects.filter(codename__contains='ps')
 class RolDeSistema(models.Model):
     """
     Clase un Rol de Sistema dentro del sistema. Esta clase sirve además como modelo para la creación de la Base de
@@ -83,8 +85,10 @@ class RolDeSistema(models.Model):
         Retorna:
             Booleano
         """
-        group = Group.objects.get(name=self.nombre)
-        return group.user_set.all().exists()
+        group = Group.objects.filter(id=self.id)
+        group = group.all()[0] if group.exists() else None
+        # group = Group.objects.get(name=self.nombre)
+        return group.user_set.all().exists() if group is not None else False
 
     def eliminar_rs(self):
         """

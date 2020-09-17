@@ -2,10 +2,9 @@ from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
+from gestion_linea_base.models import EstadoLineaBase
+
 gd_storage = GoogleDriveStorage()
-
-
-# Create your models here.
 
 
 class EstadoDeItem:
@@ -44,6 +43,10 @@ class Item(models.Model):
     codigo = models.CharField(max_length=40)
     version = models.ForeignKey('gestion_de_item.VersionItem', null=True, related_name='item_version',
                                 on_delete=models.CASCADE)
+    encargado_de_modificar = models.ForeignKey('gestion_de_proyecto.Participante', null=True, default=None,
+                                               on_delete=models.CASCADE)
+    cambio_necesario = models.CharField(max_length=500, default="")
+    estado_anterior = models.CharField(max_length=40, default="")
 
     # No cambiar save() o se rompe
     def nueva_version(self):
@@ -51,6 +54,7 @@ class Item(models.Model):
         Método que crea una nueva version para el item. Debe ser invocado antes de modificar un item y solo si se desea modificar.
 
         Ej:
+
 
             >>> item = Item.objects.first()
             >>> item.nueva_version()
@@ -169,7 +173,7 @@ class Item(models.Model):
         self.estado = EstadoDeItem.ELIMINADO
         self.save()
 
-    def add_padre(self, item,versionar = True):
+    def add_padre(self, item, versionar=True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la
         lista que representa los padres del item, creando tambien una nueva version del item con esta nueva relacion.\n
@@ -180,7 +184,7 @@ class Item(models.Model):
             self.nueva_version()
         self.version.padres.add(item)
 
-    def add_antecesor(self, item,versionar = True):
+    def add_antecesor(self, item, versionar=True):
         """
         Metodo del model Item que anhade a un item pasado como parametro a la lista que representa los
         antecesores del item, creando tambien una nueva version del item con esta nueva relacion.\n
@@ -215,7 +219,7 @@ class Item(models.Model):
         Lanza:
             Exception: si el item no esta en el estado A_APROBAR
         """
-        if self.estado == EstadoDeItem.A_APROBAR:
+        if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:
@@ -232,7 +236,8 @@ class Item(models.Model):
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
             hijos = self.get_hijos()
-            if len(hijos) == 0:
+            sucesores = self.get_sucesores()
+            if len(hijos) + len(sucesores) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
@@ -240,57 +245,173 @@ class Item(models.Model):
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
-
+                for sucesor in sucesores:
+                    mensaje_error.append(
+                        'El item es el antecesor del item ' + sucesor.version.nombre + ' con código ' + sucesor.codigo)
                 raise Exception(mensaje_error)
         else:
-            raise Exception("El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo")
+            raise Exception(["El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo"])
 
     def eliminar_relacion(self, item):
         """
-        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes.
-        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una
+        Metodo de model Item que elimina la relacion entre dos item relacionados en la misma fase o fases adyacentes. \
+        Una relacion va a poder eliminarse siempre y cuando esta no cree ninguna inconsistencia. La eliminacion de una \
         relacion implica una nueva version del item
 
         Parametros:
-            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de padres.
+
+            - item: int, identificador unico del item, el cual se desea eliminar su relacion, es decir, de la lista de \
+             padres.
 
         Lanza:
             -Exception: si el los item no estan relacionados entre si, y si uno o ambos estan en una linea base
 
         """
 
-        mensaje_error = []
+        if self.estado not in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR]:
+            raise Exception("El item no esta en estado 'No Aprobado'")
+        if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
+                id=item.id).exists():
+            raise Exception("Los item no estan relacionados")
+        if not self.get_fase().es_primera_fase() and self.version.antecesores.all().count() + self.version.padres.all().count() < 2:
+            raise Exception("El item dejara de ser trazable a la primera fase")
 
-        if self.estado != EstadoDeItem.EN_LINEA_BASE and item.estado != EstadoDeItem.EN_LINEA_BASE:
-            if self.padres.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.get_padres() > 1 or (
-                        self.get_padres() == 1 and self.get_antecesores() >= 1):
-                    self.nueva_version()
-                    self.padres.remove(item)
-                    return
-                else:
-                    mensaje_error.append(
-                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
-            elif self.antecesores.filter(id=item.id).exists():
-                if self.get_fase().fase_anterior is None or self.get_antecesores() > 1 or (
-                        self.get_antecesores() == 1 and self.get_padres() >= 1):
-                    self.nueva_version()
-                    self.antecesores.remove(item)
-                    return
-                else:
-                    mensaje_error.append(
-                        'No se puede eliminar la relacion, pues el item dejara de ser trazable a la primera fase')
-
-            else:
-                mensaje_error.append(
-                    'Los item ' + self.version.nombre + ' y ' + item.version.nombre + ' no estan relacionados')
+        self.nueva_version()
+        if self.version.antecesores.filter(id=item.id).exists():
+            self.version.antecesores.remove(item)
         else:
-            if self.estado == EstadoDeItem.EN_LINEA_BASE:
-                mensaje_error.append('El item ' + self.version.nombre + ' esta en una linea base')
-            if item.estado == EstadoDeItem.EN_LINEA_BASE:
-                mensaje_error.append('El item ' + item.version.nombre + ' esta en una linea base')
+            self.version.padres.remove(item)
 
-        raise Exception(mensaje_error)
+    def puede_restaurarse(self, version):
+        """
+        Metodo de model Item que verifica si un item puede o no volver a una version pasada.
+        Una version va a poder restaurarse si, el item esta en la primera fase, o si esta en una fase siguiente
+        al menos tiene que tener un padre aprobado, o al menos un antecesor en linea base.\n
+        Parametros:
+            - version: int, identificador unico de la version a la cual se desea regresar
+
+        Retorna:
+            -True: Si el item puede restaurarse a una version anterior
+            -False: Si el item no puede restaurarse a una version anterior
+        """
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            return False
+
+        if self.get_fase().es_primera_fase():
+            return True
+        else:
+            return version.padres.filter(
+                estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                            EstadoDeItem.EN_REVISION]).count() > 0 or \
+                   version.antecesores.filter(estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR,
+                                                          EstadoDeItem.EN_REVISION]).count() > 0
+
+    def restaurar(self, version):
+        """
+        Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
+        Parametros:
+            - version: int, identificador unico de la version a la cual se desea regresar
+        """
+        nueva_version = VersionItem(nombre=version.nombre, descripcion=version.descripcion, peso=version.peso,
+                                    item=version.item)
+        nueva_version.version = self.get_numero_version() + 1
+        nueva_version.save()
+        for atributo in version.get_atributos_dinamicos():
+            atributo.pk = None
+            atributo.version = nueva_version
+            atributo.save()
+
+        for padre in version.padres.all():
+            if padre.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                                EstadoDeItem.EN_REVISION]:
+                nueva_version.padres.add(padre)
+
+        for antecesor in version.antecesores.all():
+            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
+                nueva_version.antecesores.add(antecesor)
+
+        self.version = nueva_version
+        self.save()
+
+    def solicitar_revision(self):
+        """
+        Metodo que pone en el estado "En Revision" al item, ademas, si el item esta en una linea
+        base Cerrada pone a esta linea base en el estado "Comprometida".
+        """
+        assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+
+        if self.estado == EstadoDeItem.EN_LINEA_BASE:
+            linea_base = self.get_linea_base()
+            if linea_base.esta_cerrada():
+                linea_base.comprometer()
+
+        self.estado_anterior = self.estado
+        self.estado = EstadoDeItem.EN_REVISION
+        self.save()
+
+    def solicitar_modificacion(self, usuario_encargado=None, cambio=""):
+        """
+        Método que hace que el item pase al estado "A Modificar", además, si se especifica un usuario encargado
+        se guardará el usuario que tendrá la responsabilidad de modificar el item.
+
+        Argumentos:
+            - usuario_encargado: Participante
+        """
+        self.encargado_de_modificar = usuario_encargado
+        self.cambio_necesario = cambio
+        self.estado = EstadoDeItem.A_MODIFICAR
+        self.save()
+
+    def esta_en_linea_base(self):
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
+
+        Retorna:
+            -Booleano
+        """
+        return self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists() or self.lineabase_set.filter(
+            estado=EstadoLineaBase.COMPROMETIDA).exists()
+
+    def get_linea_base(self):
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
+
+        Retorna:
+            -Booleano
+        """
+        if self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists():
+
+            return self.lineabase_set.get(estado=EstadoLineaBase.CERRADA)
+
+        elif self.lineabase_set.filter(estado=EstadoLineaBase.COMPROMETIDA).exists():
+            return self.lineabase_set.get(estado=EstadoLineaBase.COMPROMETIDA)
+        else:
+            return None
+
+    def puede_modificar(self, participante):
+        """
+        Metodo que retorna un Booleano indicando si el item puede ser modificado por un participante \
+        del proyecto pasado como parametro. Este metodo retornara True si:
+            - El item esta en el estado "No Aprobado" y el participante tiene permisos dentro de la \
+            para modificar el item.
+            - El item esta en el estado "A Modificar" y el campo "encargado" del item es igual al participante.
+            - El item esta en el estado "A Modificar" y el campo "encargado" no esta seteado y el participante tiene \
+            permiso de modificar el item.
+
+        Argumentos:
+            - participante: Participante
+
+        Retorna:
+            - True: si el participante puede modificar el item
+            - True: en caso contrario
+        """
+
+        if self.estado == EstadoDeItem.A_MODIFICAR and self.encargado_de_modificar is not None:
+            return self.encargado_de_modificar == participante
+
+        return self.estado in [EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO] and \
+               self.get_fase().get_proyecto().tiene_permiso_de_proyecto_en_fase(participante.usuario, self.get_fase(),
+                                                                                'pp_f_modificar_item')
 
 
 class VersionItem(models.Model):
@@ -316,14 +437,18 @@ class VersionItem(models.Model):
     padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
 
     def get_atributos_dinamicos(self):
+        """
+        Método para conseguir los atributos dinamicos relacioandos al item
+
+        Retorna:
+            - Lista de atributos dinamicos relacionados al item.
+        """
         atributos = list(self.atributoitemnumerico_set.all())
         atributos += list(self.atributoitemfecha_set.all())
         atributos += list(self.atributoitemcadena_set.all())
         atributos += list(self.atributoitembooleano_set.all())
         atributos += list(self.atributoitemarchivo_set.all())
         return atributos
-
-
 
 
 class AtributoItemArchivo(models.Model):
@@ -333,8 +458,8 @@ class AtributoItemArchivo(models.Model):
     """
     version = models.ForeignKey(VersionItem, on_delete=models.CASCADE)
     plantilla = models.ForeignKey('gestion_de_tipo_de_item.AtributoBinario', on_delete=models.CASCADE)
-    valor = models.FileField(upload_to='items/', storage=gd_storage, null=True)
-    archivo_temporal = models.FileField(upload_to='items/', null=True)
+    valor = models.FileField(upload_to='items', storage=gd_storage, null=True)
+    archivo_temporal = models.FileField(upload_to='items', null=True)
 
     def getTipoAtributo(self):
         return "Archivo"
@@ -342,7 +467,7 @@ class AtributoItemArchivo(models.Model):
     def archivo_pendiente(self):
         """
         Metodo que se encarga de determinar si el atributo tiene una subida de archivo a la nube pendiente o en proceso.
-        Retorna "True" si el atributo "valor" esta vacío pero no el atributo "archivo_temporal", y "False" en caso
+        Retorna "True" si el atributo "name" del atributo "archivo_temporal"  no sea una cadena vacía y "False" en caso
         contrario; esto se debe a que inicialmete el archivo es guardado en el atributo "archivo_temporal" y cuando
         el archivo esta completamente subido, pasa al atributo "valor"
 
@@ -352,9 +477,15 @@ class AtributoItemArchivo(models.Model):
         return self.archivo_temporal.name != ''
 
     def archivo_subido(self):
-        # TODO: marcos, comentar
-        return self.valor.name != ''
+        """
+        Metodo que se encarga de determinar si el atributo tiene un archivo subido a la nube .
+        Retorna "True" si el atributo "name" del atributo "valor" no sea una cadena vacía y "False" en caso
+        contrario; esto se debe a que solo cuando el archivo es completamente seubido a la nube, dicho campo tinene valor
 
+        Retorna:
+            Booleano
+        """
+        return self.valor.name != ''
 
 
 class AtributoItemBooleano(models.Model):

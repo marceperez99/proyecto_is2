@@ -1,0 +1,82 @@
+{% extends 'base.html'%}
+{% block title %}Perfil de Usuario{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+<div class="container" style="margin-top: 10px;margin-bottom: 10;">
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body" style="box-shadow: 1px 1px 10px 0px rgb(211,211,211);">
+                        <div class="row">
+                            <img class="col-8 mx-auto rounded-circle" src="{{ user.socialaccount_set.all.0.get_avatar_url }}">
+                        </div>
+                        <h4 class="text-center card-title" style="margin-top: 15px;">{{user.get_full_name}}</h4>
+                        <h6 style="text-align: center;">{{user.email}}</h6>
+                        <div class="col" style="text-align: center;"><span class="badge badge-pill badge-primary text-left" style="text-align: center;font-size: 16px;">{{user.get_rol_de_sistema}}</span></div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 10px;">
+                    <div class="card-body" style="box-shadow: 1px 1px 10px rgb(211,211,211);">
+                        <h6 class="card-title">Permisos de Sistema&nbsp;</h6>
+                        <hr>
+                        <div class="row ">
+                            {% for permiso in permisos %}
+
+                            <span class="col-11 my-1 mx-auto bg-info rounded text-white font-weight-bold">{{permiso.name}}</span>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-body" style="box-shadow: 1px 1px 10px rgb(211,211,211);">
+                        <h4 class="card-title">Proyectos</h4>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Estado de Proyecto</th>
+                                        <th>Rol de Proyecto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for proyecto,rol in proyectos_activos %}
+                                    <tr>
+                                        <td><a href="{% url 'visualizar_proyecto'  proyecto.id %}">{{proyecto.nombre}}</a></td>
+                                         {% if proyecto.estado == 'Iniciado' %}
+                                            <td class="text-center"><span class="badge badge-success">{{proyecto.estado}}</span></td>
+                                        {% endif %}
+                                         {% if proyecto.estado == 'En Configuración' %}
+                                            <td class="text-center"><span class="badge badge-warning">{{proyecto.estado}}</span></td>
+                                        {% endif %}
+                                        <td class="text-center">{{rol}}</td>
+                                    </tr>
+
+                                    {% endfor %}
+                                    {% for proyecto,rol in proyectos_no_activos %}
+                                    <tr>
+                                        <td>{{proyecto.nombre}}</td>
+                                        {% if proyecto.estado == 'Cancelado' %}
+                                            <td class="text-center"><span class="badge badge-danger">{{proyecto.estado}}</span></td>
+                                        {% endif %}
+                                        {% if proyecto.estado == 'Finalizado' %}
+                                            <td class="text-center"><span class="badge badge-info">{{proyecto.estado}}</span></td>
+                                        {% endif %}
+
+                                        <td class="text-center">{{rol}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
