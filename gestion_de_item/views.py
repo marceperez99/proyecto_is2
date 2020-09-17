@@ -10,6 +10,7 @@ from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
 from gestion_de_tipo_de_item.models import *
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
+from gestion_linea_base.models import EstadoLineaBase, LineaBase
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from .decorators import estado_item
 
@@ -35,11 +36,17 @@ def listar_items(request, proyecto_id, fase_id):
         items = fase.get_items(items_eliminados=True)
     else:
         items = fase.get_items()
-    contexto = {
+
+    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.all().filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA).exists()
+    se_puede_crear = se_puede_crear or Item.objects.all().filter(tipo_de_item__fase = fase,estado = EstadoDeItem.APROBADO).exists() or Item.objects.all().filter(tipo_de_item__fase = fase,estado = EstadoDeItem.EN_LINEA_BASE).exists()
+
+    print( LineaBase.objects.all().filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA))
+    contexto ={
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
         'items': items,
+        'se_puede_crear': se_puede_crear,
         'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
