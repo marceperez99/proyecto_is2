@@ -37,10 +37,10 @@ def listar_items(request, proyecto_id, fase_id):
     else:
         items = fase.get_items()
 
-    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.all().filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA).exists()
-    se_puede_crear = se_puede_crear or Item.objects.all().filter(tipo_de_item__fase = fase,estado = EstadoDeItem.APROBADO).exists() or Item.objects.all().filter(tipo_de_item__fase = fase,estado = EstadoDeItem.EN_LINEA_BASE).exists()
+    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA).exists()
+    se_puede_crear = se_puede_crear or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.APROBADO).exists() or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.EN_LINEA_BASE).exists()
 
-    print( LineaBase.objects.all().filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA))
+
     contexto ={
         'user': request.user,
         'proyecto': proyecto,
