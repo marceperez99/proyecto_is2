@@ -9,7 +9,7 @@
         <div class="row">
             <h3 class="col-4">Items de la Fase</h3>
             <div class="col-8 text-right">
-                {% if 'pp_f_crear_item' in permisos %}
+                {% if 'pp_f_crear_item' in permisos and se_puede_crear %}
                     <a href="{% url 'nuevo_item' proyecto.id fase.id %}" class="btn bg-color-accent border-0 btn-primary gb-color-accent">Nuevo Item</a>
                 {% endif %}
             </div>
