@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
@@ -36,6 +37,10 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     # TODO: Verificar que la linea base no este Rota
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
+
+    if linea_base.estado != EstadoLineaBase.CERRADA:
+        return redirect('visualizar_linea_base', proyecto_id, fase_id, linea_base_id)
+
     fase = Fase.objects.get(id=fase_id)
     items = linea_base.items.all()
     asignacion_formset = formset_factory(AsignacionForm, extra=items.count(), can_delete=False)
@@ -72,7 +77,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.save()
                 count = count + 1
 
-            return redirect('visualizar_linea_base',proyecto_id,fase_id,linea_base_id)
+            return redirect('visualizar_linea_base', proyecto_id, fase_id, linea_base_id)
     else:
         solicitud_form = SolicitudForm()
 
@@ -82,7 +87,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
 
     contexto = {'formset': formset,
                 'solicitud_form': solicitud_form,
-                'linea_base':linea_base,
+                'linea_base': linea_base,
                 'len': len(formset),
                 'breadcrumb': {'pagina_actual': 'Solicitar Rompimiento',
                                'links': [
@@ -94,7 +99,8 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                                    {'nombre': 'Lineas Base',
                                     'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
                                    {'nombre': linea_base.nombre,
-                                    'url': reverse('visualizar_linea_base', args=(proyecto.id, fase.id, linea_base.id))},
+                                    'url': reverse('visualizar_linea_base',
+                                                   args=(proyecto.id, fase.id, linea_base.id))},
                                ]}
                 }
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
@@ -191,6 +197,7 @@ def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
         'proyecto': proyecto,
         'fase': fase,
         'lineabase': lineabase,
+        'linea_base_cerrada': lineabase.estado == EstadoLineaBase.CERRADA,
         # 'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': lineabase.nombre,
                        # 'permisos': participante.get_permisos_por_fase_list(fase),

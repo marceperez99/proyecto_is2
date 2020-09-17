@@ -3,8 +3,14 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
+    {% if ya_voto %}
+        <div class="container alert alert-success text-center h5">
+            Usted ya voto por esta solicitud
+        </div>
+    {% endif %}
     <div class="container mt-3 card px-5 py-3">
         <div class="row">
+
             <div class="col-sm-12 col-xl-6">
                 <h3>Solicitud de Cambio</h3>
             </div>

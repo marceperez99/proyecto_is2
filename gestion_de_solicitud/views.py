@@ -41,10 +41,12 @@ def solicitud_view(request, proyecto_id, solicitud_id):
     contexto = {
         'proyecto': proyecto,
         'solicitud': solicitud,
+        'ya_voto': solicitud.ya_voto(participante),
         'mostrar_boton_votar': not solicitud.ya_voto(participante) and solicitud.estado == EstadoSolicitud.PENDIENTE,
         'breadcrumb': {
-            'pagina_actual': 'Fases',
-            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]
+            'pagina_actual': f'Solicitud de Ruptura de {solicitud.linea_base}',
+            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                      {'nombre': 'Solicitudes de Ruptura', 'url': reverse('solicitudes_de_cambio', args=(proyecto_id,))}]
         }
     }
     return render(request, 'gestion_de_solicitud/visualizar_solicitud.html', contexto)
