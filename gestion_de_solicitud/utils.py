@@ -28,7 +28,7 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
 
     # se solicita la modificacion de los items especificados
     for asignacion in solicitud.get_items_a_modificar():
-        asignacion.item.solicitar_modificacion(asignacion.usuario)
+        asignacion.item.solicitar_modificacion(asignacion.usuario, asignacion.motivo)
 
         for hijo in asignacion.item.get_hijos():
             if hijo.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]:

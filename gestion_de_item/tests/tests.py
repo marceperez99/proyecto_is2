@@ -1057,6 +1057,23 @@ class TestVistasItem:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
 
+    def test_debe_modificar_view(self, cliente_loggeado, proyecto, item):
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de debe modificar.\n
+        Se espera:
+            - Status code de la respuesta del servidor HTTPStatus.OK (200).\n
+        Mensaje de Error:
+            - No se obtuvo la pagina correctamente. Se esperaba un status code 200.
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        item.estado = EstadoDeItem.EN_REVISION
+        item.save()
+        response = cliente_loggeado.get(reverse('debe_ser_modificado', args=(proyecto.id, item.get_fase().id,
+                                                                                item.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
+                                                      'Se esperaba un status code 200.'
+
 
     def test_restaurar_version_item_view(self, cliente_loggeado, proyecto, item):
         #TODO Luis, Agregar en la planilla
@@ -1070,13 +1087,8 @@ class TestVistasItem:
         proyecto.estado = EstadoDeProyecto.INICIADO
         proyecto.save()
         version = item.get_versiones()[1]
-        response = cliente_loggeado.get(reverse('eliminar_relacion_item', args=(proyecto.id, item.get_fase().id,
+        response = cliente_loggeado.get(reverse('restaurar_item', args=(proyecto.id, item.get_fase().id,
                                                                                 item.id, version.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
-
-
-
-
-
-    # TODO Hugo: test_debe_modificar_view
+        

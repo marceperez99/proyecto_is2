@@ -27,6 +27,9 @@ def rs_admin():
 def usuario(rs_admin):
     return user_factory('usuario_test', 'password123', 'user@email.com', rs_admin.nombre)
 
+@pytest.fixture
+def usuario2(rs_admin):
+    return user_factory('usuario2_test', 'password123', 'user2@email.com', rs_admin.nombre)
 
 @pytest.fixture
 def gerente(rs_admin):
@@ -700,7 +703,21 @@ class TestVistasProyecto:
         client.login(username='gerente', password='password123')
         return client
 
-    # TODO: Luis test nuevo_proyecto_view
+
+    def test_nuevo_proyecto_view(self, gerente_loggeado):
+        #TODO Luis, agregar a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de nuevo proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+        """
+        response = gerente_loggeado.get(reverse('nuevo_proyecto'))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
 
     def test_participantes_view(self, gerente_loggeado, proyecto):
         """
@@ -751,10 +768,121 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('eliminar_participante', args=(proyecto.id, participante.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
-    # TODO: Luis test visualizar_proyecto_view
-    # TODO: Luis test editar_proyecto_view
-    # TODO: Luis test cancelar_proyecto_view
-    # TODO: Luis test iniciar_proyecto_view
+    def test_editar_proyecto_view(self,  gerente_loggeado, proyecto):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de editar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        response = gerente_loggeado.get(reverse('editar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    @pytest.mark.parametrize('estado_proyecto', [EstadoDeProyecto.CONFIGURACION,
+                                                EstadoDeProyecto.INICIADO,
+                                                ])
+    def test_cancelar_proyecto_view(self,  gerente_loggeado, proyecto, estado_proyecto):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de cancelar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        proyecto.estado = estado_proyecto
+        proyecto.save()
+        response = gerente_loggeado.get(reverse('cancelar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_iniciar_proyecto_view(self,  gerente_loggeado, proyecto):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de iniciar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        response = gerente_loggeado.get(reverse('iniciar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_visualizar_proyecto_view(self,  gerente_loggeado, gerente, usuario, usuario2):
+        #TODO: Luis subir a la planilla
+        """
+        Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar proyecto.
+
+        Resultado Esperado:
+            - Una respuesta HTTP con codigo de estado 200
+
+        Mensaje de Error:
+            - Hubo un error al tratar de acceder a la URL
+
+        """
+        rol_de_proyecto = rol_de_proyecto_factory({
+            'nombre': 'rol',
+            'descripcion': 'descripcion',
+            'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+        })
+        proyecto = proyecto_factory({
+            'gerente': 'gerente',
+            'nombre': 'Proyecto',
+            'estado': 'Iniciado',
+            'descripcion': 'Proyecto de prueba',
+            'creador': 'gerente',
+            'fases': [
+                {
+                    'nombre': 'Fase 1',
+                    'descripcion': 'Descripcion fase 1',
+                    'puede_cerrarse': False,
+                    'fase_cerrada': False,
+                }, {
+                    'nombre': 'Fase 2',
+                    'descripcion': 'Descripcion fase 2',
+                    'puede_cerrarse': False,
+                    'fase_cerrada': False,
+                }, {
+                    'nombre': 'Fase 3',
+                    'descripcion': 'Descripcion fase 3',
+                    'puede_cerrarse': False,
+                    'fase_cerrada': False,
+                }
+            ],
+            'participantes': [
+                {
+                    'usuario': 'usuario_test',
+                    'rol_de_proyecto': 'rol',
+                    'permisos': {
+                        'Fase 1': ['pp_ver_participante', 'pp_agregar_participante'],
+                        'Fase 2': ['pp_ver_participante', 'pp_agregar_participante'],
+                        'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+                    }
+                },
+                {
+                    'usuario': 'usuario2_test',
+                    'rol_de_proyecto': 'rol',
+                    'permisos': {
+                        'Fase 1': ['pp_ver_participante', 'pp_agregar_participante'],
+                        'Fase 2': ['pp_ver_participante', 'pp_agregar_participante'],
+                        'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+                    }
+                }
+            ],
+        'comite_de_cambios': ['gerente', 'usuario_test', 'usuario2_test', ]
+        })
+        response = gerente_loggeado.get(reverse('visualizar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     def test_nuevo_participante_view(self, gerente_loggeado, proyecto):
         """

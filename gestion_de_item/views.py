@@ -36,11 +36,17 @@ def listar_items(request, proyecto_id, fase_id):
         items = fase.get_items(items_eliminados=True)
     else:
         items = fase.get_items()
-    contexto = {
+
+    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA).exists()
+    se_puede_crear = se_puede_crear or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.APROBADO).exists() or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.EN_LINEA_BASE).exists()
+
+
+    contexto ={
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
         'items': items,
+        'se_puede_crear': se_puede_crear,
         'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': 'Items',
                        'permisos': participante.get_permisos_por_fase_list(fase),
@@ -130,6 +136,8 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'proyecto': proyecto,
         'fase': fase,
         'item': item,
+        'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
+        'cambios':True,
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -844,7 +852,7 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
+@pp_requerido_en_fase('pp_f_decidir_sobre_items_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.EN_REVISION)
