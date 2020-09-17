@@ -45,12 +45,18 @@ def proyecto(usuario1, usuario2, gerente, rol_de_proyecto):
 
 @pytest.mark.django_db
 class TestUtils:
+    """
+    Pruebas unitarias utilizadas para verificar el correcto funcionamiento de las funciones utilitarias relacionadas al modelo Solicitud.
+
+    """
 
     def test_cancelar_solicitud(self, proyecto):
         """
         Prueba unitaria que prueba el proceso llevado a cabo al cancelar una solicitud de ruptura del LB.
+
         Resultado esperado:
             La solicitud de cambio pase al estado 'Rechazada'.
+
         Mensajes de error:
             - No se cancelo la solicitud correctamente
         """
@@ -62,6 +68,7 @@ class TestUtils:
     def test_aceptar_solicitud(self, proyecto, solicitud):
         """
         Prueba unitaria que prueba el proceso llevado a cabo al aprobar una solicitud de ruptura del LB.
+
         Resultado esperado:
             La solicitud de cambio pase al estado 'Aprobada'.
 
@@ -69,9 +76,9 @@ class TestUtils:
             - El estado de la Solicitud deberia parar a Aprobada.
             - Existen items que estan en estado A Modificar pero no estaban incluidos en la Solicitud.
             - Solo los items que previamente estaban en Linea Base o Aprobados pasan al estado En Revision.
-            - Los hijos o sucesores de un item a modificar no pueden quedar en los estados
-            En Linea Base, Aprobado o A Aprobar.
+            - Los hijos o sucesores de un item a modificar no pueden quedar en los estados En Linea Base, Aprobado o A Aprobar.
             - Existen items que deberian estan en Revision y no lo estan.
+
         """
         solicitud = SolicitudDeCambio.objects.get(linea_base__nombre=solicitud)
         aprobar_solicitud(solicitud)
@@ -117,14 +124,18 @@ class TestUtils:
 
 @pytest.mark.django_db
 class TestModeloSolicitudDeCambio:
+    """
+    Pruebas unitarias utilizadas para verificar el correcto funcionamiento del modelo Solicitud.
+
+    """
     @pytest.mark.parametrize('solicitud, nro_votos', [('LB_1.1', 3), ('LB_1.2', 1)])
     def test_get_votos_a_favor(self, proyecto, solicitud, nro_votos):
         """
         Prueba unitaria que comprueba funcionamiento del metodo get_votos_a_favor.
 
         Se espera:
-
             - Que el metodo retorne correctamente el numero de votos a favor que tiene una solicitud.
+
         Mensaje de error:
             - No se retornó correctamente el numero de votos a favor, se esperaba {nro_votos} pero se retornó {votos}
 
