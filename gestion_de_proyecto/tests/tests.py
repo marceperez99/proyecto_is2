@@ -705,7 +705,6 @@ class TestVistasProyecto:
 
 
     def test_nuevo_proyecto_view(self, gerente_loggeado):
-        #TODO Luis, agregar a la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de nuevo proyecto.
 
@@ -769,7 +768,6 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
     def test_editar_proyecto_view(self,  gerente_loggeado, proyecto):
-        #TODO: Luis subir a la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de editar proyecto.
 
@@ -787,7 +785,6 @@ class TestVistasProyecto:
                                                 EstadoDeProyecto.INICIADO,
                                                 ])
     def test_cancelar_proyecto_view(self,  gerente_loggeado, proyecto, estado_proyecto):
-        #TODO: Luis subir a la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de cancelar proyecto.
 
@@ -804,7 +801,6 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     def test_iniciar_proyecto_view(self,  gerente_loggeado, proyecto):
-        #TODO: Luis subir a la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de iniciar proyecto.
 
@@ -819,7 +815,6 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     def test_visualizar_proyecto_view(self,  gerente_loggeado, gerente, usuario, usuario2):
-        #TODO: Luis subir a la planilla
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar proyecto.
 

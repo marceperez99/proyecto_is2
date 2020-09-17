@@ -284,7 +284,6 @@ class Item(models.Model):
 
     def puede_restaurarse(self, version):
         """
-        TODO: Luis incluir en planilla
         Metodo de model Item que verifica si un item puede o no volver a una version pasada.
         Una version va a poder restaurarse si, el item esta en la primera fase, o si esta en una fase siguiente
         al menos tiene que tener un padre aprobado, o al menos un antecesor en linea base.\n
@@ -308,7 +307,6 @@ class Item(models.Model):
 
     def restaurar(self, version):
         """
-        TODO: Luis incluir en planilla
         Metodo de model Item que restaura la version de un item a una anterior, esta es espesificada como parametro.\n
         Parametros:
             - version: int, identificador unico de la version a la cual se desea regresar
