@@ -3,15 +3,20 @@
 </script>
 {% load static %}
 <div class="card p-4">
-    HI there
-    <svg width="700" height="400">
+
+    <div class="contenedor">
+
+            <svg>
         <defs>
           <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6"
             refY="6" orient="auto">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: #001638;"></path>
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: #8c8c8c;"></path>
           </marker>
         </defs>
       </svg>
+    </div>
+
     <script src="https://d3js.org/d3.v4.js"></script>
+
     <script src="{% static 'gestion_de_item/js/graficar_trazabilidad.js'%}"></script>
 </div>

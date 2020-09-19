@@ -142,7 +142,8 @@ def trazar_item(proyecto: Proyecto, item: Item):
                     "codigo": item.codigo,
                     "data": {
                         "nombre": str(item),
-                        "peso": item.get_peso()
+                        "peso": item.get_peso(),
+                        "estado": item.estado
                     },
                     "hijos": [hijo.codigo for hijo in item.get_hijos()],
                     "sucesores": [sucesor.codigo for sucesor in item.get_sucesores()]
