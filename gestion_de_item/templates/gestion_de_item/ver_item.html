@@ -15,30 +15,51 @@
                 <div class="col-12 alert alert-warning">
                     <div class="row ">
                         <div class ="col-12 text-center mb-2 text-dark">Este item se encuentra En Revisión</div>
-                        <a href="#" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
+                        <a href="{% url 'no_modificar' proyecto.id fase.id item.id %}" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
                         <a href="{% url 'debe_ser_modificado' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Este Item debe ser modificado</a>
-
-
                     </div>
+                </div>
+            {% endif %}
+            {% if item.cambio_necesario and puede_modificar %}
+                <div class="col-10 mx-auto alert alert-warning">
+                    <h6>Usted ha sido asignado para modificar este item.</h6>
+                    <p>El cambio requerido es: {{ item.cambio_necesario }}</p>
                 </div>
             {% endif %}
             <h3 class="col-4">Item de Proyecto</h3>
             <div class="col-8 text-right">
-                 {% if item.estado == 'No Aprobado' and 'pp_f_solicitar_aprobacion_item' in permisos %}
-                    <a href="{% url 'solicitar_aprobacion_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">Solicitar Aprobación de Item</a>
+                 {% if puede_pedir_modificacion %}
+                    <a href="{% url 'solicitar_aprobacion_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">
+                        Solicitar Aprobación de Item
+                    </a>
 
-                {% elif item.estado == 'Listo para su aprobación' and 'pp_f_aprobar_item' in permisos %}
+                {% elif puede_aprobar %}
                     <a href="{% url 'aprobar_item' proyecto.id fase.id item.id %}" class="btn btn-success  border-0">Aprobar Item</a>
                     <a href="{% url 'desaprobar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">Cancelar Aprobación</a>
                 {% endif %}
-                {% if item.estado == 'No Aprobado' and 'pp_f_modificar_item' in permisos %}
+                {% if puede_modificar %}
                     <a href="{% url 'editar_item' proyecto.id fase.id item.id %}" class="btn btn-primary bg-color-accent border-0">Modificar Item</a>
                 {% endif %}
-                {% if item.estado == 'Aprobado' and 'pp_f_desaprobar_item' in permisos %}
-                    <a href="{% url 'desaprobar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">Desaprobar Item</a>
+                {% if puede_terminar_aprobacion %}
+                    <a href="{% url 'aprobar_item' proyecto.id fase.id item.id %}" class="btn btn-success border-0">
+                        Terminar Modificaciones
+                    </a>
+                {% endif %}
+                {% if puede_desaprobar %}
+                    <a href="{% url 'desaprobar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">
+                        Desaprobar Item
+                    </a>
                 {% endif %}
                 {% if se_puede_eliminar and 'pp_f_eliminar_item' in permisos %}
-                <a href="{% url 'eliminar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">Eliminar Item</a>
+                <a href="{% url 'eliminar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">
+                    Eliminar Item
+                </a>
+                {% endif %}
+                {% if linea_base %}
+                    <a class="btn btn-primary mr-3"
+                       href="{% url 'visualizar_linea_base' proyecto.id fase.id linea_base.id %}">
+                        Ver Linea Base
+                    </a>
                 {% endif %}
             </div>
             <hr class="col-12">
@@ -48,6 +69,12 @@
                     <div class="col-4 h5 my-3">Nombre</div><div class="col-8 my-3">{{ item.version.nombre }}</div>
                     <div class="col-4 h5 my-3">Descripcion</div><div class="col-8 my-3">{{ item.version.descripcion }}</div>
                     <div class="col-4 h5 my-3">Estado</div><div class="col-8 my-3">{{ item.estado }}</div>
+                    {% if linea_base %}
+                        <div class="col-4 h5 my-3">Linea Base</div>
+                        <div class="col-8 my-3">
+                            {{ linea_base }}
+                        </div>
+                    {% endif %}
                     <div class="col-4 h5 my-3">Peso</div><div class="col-8 my-3">{{ item.version.peso }}</div>
                     <div class="col-4 h5 my-3">Version</div>
                     <div class="col-8 my-3">{{ item.version.version }}</div>

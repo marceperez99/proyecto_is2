@@ -224,26 +224,26 @@ proyecto = {
         'Fase 1': [
             {
                 'nombre': 'LB_1.1',
-                'estado': EstadoLineaBase.CERRADO,
+                'estado': EstadoLineaBase.CERRADA,
                 'items': ['ti_1', 'ti_2']
             },
             {
                 'nombre': 'LB_1.2',
-                'estado': EstadoLineaBase.CERRADO,
+                'estado': EstadoLineaBase.CERRADA,
                 'items': ['ti_3']
             }
         ],
         'Fase 2': [
             {
                 'nombre': 'LB_2.1',
-                'estado': EstadoLineaBase.CERRADO,
+                'estado': EstadoLineaBase.CERRADA,
                 'items': ['ti2_3']
             }
         ],
         'Fase 3': [
             {
                 'nombre': 'LB_3.1',
-                'estado': EstadoLineaBase.CERRADO,
+                'estado': EstadoLineaBase.CERRADA,
                 'items': ['ti3_2']
             }
         ]

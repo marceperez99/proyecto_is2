@@ -1,8 +1,8 @@
 from django import forms
-from .models import LineaBase
 from gestion_de_item.models import Item, EstadoDeItem
 from gestion_de_fase.models import Fase
 from gestion_de_proyecto.models import Participante, Proyecto
+from gestion_linea_base.utils import *
 
 
 class AsignacionForm(forms.Form):
@@ -10,7 +10,7 @@ class AsignacionForm(forms.Form):
 
     usuario = forms.ModelChoiceField(label='Asignar a', queryset=Participante.objects.all(), required=False)
 
-    motivo = forms.CharField(label='comentario', max_length=500, required=False)
+    motivo = forms.CharField(label='Detalles de los cambios necesarios', max_length=500, required=False)
 
     def __init__(self, *args, proyecto_id, fase_id, **kwargs):
         super(AsignacionForm, self).__init__(*args, **kwargs)
@@ -30,7 +30,6 @@ class AsignacionForm(forms.Form):
 class SolicitudForm(forms.Form):
     razon_rompimiento = forms.CharField(label='Descripción del motivo de rompimiento',
                                         widget=forms.Textarea(attrs={"rows": 5, "cols": 20}))
-
 
 
 class LineaBaseForm(forms.ModelForm):
@@ -53,7 +52,7 @@ class LineaBaseForm(forms.ModelForm):
         """
 
         super(LineaBaseForm, self).__init__(*args, **kwargs)
-        self.fields['nombre'] = forms.CharField(initial=LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)
+        self.fields['nombre'] = forms.CharField(initial=create_nombre_LB(proyecto=proyecto, fase=fase)
                                                 , disabled=True, required=False)
         self.fields['items'] = forms.MultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,

@@ -1,8 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from gestion_de_proyecto.models import Comite, Proyecto
+
+from gestion_de_fase.decorators import fase_abierta
+from gestion_de_proyecto.decorators import estado_proyecto
+from gestion_de_proyecto.models import Comite, Proyecto, EstadoDeProyecto
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm, LineaBaseForm
 from gestion_linea_base.models import LineaBase, EstadoLineaBase
@@ -10,12 +14,14 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from django.urls import reverse
 from gestion_de_item.models import EstadoDeItem
+from gestion_linea_base.utils import *
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase("pp_f_solicitar_ruptura_de_linea_base")
-# TODO falta decorador de estado de proyecto y estado de fase
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+@fase_abierta()
 def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     """
     Vista que permite la creación de nuevas solicitudes de rompimiento de lineas bases cerradas.
@@ -28,9 +34,13 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Verificar que la linea base este cerrada con un fixture
+    # TODO: Verificar que la linea base no este Rota
 
     linea_base = LineaBase.objects.get(id=linea_base_id)
+
+    if linea_base.estado != EstadoLineaBase.CERRADA:
+        return redirect('visualizar_linea_base', proyecto_id, fase_id, linea_base_id)
+
     fase = Fase.objects.get(id=fase_id)
     items = linea_base.items.all()
     asignacion_formset = formset_factory(AsignacionForm, extra=items.count(), can_delete=False)
@@ -66,8 +76,8 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.motivo = form.cleaned_data['motivo']
                     asignacion.save()
                 count = count + 1
-            # TODO: debe retornar a la vista de la linea base.
-            return redirect('index')
+
+            return redirect('visualizar_linea_base', proyecto_id, fase_id, linea_base_id)
     else:
         solicitud_form = SolicitudForm()
 
@@ -77,7 +87,7 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
 
     contexto = {'formset': formset,
                 'solicitud_form': solicitud_form,
-                'linea_base':linea_base,
+                'linea_base': linea_base,
                 'len': len(formset),
                 'breadcrumb': {'pagina_actual': 'Solicitar Rompimiento',
                                'links': [
@@ -89,17 +99,29 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                                    {'nombre': 'Lineas Base',
                                     'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
                                    {'nombre': linea_base.nombre,
-                                    'url': reverse('visualizar_linea_base', args=(proyecto.id, fase.id, linea_base.id))},
+                                    'url': reverse('visualizar_linea_base',
+                                                   args=(proyecto.id, fase.id, linea_base.id))},
                                ]}
                 }
     return render(request, 'gestion_linea_base/solicitar_rompimiento.html', context=contexto)
 
 
 @login_required
-# @permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
-# TODO Marcos, falta usar decoradores para comprobar permisos de proyecto, comprobar estado de Proyecto: solo Iniciado
-# TODO Marcos, falta comprobar que la fase este abierta
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_crear_lb')
+@fase_abierta()
 def nueva_linea_base_view(request, proyecto_id, fase_id):
+    """
+    Vista que permite la creación de nuevas Lineas de Base.
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+    Retorna:
+        - HttpResponse
+    """
+    # TODO: Marcos incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
@@ -107,8 +129,8 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
         if form.is_valid():
             lineabase = form.save()
             lineabase.fase = get_object_or_404(Fase, id=fase_id)
-            lineabase.estado = EstadoLineaBase.CERRADO
-            lineabase.nombre = LineaBase.create_nombre(self=None, proyecto=proyecto, fase=fase)
+            lineabase.estado = EstadoLineaBase.CERRADA
+            lineabase.nombre = create_nombre_LB(proyecto=proyecto, fase=fase)
             for l in lineabase.items.all():
                 l.estado = EstadoDeItem.EN_LINEA_BASE
                 l.save()
@@ -136,15 +158,21 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-# @pp_requerido_en_fase('pu_f_ver_fase')
-# @estado_proyecto(EstadoDeProyecto.INICIADO)
-# TODO Marcos, falta verificar permisos de proyecto
+@pp_requerido_en_fase('pp_f_listar_lb')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
 def listar_linea_base_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
     Si el usuario cuenta con el permiso de proyecto
 
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+    Retorna:
+        - HttpResponse
     """
+    # TODO: Marcos incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     lis_lb = LineaBase.objects.filter(fase=fase)
@@ -168,12 +196,18 @@ def listar_linea_base_view(request, proyecto_id, fase_id):
 
 def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
     """
+    Vista que permite la visualizacion de la Linea de Base y los items que la componen.
+    Si el usuario cuenta con el permiso de proyecto
 
-    :param request:
-    :param proyecto_id:
-    :param fase_id:
-    :return:
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+        - linea_base_id: int, id de la linea base
+    Retorna:
+        - HttpResponse
     """
+    # TODO: Marcos registrar en planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     lineabase = get_object_or_404(LineaBase, id=linea_base_id)
@@ -184,13 +218,16 @@ def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
         'proyecto': proyecto,
         'fase': fase,
         'lineabase': lineabase,
+        'linea_base_cerrada': lineabase.estado == EstadoLineaBase.CERRADA,
         # 'permisos': participante.get_permisos_por_fase_list(fase) + participante.get_permisos_de_proyecto_list(),
         'breadcrumb': {'pagina_actual': lineabase.nombre,
                        # 'permisos': participante.get_permisos_por_fase_list(fase),
                        'links': [
                            {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
                            {'nombre': 'Fases', 'url': reverse('listar_fases', args=(proyecto.id,))},
-                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))}
+                           {'nombre': fase.nombre, 'url': reverse('visualizar_fase', args=(proyecto.id, fase.id))},
+                           {'nombre': 'Lineas Base',
+                            'url': reverse('listar_linea_base', args=(proyecto.id, fase.id))},
                        ]
                        }
     }

@@ -1,3 +1,5 @@
+from tokenize import group
+
 from django.contrib.auth.models import Permission, Group
 from django.db import models
 
@@ -83,8 +85,10 @@ class RolDeSistema(models.Model):
         Retorna:
             Booleano
         """
-        group = Group.objects.get(name=self.nombre)
-        return group.user_set.all().exists()
+        group = Group.objects.filter(id=self.id)
+        group = group.all()[0] if group.exists() else None
+        # group = Group.objects.get(name=self.nombre)
+        return group.user_set.all().exists() if group is not None else False
 
     def eliminar_rs(self):
         """

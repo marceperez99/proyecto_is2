@@ -30,33 +30,71 @@ class SolicitudDeCambio(models.Model):
 
     def get_items_a_modificar(self):
         """
-        TODO: Marcelo Comentar
-        :return:
+        Metodo que retorna lista de Asignaciones de items a modificar de la \
+        solicitud.
+
+        Retorna:
+            - Asingacion[]
         """
         return self.asignacion_set.all()
 
     def get_proyecto(self):
+        """
+        Metodo que retorna el Proyecto de la Solicitud.
+
+        Retorna:
+            - Proyecto
+        """
         return self.linea_base.get_proyecto()
 
     def ya_voto(self, participante):
+        """
+        Medoto de la clase Solicitud de Cambio, que verifica si un participante que es miembro del comite de cambio ya
+        voto. Si el participante ya voto se le redirigira a la pantala de solicitud de cambio.
+
+        Retorna:
+            -True: si el participante ya emitio un voto sobre la solicitud de cambio
+            -False: si el participante no emitio todavia su voto en la solicitud de cambio
+        """
         return self.voto_set.filter(miembro=participante).exists()
 
     def get_votos_a_favor(self):
-        #TODO MARCELO
+        """
+        Metodo que retorna total de votos a favor de la Solicitud.
+
+        Retorna:
+            - int
+        """
         return self.voto_set.filter(voto_a_favor=True).count()
 
     def get_votos_en_contra(self):
-        # TODO MARCELO
+        """
+        Metodo que retorna total de votos en contra de la Solicitud.
+
+        Retorna:
+            - int
+        """
         return self.voto_set.filter(voto_a_favor=False).count()
 
     def get_numero_de_votos(self):
-        # TODO MARCELO
+        """
+        Metodo que retorna total de votos de la Solicitud.
+
+        Retorna:
+            - int
+        """
         return self.voto_set.all().count()
 
     def get_numero_de_votos_faltantes(self):
-        # TODO MARCELO
+        """
+        Metodo que retorna total de votos faltantes para concluir la votacion de la Solicitud.
+
+        Retorna:
+            - int
+        """
         comite = self.linea_base.get_proyecto().get_comite_de_cambios()
         return comite.miembros.all().count() - self.get_numero_de_votos()
+
 
 class Asignacion(models.Model):
     """

@@ -2,8 +2,9 @@ from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
-gd_storage = GoogleDriveStorage()
+from gestion_linea_base.models import EstadoLineaBase
 
+gd_storage = GoogleDriveStorage()
 
 
 class EstadoDeItem:
@@ -44,6 +45,7 @@ class Item(models.Model):
                                 on_delete=models.CASCADE)
     encargado_de_modificar = models.ForeignKey('gestion_de_proyecto.Participante', null=True, default=None,
                                                on_delete=models.CASCADE)
+    cambio_necesario = models.CharField(max_length=500, default="")
     estado_anterior = models.CharField(max_length=40, default="")
 
     # No cambiar save() o se rompe
@@ -217,7 +219,7 @@ class Item(models.Model):
         Lanza:
             Exception: si el item no esta en el estado A_APROBAR
         """
-        if self.estado == EstadoDeItem.A_APROBAR:
+        if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:
@@ -234,7 +236,8 @@ class Item(models.Model):
 
         if self.estado == EstadoDeItem.APROBADO or self.estado == EstadoDeItem.A_APROBAR:
             hijos = self.get_hijos()
-            if len(hijos) == 0:
+            sucesores = self.get_sucesores()
+            if len(hijos) + len(sucesores) == 0:
                 self.estado = EstadoDeItem.NO_APROBADO
                 self.save()
             else:
@@ -242,10 +245,12 @@ class Item(models.Model):
                 for hijo in hijos:
                     mensaje_error.append(
                         'El item es el padre del item ' + hijo.version.nombre + ' con código ' + hijo.codigo)
-
+                for sucesor in sucesores:
+                    mensaje_error.append(
+                        'El item es el antecesor del item ' + sucesor.version.nombre + ' con código ' + sucesor.codigo)
                 raise Exception(mensaje_error)
         else:
-            raise Exception("El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo")
+            raise Exception(["El item tiene que estar con estado Aprobado o A Aprobar para desaprobarlo"])
 
     def eliminar_relacion(self, item):
         """
@@ -263,7 +268,7 @@ class Item(models.Model):
 
         """
 
-        if self.estado != EstadoDeItem.NO_APROBADO:
+        if self.estado not in [EstadoDeItem.NO_APROBADO, EstadoDeItem.A_MODIFICAR]:
             raise Exception("El item no esta en estado 'No Aprobado'")
         if not self.version.antecesores.filter(id=item.id).exists() and not self.version.padres.filter(
                 id=item.id).exists():
@@ -289,11 +294,17 @@ class Item(models.Model):
             -True: Si el item puede restaurarse a una version anterior
             -False: Si el item no puede restaurarse a una version anterior
         """
+        if self.estado != EstadoDeItem.NO_APROBADO:
+            return False
+
         if self.get_fase().es_primera_fase():
             return True
         else:
-            return version.padres.filter(estado=EstadoDeItem.APROBADO).count() > 0 or \
-                   version.antecesores.filter(estado=EstadoDeItem.EN_LINEA_BASE).count() > 0
+            return version.padres.filter(
+                estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                            EstadoDeItem.EN_REVISION]).count() > 0 or \
+                   version.antecesores.filter(estado__in=[EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR,
+                                                          EstadoDeItem.EN_REVISION]).count() > 0
 
     def restaurar(self, version):
         """
@@ -311,59 +322,90 @@ class Item(models.Model):
             atributo.save()
 
         for padre in version.padres.all():
-            if padre.estado == EstadoDeItem.APROBADO:
+            if padre.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.APROBADO, EstadoDeItem.A_MODIFICAR,
+                                EstadoDeItem.EN_REVISION]:
                 nueva_version.padres.add(padre)
 
         for antecesor in version.antecesores.all():
-            if antecesor.estado == EstadoDeItem.EN_LINEA_BASE:
+            if antecesor.estado in [EstadoDeItem.EN_LINEA_BASE, EstadoDeItem.A_MODIFICAR, EstadoDeItem.EN_REVISION]:
                 nueva_version.antecesores.add(antecesor)
 
         self.version = nueva_version
         self.save()
 
     def solicitar_revision(self):
-        # TODO: comentar y probar
+        """
+        Metodo que pone en el estado "En Revision" al item, ademas, si el item esta en una linea
+        base Cerrada pone a esta linea base en el estado "Comprometida".
+        """
         assert self.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE]
+
+        if self.estado == EstadoDeItem.EN_LINEA_BASE:
+            linea_base = self.get_linea_base()
+            if linea_base.esta_cerrada():
+                linea_base.comprometer()
+
         self.estado_anterior = self.estado
         self.estado = EstadoDeItem.EN_REVISION
         self.save()
 
-    def solicitar_modificacion(self, usuario_encargado=None):
-        # TODO: comentar y probar
+    def solicitar_modificacion(self, usuario_encargado=None, cambio=""):
+        """
+        Método que hace que el item pase al estado "A Modificar", además, si se especifica un usuario encargado
+        se guardará el usuario que tendrá la responsabilidad de modificar el item.
+
+        Argumentos:
+            - usuario_encargado: Participante
+        """
         self.encargado_de_modificar = usuario_encargado
+        self.cambio_necesario = cambio
         self.estado = EstadoDeItem.A_MODIFICAR
         self.save()
 
     def esta_en_linea_base(self):
         """
-        TODO: actually completar el metodo
+        Método que retorna True si el item se encuentra dentro de una linea base.
 
+        Retorna:
+            -Booleano
         """
-        # TODO: Hugo
-        return self.lineabase_set.filter(estado="Cerrada").exists()
-
-    def esta_en_linea_base_comprometida(self):
-        # TODO: Hugo
-        return self.lineabase_set.filter(estado="Comprometida").exists()
+        return self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists() or self.lineabase_set.filter(
+            estado=EstadoLineaBase.COMPROMETIDA).exists()
 
     def get_linea_base(self):
-        # TODO: actually completar el metodo
-        if self.lineabase_set.filter(estado="Cerrada").exists():
-            # TODO: Hugo
-            return self.lineabase_set.get(estado="Cerrada")
-        # TODO: Hugo
-        elif self.lineabase_set.filter(estado="Comprometida").exists():
-            # TODO: Hugo
-            return self.lineabase_set.get(estado="Comprometida")
+        """
+        Método que retorna True si el item se encuentra dentro de una linea base.
+
+        Retorna:
+            -Booleano
+        """
+        if self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists():
+
+            return self.lineabase_set.get(estado=EstadoLineaBase.CERRADA)
+
+        elif self.lineabase_set.filter(estado=EstadoLineaBase.COMPROMETIDA).exists():
+            return self.lineabase_set.get(estado=EstadoLineaBase.COMPROMETIDA)
         else:
             return None
 
     def puede_modificar(self, participante):
         """
-        TODO: Marcelo
-        :param participante:
-        :return:
+        Metodo que retorna un Booleano indicando si el item puede ser modificado por un participante \
+        del proyecto pasado como parametro. Este metodo retornara True si:
+            - El item esta en el estado "No Aprobado" y el participante tiene permisos dentro de la \
+            para modificar el item.
+            - El item esta en el estado "A Modificar" y el campo "encargado" del item es igual al participante.
+            - El item esta en el estado "A Modificar" y el campo "encargado" no esta seteado y el participante tiene \
+            permiso de modificar el item.
+
+        Argumentos:
+            - participante: Participante
+
+        Retorna:
+            - True: si el participante puede modificar el item
+            - True: en caso contrario
         """
+
         if self.estado == EstadoDeItem.A_MODIFICAR and self.encargado_de_modificar is not None:
             return self.encargado_de_modificar == participante
 
@@ -395,6 +437,12 @@ class VersionItem(models.Model):
     padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
 
     def get_atributos_dinamicos(self):
+        """
+        Método para conseguir los atributos dinamicos relacioandos al item
+
+        Retorna:
+            - Lista de atributos dinamicos relacionados al item.
+        """
         atributos = list(self.atributoitemnumerico_set.all())
         atributos += list(self.atributoitemfecha_set.all())
         atributos += list(self.atributoitemcadena_set.all())

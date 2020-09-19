@@ -61,7 +61,7 @@ class Fase(models.Model):
                 fase_derecha.fase_anterior = self
                 fase_derecha.save()
 
-    def get_items(self, items_eliminados=False):
+    def get_items(self, items_eliminados=False, en_revision=False):
         """
         Metodo que retorna los items asociados a una fase.
 
@@ -75,7 +75,9 @@ class Fase(models.Model):
         tipos = self.tipodeitem_set.all()
         items = []
         for tipo in tipos:
-            if items_eliminados:
+            if en_revision:
+                items.extend(list(tipo.item_set.all().filter(estado=EstadoDeItem.EN_REVISION)))
+            elif items_eliminados:
                 # Se incluyen todos los items del tipo
                 items.extend(list(tipo.item_set.all()))
             else:

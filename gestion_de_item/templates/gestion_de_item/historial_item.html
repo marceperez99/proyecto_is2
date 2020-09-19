@@ -24,7 +24,7 @@
                                 <div class="col-auto text-white mr-auto">
                                     Version {{version.version}}
                                 </div>
-                                    {% if item.version != version and item.estado in lista_estados_item %}
+                                    {% if puede_revertirse and item.version != version %}
                                     <a href="{% url 'restaurar_item' proyecto.id fase.id item.id version.id %}" class="btn bg-color-accent text-white font-weight-bold  btn-sm">
                                          Volver a esta Version
                                     </a>

@@ -15,9 +15,13 @@
                             <div class="col-xl-8">
                                 <h3>Linea Base</h3>
                             </div>
+
                             <div class="col-xl-4 text-right">
-                                <a href="solicitar_rompimiento" class="btn btn-primary">
-                                                        <i class="fas fa-eye"></i> Solicitar Ruptura de Linea Base</a>
+                                {% if linea_base_cerrada  %}
+                                    <a href="solicitar_rompimiento" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i> Solicitar Ruptura de Linea Base
+                                    </a>
+                                {% endif %}
 <!--                                <button class="btn btn-primary" type="button">Solicitar Ruptura de Linea Base</button>-->
                             </div>
                             <div class="col-xl-12">

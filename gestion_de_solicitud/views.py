@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
 from django.urls import reverse
-from gestion_de_solicitud.models import SolicitudDeCambio, Voto
+from gestion_de_solicitud.models import SolicitudDeCambio, Voto, EstadoSolicitud
 from django.shortcuts import get_object_or_404, redirect
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
@@ -13,7 +13,13 @@ from gestion_de_solicitud.utils import aprobar_solicitud, cancelar_solicitud
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def listar_solicitudes_view(request, proyecto_id):
     """
-        Vista que permite la visualizacion de las solicitudes creados dentro de un proyecto.
+    Vista que permite la visualizacion de las solicitudes creados dentro de un proyecto.
+    La vista mostrara el nombre de la linea base afectada, la fase en donde se encuentra, y la fecha que se solicito.\n
+    Argumentos:
+        -request: HttpRequest.
+        -proyecto_id: int, identificador unico del proyecto al que se esta accediendo.\n
+    Retorna:
+        -HttpResponse
     """
     solicitudes = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto_id=proyecto_id).all()
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
@@ -33,7 +39,16 @@ def listar_solicitudes_view(request, proyecto_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitud_view(request, proyecto_id, solicitud_id):
     """
-        Vista que permite la visualizacion de una solicitud en particular.
+    Vista que permite la visualizacion de una solicitud en particular.
+    Se mostrara todos los detalles de la solicitud, Descripcion, linea base afectada, en que fase se encuentra, el
+    solicitante y la fecha de solicitud. Tambien se mostrara los votos a favor, en contra, como los que ya votaron y
+    faltan por votar.\n
+    Argumentos:
+        -request: HttpRequest.
+        -proyecto_id: int, identificador unico del proyecto al que se esta accediendo.
+        -solicitud_id: int, identificador unico de la solicitud.\n
+    Retorna:
+        -HttpResponse
     """
     solicitud = get_object_or_404(SolicitudDeCambio, id=solicitud_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
@@ -41,10 +56,12 @@ def solicitud_view(request, proyecto_id, solicitud_id):
     contexto = {
         'proyecto': proyecto,
         'solicitud': solicitud,
-        'usuario_ha_votado': solicitud.ya_voto(participante),
+        'ya_voto': solicitud.ya_voto(participante),
+        'mostrar_boton_votar': not solicitud.ya_voto(participante) and solicitud.estado == EstadoSolicitud.PENDIENTE,
         'breadcrumb': {
-            'pagina_actual': 'Fases',
-            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]
+            'pagina_actual': f'Solicitud de Ruptura de {solicitud.linea_base}',
+            'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
+                      {'nombre': 'Solicitudes de Ruptura', 'url': reverse('solicitudes_de_cambio', args=(proyecto_id,))}]
         }
     }
     return render(request, 'gestion_de_solicitud/visualizar_solicitud.html', contexto)
@@ -55,10 +72,16 @@ def solicitud_view(request, proyecto_id, solicitud_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def solicitud_votacion_view(request, proyecto_id, solicitud_id):
     """
-    :param request:
-    :param proyecto_id:
-    :param solicitud_id:
-    :return:
+    Vista que permite la votacion de una solicitud de cambio, entre los participantes del comite de cambio.
+    Se verifica si el participante es miembro del comite, una ve verificado se le muestra al usuario los cambios
+    propuestos en la solicitud, este tendra que dar su voto a favor o en contra, para aprobar o rechazarla respectivamete.
+    Una vez hayan votados todos los del comite, se aprueba el cambio si os votos "a favor" son mayor a los votos "en contra".\n
+    Argumentos:
+        -request: HttpRequest
+        -proyecto_id: int, identificador unico del proyecto al que se esta accediendo.
+        -solicitud_id: int, identificador unico de la solicitud.
+    Retorna:
+        -HttpResponse
     """
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     solicitud = get_object_or_404(SolicitudDeCambio, id=solicitud_id)
