@@ -107,32 +107,47 @@ def upload_and_save_file_item_2(atributo, file, proyecto, fase, item):
 
 
 def trazar_item(proyecto: Proyecto, item: Item):
-    items = []
+    items = [item]
     items_visitados = set()
-    queue = [item]
+    queue = []
+    for padre in item.get_padres():
+        queue.append([padre, {'sucesores': False, 'antecesores': True, 'hijos': False, 'padres': True}])
 
+    for antecesor in item.get_antecesores():
+        queue.append([antecesor, {'sucesores': False, 'antecesores': True, 'hijos': False, 'padres': True}])
+
+    for hijo in item.get_hijos():
+        queue.append([hijo, {'sucesores': True, 'antecesores': False, 'hijos': True, 'padres': False}])
+
+    for sucesor in item.get_sucesores():
+        queue.append([sucesor, {'sucesores': True, 'antecesores': False, 'hijos': True, 'padres': False}])
+
+    items_visitados.add(item.id)
     while len(queue) > 0:
-        item = queue.pop()
+        [item, dependencias] = queue.pop()
         if item.id in items_visitados:
             continue
         items_visitados.add(item.id)
         items.append(item)
+        if dependencias['padres']:
+            for padre in item.get_padres():
+                if padre.id not in items_visitados:
+                    queue.append([padre, dependencias])
 
-        for padre in item.get_padres():
-            if padre.id not in items_visitados:
-                queue.append(padre)
+        if dependencias['antecesores']:
+            for antecesor in item.get_antecesores():
+                if antecesor.id not in items_visitados:
+                    queue.append([antecesor, dependencias])
 
-        for antecesor in item.get_antecesores():
-            if antecesor.id not in items_visitados:
-                queue.append(antecesor)
+        if dependencias['hijos']:
+            for hijo in item.get_hijos():
+                if hijo.id not in items_visitados:
+                    queue.append([hijo, dependencias])
 
-        for hijo in item.get_hijos():
-            if hijo.id not in items_visitados:
-                queue.append(hijo)
-
-        for sucesor in item.get_sucesores():
-            if sucesor.id not in items_visitados:
-                queue.append(sucesor)
+        if dependencias['sucesores']:
+            for sucesor in item.get_sucesores():
+                if sucesor.id not in items_visitados:
+                    queue.append([sucesor, dependencias])
 
     return json.dumps([
         {
@@ -142,11 +157,12 @@ def trazar_item(proyecto: Proyecto, item: Item):
                     "codigo": item.codigo,
                     "data": {
                         "nombre": str(item),
+                        "tipoDeItem": item.tipo_de_item.nombre,
                         "peso": item.get_peso(),
                         "estado": item.estado
                     },
-                    "hijos": [hijo.codigo for hijo in item.get_hijos()],
-                    "sucesores": [sucesor.codigo for sucesor in item.get_sucesores()]
+                    "hijos": [hijo.codigo for hijo in item.get_hijos() if hijo.id in items_visitados],
+                    "sucesores": [sucesor.codigo for sucesor in item.get_sucesores() if sucesor.id in items_visitados]
                 }
                 for item in items if item.get_fase().id == fase.id
             ]

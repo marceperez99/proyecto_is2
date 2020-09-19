@@ -1,22 +1,18 @@
 const NODE_RADIUS = 10;
-const MIN_SCREEN_HEIGHT = 400;
-const MIN_SCREEN_WIDTH = $('.contenedor').width();
-const LINE_COLOR = '#A4A5A6'
-const ARROW_COLOR = "#8c8c8c"
+const MIN_SCREEN_HEIGHT = 500;
+let MIN_SCREEN_WIDTH = $('.contenedor').width();
+console.log(MIN_SCREEN_WIDTH)
+const LINE_COLOR = '#A4A5A6';
+const ARROW_COLOR = "#8c8c8c";
 const ITEM_COLORS = {
     'Aprobado': '#17A2B8',
     'No Aprobado': '#6C757D',
     'Listo para su aprobación': '#007BFF',
     'En Linea Base': '#28A745',
     'En Revision': '#eeff00',
-    'A Modificar': '#DC3545',
+    'A modificar': '#DC3545',
     undefined: '#6C757D',
 }
-
-$(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-})
-
 
 const divide_segment_by_ratio = (x1, y1, x2, y2, r) => ({x: (r * x2 + x1) / (1 + r), y: (r * y2 + y1) / (1 + r),});
 const get_edge_arrow = (u, v, radius) => {
@@ -74,6 +70,32 @@ const topo_sort = graph => {
     const span = layers.reduce((max, curr) => Math.max(max, curr.length), 0);
     return {layers, width: layers.length, span}
 }
+const bfs = graph => {
+    let inDegree = graph.reduce((acc, curr) => ({...acc, [curr['codigo']]: 0}), {});
+    let visited = graph.reduce((acc, curr) => ({...acc, [curr['codigo']]: false}), {});
+    let items = graph.reduce((acc, curr) => ({...acc, [curr['codigo']]: curr}), {});
+
+    graph.forEach(u => {
+        u['hijos'].forEach(v => inDegree[v]++)
+    })
+    let queue = Object.keys(inDegree).filter(u => inDegree[u] === 0)
+        .map(v => ({vertice: v, nivel: 0}));
+
+    let layers = [];
+
+    while (queue.length) {
+        let u = queue.shift()
+        if (!visited[u.vertice]) {
+            if (u.nivel >= layers.length) layers.push([]);
+            layers[u.nivel].push(u.vertice);
+            items[u.vertice].hijos.forEach(v => {
+                queue.push({nivel: u.nivel + 1, vertice: v})
+            })
+        }
+    }
+    const span = layers.reduce((max, curr) => Math.max(max, curr.length), 0);
+    return {layers, width: layers.length, span}
+}
 const get_coordinates = (layering, width, height) => {
     let coordinates = {};
     let dx = width / (layering.width + 1);
@@ -118,8 +140,10 @@ function draw_nodes(svg, coordenadas_list, coordenadas, nodeInfo) {
         .attr('data-toggle', 'tooltip')
         .attr('data-html', 'true')
         .attr('data-placement', 'top')
-        .attr('title', d => `<b>${nodeInfo[d.id].nombre}</b>
-                <br/>Estado: ${nodeInfo[d.id].estado}<br/>Peso: ${nodeInfo[d.id].peso}`)
+        .attr('title', d => `<b>${nodeInfo[d.id].nombre}<br/></b>
+                <span style="text-align: left;">Tipo de Item: ${nodeInfo[d.id].tipoDeItem}<br/></span>
+                <span style="text-align: left;">Estado: ${nodeInfo[d.id].estado}<br/></span>
+                <span style="text-align: left;">Peso: ${nodeInfo[d.id].peso}<br/></span>`)
 
         .on("mouseover", function (d) {
             d3.select(this).style("cursor", "move");
@@ -229,12 +253,13 @@ function draw_titulos_fases(svg, data) {
         })
 }
 
-function graficar_DAG(data) {
+function graficar_DAG(data, algorithm) {
+    console.log(data)
     let fases = data.map(fase => fase.fase)
     let itemInfo = {}
     data.forEach(fase => fase.items.forEach(item => itemInfo[item.codigo] = {...item.data}))
 
-    const layering = data.map(fase => topo_sort(fase.items));
+    const layering = data.map(fase => algorithm(fase.items));
     let x_offset = 0;
     let divisorias = [];
     let coordenadas = {};
@@ -331,4 +356,34 @@ function get_text_length(fases) {
     return textWidth;
 }
 
-graficar_DAG(graph)
+
+let graficado = false;
+
+$('#trazabilidad-tab').on('shown.bs.tab', function () {
+    if (!graficado) {
+        MIN_SCREEN_WIDTH = $('.contenedor').width();
+        graficar_DAG(graph, topo_sort);
+        graficado = true;
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    }
+});
+$('#visualizacion1').click(function () {
+    $(this).addClass('active');
+    $('#visualizacion2').removeClass('active');
+    d3.select("svg g").remove();
+    graficar_DAG(graph, topo_sort);
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+})
+$('#visualizacion2').click(function () {
+    $(this).addClass('active');
+    $('#visualizacion1').removeClass('active');
+    d3.select("svg g").remove();
+    graficar_DAG(graph, bfs);
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+})

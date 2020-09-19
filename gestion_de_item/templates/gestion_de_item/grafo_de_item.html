@@ -2,21 +2,22 @@
     let graph = {{ trazabilidad|safe }}
 </script>
 {% load static %}
-<div class="card p-4">
-
-    <div class="contenedor">
-
-            <svg>
+<div class="col-12 rounded-bottom border-left border-right border-bottom bg-white p-3 mx-auto contenedor">
+    <div class="m-3">
+        {# TODO: Poner una descripcion de lo que esta pasando aca#}
+        <button class="btn btn-primary active" id="visualizacion1">Visualizacion 1</button>
+        <button class="btn btn-primary" id="visualizacion2">Visualizacion 2</button>
+    </div>
+    <svg>
         <defs>
-          <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6"
+            <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6"
             refY="6" orient="auto">
             <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: #8c8c8c;"></path>
           </marker>
         </defs>
-      </svg>
-    </div>
+    </svg>
+
 
     <script src="https://d3js.org/d3.v4.js"></script>
-
     <script src="{% static 'gestion_de_item/js/graficar_trazabilidad.js'%}"></script>
 </div>
