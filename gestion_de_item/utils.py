@@ -168,4 +168,4 @@ def trazar_item(proyecto: Proyecto, item: Item):
             ]
         }
         for fase in proyecto.get_fases()
-    ])
+    ],sort_keys=True)
