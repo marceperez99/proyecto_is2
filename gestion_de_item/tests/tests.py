@@ -1,51 +1,47 @@
 import datetime
+import json
 from http import HTTPStatus
 
 import pytest
-from django.contrib.auth.models import Permission
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
 from gestion_de_fase.models import Fase
 from gestion_de_item.tests.factories import item_factory
+from gestion_de_item.utils import trazar_item
 from gestion_de_proyecto.models import Proyecto, Participante, EstadoDeProyecto
-from gestion_de_proyecto.tests.factories import participante_factory
+from gestion_de_proyecto.tests.factories import participante_factory, proyecto_factory
 from gestion_de_tipo_de_item.models import TipoDeItem
 from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
-from gestion_de_item.models import VersionItem, EstadoDeItem
+from gestion_de_item.models import VersionItem, EstadoDeItem, Item
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
 from usuario.tests.factories import user_factory
+import gestion_de_item.tests.test_case as tc
 
 
 @pytest.fixture
 def rs_admin():
-    return rol_de_sistema_factory('Admin', 'Administrador del Sistema',
-                                  [p.codename for p in
-                                   Permission.objects.filter(content_type__app_label='roles_de_sistema',
-                                                             codename__startswith='p')])
+    return rol_de_sistema_factory(tc.admin['nombre'], tc.admin['descripcion'],
+                                  tc.admin['permisos'])
 
 
 @pytest.fixture
 def usuario(rs_admin):
-    return user_factory('user_test', 'password123', 'test@admin.com', rs_admin.nombre)
+    return user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['username'], rs_admin.nombre)
 
 
 @pytest.fixture
 def cliente_loggeado(usuario):
     client = Client()
-    client.login(username='user_test', password='password123')
+    client.login(username=tc.gerente['username'], password=tc.gerente['password'])
     return client
 
 
 @pytest.fixture
 def rol_de_proyecto():
-    return rol_de_proyecto_factory({
-        'nombre': 'Desarrollador',
-        'descripcion': 'Descripcion de rol',
-        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
-    })
+    return rol_de_proyecto_factory(tc.rol_de_proyecto)
 
 
 @pytest.fixture
@@ -522,7 +518,7 @@ class TestModeloItem:
                     'nombre': 'Nombre de item',
                     'descripcion': 'Descripcion',
                     'peso': 8,
-                    }
+                }
             },
         })
         item3 = item_factory({
@@ -558,7 +554,6 @@ class TestModeloItem:
                                                   f'{item3.version.nombre} dejara de ser trazable a la primera fase'
         assert item3.version.antecesores.count() == version.antecesores.count(), f'No se restauro correctamente ' \
                                                                                  f'a la version {item3.version.version}'
-
 
     def test_add_padre(self, item, tipo_de_item):
         """
@@ -643,8 +638,7 @@ class TestModeloItem:
         condicion = item3.version.antecesores.filter(id=item2.id).exists()
         assert condicion is True, f'El item {item2.version.nombre} no se agrego a la lista de antecesores del item {item3.version.nombre}'
         assert item3.version.version == item3.version_item.all().count(), 'El numero de la version no aumento en' \
-                                                                        ' 1 con respecto a la ultima'
-
+                                                                          ' 1 con respecto a la ultima'
 
     @pytest.mark.parametrize('estado_item', [EstadoDeItem.APROBADO,
                                              EstadoDeItem.EN_LINEA_BASE,
@@ -680,8 +674,8 @@ class TestModeloItem:
         })
         with pytest.raises(Exception) as excinfo:
             item2.eliminar_relacion(item)
-        assert "El item no esta en estado 'No Aprobado'" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
-
+        assert "El item no esta en estado 'No Aprobado'" in str(
+            excinfo.value), 'El metodo no lanzo la exception corresponiente'
 
     def test_eliminar_relacion_no_existe_test(self, item, tipo_de_item):
         """
@@ -768,9 +762,8 @@ class TestModeloItem:
 
         with pytest.raises(Exception) as excinfo:
             item2_fase_2.eliminar_relacion(item1_fase_2)
-        assert "El item dejara de ser trazable a la primera fase" in str(excinfo.value), 'El metodo no lanzo la exception corresponiente'
-
-
+        assert "El item dejara de ser trazable a la primera fase" in str(
+            excinfo.value), 'El metodo no lanzo la exception corresponiente'
 
     def test_eliminar_relacion_padre(self, tipo_de_item):
         """
@@ -815,7 +808,6 @@ class TestModeloItem:
         condicion = item2_fase_1.version.padres.filter(id=item_fase_1.id).exists()
         assert condicion is False, f'No se elimino la relacion, el item {item2_fase_1.version.bombre} sigue teniendo ' \
                                    f'como padre al item {item_fase_1.version.nombre}'
-
 
     def test_eliminar_relacion_antecesor(self, item, tipo_de_item, tipo_de_item_fase2):
         """
@@ -863,8 +855,8 @@ class TestModeloItem:
         assert condicion is False, f'No se elimino la relacion, el item {item_fase_2.version.bombre} sigue teniendo ' \
                                    f'como antecesor al item {item_fase_1.version.nombre}'
 
-
     # TODO Hugo test_eliminar_item
+
 
 @pytest.mark.django_db
 class TestVistasItem:
@@ -1057,10 +1049,9 @@ class TestVistasItem:
         item.estado = EstadoDeItem.EN_REVISION
         item.save()
         response = cliente_loggeado.get(reverse('debe_ser_modificado', args=(proyecto.id, item.get_fase().id,
-                                                                                item.id)))
+                                                                             item.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 200.'
-
 
     def test_restaurar_version_item_view(self, cliente_loggeado, proyecto, item):
         """
@@ -1074,7 +1065,63 @@ class TestVistasItem:
         proyecto.save()
         version = item.get_versiones()[1]
         response = cliente_loggeado.get(reverse('restaurar_item', args=(proyecto.id, item.get_fase().id,
-                                                                                item.id, version.id)))
+                                                                        item.id, version.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL. ' \
                                                       'Se esperaba un status code 300.'
-        
+
+
+@pytest.mark.django_db
+class TestUtilsItem:
+    """
+    # TODO: Marcelo, cargar en planilla
+    Pruebas unitarias encargadas de probar las funciones utilitarias del modulo Item.
+    """
+    @pytest.mark.parametrize('item,resultado_esperado', tc.test_trazar_item_result.items())
+    def test_trazar_item(self, usuario, rol_de_proyecto, rs_admin, item, resultado_esperado):
+        """
+        # TODO: Marcelo, cargar en planilla
+        Prueba unitaria encargada de probar el funcionamiento de la funcion utilitaria trazar_item
+        encargada de producir una representacion de la parte del grafo del proyecto que representa la
+        trazabilidad de un item.
+
+        Resultado Esperado:
+            - Las representaciones de la trazabilidad del item son correctas.
+
+        Mensajes de Error:
+            - No se retornaron todas las fases.
+            - Los codigos de los items no coinciden.
+            - Los nombres de los items no coinciden.
+            - Los tipos de item de los items no coinciden.
+            - Los pesos de los items no coinciden.
+            - Los estados de los items no coinciden.
+            - Los hijos de los items no coinciden.
+            - Los sucesores de los items no coinciden.
+        """
+        user_factory(tc.user['username'], tc.user['password'], tc.user['email'], tc.user['rol_de_sistema'])
+        user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'], tc.user2['rol_de_sistema'])
+        proyecto = proyecto_factory(tc.proyecto)
+
+        item = Item.objects.get(codigo=item)
+        resultado = trazar_item(proyecto, item)
+        resultado = json.loads(resultado)
+        resultado_esperado.sort(key=lambda x: x['fase'])
+        resultado.sort(key=lambda x: x['fase'])
+
+        for fase, fase_esperada in zip(resultado_esperado, resultado):
+            assert fase['fase'] == fase_esperada['fase'], 'No se retornaron todas las fases'
+            fase['items'].sort(key=lambda i: i['codigo'])
+            fase_esperada['items'].sort(key=lambda i: i['codigo'])
+
+            for item, item_esperado in zip(fase['items'], fase_esperada['items']):
+                assert item['codigo'] == item_esperado['codigo'], 'Los codigos de los items no coinciden'
+                assert item['data']['nombre'] == item_esperado['data']['nombre'],  'Los nombres de los items no coinciden'
+                assert item['data']['tipoDeItem'] == item_esperado['data']['tipoDeItem'], 'Los tipos de item de los items no coinciden'
+                assert item['data']['peso'] == item_esperado['data']['peso'], 'Los pesos de los items no coinciden'
+                assert item['data']['estado'] == item_esperado['data']['estado'], 'Los estados de los items no coinciden'
+
+                item['hijos'].sort()
+                item['sucesores'].sort()
+                item_esperado['hijos'].sort()
+                item_esperado['sucesores'].sort()
+                assert item['hijos'] == item_esperado['hijos'], 'Los hijos de los items no coinciden'
+                assert item['sucesores'] == item_esperado['sucesores'], 'Los sucesores de los items no coinciden'

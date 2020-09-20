@@ -16,7 +16,7 @@ from .decorators import estado_item
 
 from .forms import *
 from .tasks import upload_and_save_file_item
-from .utils import get_atributos_forms
+from .utils import get_atributos_forms, trazar_item
 
 
 @login_required
@@ -138,6 +138,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'item': item,
         'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
         'cambios':True,
+        'trazabilidad': trazar_item(proyecto, item),
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
