@@ -15,7 +15,8 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [3.6]
-
+    env:
+      GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE_CONTENTS: ${{ secrets.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE_CONTENTS }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
