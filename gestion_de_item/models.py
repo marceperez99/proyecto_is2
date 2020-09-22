@@ -468,7 +468,8 @@ class VersionItem(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()
-    peso = models.IntegerField()
+    peso = models.IntegerField( validators=[MinValueValidator(1,
+                                                                   "El peso de un item debe ser mayor a 0")])
     # Relaciones
     antecesores = models.ManyToManyField('gestion_de_item.Item', related_name='sucesores')
     padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
