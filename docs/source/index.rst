@@ -21,6 +21,7 @@ Documentación
    modules/gestion_de_item/gestion_de_item.rst
    modules/gestion_de_linea_base/gestion_de_linea_base.rst
    modules/gestion_de_solicitud/gestion_de_solicitud.rst
+   modules/gestion_de_notificaciones/gestion_de_notificaciones.rst
 
 Tablas e indices
 ==================
