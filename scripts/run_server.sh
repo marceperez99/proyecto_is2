@@ -21,11 +21,7 @@ while getopts pdt: flag
             pytest
             PYTEST_RESULT=$?
             #Ejecucion del servidor
-            if [ $PYTEST_RESULT -eq 0 ] || [ $PYTEST_RESULT -eq 5 ]; then
-              sudo service apache2 restart
-            else
-              echo "ALERTA: Existen pruebas unitarias que fallaron"
-            fi
+            sudo service apache2 restart
 	          ;;
 	        d)
 	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings;
