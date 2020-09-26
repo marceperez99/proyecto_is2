@@ -20,6 +20,10 @@ POSTGRES_PASS="p0stgre5q1"
 DB_NAME="proyecto_is2_dev"
 DB_USER="proyecto_user_test"
 DB_PASS="Pr0yect0Test"
+DB_HOST="localhost"
+DB_PORT="5432"
+EMAIL_HOST_USER=""
+EMAIL_HOST_PASSWORD=""
 EMAIL_USE_TLS="True"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
 TAG="iteracion_3"
@@ -27,6 +31,8 @@ GDRIVE_JSON_PATH="proyecto_is2/settings/credenciales/gdriveaccess.json"
 ENV_VARIABLES_PATH="proyecto_is2/settings/credenciales/.env"
 
 #Lectura de los datos de la Base de datos
+read -rp "Ingrese el nombre de la Base de datos usado por el sistema [$DB_NAME]: " input
+DB_NAME=${input:-$DB_NAME}
 read -p "Ingrese el usuario de PostgreSQL [$POSTGRES_USER]: " input
 POSTGRES_USER=${input:-$POSTGRES_USER}
 read -p "Ingrese la contraseña del usuario de PostgreSQL [$POSTGRES_PASS]: " input
@@ -45,23 +51,11 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=gdriveaccess.json
-read -rp "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
-echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE"
-if [ ! -f "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" ]; then
-  echo "Archivo de credenciales no existente"
-  exit 1
-fi
-
 # Variables del correo electronico
 echo "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos"
 read $EMAIL_HOST_USER
 echo "Ingrese la contraseña de la cuenta de Gmail"
 read -s $EMAIL_HOST_PASSWORD
-
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=$(cat "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE")
-
 
 #Obtencion del codigo del repositorio remoto
 git clone $GIT_URL --quiet
@@ -72,10 +66,6 @@ TAG=${input:-$TAG}
 # Se accede al tag correspondiente
 git checkout tags/"$TAG" -b "$TAG"
 
-# Se guarda las credenciales de Google Drive
-mkdir "proyecto_is2/settings/credenciales" || exit 1
-echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" > "$GDRIVE_JSON_PATH"
-echo "- Credenciales de Google Drive guardadas"
 
 # Seteo de variables de entorno
 echo "
@@ -86,7 +76,6 @@ DB_HOST=\"$DB_HOST\"
 DB_PORT=\"$DB_PORT\"
 STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"
 DEBUG_VALUE=False
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"
 SECRET_KEY=\"$SECRET_KEY\"
 MEDIA_ROOT=\"$PROYECT_NAME/media/\"
 MEDIA_URL=\"$PROYECT_NAME/media/items/\"
@@ -113,6 +102,6 @@ scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" 
 echo "- SSO configurado"
 pipenv run python manage.py loaddata "$SSO_KEYS" > /dev/null
 echo "- Datos cargados"
-pipenv run python manage.py shell < "scripts/create_admin.py" > /dev/null
+#pipenv run python manage.py shell < "scripts/create_admin.py" > /dev/null
 pipenv run python manage.py loaddata "$SCRIPT_PATH/data.json"
 scripts/run_server.sh -d

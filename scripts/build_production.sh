@@ -157,8 +157,8 @@ scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" 
 python manage.py loaddata "$SSO_KEYS"
 rm "$SSO_KEYS"
 # Se crea el super usuario
-python manage.py shell < "scripts/create_admin.py"
-echo "- Creado Rol de Administrador"
+#python manage.py shell < "scripts/create_admin.py"
+#echo "- Creado Rol de Administrador"
 # TODO Se carga datos de prueba
 python manage.py loaddata "$SCRIPT_PATH/data.json"
 echo "- Datos de prueba cargados"
