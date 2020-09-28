@@ -1,4 +1,4 @@
-Saludos {{destinatario.full_name}},
-El proyecto {{proyecto.nombre}} en el que usted es un participante ha sido iniciado.
+El proyecto "{{proyecto.nombre}}" en el que usted es un participante ha sido iniciado.<br>
 
-<a href="#">Ver proyecto en el sistema</a>
+<a href="http://{{domain}}{% url 'visualizar_proyecto' proyecto.id %}">Ver proyecto en el sistema</a>
+
