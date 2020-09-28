@@ -37,11 +37,13 @@ def listar_items(request, proyecto_id, fase_id):
     else:
         items = fase.get_items()
 
-    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.filter(fase=fase.fase_anterior, estado=EstadoLineaBase.CERRADA).exists()
-    se_puede_crear = se_puede_crear or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.APROBADO).exists() or Item.objects.filter(tipo_de_item__fase = fase,estado = EstadoDeItem.EN_LINEA_BASE).exists()
+    se_puede_crear = fase.fase_anterior is None or LineaBase.objects.filter(fase=fase.fase_anterior,
+                                                                            estado=EstadoLineaBase.CERRADA).exists()
+    se_puede_crear = se_puede_crear or Item.objects.filter(tipo_de_item__fase=fase,
+                                                           estado=EstadoDeItem.APROBADO).exists() or Item.objects.filter(
+        tipo_de_item__fase=fase, estado=EstadoDeItem.EN_LINEA_BASE).exists()
 
-
-    contexto ={
+    contexto = {
         'user': request.user,
         'proyecto': proyecto,
         'fase': fase,
@@ -137,8 +139,9 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'fase': fase,
         'item': item,
         'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
-        'cambios':True,
+        'cambios': True,
         'trazabilidad': trazar_item(proyecto, item),
+        'impacto':item.calcular_impacto(),
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -772,7 +775,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.A_MODIFICAR,EstadoDeItem.NO_APROBADO)
+@estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
 def eliminar_relacion_item_view(request, proyecto_id, fase_id, item_id, item_relacion_id):
     """
     Vista que permite eliminar la relacion de dos item de una misma fase (padre-hijo) o de
@@ -984,3 +987,5 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
 
     else:
         return render(request, 'gestion_de_item/restaurar_item.html')
+
+
