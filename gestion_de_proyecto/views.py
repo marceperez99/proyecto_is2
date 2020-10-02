@@ -1,12 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+
+from gestion_de_notificaciones.utils import send_mail
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
+from gestion_de_proyecto.tasks import notificar_inicio_proyecto
 from gestion_de_solicitud.models import SolicitudDeCambio
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
@@ -277,6 +281,8 @@ def iniciar_proyecto_view(request, proyecto_id):
         try:
             proyecto.iniciar()
             messages.success(request, 'El Proyecto fue iniciado correctamente')
+            notificar_inicio_proyecto.delay(proyecto_id,get_current_site(request).domain)
+
         except Exception as e:
             messages.error(request, e)
         return redirect('visualizar_proyecto', proyecto_id)

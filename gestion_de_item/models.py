@@ -416,10 +416,10 @@ class Item(models.Model):
 
     def calcular_impacto(self):
         """
-        Métódo que calcula el impacto de un item en el proyecto.
+        Métódo que calcula el impacto de un item en el proyecto. Calculado como la suma de los pesos del item y de sus hijos y sucesores indirectos dividido por la sumatoria de los pesos de todos los items del proyecto.
 
         Retorna:
-            - int  Impacto del item en el proyecto. Calculado como la suma de los pesos del item y de sus hijos y sucesores indirectos dividido por la sumatoria de los pesos de todos los items del proyecto.
+            - int  Impacto del item en el proyecto.
         """
         acumulado = self.version.peso
         stack = []
