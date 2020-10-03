@@ -42,6 +42,20 @@ class Fase(models.Model):
         """
         return self.fase_anterior is None
 
+    def es_ultima_fase(self):
+        """
+        #TODO Luis, cargar en planilla
+        Metodo de la clase Fase, que dice si esta fase es la ultima del proyecto.
+
+        Retorna:
+            -True: Si la fase es la ultima del proyecto
+            -False: Si la fase no es la ultima del proyecto
+        """
+        list = self.proyecto.get_fases()
+        if list[-1].id == self.id:
+            return True
+        return False
+
     def posicionar_fase(self):
         """
         Metodo que sirve para el posicionamiento de una nueva fase dento del proyecto, lo posiona correctamente
