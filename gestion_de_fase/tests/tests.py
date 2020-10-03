@@ -5,6 +5,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
+from gestion_de_fase.utils import puede_cerrar_fase
 from gestion_de_fase.tests.factories import fase_factory
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
 from gestion_de_item.tests.factories import item_factory
@@ -14,6 +15,7 @@ from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
 from usuario.tests.factories import user_factory
+import gestion_de_fase.tests.test_case as tc
 
 
 @pytest.fixture
@@ -291,6 +293,58 @@ class TestModeloFase:
         assert condicion is True, f'El metodo get_item_estado no retorna lo esperado.'
 
 
+    @pytest.mark.parametrize('fase,resultado_esperado', tc.test_cerrar_fase_result.items())
+    def test_cerrar_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
+        """
+        TODO Luis, cargar en planilla
+        Prueba unitaria encargada de probar el funcionamiento del metodo cerrar de la clase Fase,
+        encargada de verificar si una fase del proyecto puede ser cerrada.
+
+        Resultado Esperado:
+            -Que el atributo de la Fase fase_cerrada cambie su valor a True
+
+        Mensajes de Error:
+            -La fase anterior {self.fase_anterior.nombre} todavia esta sin cerrar, si la fase anterior no esta cerrada
+            -El item {item.version.nombre} no esta en una Linea Base, si el item no esta en una linea base
+            -El item {item.version.nombre} no es trazable a la siguiente fase, si el item no tiene sucesores
+        """
+        rol_de_proyecto_factory(tc.rol_de_proyecto)
+        user_factory(tc.user['username'], tc.user['password'], tc.user['email'], rs_admin.nombre)
+        user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'], rs_admin.nombre)
+        user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['email'], rs_admin.nombre)
+        proyecto = proyecto_factory(tc.proyecto)
+        fase = Fase.objects.get(nombre=fase)
+        with pytest.raises(Exception) as excinfo:
+            fase.cerrar()
+        print(resultado_esperado)
+        print(excinfo.value.args)
+        condicion = all(mensaje in resultado_esperado for mensaje in excinfo.value.args)
+        assert condicion, 'El metodo no lanza las exceptiones corresponientes'
+
+
+    @pytest.mark.parametrize('fase,resultado_esperado', tc.test_es_ultima_fase_result.items())
+    def test_es_ultima_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
+        """
+        #TODO Luis, cargar en planilla
+        Prueba unitaria encargada de probar el funcionamiento del metodo es_ultima_fase, de la clase Fase,
+        encargada de verificar si la fase del proyecto es la ultima.
+
+        Resultado Esperado:
+            -Que retorne verdadero si la fase es la ultima del proyecto
+
+        Mensajes de Error:
+            -'El metodo lanza una respuesta incorrecta, se esperaba un {resultado_esperado}, pero devuelve un {condicion}
+        """
+        rol_de_proyecto_factory(tc.rol_de_proyecto)
+        user_factory(tc.user['username'], tc.user['password'], tc.user['email'], rs_admin.nombre)
+        user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'], rs_admin.nombre)
+        user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['email'], rs_admin.nombre)
+        proyecto = proyecto_factory(tc.proyecto)
+        fase = Fase.objects.get(nombre=fase)
+        condicion = fase.es_ultima_fase()
+        assert condicion == resultado_esperado, f'El metodo lanza una respuesta incorrecta, se esperaba un {resultado_esperado}' \
+                                                f' pero devuelve un {condicion}'
+
 @pytest.mark.django_db
 class TestVistasFase:
     """
@@ -382,3 +436,22 @@ class TestVistasFase:
         proyecto.save()
         response = cliente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_cerrar_fase_view(self, cliente_loggeado, proyecto, fase):
+        """
+        #TODO Luis, cargar en planilla
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de cerrar fase.
+
+        Se espera:
+            -Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('cerrar_fase', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+
