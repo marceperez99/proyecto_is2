@@ -5,7 +5,6 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from gestion_de_fase.models import Fase
-from gestion_de_fase.utils import puede_cerrar_fase
 from gestion_de_fase.tests.factories import fase_factory
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
 from gestion_de_item.tests.factories import item_factory
