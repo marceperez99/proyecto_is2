@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
@@ -191,3 +192,44 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
                 }
                 }
     return render(request, 'gestion_de_fase/eliminar_fase.html', contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_cerrar_fase')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+def cerrar_fase_view(request, proyecto_id, fase_id):
+    """
+    TODO Luis, carga en planilla
+    Vista que permite cerrar una fase del proyecto.
+    Muestra al usuario la confirmacion para cerrar una fase
+    Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme cerrar fase.
+    Si el metodo Http con el que se realizo la peticion fue POST cierra la fase siempre y cuando esta cumpla las
+    condiciones, sino lanza una exception.
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, identificador unico de un proyecto del sistema.
+        - fase_id: int, identificador unico de una fase de un proyecto.
+
+    Retorna:
+        - HttpResponse
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(proyecto.fase_set, id=fase_id)
+    if request.method == 'POST':
+        try:
+            fase.cerrar()
+            messages.success(request, f"La Fase {fase.nombre} se pudo cerrar correctamente")
+        except Exception as e:
+            mensaje = '<p class="lead">La fase no puede ser cerrada debido a las siguientes razones:<br><p>'
+            errores = e.args[0]
+            for error in errores:
+                mensaje = f"{mensaje}<li>{error}</li><br>"
+            mensaje = '<ul>' + mensaje + '</ul>'
+            messages.error(request, mensaje)
+
+        return redirect('visualizar_fase', proyecto.id, fase.id)
+
+    contexto = {'proyecto': proyecto, 'fase': fase}
+    return render(request, 'gestion_de_fase/cerrar_fase.html', contexto)

@@ -42,6 +42,20 @@ class Fase(models.Model):
         """
         return self.fase_anterior is None
 
+    def es_ultima_fase(self):
+        """
+        #TODO Luis, cargar en planilla
+        Metodo de la clase Fase, que dice si esta fase es la ultima del proyecto.
+
+        Retorna:
+            -True: Si la fase es la ultima del proyecto
+            -False: Si la fase no es la ultima del proyecto
+        """
+        list = self.proyecto.get_fases()
+        if list[-1].id == self.id:
+            return True
+        return False
+
     def posicionar_fase(self):
         """
         Metodo que sirve para el posicionamiento de una nueva fase dento del proyecto, lo posiona correctamente
@@ -60,6 +74,56 @@ class Fase(models.Model):
                 fase_derecha = Fase.objects.all().filter(fase_anterior=self.fase_anterior).exclude(id=self.id).filter(proyecto=self.proyecto)[0]
                 fase_derecha.fase_anterior = self
                 fase_derecha.save()
+
+
+    def cerrar(self):
+        """
+        TODO Luis, cargar en planilla
+        Metodo que se encarga de verificar si una fase dentro del proyecto puede ser cerrada,
+        para ello todos los item deben estar en una linea base cerrada, todos ellos deben ser trazables a la siguiente
+        fase directa o indirectamente y la fase anterior debe estar con estado cerrada.
+        Las exceptiones serian la primera fase, que pasaria de alto la ragla de la fase anterior carrada, y la
+        ultima fase, que pasaria de alto los item trazables a la siguiente fase.
+
+        Lanza:
+            -Exception, si la fase no se puede cerrar, esto es, si no cumple las condiciones citadas arriba.
+            Se mostraran todos los requisitos previos necesarios para cerrar la fase.
+        """
+
+        mensaje_error = []
+        if not self.es_primera_fase() and self.fase_anterior.fase_cerrada is False:
+            mensaje_error.append(f'La fase anterior {self.fase_anterior.nombre} todavia esta sin cerrar')
+
+        items = self.get_items()
+        for item in items:
+            if item.estado != EstadoDeItem.EN_LINEA_BASE:
+                mensaje_error.append(f'El item {item.version.nombre} no esta en una Linea Base')
+
+        if not self.es_ultima_fase():
+            item_trazables = set()
+            for item in items:
+                if len(item.get_sucesores()) > 0:
+                    item_trazables.add(item)
+
+            item_relacionados = [i for i in items if
+                                 i not in item_trazables and any(hijo in item_trazables for hijo in i.get_hijos())]
+
+            while len(item_relacionados) > 0:
+                for item in item_relacionados:
+                    item_trazables.add(item)
+                item_relacionados = [i for i in items if
+                                     i not in item_trazables and any(hijo in item_trazables for hijo in i.get_hijos())]
+
+            for item in items:
+                if not (item in item_trazables):
+                    mensaje_error.append(f'El item {item.version.nombre} no es trazable a la siguiente fase')
+
+        if len(mensaje_error):
+            raise Exception(mensaje_error)
+        else:
+            self.fase_cerrada = True
+            self.save()
+
 
     def get_items(self, items_eliminados=False, en_revision=False):
         """
