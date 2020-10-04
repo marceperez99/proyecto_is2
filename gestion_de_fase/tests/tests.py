@@ -316,10 +316,9 @@ class TestModeloFase:
         fase = Fase.objects.get(nombre=fase)
         with pytest.raises(Exception) as excinfo:
             fase.cerrar()
-        print(resultado_esperado)
-        print(excinfo.value.args)
-        condicion = all(mensaje in resultado_esperado for mensaje in excinfo.value.args)
-        assert condicion, 'El metodo no lanza las exceptiones corresponientes'
+        condicion = all(mensaje in resultado_esperado for mensaje in list(excinfo.value.args)[0])
+        assert condicion, f'El metodo no lanza las exceptiones corresponientes, se espera los siguientes mensajes: \n' \
+                          f'{resultado_esperado}'
 
 
     @pytest.mark.parametrize('fase,resultado_esperado', tc.test_es_ultima_fase_result.items())
