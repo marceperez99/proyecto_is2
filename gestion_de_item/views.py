@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
+from gestion_de_item.tasks import notificar_solicitud_aprobacion_item
 from gestion_de_fase.decorators import fase_abierta
 from gestion_de_fase.models import Fase
 from gestion_de_item.models import *
@@ -500,6 +502,7 @@ def solicitar_aprobacion_view(request, proyecto_id, fase_id, item_id):
         try:
             item.solicitar_aprobacion()
             messages.success(request, 'Se ha solicitado la aprobacion del Item correctamente.')
+            notificar_solicitud_aprobacion_item.delay(proyecto.id, fase.id, item.id, get_current_site(request).domain)
         except Exception as e:
             messages.error(request, e)
 
