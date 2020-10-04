@@ -27,6 +27,6 @@ def send_mail(destinatarios: list, titulo: str, template: str, context=None):
     mensaje = strip_tags(html_mensaje)
     for email in destinatarios:
         user = User.objects.get(email=email)
-        Notificacion.objects.create(usuario=user, titulo=titulo, mensaje=mensaje)
+        Notificacion.objects.create(usuario=user, titulo=titulo, mensaje=html_mensaje)
 
     mail.send_mail(titulo, mensaje, None, destinatarios,html_message=html_mensaje)

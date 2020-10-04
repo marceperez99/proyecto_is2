@@ -25,6 +25,6 @@ def visualizar_notificacion_view(request, notificacion_id):
         'user': request.user,
         'notificacion': notificacion
     }
-    notificacion.read = True
+    notificacion.leido = True
     notificacion.save()
     return render(request, 'gestion_de_notificaciones/ver_notificacion.html', contexto)
