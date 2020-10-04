@@ -720,7 +720,7 @@ def editar_item_view(request, proyecto_id, fase_id, item_id):
 @pp_requerido_en_fase('pp_f_desaprobar_item')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
-@estado_item(EstadoDeItem.APROBADO)
+@estado_item(EstadoDeItem.APROBADO, EstadoDeItem.A_APROBAR)
 def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la desaprobacion de un item, esta cambia su estado de Aprobado a No Aprobado.
