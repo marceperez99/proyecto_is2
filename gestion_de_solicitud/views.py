@@ -91,7 +91,7 @@ def solicitud_votacion_view(request, proyecto_id, solicitud_id):
         return redirect('visualizar_proyecto', proyecto.id)
 
     if solicitud.ya_voto(participante):
-        return redirect('solicitud_de_cambio', proyecto.id)
+        return redirect('solicitud_de_cambio', proyecto.id, solicitud.id)
 
     if 'voto' in request.GET.keys():
         voto = Voto(miembro=participante, solicitud_id=solicitud_id)
