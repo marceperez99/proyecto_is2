@@ -52,10 +52,10 @@ read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIEN
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
 # Variables del correo electronico
-echo "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos"
-read $EMAIL_HOST_USER
-echo "Ingrese la contraseña de la cuenta de Gmail"
-read -s $EMAIL_HOST_PASSWORD
+read -rp "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos: " input
+EMAIL_HOST_USER=${input:-$EMAIL_HOST_USER}
+read -rp "Ingrese la contraseña de la cuenta de Gmail: " input
+EMAIL_HOST_PASSWORD=${input:-$EMAIL_HOST_PASSWORD}
 
 #Obtencion del codigo del repositorio remoto
 git clone $GIT_URL --quiet
@@ -74,12 +74,6 @@ DB_NOMBRE=\"$DB_NAME\"
 DB_PASSWORD=\"$DB_PASS\"
 DB_HOST=\"$DB_HOST\"
 DB_PORT=\"$DB_PORT\"
-STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"
-DEBUG_VALUE=False
-SECRET_KEY=\"$SECRET_KEY\"
-MEDIA_ROOT=\"$PROYECT_NAME/media/\"
-MEDIA_URL=\"$PROYECT_NAME/media/items/\"
-CELERY_BROKER_URL=\"redis://localhost\"
 EMAIL_HOST_USER=\"$EMAIL_HOST_USER\"
 EMAIL_HOST_PASSWORD=\"$EMAIL_HOST_PASSWORD\"
 EMAIL_USE_TLS=\"$EMAIL_USE_TLS\"

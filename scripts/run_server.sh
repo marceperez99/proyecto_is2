@@ -6,8 +6,8 @@ while getopts pdt: flag
 	    case "${flag}" in
 	        p)
 	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings;
-	          pip install -r "requirements.txt";
-	          python manage.py migrate
+	          pip install -r "requirements.txt" > /dev/null;
+	          python manage.py migrate > /dev/null;
 	          # Se genera la documentacion.
 	          cd docs || exit 1;
 	          sudo mkdir build
@@ -22,11 +22,13 @@ while getopts pdt: flag
             PYTEST_RESULT=$?
             #Ejecucion del servidor
             sudo service apache2 restart
+            echo "- Servidor Apache reiniciado"
+            celery -A proyecto_is2 worker -l info
 	          ;;
 	        d)
 	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings;
 	          # Generacion del Entorno Virtual
-            pipenv run pipenv install
+            pipenv run pipenv install > /dev/null;
             pipenv run pipenv clean
             #Generacion de documentacion automatica
             cd docs || exit 1;
@@ -37,11 +39,9 @@ while getopts pdt: flag
             #Ejecucion de pruebas unitarias
             pipenv run pytest
             #Ejecucion del servidor
-            if [ $? -eq 0 ] || [ $? -eq 5 ]; then
-              pipenv run python manage.py runserver
-            else
-                echo "No se pasaron todas las pruebas unitarias"
-            fi
+            pipenv run celery -A proyecto_is2 worker -l info &
+            pipenv run python manage.py runserver
+
 	          ;;
 	        t)
             git checkout tags/"${OPTARG}" -b "${OPTARG}";

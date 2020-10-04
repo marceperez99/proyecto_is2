@@ -52,10 +52,10 @@ read -rp "Ingrese el puerto del servicio PostgreSQL [$DB_PORT]: " input
 DB_PORT=${input:-$DB_PORT}
 
 # Variables del correo electronico
-echo "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos"
-read $EMAIL_HOST_USER
-echo "Ingrese la contraseña de la cuenta de Gmail"
-read -s $EMAIL_HOST_PASSWORD
+read -rp "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos: " input
+EMAIL_HOST_USER=${input:-$EMAIL_HOST_USER}
+read -rp "Ingrese la contraseña de la cuenta de Gmail: " input
+EMAIL_HOST_PASSWORD=${input:-$EMAIL_HOST_PASSWORD}
 
 # Lectura de variables de entorno de SSO
 GOOGLE_OAUTH_SECRET_KEY=""
@@ -137,7 +137,7 @@ if [[  $REPLY =~ ^[Ss]$ ]]; then
 fi
 
 # Se configura la Base de Datos
-scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
+scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS" > /dev/null
 echo "- Base de Datos creada"
 
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings
@@ -146,7 +146,7 @@ echo "- Instalando dependencias"
 pip install -r "requirements.txt" > /dev/null;
 echo "- Dependencias instaladas"
 # Se corren migraciones de Django
-python manage.py migrate
+python manage.py migrate > /dev/null
 echo "- Migraciones cargadas"
 # Se cargan datos
 TEMP_DIR=$(mktemp -d)
@@ -156,8 +156,6 @@ scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" 
 # Se cargan los datos del OAUTH
 python manage.py loaddata "$SSO_KEYS"
 rm "$SSO_KEYS"
-# Se crea el super usuario
-#python manage.py shell < "scripts/create_admin.py"
 #echo "- Creado Rol de Administrador"
 # TODO Se carga datos de prueba
 python manage.py loaddata "$SCRIPT_PATH/data.json"
