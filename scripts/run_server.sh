@@ -34,7 +34,7 @@ while getopts pdt: flag
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run make html
             cd ..
             #Creacion de migraciones
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py migrate
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py migrate > /dev/null;
             #Ejecucion de pruebas unitarias
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pytest
             #Ejecucion del servidor

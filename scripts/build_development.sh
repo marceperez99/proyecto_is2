@@ -1,12 +1,11 @@
 #!/bin/bash
 #Script que construye el entorno de desarrollo del sistema.
 
-read -p "Esta seguro que desea montar el ambiente de desarrollo? Presione S o s para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Ss]$ ]]
-then
-    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-fi
+#Confirmacion de que se desea continuar
+echo "---¿Esta seguro que desea montar el ambiente de desarrollo?---
+Presione Enter para continuar, Ctrl+C para finalizar la instalacion"
+read -r
+
 #Verificacion de las dependencias necesarias para psycopg2
 dpkg -l | cut -d " " -f 3 | grep -q "^python3-dev" || \
  { echo "Se requiere la libreria python3-dev para continuar" ; exit 1; }
@@ -54,12 +53,12 @@ GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 # Variables del correo electronico
 read -rp "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos: " input
 EMAIL_HOST_USER=${input:-$EMAIL_HOST_USER}
-read -rp "Ingrese la contraseña de la cuenta de Gmail: " input
+read -rsp "Ingrese la contraseña de la cuenta de Gmail: " input
 EMAIL_HOST_PASSWORD=${input:-$EMAIL_HOST_PASSWORD}
-
 #Obtencion del codigo del repositorio remoto
+echo "- Clonando repositorio remoto"
 git clone $GIT_URL --quiet
-echo "Proyecto clonado"
+echo "- Proyecto clonado"
 cd proyecto_is2 || exit 1
 read -p "Ingrese el tag que desea cargar [$TAG]: " input
 TAG=${input:-$TAG}

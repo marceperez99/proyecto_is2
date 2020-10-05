@@ -54,7 +54,7 @@ DB_PORT=${input:-$DB_PORT}
 # Variables del correo electronico
 read -rp "Ingrese el correo electronico de Gmail con el Sistema enviará los correos electronicos: " input
 EMAIL_HOST_USER=${input:-$EMAIL_HOST_USER}
-read -rp "Ingrese la contraseña de la cuenta de Gmail: " input
+read -rsp "Ingrese la contraseña de la cuenta de Gmail: " input
 EMAIL_HOST_PASSWORD=${input:-$EMAIL_HOST_PASSWORD}
 
 # Lectura de variables de entorno de SSO
