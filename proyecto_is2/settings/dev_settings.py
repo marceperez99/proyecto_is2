@@ -1,6 +1,5 @@
 """
     Configuraciones del proyecto a ser usadas en un entorno de Desarrollo
-
 """
 from dotenv import load_dotenv
 
@@ -25,11 +24,11 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'proyecto_is2_dev',
-        'USER': 'proyecto_user_test',
-        'PASSWORD': 'Pr0yect0Test',
-        'HOST': 'localhost',
-        'DATABASE_PORT': '5432',
+        'NAME': os.environ.get('DB_NOMBRE'),
+        'USER': os.environ.get('DB_USUARIO'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'DATABASE_PORT': os.environ.get('DB_PORT'),
     }
 }
 
@@ -39,9 +38,6 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles/'
 
-# Configuraciones del SSO
-GOOGLE_OAUTH_SECRET_KEY = 'sw2lVjRDgG1GtDAZVC_QmVhr'
-GOOGLE_OAUTH_CLIENT_ID = '347886323853-r72mjg1utuabev2f73ngef3tg2nqluth.apps.googleusercontent.com'
 
 # Configuracion del Google Drive Storage
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = f'{BASE_DIR}/proyecto_is2/settings/credenciales/gdriveaccess.json'

@@ -5,50 +5,42 @@ while getopts pdt: flag
 	do
 	    case "${flag}" in
 	        p)
-	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings;
-	          pip install -r "requirements.txt";
-	          python manage.py migrate
+	          pip install -r "requirements.txt" > /dev/null;
+	          DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py migrate > /dev/null;
 	          # Se genera la documentacion.
 	          cd docs || exit 1;
 	          sudo mkdir build
 	          sudo chmod ugo+rw build
-            make html;
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings make html;
             cd ..;
             #Se juntan los archivos estaticos
-            python manage.py collectstatic
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py collectstatic
 
             #Ejecucion de pruebas unitarias
-            pytest
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings pytest
             PYTEST_RESULT=$?
             #Ejecucion del servidor
-            if [ $PYTEST_RESULT -eq 0 ] || [ $PYTEST_RESULT -eq 5 ]; then
-              sudo service apache2 restart
-            else
-              echo "ALERTA: Existen pruebas unitarias que fallaron"
-            fi
+            sudo service apache2 restart
+            echo "- Servidor Apache reiniciado"
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings celery -A proyecto_is2 worker -l info
+
 	          ;;
 	        d)
-	          export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings;
 	          # Generacion del Entorno Virtual
-            pipenv run pipenv install
-            pipenv run pipenv clean
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pipenv install > /dev/null;
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pipenv clean
             #Generacion de documentacion automatica
             cd docs || exit 1;
-            pipenv run make html
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run make html
             cd ..
             #Creacion de migraciones
-            pipenv run python manage.py migrate
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py migrate > /dev/null;
             #Ejecucion de pruebas unitarias
-            pipenv run pytest
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pytest
             #Ejecucion del servidor
-            if [ $? -eq 0 ] || [ $? -eq 5 ]; then
-              pipenv run python manage.py runserver
-            else
-                echo "No se pasaron todas las pruebas unitarias"
-            fi
-	          ;;
-	        t)
-            git checkout tags/"${OPTARG}" -b "${OPTARG}";
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run celery -A proyecto_is2 worker -l info &
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py runserver
+
 	          ;;
 	        *) echo "Especifique -p configuraciones de Produccion, -d configuraciones de desarrollo";;
 	    esac

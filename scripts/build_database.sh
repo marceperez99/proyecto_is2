@@ -11,7 +11,7 @@ POSTGRES_USER=$2
 POSTGRES_PASS=$3
 DB_USER=$4
 DB_PASS=$5
-echo $DB_NAME $POSTGRES_USER $POSTGRES_PASS $DB_USER $DB_PASS
+#echo $DB_NAME $POSTGRES_USER $POSTGRES_PASS $DB_USER $DB_PASS
 #Creacion de nueva base de datos
 echo "Base de Datos"
 if echo "$POSTGRES_PASS" | sudo su - $POSTGRES_USER -c "psql -lqt | cut -d \| -f 1 | grep -w $DB_NAME"; then

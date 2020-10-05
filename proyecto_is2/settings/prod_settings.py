@@ -10,7 +10,7 @@ load_dotenv(ENVIROMENT_VARIABLES_PATH)
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG_VALUE')
+DEBUG = os.environ.get('DEBUG_VALUE') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -37,8 +37,6 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT')
 
 
 # Configuraciones del SSO
-GOOGLE_OAUTH_SECRET_KEY = os.environ.get('GOOGLE_OAUTH_SECRET_KEY')
-GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 
 # Configuracion del Google Drive Storage
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.environ.get('GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE')
@@ -46,8 +44,15 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.environ.get('GOOGLE_DRIVE_STORAGE_JSON_K
 
 # Configuracion de Celery
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-SOCIALAPP_DOMAIN = "localhost"
-SOCIALAPP_NAME = "localhost"
+
 
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT")
 MEDIA_URL = os.environ.get("MEDIA_URL")
+
+# Configuracion de Correo de envio de correos electronicos
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == "True"
