@@ -105,8 +105,8 @@ STATIC_ROOT=\"$BASE_DIR/$PROYECT_NAME/site/public/static/\"
 DEBUG_VALUE=False
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"
 SECRET_KEY=\"$SECRET_KEY\"
-MEDIA_ROOT=\"$PROYECT_NAME/media/\"
-MEDIA_URL=\"$PROYECT_NAME/media/items/\"
+MEDIA_ROOT=\"$BASE_DIR/$PROYECT_NAME/media/\"
+MEDIA_URL=\"$BASE_DIR/$PROYECT_NAME/media/items/\"
 CELERY_BROKER_URL=\"redis://localhost\"
 EMAIL_HOST_USER=\"$EMAIL_HOST_USER\"
 EMAIL_HOST_PASSWORD=\"$EMAIL_HOST_PASSWORD\"
@@ -146,8 +146,9 @@ echo "- Instalando dependencias"
 pip install -r "requirements.txt" > /dev/null;
 echo "- Dependencias instaladas"
 # Se corren migraciones de Django
+echo "- Aplicando Migraciones "
 python manage.py migrate > /dev/null
-echo "- Migraciones cargadas"
+echo "- Migraciones aplicadas"
 # Se cargan datos
 TEMP_DIR=$(mktemp -d)
 SSO_KEYS="$TEMP_DIR/google_keys.json"
