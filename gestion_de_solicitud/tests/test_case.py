@@ -13,7 +13,12 @@ admin = {
 rol_de_proyecto = {
     'nombre': 'rol',
     'descripcion': 'descripcion',
-    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante', 'pa_asignar_rs',
+                 'pa_cancelar_proyecto', 'pa_config_cloud', 'pa_config_sso',
+                 'pa_crear_proyecto', 'pa_crear_rp', 'pa_crear_rs', 'pa_desactivar_usuario',
+                 'pa_desasignar_rs', 'pa_editar_rp', 'pa_editar_rs', 'pa_eliminar_rp',
+                 'pa_eliminar_rs', 'ps_ver_proyecto', 'ps_ver_rp', 'ps_ver_rs', 'ps_ver_usuarios', 'pp_f_crear_lb',
+                 'pp_f_listar_lb', 'pp_f_solicitar_ruptura_de_linea_base']
 }
 gerente = {'username': 'admin', 'password': 'admin', 'email': 'admin@gmail.com', 'rol_de_sistema': 'Administrador'}
 user = {'username': 'user', 'password': 'admin', 'email': 'user@gmail.com', 'rol_de_sistema': 'Administrador'}
@@ -47,9 +52,12 @@ proyecto = {
             'usuario': 'user',
             'rol_de_proyecto': 'rol',
             'permisos': {
-                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante', 'pp_f_crear_lb', 'pp_f_listar_lb',
+                           'pp_f_solicitar_ruptura_de_linea_base'],
+                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante', 'pp_f_crear_lb', 'pp_f_listar_lb',
+                           'pp_f_solicitar_ruptura_de_linea_base'],
+                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante',
+                           'pp_f_crear_lb', 'pp_f_listar_lb', 'pp_f_solicitar_ruptura_de_linea_base']
             }
         },
         {

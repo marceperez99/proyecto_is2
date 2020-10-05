@@ -511,7 +511,7 @@ class TestModeloParticipante:
         condicion = participante.rol is not None
         assert condicion is True, 'El metodo no asignó correctamente el rol de proyecto al participante'
 
-    @pytest.mark.parametrize('permiso,esperado', [('pp_cerrar_fase', True), ('pp_agregar_items', True)])
+    @pytest.mark.parametrize('permiso,esperado', [('pp_cerrar_fase', False), ('pp_agregar_items', False)])
     def test_participante_tiene_permiso_gerente(self, proyecto, permiso, esperado):
         """
         Prueba unitaria que verifica el funcionamiento correcto del metodo tiene_pp cuando se lo invoca desde

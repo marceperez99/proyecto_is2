@@ -12,7 +12,7 @@ admin = {
 rol_de_proyecto = {
     'nombre': 'rol',
     'descripcion': 'descripcion',
-    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante', 'pp_f_cerrar_fase']
 }
 gerente = {'username': 'admin', 'password': 'admin', 'email': 'admin@gmail.com', 'rol_de_sistema': 'Administrador'}
 user = {'username': 'user', 'password': 'admin', 'email': 'user@gmail.com', 'rol_de_sistema': 'Administrador'}
@@ -54,10 +54,12 @@ proyecto = {
             'usuario': 'user',
             'rol_de_proyecto': 'rol',
             'permisos': {
-                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante'],
-                'Fase 4': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante', 'pp_f_cerrar_fase'],
+                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante', 'pp_f_cerrar_fase'],
+                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante',
+                           'pp_f_cerrar_fase'],
+                'Fase 4': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante',
+                           'pp_f_cerrar_fase']
             }
         },
         {

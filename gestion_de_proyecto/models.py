@@ -5,6 +5,14 @@ from django.utils import timezone
 from gestion_de_fase.models import Fase
 from roles_de_proyecto.models import PermisosPorFase
 
+PERMISOS_DE_GERENTE = ['pg_f_eliminar_fase', 'pu_f_ver_fase', 'pp_ver_participante', 'pp_agregar_participante',
+                       'pp_asignar_rp_a_participante', 'pp_eliminar_participante', 'pg_iniciar_proyecto',
+                       'pg_editar_proyecto', 'pg_cancelar_proyecto', 'pg_asignar_comite', 'pu_ver_proyecto',
+                       'pg_crear_fase', 'pg_f_editar_fase', 'pp_f_crear_tipo_de_item', 'pp_f_eliminar_tipo_de_item',
+                       'pp_f_editar_tipo_de_item', 'pp_f_importar_tipo_de_item', 'pu_f_ver_item',
+                       'pp_f_ver_historial_de_item', 'pp_f_ver_items_eliminados', 'pp_f_listar_lb', 'pu_ver_proyecto'
+                       ]
+
 
 class EstadoDeProyecto:
     """
@@ -318,7 +326,9 @@ class Participante(models.Model):
             - True si el usuario cuenta con el permiso de proyecto.\n
             - False en caso contrario.
         """
-        return self.proyecto.get_gerente().id == self.usuario.id or (self.tiene_rol() and self.rol.tiene_pp(permiso))
+        if self.proyecto.get_gerente().id == self.usuario.id:
+            return permiso in PERMISOS_DE_GERENTE
+        return self.tiene_rol() and self.rol.tiene_pp(permiso)
 
     def tiene_pp_en_fase(self, fase, permiso):
         """
@@ -335,7 +345,7 @@ class Participante(models.Model):
         if not self.tiene_rol():
             return False
         if self.usuario.id == self.proyecto.gerente.id:
-            return True
+            return permiso in PERMISOS_DE_GERENTE
         if isinstance(fase, int):
             fase = Fase.objects.get(id=fase)
         if isinstance(fase, Fase):
