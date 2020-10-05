@@ -33,13 +33,6 @@ def usuario(rs_admin):
 
 
 @pytest.fixture
-def cliente_loggeado(usuario):
-    client = Client()
-    client.login(username=tc.gerente['username'], password=tc.gerente['password'])
-    return client
-
-
-@pytest.fixture
 def rol_de_proyecto():
     return rol_de_proyecto_factory(tc.rol_de_proyecto)
 
@@ -68,10 +61,18 @@ def usuario_participante(rs_admin):
 
 @pytest.fixture
 def participante(proyecto, usuario_participante, rol_de_proyecto):
-    participante = Participante.objects.create(proyecto=proyecto, usuario=usuario_participante)
-    participante.asignar_rol_de_proyecto(rol_de_proyecto)
-    participante.save()
-    return participante
+    return participante_factory(proyecto, {
+        'usuario': usuario_participante.username,
+        'rol_de_proyecto': rol_de_proyecto.nombre,
+        'permisos': {
+            'Analisis': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante', 'pu_f_ver_item',
+                         'pp_f_crear_item', 'pp_f_relacionar_item', 'pp_f_ver_historial_de_item', 'pp_f_eliminar_item',
+                         'pp_f_modificar_item', 'pp_f_solicitar_aprobacion_item', 'pp_f_aprobar_item',
+                         'pp_f_desaprobar_item', 'pu_f_ver_fase',
+                         'pp_f_eliminar_relacion_entre_items', 'pp_f_ver_items_eliminados', 'pp_f_restaurar_version',
+                         'pp_f_solicitar_ruptura_de_linea_base', 'pp_f_decidir_sobre_items_en_revision'],
+        }
+    })
 
 
 @pytest.fixture
@@ -864,6 +865,18 @@ class TestVistasItem:
     Pruebas Unitarias que comprueban el funcionamiento correcto de las vistas referentes a los Items de un Proyecto.
     """
 
+    @pytest.fixture
+    def cliente_loggeado(self, usuario_participante, participante):
+        client = Client()
+        client.login(username='user_test_1', password='passrowe123')
+        return client
+
+    def gerente_loggeado(self):
+        client = Client()
+        client.login(username=tc.gerente['username'], password=tc.gerente['password'])
+        return client
+        pass
+
     def test_listar_items_view(self, cliente_loggeado, proyecto, item):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de listar items.
@@ -1076,6 +1089,7 @@ class TestUtilsItem:
     # TODO: Marcelo, cargar en planilla
     Pruebas unitarias encargadas de probar las funciones utilitarias del modulo Item.
     """
+
     @pytest.mark.parametrize('item,resultado_esperado', tc.test_trazar_item_result.items())
     def test_trazar_item(self, usuario, rol_de_proyecto, rs_admin, item, resultado_esperado):
         """
@@ -1114,10 +1128,13 @@ class TestUtilsItem:
 
             for item, item_esperado in zip(fase['items'], fase_esperada['items']):
                 assert item['codigo'] == item_esperado['codigo'], 'Los codigos de los items no coinciden'
-                assert item['data']['nombre'] == item_esperado['data']['nombre'],  'Los nombres de los items no coinciden'
-                assert item['data']['tipoDeItem'] == item_esperado['data']['tipoDeItem'], 'Los tipos de item de los items no coinciden'
+                assert item['data']['nombre'] == item_esperado['data'][
+                    'nombre'], 'Los nombres de los items no coinciden'
+                assert item['data']['tipoDeItem'] == item_esperado['data'][
+                    'tipoDeItem'], 'Los tipos de item de los items no coinciden'
                 assert item['data']['peso'] == item_esperado['data']['peso'], 'Los pesos de los items no coinciden'
-                assert item['data']['estado'] == item_esperado['data']['estado'], 'Los estados de los items no coinciden'
+                assert item['data']['estado'] == item_esperado['data'][
+                    'estado'], 'Los estados de los items no coinciden'
 
                 item['hijos'].sort()
                 item['sucesores'].sort()

@@ -67,9 +67,9 @@ class TestVistasLineasBase:
     """
 
     @pytest.fixture
-    def cliente_loggeado(self, gerente):
+    def cliente_loggeado(self, gerente,usuario1):
         client = Client()
-        client.login(username=tc.gerente['username'], password=tc.gerente['password'])
+        client.login(username=tc.user['username'], password=tc.user['password'])
         return client
 
     def test_solicitar_rompimiento_view(self, cliente_loggeado, proyecto, fase, linea_base):

@@ -12,7 +12,12 @@ admin = {
 rol_de_proyecto = {
     'nombre': 'rol',
     'descripcion': 'descripcion',
-    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+    'permisos': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante', 'pu_f_ver_item',
+                 'pp_f_crear_item', 'pp_f_relacionar_item', 'pp_f_ver_historial_de_item', 'pp_f_eliminar_item',
+                 'pp_f_modificar_item', 'pp_f_solicitar_aprobacion_item', 'pp_f_aprobar_item', 'pp_f_desaprobar_item',
+                 'pp_f_eliminar_relacion_entre_items', 'pp_f_ver_items_eliminados', 'pp_f_restaurar_version',
+                 'pp_f_solicitar_ruptura_de_linea_base', 'pp_f_decidir_sobre_items_en_revision', 'pu_f_ver_fase',
+                 'pp_f_crear_lb', 'pp_f_listar_lb']
 }
 gerente = {'username': 'admin', 'password': 'admin', 'email': 'admin@gmail.com', 'rol_de_sistema': 'Administrador'}
 user = {'username': 'user', 'password': 'admin', 'email': 'user@gmail.com', 'rol_de_sistema': 'Administrador'}
@@ -46,9 +51,9 @@ proyecto = {
             'usuario': 'user',
             'rol_de_proyecto': 'rol',
             'permisos': {
-                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante'],
-                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante']
+                'Fase 1': ['pp_ver_participante', 'pp_agregar_participante','pp_f_crear_lb', 'pp_f_listar_lb'],
+                'Fase 2': ['pp_ver_participante', 'pp_agregar_participante','pp_f_crear_lb', 'pp_f_listar_lb'],
+                'Fase 3': ['pp_ver_participante', 'pp_agregar_participante', 'pp_eliminar_participante','pp_f_crear_lb', 'pp_f_listar_lb']
             }
         },
         {
@@ -315,16 +320,16 @@ test_trazar_item_result = {
         {
             "fase": 'Fase 2',
             "items": [{
-                    "codigo": 'b_1',
-                    "data": {
-                        "nombre": 'Nombre de item fase2',
-                        "tipoDeItem": 'tipoItem2',
-                        "peso": 3,
-                        "estado": EstadoDeItem.APROBADO
-                    },
-                    "hijos": [],
-                    "sucesores": []
-                }]
+                "codigo": 'b_1',
+                "data": {
+                    "nombre": 'Nombre de item fase2',
+                    "tipoDeItem": 'tipoItem2',
+                    "peso": 3,
+                    "estado": EstadoDeItem.APROBADO
+                },
+                "hijos": [],
+                "sucesores": []
+            }]
         },
         {
             "fase": 'Fase 3',
@@ -362,30 +367,30 @@ test_trazar_item_result = {
         {
             "fase": 'Fase 2',
             "items": [{
-                    "codigo": 'b_2',
-                    "data": {
-                        "nombre": 'Nombre de item b_2',
-                        "tipoDeItem": 'tipoItem2',
-                        "peso": 11,
-                        "estado": EstadoDeItem.EN_LINEA_BASE
-                    },
-                    "hijos": [],
-                    "sucesores": ['c_1']
-                }]
+                "codigo": 'b_2',
+                "data": {
+                    "nombre": 'Nombre de item b_2',
+                    "tipoDeItem": 'tipoItem2',
+                    "peso": 11,
+                    "estado": EstadoDeItem.EN_LINEA_BASE
+                },
+                "hijos": [],
+                "sucesores": ['c_1']
+            }]
         },
         {
             "fase": 'Fase 3',
             "items": [{
-                    "codigo": 'c_1',
-                    "data": {
-                        "nombre": 'Nombre de item c_1',
-                        "tipoDeItem": 'tipoItem3',
-                        "peso": 6,
-                        "estado": EstadoDeItem.APROBADO
-                    },
-                    "hijos": [],
-                    "sucesores": []
-                }]
+                "codigo": 'c_1',
+                "data": {
+                    "nombre": 'Nombre de item c_1',
+                    "tipoDeItem": 'tipoItem3',
+                    "peso": 6,
+                    "estado": EstadoDeItem.APROBADO
+                },
+                "hijos": [],
+                "sucesores": []
+            }]
         }
     ],
     'b_1': [
@@ -420,16 +425,16 @@ test_trazar_item_result = {
         {
             "fase": 'Fase 2',
             "items": [{
-                    "codigo": 'b_1',
-                    "data": {
-                        "nombre": 'Nombre de item fase2',
-                        "tipoDeItem": 'tipoItem2',
-                        "peso": 3,
-                        "estado": EstadoDeItem.APROBADO
-                    },
-                    "hijos": [],
-                    "sucesores": []
-                }]
+                "codigo": 'b_1',
+                "data": {
+                    "nombre": 'Nombre de item fase2',
+                    "tipoDeItem": 'tipoItem2',
+                    "peso": 3,
+                    "estado": EstadoDeItem.APROBADO
+                },
+                "hijos": [],
+                "sucesores": []
+            }]
         },
         {
             "fase": 'Fase 3',
@@ -467,30 +472,30 @@ test_trazar_item_result = {
         {
             "fase": 'Fase 2',
             "items": [{
-                    "codigo": 'b_2',
-                    "data": {
-                        "nombre": 'Nombre de item b_2',
-                        "tipoDeItem": 'tipoItem2',
-                        "peso": 11,
-                        "estado": EstadoDeItem.EN_LINEA_BASE
-                    },
-                    "hijos": [],
-                    "sucesores": ['c_1']
-                }]
+                "codigo": 'b_2',
+                "data": {
+                    "nombre": 'Nombre de item b_2',
+                    "tipoDeItem": 'tipoItem2',
+                    "peso": 11,
+                    "estado": EstadoDeItem.EN_LINEA_BASE
+                },
+                "hijos": [],
+                "sucesores": ['c_1']
+            }]
         },
         {
             "fase": 'Fase 3',
             "items": [{
-                    "codigo": 'c_1',
-                    "data": {
-                        "nombre": 'Nombre de item c_1',
-                        "tipoDeItem": 'tipoItem3',
-                        "peso": 6,
-                        "estado": EstadoDeItem.APROBADO
-                    },
-                    "hijos": [],
-                    "sucesores": []
-                }]
+                "codigo": 'c_1',
+                "data": {
+                    "nombre": 'Nombre de item c_1',
+                    "tipoDeItem": 'tipoItem3',
+                    "peso": 6,
+                    "estado": EstadoDeItem.APROBADO
+                },
+                "hijos": [],
+                "sucesores": []
+            }]
         }
     ],
     'c_1': [
@@ -524,30 +529,30 @@ test_trazar_item_result = {
         {
             "fase": 'Fase 2',
             "items": [{
-                    "codigo": 'b_2',
-                    "data": {
-                        "nombre": 'Nombre de item b_2',
-                        "tipoDeItem": 'tipoItem2',
-                        "peso": 11,
-                        "estado": EstadoDeItem.EN_LINEA_BASE
-                    },
-                    "hijos": [],
-                    "sucesores": ['c_1']
-                }]
+                "codigo": 'b_2',
+                "data": {
+                    "nombre": 'Nombre de item b_2',
+                    "tipoDeItem": 'tipoItem2',
+                    "peso": 11,
+                    "estado": EstadoDeItem.EN_LINEA_BASE
+                },
+                "hijos": [],
+                "sucesores": ['c_1']
+            }]
         },
         {
             "fase": 'Fase 3',
             "items": [{
-                    "codigo": 'c_1',
-                    "data": {
-                        "nombre": 'Nombre de item c_1',
-                        "tipoDeItem": 'tipoItem3',
-                        "peso": 6,
-                        "estado": EstadoDeItem.APROBADO
-                    },
-                    "hijos": [],
-                    "sucesores": []
-                }]
+                "codigo": 'c_1',
+                "data": {
+                    "nombre": 'Nombre de item c_1',
+                    "tipoDeItem": 'tipoItem3',
+                    "peso": 6,
+                    "estado": EstadoDeItem.APROBADO
+                },
+                "hijos": [],
+                "sucesores": []
+            }]
         }
     ]
 }
