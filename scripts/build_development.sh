@@ -25,7 +25,7 @@ EMAIL_HOST_USER=""
 EMAIL_HOST_PASSWORD=""
 EMAIL_USE_TLS="True"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
-TAG="iteracion_3"
+BRANCH="Desarrollo"
 GDRIVE_JSON_PATH="proyecto_is2/settings/credenciales/gdriveaccess.json"
 ENV_VARIABLES_PATH="proyecto_is2/settings/credenciales/.env"
 
@@ -60,10 +60,10 @@ echo "- Clonando repositorio remoto"
 git clone $GIT_URL --quiet
 echo "- Proyecto clonado"
 cd proyecto_is2 || exit 1
-read -p "Ingrese el tag que desea cargar [$TAG]: " input
-TAG=${input:-$TAG}
+read -p "Ingrese el tag que desea cargar [$BRANCH]: " input
+BRANCH=${input:-$BRANCH}
 # Se accede al tag correspondiente
-git checkout tags/"$TAG" -b "$TAG"
+git checkout -b "$BRANCH"
 
 
 # Seteo de variables de entorno
