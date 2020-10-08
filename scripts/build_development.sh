@@ -60,7 +60,7 @@ echo "- Clonando repositorio remoto"
 git clone $GIT_URL --quiet
 echo "- Proyecto clonado"
 cd proyecto_is2 || exit 1
-read -p "Ingrese el tag que desea cargar [$BRANCH]: " input
+read -p "Ingrese el nombre de la rama a cargar [$BRANCH]: " input
 BRANCH=${input:-$BRANCH}
 # Se accede al tag correspondiente
 git checkout -b "$BRANCH"
