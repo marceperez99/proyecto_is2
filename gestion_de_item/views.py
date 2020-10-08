@@ -775,7 +775,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_desaprobar_item')
+@pp_requerido_en_fase('pp_f_eliminar_relacion_entre_items')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
