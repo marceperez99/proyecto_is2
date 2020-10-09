@@ -45,7 +45,7 @@
                         Desaprobar Item
                     </a>
                 {% endif %}
-                {% if se_puede_eliminar and 'pp_f_eliminar_item' in permisos %}
+                {% if se_puede_eliminar %}
                 <a href="{% url 'eliminar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">
                     Eliminar Item
                 </a>
@@ -65,6 +65,7 @@
                             Información del Item
                         </a>
                     </li>
+                    {% if item.estado != 'Eliminado' %}
                     <li class="nav-item">
                         <a class="nav-link" id="impacto-tab" data-toggle="tab" href="#impacto" role="tab" aria-controls="impacto" aria-selected="false">
                             Cálculo de Impacto
@@ -77,17 +78,20 @@
                             Trazabilidad del Item
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
                         {% include 'gestion_de_item/informacion_de_item.html' %}
                     </div>
+                    {% if item.estado != 'Eliminado' %}
                     <div class="tab-pane fade" id="trazabilidad" role="tabpanel" aria-labelledby="trazabilidad-tab">
                         {% include 'gestion_de_item/grafo_de_item.html' %}
                     </div>
                     <div class="tab-pane fade" id="impacto" role="tabpanel" aria-labelledby="impacto-tab">
                         {% include 'gestion_de_item/calculo_de_impacto.html' %}
                     </div>
+                    {% endif %}
 
                 </div>
             </div>
