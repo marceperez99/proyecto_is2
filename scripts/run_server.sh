@@ -36,7 +36,7 @@ while getopts pdt: flag
             #Creacion de migraciones
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py migrate > /dev/null;
             #Ejecucion de pruebas unitarias
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pytest
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.test_settings pipenv run pytest
             #Ejecucion del servidor
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run celery -A proyecto_is2 worker -l info &
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py runserver

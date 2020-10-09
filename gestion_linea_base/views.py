@@ -159,7 +159,7 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_listar_lb')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def listar_linea_base_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
@@ -194,6 +194,10 @@ def listar_linea_base_view(request, proyecto_id, fase_id):
     return render(request, 'gestion_linea_base/listar_linea_base.html', contexto)
 
 
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_listar_lb')
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
     """
     Vista que permite la visualizacion de la Linea de Base y los items que la componen.

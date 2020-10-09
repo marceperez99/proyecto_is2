@@ -63,7 +63,7 @@ cd proyecto_is2 || exit 1
 read -p "Ingrese el nombre de la rama a cargar [$BRANCH]: " input
 BRANCH=${input:-$BRANCH}
 # Se accede al tag correspondiente
-git checkout -b "$BRANCH"
+git checkout -b "$BRANCH" "origin/$BRANCH"
 
 
 # Seteo de variables de entorno

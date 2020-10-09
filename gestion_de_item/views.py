@@ -24,7 +24,7 @@ from .utils import get_atributos_forms, trazar_item
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def listar_items(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
@@ -99,7 +99,7 @@ def listar_items_en_revision(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def visualizar_item(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion de la informacion de un Item, en esta vista se presentan las opciones
@@ -125,8 +125,8 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
             usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
-        'puede_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO and
-                                participante.tiene_pp_en_fase(fase, 'pp_f_eliminar_item'),
+        'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO and
+                             participante.tiene_pp_en_fase(fase, 'pp_f_eliminar_item'),
         "puede_pedir_modificacion": item.estado == EstadoDeItem.NO_APROBADO and
                                     participante.tiene_pp_en_fase(fase, 'pp_f_solicitar_aprobacion_item'),
 
@@ -143,7 +143,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
         'cambios': True,
         'trazabilidad': trazar_item(proyecto, item),
-        'impacto':item.calcular_impacto(),
+        'impacto': item.calcular_impacto(),
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -359,7 +359,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
 
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_ver_historial_de_item')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion del Historial de Cambios de un Item.
@@ -990,5 +990,3 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
 
     else:
         return render(request, 'gestion_de_item/restaurar_item.html')
-
-
