@@ -881,8 +881,13 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
     if request.method == 'POST':
 
         if not item.esta_en_linea_base():
-            # Coloca el estado del item en A modificar.
-            item.solicitar_modificacion()
+            if item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+                #Coloca el estado del item en Aprobado
+                item.estado = EstadoDeItem.APROBADO
+                item.save()
+            else:
+                # Coloca el estado del item en A modificar.
+                item.solicitar_modificacion()
 
             hijos = item.get_hijos()
             sucesores = item.get_sucesores()
@@ -898,6 +903,16 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
             return redirect('solicitar_rompimiento', proyecto_id, fase_id, linea_base.id)
     else:
         if not item.esta_en_linea_base():
+            mensaje = ""
+            print(item.estado_anterior)
+            if item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+                mensaje = "El ítem \"" + item.version.nombre + "\" pertenecía a una línea base. Para poder modificarlo es necesaria una solicitud " \
+                          "de cambio. Si confirma su decisión el ítem será puesto en el estado Aprobado y deberá ser " \
+                          "incluido en una línea base para realizar la solicitud. Los ítems que dependan directamente " \
+                          "de este ítem y estén aprobados o en línea base serán colocados en revisión. "
+            else:
+
+                mensaje = "El item \"" + item.version.nombre + "\" será colocado en el estado <strong>A Modificar.</strong>"
             hijos = item.get_hijos()
             sucesores = item.get_sucesores()
             dependencias = list(hijos) + list(sucesores)
@@ -905,9 +920,8 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
                 filter(lambda dependencia: dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE],
                        dependencias))
             contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'item_afectados': item_afectados,
-                        'hay_items_afectados': len(item_afectados) > 0}
+                        'hay_items_afectados': len(item_afectados) > 0,'mensaje':mensaje}
             return render(request, 'gestion_de_item/confirmar_modificacion_no_linea_base.html', context=contexto)
-
         else:
             linea_base = item.get_linea_base()
             contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
@@ -916,7 +930,7 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
+@pp_requerido_en_fase('pp_f_decidir_sobre_items_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.EN_REVISION)
@@ -936,9 +950,15 @@ def no_modificar_view(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
-        estadoaux = item.estado
-        item.estado = item.estado_anterior
-        item.estado_anterior = estadoaux
+        if item.esta_en_linea_base():
+            item.estado = EstadoDeItem.EN_LINEA_BASE
+            item.estado_anterior = ""
+        else:
+            item.estado = EstadoDeItem.APROBADO
+            item.estado_anterior = ""
+        #estadoaux = item.estado
+        #item.estado = item.estado_anterior
+        #item.estado_anterior = estadoaux
         item.save()
 
         linea_base = item.get_linea_base() if item.esta_en_linea_base() else None
