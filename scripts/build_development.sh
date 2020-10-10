@@ -96,5 +96,5 @@ echo "- SSO configurado"
 pipenv run python manage.py loaddata "$SSO_KEYS" > /dev/null
 echo "- Datos cargados"
 #pipenv run python manage.py shell < "scripts/create_admin.py" > /dev/null
-pipenv run python manage.py loaddata "$SCRIPT_PATH/data.json"
+pipenv run python manage.py loaddata scripts/data/data.json
 scripts/run_server.sh -d

@@ -163,7 +163,7 @@ python manage.py loaddata "$SSO_KEYS"
 rm "$SSO_KEYS"
 #echo "- Creado Rol de Administrador"
 # TODO Se carga datos de prueba
-python manage.py loaddata "$SCRIPT_PATH/data.json"
+python manage.py loaddata scripts/data/data.json
 echo "- Datos de prueba cargados"
 # Se corre el servidor
 scripts/run_server.sh -p;
