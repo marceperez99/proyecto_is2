@@ -11,6 +11,7 @@ from roles_de_proyecto.models import RolDeProyecto
 from roles_de_sistema.models import RolDeSistema
 from .forms import AsignarRolDeSistemaForm, ConfigCloudForm
 from .models import Usuario
+from .tasks import mail_for_new_rol
 
 
 # Create your views here.
@@ -73,6 +74,7 @@ def usuario_asignar_rol_view(request, usuario_id):
         form = AsignarRolDeSistemaForm(request.POST, usuario=usuario)
         if form.is_valid():
             usuario.asignar_rol_a_usuario(form.cleaned_data.get('Rol'))
+            mail_for_new_rol.delay(usuario.id)
             return redirect('perfil_de_usuario', usuario_id=usuario.id)
         else:
             messages.error(request, "No se pudo asignar Rol de Sistema")
