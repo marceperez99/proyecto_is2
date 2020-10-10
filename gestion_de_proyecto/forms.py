@@ -128,3 +128,9 @@ class SeleccionarMiembrosDelComiteForm(forms.ModelForm):
         super(SeleccionarMiembrosDelComiteForm, self).__init__(*args, **kwargs)
         self.fields['miembros'].queryset = proyecto.participante_set.all()
         self.fields['miembros'].widget = forms.CheckboxSelectMultiple()
+
+    def clean_miembros(self):
+        miembros = self.cleaned_data["miembros"]
+        if miembros.count() % 2 == 0 or miembros.count() < 3:
+            raise forms.ValidationError("El número de miembros del comite debe ser mayor a 3 e impar.")
+        return miembros
