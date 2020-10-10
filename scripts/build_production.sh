@@ -117,17 +117,21 @@ echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev
 echo "- Variables de Entorno guardadas";
 
 #Descarga de codigo fuente
+TAG='test'
+read -rp "Ingrese el nombre del Tag del Release que desea montar [$TAG]: " input
+RELEASE_LINK="https://github.com/marzeperez99/proyecto_is2/archive/$TAG.zip"
 cd "django" || exit 1
-sudo git clone $GIT_URL --quiet || exit 1
-echo "Repositorio clonado"
+sudo wget "$RELEASE_LINK"
+sudo unzip "$RELEASE_LINK.zip"
+sudo mv "$PROYECT_NAME-$RELEASE_LINK" "$PROYECT_NAME"
+#sudo git clone $GIT_URL --quiet || exit 1
+echo "- Repositorio clonado"
 cd "$PROYECT_NAME" || exit 1
 
-# Se obtiene el tag a cargar
-TAG='iteracion_3'
-read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
-TAG=${input:-$TAG}
+#read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
+#TAG=${input:-$TAG}
 
-sudo git checkout tags/"$TAG" -b "$TAG"
+#sudo git checkout tags/"$TAG" -b "$TAG"
 
 # Se configura apache
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
