@@ -137,7 +137,7 @@ cd "$PROYECT_NAME" || exit 1
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 #echo
 if [[  $REPLY =~ ^[Ss]$ ]]; then
-    sudo scripts/data/apache_config.sh > "$APACHE_DIR"/000-default.conf
+    scripts/data/apache_config.sh | sudo tee "$APACHE_DIR"/000-default.conf
 fi
 
 # Se configura la Base de Datos
