@@ -17,8 +17,8 @@ while getopts pdt: flag
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py collectstatic
 
             #Ejecucion de pruebas unitarias
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings pytest
-            PYTEST_RESULT=$?
+            #DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings pytest
+            #PYTEST_RESULT=$?
             #Ejecucion del servidor
             sudo service apache2 restart
             echo "- Servidor Apache reiniciado"
