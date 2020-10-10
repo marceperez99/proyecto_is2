@@ -221,6 +221,7 @@ class Item(models.Model):
             Exception: si el item no esta en el estado A_APROBAR
         """
         if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
+            self.estado_anterior = self.estado
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:

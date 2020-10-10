@@ -9,24 +9,10 @@
             <h3 class="col-12">Confirmar decisión</h3>
             <hr class="col-10 mx-auto">
             <div class ="col-12  mb-2 text-dark">{{mensaje|safe}}</div>
-
-            {% if hay_items_afectados %}
-            <div class ="col-12  mb-2 text-dark">Los siguientes items seran colocados <strong>En Revisión</strong>:</div>
-                <ul>
-
-                    {% for item_afectado in item_afectados %}
-
-                    <li>{{item_afectado.version.nombre}} - {{item_afectado.codigo}}</li>
-                    {% endfor %}
-                </ul>
-
-            {% endif %}
-
-
             <form method="POST" class="col-12">
                 {% csrf_token %}
                 <div class="row">
-                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Aceptar Cambios">
+                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Confirmar">
                     <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
                 </div>
             </form>
