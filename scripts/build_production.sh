@@ -122,8 +122,8 @@ read -rp "Ingrese el nombre del Tag del Release que desea montar [$TAG]: " input
 RELEASE_LINK="https://github.com/marzeperez99/proyecto_is2/archive/$TAG.zip"
 cd "django" || exit 1
 sudo wget "$RELEASE_LINK"
-sudo unzip "$RELEASE_LINK.zip"
-sudo mv "$PROYECT_NAME-$RELEASE_LINK" "$PROYECT_NAME"
+sudo unzip "$TAG.zip"
+sudo mv "$PROYECT_NAME-$TAG" "$PROYECT_NAME"
 #sudo git clone $GIT_URL --quiet || exit 1
 echo "- Repositorio clonado"
 cd "$PROYECT_NAME" || exit 1
@@ -137,7 +137,7 @@ cd "$PROYECT_NAME" || exit 1
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 #echo
 if [[  $REPLY =~ ^[Ss]$ ]]; then
-    scripts/data/apache_config.sh "$BASE_DIR" > "$APACHE_DIR"/000-default.conf
+    sudo scripts/data/apache_config.sh > "$APACHE_DIR"/000-default.conf
 fi
 
 # Se configura la Base de Datos
@@ -151,7 +151,7 @@ pip install -r "requirements.txt" > /dev/null;
 echo "- Dependencias instaladas"
 # Se corren migraciones de Django
 echo "- Aplicando Migraciones "
-python manage.py migrate > /dev/null
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py migrate > /dev/null
 echo "- Migraciones aplicadas"
 # Se cargan datos
 TEMP_DIR=$(mktemp -d)
@@ -159,11 +159,11 @@ SSO_KEYS="$TEMP_DIR/google_keys.json"
 
 scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$SSO_KEYS"
 # Se cargan los datos del OAUTH
-python manage.py loaddata "$SSO_KEYS"
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py loaddata "$SSO_KEYS"
 rm "$SSO_KEYS"
 #echo "- Creado Rol de Administrador"
 # TODO Se carga datos de prueba
-python manage.py loaddata scripts/data/data.json
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py loaddata scripts/data/data.json
 echo "- Datos de prueba cargados"
 # Se corre el servidor
 scripts/run_server.sh -p;

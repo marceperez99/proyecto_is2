@@ -1,4 +1,4 @@
-BASE_DIR=$1;
+
 echo "
       <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
