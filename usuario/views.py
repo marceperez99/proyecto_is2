@@ -62,7 +62,7 @@ def usuario_view(request, usuario_id):
 @permission_required('roles_de_sistema.pa_asignar_rs', login_url='sin_permiso')
 def usuario_asignar_rol_view(request, usuario_id):
     """
-    Vista que permite asignar un rol a un usuario \n
+    Vista que permite asignar un rol a un usuario y enviar un mensaje al usuario en caso exitoso\n
     En caso de intentar acceder a un usuario no existente se muestra una pantalla de error
 
     Requiere los siguientes permisos del sistema:
