@@ -59,7 +59,7 @@ def notificar_solicitud_aprobacion_item(proyecto_id, fase_id, item_id, domain):
     fase = Fase.objects.get(id=fase_id)
     item = Item.objects.get(id=item_id)
     participantes = proyecto.get_participantes()
-    destinatarios = [participante.usuario.email for participante in participantes if participante.tiene_pp_en_fase(fase,'pp_f_solicitar_aprobacion_item')]
+    destinatarios = [participante.usuario.email for participante in participantes if participante.tiene_pp_en_fase(fase,'pp_f_aprobar_item')]
     contexto = {'proyecto': proyecto,'fase': fase, 'item': item, 'domain':domain}
     send_mail(destinatarios, titulo='Solicitud de Aprobacion',
               template='gestion_de_notificaciones/mails/solicitud_aprobacion.html', context=contexto)
