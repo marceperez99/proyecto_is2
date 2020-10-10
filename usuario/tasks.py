@@ -10,7 +10,7 @@ from .models import Usuario
 def mail_for_new_user(id_user):
     """
     Funcion utilitaria que se encarga de enviar un mail a los Administradores del sistema,
-    informando que un usuario a sido creado y necesita un Rol.
+    informando que un usuario a sido creado y necesita un Rol de Sistema.
 
     Argumentos:
         - id_user: Id del usuario creado
@@ -28,6 +28,16 @@ def mail_for_new_user(id_user):
 
 @shared_task
 def mail_for_new_rol(id_usuario):
+    """
+        Funcion utilitaria que se encarga de enviar un mail al Usuario recibido como parametro,
+        informandole que se le ha asignado un nuevo Rol de Sistema.
+
+        Argumentos:
+            - id_usuario: Id del usuario
+
+        Retorna:
+            - Void
+        """
     usuario = Usuario.objects.get(id=id_usuario)
     send_mail([usuario.email], 'Rol Asignado', 'gestion_de_notificaciones/mails/rol_asignado.html',
               context={'nombre': usuario.get_full_name().__str__(),
