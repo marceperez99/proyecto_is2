@@ -41,7 +41,7 @@
                                 <div style="max-height: 300px; overflow: scroll;">
                                 <table class="table border rounded">
                                     <thead>
-                                    <tr><th>Nombre de Item</th><th>Tipo de Item</th><th></th></tr>
+                                    <tr><th>Nombre de Item</th><th>Tipo de Item</th><th>Línea Base</th><<th></th></tr>
                                     </thead>
 
                                     <tbody>
@@ -49,6 +49,7 @@
                                     <tr>
                                         <td>{{item}}</td>
                                         <td>{{ item.tipo_de_item }}</td>
+                                        <td>{% if item.get_linea_base is not None %}{{item.get_linea_base}}{% endif %}</td>
                                         <td>
                                             <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}" class="btn bg-color-accent text-white">
                                                 <i class="fas fa-eye"></i> Visualizar</a>
