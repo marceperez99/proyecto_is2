@@ -170,7 +170,6 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pu_ver_proyecto')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO)
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -428,7 +427,7 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
                 }
     solicitudes = SolicitudDeCambio.objects.all()
     #Si existe una solicitud pendiente con votos registrados
-    if any(solicitud.estado == EstadoSolicitud.PENDIENTE and solicitud.voto_set.count() > 0 for solicitud in solicitudes):
+    if any(solicitud.estado == EstadoSolicitud.PENDIENTE and solicitud.voto_set.count() > 0 and solicitud.linea_base.fase.proyecto.id == proyecto.id for solicitud in solicitudes):
         messages.error(request,"No es posible cambiar el comite porque hay solicitudes de cambio pendientes con votos ya registrados.")
         return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
 
