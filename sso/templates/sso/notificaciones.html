@@ -1,0 +1,39 @@
+<style>
+    a .badge {
+        position: absolute;
+        top: -5px;
+        right: 3px;
+        border-radius: 50%;
+        background: red;
+        color: white;
+    }
+    </style>
+<div class="card mt-4">
+    <div class="card-header bg-white">
+        <div class="row my-0">
+            <b class="col-10 my-auto h6">Notificaciones</b>
+            <a href="{% url 'notificaciones' %}" class="col-auto ml-auto">
+                <h5 class="my-auto"><i class="fas fa-bell"></i></h5>
+                {% if notificaciones_pendientes|length %}
+                    <span class="badge">{{ notificaciones_pendientes|length }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0 hidden">
+        {% if notificaciones_pendientes %}
+            <ul class="list-group list-group-flush">
+            {% for notification in notificaciones_pendientes|slice:":5" %}
+                <li class="list-group-item">
+                    <a href="{% url 'ver_notificacion' notification.id %}">
+                        {{ notification.titulo}}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+            {% else %}
+            <div class="alert-info col-12 p-2">No tiene notificaciones</div>
+        {% endif %}
+
+    </div>
+</div>

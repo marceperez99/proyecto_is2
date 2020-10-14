@@ -6,8 +6,31 @@
     <div class="container card px-5 py-3 mt-3">
         <div class="row">
             <h3 class="col-auto">Solicitudes de Cambio</h3>
+            <hr class="col-11 mx-auto">
+            <div class="col-12 ">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="pendientes-tab" data-toggle="tab" href="#pendientes" role="tab" aria-controls="pendientes" aria-selected="true">
+                            Solicitudes Pendientes
+                        </a>
+                    </li>
 
-            <div class="table-responsive">
+                    <li class="nav-item">
+                        <a class="nav-link" id="aceptadas-tab" data-toggle="tab" href="#aceptadas" role="tab" aria-controls="aceptadas" aria-selected="false">
+                            Solicitudes Aceptadas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="rechazadas-tab"
+                           data-toggle="tab" href="#rechazadas" role="tab" aria-controls="rechazadas" aria-selected="false">
+                            Solicitudes Rechazadas
+                        </a>
+                    </li>
+
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="pendientes" role="tabpanel" aria-labelledby="pendientes-tab">
+                        <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
@@ -18,7 +41,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for solicitud in solicitudes %}
+                    {% for solicitud in solicitudes_pendientes %}
                         <tr>
                             <td>{{ solicitud.linea_base}}</td>
                             <td>{{ solicitud.linea_base.fase}}</td>
@@ -33,6 +56,68 @@
                     </tbody>
                 </table>
             </div>
+                    </div>
+                    <div class="tab-pane fade" id="aceptadas" role="tabpanel" aria-labelledby="aceptadas-tab">
+                        <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Linea Base</th>
+                            <th>Fase</th>
+                            <th>Fecha de Solicitud</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for solicitud in solicitudes_aprobadas %}
+                        <tr>
+                            <td>{{ solicitud.linea_base}}</td>
+                            <td>{{ solicitud.linea_base.fase}}</td>
+                            <td>{{ solicitud.fecha}}</td>
+                            <td>
+                                <a href="{% url 'solicitud_de_cambio' proyecto.id solicitud.id %}" class="btn btn-primary">
+                                    Visualizar Solicitud
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+                    </div>
+                    <div class="tab-pane fade" id="rechazadas" role="tabpanel" aria-labelledby="rechazadas-tab">
+                       <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Linea Base</th>
+                            <th>Fase</th>
+                            <th>Fecha de Solicitud</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for solicitud in solicitudes_rechazadas %}
+                        <tr>
+                            <td>{{ solicitud.linea_base}}</td>
+                            <td>{{ solicitud.linea_base.fase}}</td>
+                            <td>{{ solicitud.fecha}}</td>
+                            <td>
+                                <a href="{% url 'solicitud_de_cambio' proyecto.id solicitud.id %}" class="btn btn-primary">
+                                    Visualizar Solicitud
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+                    </div>
+
+
+                </div>
+            </div>
+
 
         </div>
     </div>

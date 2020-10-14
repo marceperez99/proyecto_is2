@@ -75,17 +75,8 @@
                         <div class="col-12 text-center h6">Rol de Sistema: {{user.groups.all.0}}</div>
                     </div>
                 </div>
-                <div class=" card mt-4">
-                    <div class="card-header bg-white">
-                        <div class="row">
-                            <b class="col-auto my-auto">Notificaciones</b>
-                            <i class=" col-auto ml-auto my-auto fas fa-bell"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="alert-info col-12 p-2">No hay notificaciones</div>
-                    </div>
-                </div>
+                {% include 'sso/notificaciones.html' %}
+
             </div>
 
         </div>

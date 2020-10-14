@@ -2,7 +2,12 @@
 
 Single Sign on
 *******************
-Aplicación que maneja el inicio de sesión al sistema.
+Módulo de Administración del acceso de los usuarios al Sistema.
+
+Se hace uso de autenticación proveída por Google Oauth, por lo que
+los usuarios deben tener una cuenta de Google para poder utilizar
+el sistema.
+
 
 Vistas
 =========

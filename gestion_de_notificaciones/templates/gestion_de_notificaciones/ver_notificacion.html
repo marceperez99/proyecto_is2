@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Notificación{% endblock %}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3 class="col-12">{{ notificacion.titulo }}</h3>
+            <hr class="col-10 mx-auto">
+            <div class="bg-white col-10 mx-auto p-3 border rounded shadow">
+                {{ notificacion.mensaje|safe}}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

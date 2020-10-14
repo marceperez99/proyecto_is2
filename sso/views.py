@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from gestion_de_notificaciones.models import Notificacion
 from usuario.models import Usuario
 from .forms import SocialAppForm
 
@@ -27,7 +28,8 @@ def index_view(request):
         return redirect('sin_permiso')
     usuario = Usuario.objects.get(id=request.user.id)
     proyectos = usuario.get_proyectos_activos()
-    contexto = {'user': request.user, 'proyectos': proyectos}
+    contexto = {'user': request.user, 'proyectos': proyectos,
+                'notificaciones_pendientes': Notificacion.objects.filter(usuario=request.user, leido=False), }
 
     return render(request, 'sso/index.html', context=contexto)
 
@@ -82,6 +84,7 @@ def configurar_sso_view(request):
     assert SocialApp.objects.all().count() == 1
     sa = SocialApp.objects.first()
     form = SocialAppForm(request.POST or None, instance=sa)
+
     if request.method == 'POST':
         if form.is_valid():
             form.save()

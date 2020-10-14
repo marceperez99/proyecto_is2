@@ -9,11 +9,12 @@ from gestion_de_fase.tests.factories import fase_factory
 from gestion_de_item.models import Item, VersionItem, EstadoDeItem
 from gestion_de_item.tests.factories import item_factory
 from gestion_de_proyecto.models import EstadoDeProyecto
-from gestion_de_proyecto.tests.factories import proyecto_factory
+from gestion_de_proyecto.tests.factories import proyecto_factory, participante_factory
 from gestion_de_tipo_de_item.tests.factories import tipo_de_item_factory
 from roles_de_proyecto.tests.factories import rol_de_proyecto_factory
 from roles_de_sistema.tests.factories import rol_de_sistema_factory
 from usuario.tests.factories import user_factory
+import gestion_de_fase.tests.test_case as tc
 
 
 @pytest.fixture
@@ -30,10 +31,8 @@ def usuario(rs_admin):
 
 
 @pytest.fixture
-def cliente_loggeado(usuario):
-    client = Client()
-    client.login(username='user_test', password='password123')
-    return client
+def usuario_participante(rs_admin):
+    return user_factory(tc.user['username'], tc.user['password'], tc.user['email'], rs_admin.nombre)
 
 
 @pytest.fixture
@@ -41,7 +40,7 @@ def rol_de_proyecto():
     return rol_de_proyecto_factory({
         'nombre': 'Desarrollador',
         'descripcion': 'Descripcion del Rol',
-        'permisos': [p.codename for p in Permission.objects.all().filter(codename__startswith='pp_')]
+        'permisos': ['pu_ver_proyecto', 'pp_f_cerrar_fase', 'pu_f_ver_fase', 'pp_f_cerrar_fase']
     })
 
 
@@ -52,8 +51,18 @@ def proyecto(usuario):
         'descripcion': 'Descripcion de Prueba',
         'creador': usuario.username,
         'gerente': usuario.username,
-        'estado': EstadoDeProyecto.CONFIGURACION
+        'estado': EstadoDeProyecto.CONFIGURACION,
     })
+
+
+@pytest.fixture
+def participante(usuario_participante, proyecto, rol_de_proyecto, fase):
+    return participante_factory(proyecto, {'usuario': 'user',
+                                           'rol_de_proyecto': rol_de_proyecto.nombre,
+                                           'permisos': {
+                                               'Analisis': ['pp_f_cerrar_fase', 'pu_f_ver_fase', 'pp_f_cerrar_fase'],
+                                           }
+                                           })
 
 
 @pytest.fixture()
@@ -290,6 +299,54 @@ class TestModeloFase:
         condicion = all(item in list_item for item in list_null) and all(item in list_null for item in list_item)
         assert condicion is True, f'El metodo get_item_estado no retorna lo esperado.'
 
+    @pytest.mark.parametrize('fase,resultado_esperado', tc.test_cerrar_fase_result.items())
+    def test_cerrar_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
+        """
+        Prueba unitaria encargada de probar el funcionamiento del metodo cerrar de la clase Fase,
+        encargada de verificar si una fase del proyecto puede ser cerrada.
+
+        Resultado Esperado:
+            -Que el atributo de la Fase fase_cerrada cambie su valor a True
+
+        Mensajes de Error:
+            -La fase anterior {self.fase_anterior.nombre} todavia esta sin cerrar, si la fase anterior no esta cerrada
+            -El item {item.version.nombre} no esta en una Linea Base, si el item no esta en una linea base
+            -El item {item.version.nombre} no es trazable a la siguiente fase, si el item no tiene sucesores
+        """
+        rol_de_proyecto_factory(tc.rol_de_proyecto)
+        user_factory(tc.user['username'], tc.user['password'], tc.user['email'], rs_admin.nombre)
+        user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'], rs_admin.nombre)
+        user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['email'], rs_admin.nombre)
+        proyecto = proyecto_factory(tc.proyecto)
+        fase = Fase.objects.get(nombre=fase)
+        with pytest.raises(Exception) as excinfo:
+            fase.cerrar()
+        condicion = all(mensaje in resultado_esperado for mensaje in list(excinfo.value.args)[0])
+        assert condicion, f'El metodo no lanza las exceptiones corresponientes, se espera los siguientes mensajes: \n' \
+                          f'{resultado_esperado}'
+
+    @pytest.mark.parametrize('fase,resultado_esperado', tc.test_es_ultima_fase_result.items())
+    def test_es_ultima_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
+        """
+        Prueba unitaria encargada de probar el funcionamiento del metodo es_ultima_fase, de la clase Fase,
+        encargada de verificar si la fase del proyecto es la ultima.
+
+        Resultado Esperado:
+            -Que retorne verdadero si la fase es la ultima del proyecto
+
+        Mensajes de Error:
+            -'El metodo lanza una respuesta incorrecta, se esperaba un {resultado_esperado}, pero devuelve un {condicion}
+        """
+        rol_de_proyecto_factory(tc.rol_de_proyecto)
+        user_factory(tc.user['username'], tc.user['password'], tc.user['email'], rs_admin.nombre)
+        user_factory(tc.user2['username'], tc.user2['password'], tc.user2['email'], rs_admin.nombre)
+        user_factory(tc.gerente['username'], tc.gerente['password'], tc.gerente['email'], rs_admin.nombre)
+        proyecto = proyecto_factory(tc.proyecto)
+        fase = Fase.objects.get(nombre=fase)
+        condicion = fase.es_ultima_fase()
+        assert condicion == resultado_esperado, f'El metodo lanza una respuesta incorrecta, se esperaba un {resultado_esperado}' \
+                                                f' pero devuelve un {condicion}'
+
 
 @pytest.mark.django_db
 class TestVistasFase:
@@ -297,9 +354,21 @@ class TestVistasFase:
     Pruebas unitarias que comprueban el funcionamiento de las vistas referentes a las Fases de un Proyecto.
     """
 
+    @pytest.fixture
+    def cliente_loggeado(self, usuario_participante, participante):
+        client = Client()
+        client.login(username='user', password='admin')
+        return client
+
+    @pytest.fixture
+    def gerente_loggeado(self, usuario):
+        client = Client()
+        client.login(username='user_test', password='password123')
+        return client
+
     @pytest.mark.parametrize('estado_proyecto', [(EstadoDeProyecto.CONFIGURACION),
                                                  (EstadoDeProyecto.INICIADO)])
-    def test_visualizar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto):
+    def test_visualizar_fase_view(self, cliente_loggeado, proyecto, estado_proyecto, fase):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de visualizar fase.
@@ -312,8 +381,6 @@ class TestVistasFase:
         """
         proyecto.estado = estado_proyecto
         proyecto.save()
-        fase = Fase(nombre='Analisis', proyecto=proyecto, fase_cerrada=False, puede_cerrarse=False)
-        fase.save()
         response = cliente_loggeado.get(reverse('visualizar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
@@ -335,7 +402,7 @@ class TestVistasFase:
         response = cliente_loggeado.get(reverse('listar_fases', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_nueva_fase_view(self, cliente_loggeado, proyecto):
+    def test_nueva_fase_view(self, gerente_loggeado, proyecto):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de nueva fase.
@@ -348,10 +415,10 @@ class TestVistasFase:
         """
         proyecto.estado = EstadoDeProyecto.CONFIGURACION
         proyecto.save()
-        response = cliente_loggeado.get(reverse('nueva_fase', args=(proyecto.id,)))
+        response = gerente_loggeado.get(reverse('nueva_fase', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_editar_fase_view(self, cliente_loggeado, proyecto, fase):
+    def test_editar_fase_view(self, gerente_loggeado, proyecto, fase):
         """
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de editar fase.
@@ -364,10 +431,10 @@ class TestVistasFase:
         """
         proyecto.estado = EstadoDeProyecto.CONFIGURACION
         proyecto.save()
-        response = cliente_loggeado.get(reverse('editar_fase', args=(proyecto.id, fase.id)))
+        response = gerente_loggeado.get(reverse('editar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_eliminar_fase_view(self, cliente_loggeado, proyecto, fase):
+    def test_eliminar_fase_view(self, gerente_loggeado, proyecto, fase):
         """
             Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
             vista de eliminar fase.
@@ -380,5 +447,21 @@ class TestVistasFase:
             """
         proyecto.estado = EstadoDeProyecto.CONFIGURACION
         proyecto.save()
-        response = cliente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
+        response = gerente_loggeado.get(reverse('eliminar_fase', args=(proyecto.id, fase.id)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
+
+    def test_cerrar_fase_view(self, cliente_loggeado, proyecto, fase):
+        """
+        Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
+        vista de cerrar fase.
+
+        Se espera:
+            -Que la respuesta HTTP sea OK.
+
+        Mensaje de Error:
+            -Hubo un error al tratar de acceder a la URL
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = cliente_loggeado.get(reverse('cerrar_fase', args=(proyecto.id, fase.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'

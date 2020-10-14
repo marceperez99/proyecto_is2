@@ -33,4 +33,5 @@ urlpatterns = [
     path('proyecto/<int:proyecto_id>/solicitudes/', include('gestion_de_solicitud.urls')),
     path('proyecto/<int:proyecto_id>/fase/<int:fase_id>/item/', include('gestion_de_item.urls')),
     path('proyecto/<int:proyecto_id>/fase/<int:fase_id>/linea_base/', include('gestion_linea_base.urls')),
+    path('notificaciones/',include('gestion_de_notificaciones.urls'))
 ]

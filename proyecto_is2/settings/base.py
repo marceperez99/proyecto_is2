@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'gestion_de_item',
     'gestion_linea_base',
     'gestion_de_solicitud',
+    'gestion_de_notificaciones',
 
     'allauth',  # <--
     'allauth.account',  # <--

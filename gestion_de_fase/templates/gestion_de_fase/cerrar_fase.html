@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Cerrar fase{% endblock %}
+
+{% block content %}
+    {% include 'navBar.html'%}
+    {% include 'breadcrumb.html' %}
+    <div class="container mt-3">
+        <h3 class="col-12">Cerrar Fase</h3>
+        <hr>
+        <div class="row">
+            <div class="col-10 mx-auto bg-white p-3 border rounded">
+
+            <p class="h5">Esta seguro que desea cerrar {{ fase.nombre }} ?</p>
+            <p class="lead">Una vez la fase se cierre no se podra editarla</p>
+            <form method="POST" class="col-12">
+                {% csrf_token %}
+                <div class="row">
+                    <input type="submit" class="btn col-3 ml-auto mr-3 btn-primary border-0 bg-color-accent" value="Cerrar Fase">
+                    <a href="../" class="col-3 mr-auto ml-3 btn btn-danger border-0 bg-color-danger">Cancelar</a>
+                </div>
+            </form>
+        </div>
+        </div>
+
+    </div>
+{% endblock %}

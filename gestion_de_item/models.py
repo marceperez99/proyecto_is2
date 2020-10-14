@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from gdstorage.storage import GoogleDriveStorage
 
@@ -220,6 +221,7 @@ class Item(models.Model):
             Exception: si el item no esta en el estado A_APROBAR
         """
         if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
+            self.estado_anterior = self.estado
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:
@@ -413,6 +415,42 @@ class Item(models.Model):
                self.get_fase().get_proyecto().tiene_permiso_de_proyecto_en_fase(participante.usuario, self.get_fase(),
                                                                                 'pp_f_modificar_item')
 
+    def calcular_impacto(self):
+        """
+        Métódo que calcula el impacto de un item en el proyecto. Calculado como la suma de los pesos del item y de sus hijos y sucesores indirectos dividido por la sumatoria de los pesos de todos los items del proyecto.
+
+        Retorna:
+            - int  Impacto del item en el proyecto.
+        """
+        acumulado = self.version.peso
+        stack = []
+        visitado = set()
+        stack.append(self)
+        visitado.add(self)
+        while len(stack) != 0:
+            item = stack.pop()
+
+            for hijo in item.get_hijos():
+
+                if hijo not in visitado:
+                    stack.append(hijo)
+                    visitado.add(hijo)
+                    acumulado += hijo.version.peso
+
+            for sucesor in item.get_sucesores():
+                if sucesor not in visitado:
+                    stack.append(sucesor)
+                    visitado.add(sucesor)
+                    acumulado += sucesor.version.peso
+
+        peso_total = 0
+        proyecto = self.tipo_de_item.fase.proyecto
+        items = Item.objects.filter(tipo_de_item__fase__proyecto=proyecto)
+        for item in items:
+            if item.estado != EstadoDeItem.ELIMINADO:
+                peso_total += item.version.peso
+        return round((acumulado / peso_total) * 100,2)
+
 
 class VersionItem(models.Model):
     """
@@ -431,7 +469,8 @@ class VersionItem(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=400)
     version = models.IntegerField()
-    peso = models.IntegerField()
+    peso = models.IntegerField( validators=[MinValueValidator(1,
+                                                                   "El peso de un item debe ser mayor a 0")])
     # Relaciones
     antecesores = models.ManyToManyField('gestion_de_item.Item', related_name='sucesores')
     padres = models.ManyToManyField('gestion_de_item.Item', related_name='hijos')
