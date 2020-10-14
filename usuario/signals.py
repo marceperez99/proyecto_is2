@@ -6,7 +6,7 @@ from .models import Usuario
 
 
 @receiver(post_save, sender=User)
-def save_user(sender, instance, created, **kwargs):
+def save_user(sender, instance, created, raw, **kwargs):
     """
     Funcion utilitaria que se encarga de llamar a la funcion que envia un mail a los Administradores del sistema, cada
     vez que un usuario es creado.
@@ -19,6 +19,6 @@ def save_user(sender, instance, created, **kwargs):
     Retorna:
         - Void
     """
-    if created:
+    if not raw and created:
         print('User created')
         mail_for_new_user.delay(instance.id)
