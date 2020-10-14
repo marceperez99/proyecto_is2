@@ -200,7 +200,6 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def cerrar_fase_view(request, proyecto_id, fase_id):
     """
-    TODO Luis, carga en planilla
     Vista que permite cerrar una fase del proyecto.
     Muestra al usuario la confirmacion para cerrar una fase
     Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme cerrar fase.

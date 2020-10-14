@@ -302,7 +302,6 @@ class TestModeloFase:
     @pytest.mark.parametrize('fase,resultado_esperado', tc.test_cerrar_fase_result.items())
     def test_cerrar_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
         """
-        TODO Luis, cargar en planilla
         Prueba unitaria encargada de probar el funcionamiento del metodo cerrar de la clase Fase,
         encargada de verificar si una fase del proyecto puede ser cerrada.
 
@@ -329,7 +328,6 @@ class TestModeloFase:
     @pytest.mark.parametrize('fase,resultado_esperado', tc.test_es_ultima_fase_result.items())
     def test_es_ultima_fase(self, rol_de_proyecto, rs_admin, fase, resultado_esperado):
         """
-        #TODO Luis, cargar en planilla
         Prueba unitaria encargada de probar el funcionamiento del metodo es_ultima_fase, de la clase Fase,
         encargada de verificar si la fase del proyecto es la ultima.
 
@@ -454,7 +452,6 @@ class TestVistasFase:
 
     def test_cerrar_fase_view(self, cliente_loggeado, proyecto, fase):
         """
-        #TODO Luis, cargar en planilla
         Prueba unitaria encargada de comprobar que no se presente ningún error a la hora de mostrar la
         vista de cerrar fase.
 
