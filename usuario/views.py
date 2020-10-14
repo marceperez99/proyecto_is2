@@ -172,10 +172,12 @@ def configurar_cloud_view(request):
 def mi_perfil_view(request):
     """
     Vista que muestra a un usuario sus datos dentro del ststema: nombre completo, correo, rol de sistema, permisos de sistema y proyectos en los que participa.
+
     Argumentos:
-        -request: HttpRequest
+        - request: HttpRequest
+
     Retorna:
-        -HttpResponse
+        - HttpResponse
     """
     user = request.user
     user = get_object_or_404(Usuario, id=user.id)
