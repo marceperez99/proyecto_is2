@@ -60,9 +60,6 @@
                                     {% endfor %}
                                     {% for proyecto,rol in proyectos_no_activos %}
                                     <tr>
-                                        {% if proyecto.estado == 'En Configuración' %}
-                                            <td>{{proyecto.nombre}}</td>
-                                        {% endif %}
                                         {% if proyecto.estado == 'Cancelado' %}
                                             <td><a href="{% url 'visualizar_proyecto'  proyecto.id %}">{{proyecto.nombre}}</a></td>
                                             <td class="text-center"><span class="badge badge-danger">{{proyecto.estado}}</span></td>
