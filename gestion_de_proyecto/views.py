@@ -428,7 +428,7 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
                 }
     solicitudes = SolicitudDeCambio.objects.all()
     #Si existe una solicitud pendiente con votos registrados
-    if any(solicitud.estado == EstadoSolicitud.PENDIENTE and solicitud.voto_set.count() > 0 for solicitud in solicitudes):
+    if any(solicitud.estado == EstadoSolicitud.PENDIENTE and solicitud.voto_set.count() > 0 and solicitud.linea_base.fase.proyecto.id == proyecto.id for solicitud in solicitudes):
         messages.error(request,"No es posible cambiar el comite porque hay solicitudes de cambio pendientes con votos ya registrados.")
         return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
 
