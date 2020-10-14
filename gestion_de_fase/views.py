@@ -13,7 +13,7 @@ from roles_de_proyecto.decorators import pp_requerido_en_fase, pp_requerido
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO)
+#@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO)
 def visualizar_fase_view(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de una Fase determinada dentro de un proyecto
@@ -46,7 +46,6 @@ def visualizar_fase_view(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pu_ver_proyecto')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO)
 def listar_fase_view(request, proyecto_id):
     """
     Vista que permite la visualizacion de las fases de un proyecto. Junto con la opcion de crear nuevas Fases dentro del
@@ -200,7 +199,6 @@ def eliminar_fase_view(request, proyecto_id, fase_id):
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 def cerrar_fase_view(request, proyecto_id, fase_id):
     """
-    TODO Luis, carga en planilla
     Vista que permite cerrar una fase del proyecto.
     Muestra al usuario la confirmacion para cerrar una fase
     Si el metodo Http con el que se realizo la peticion fue GET se le pide al usuario que confirme cerrar fase.

@@ -25,9 +25,11 @@ def listar_solicitudes_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     contexto = {
         'proyecto': proyecto,
-        'solicitudes': solicitudes,
+        'solicitudes_pendientes': filter(lambda x: x.estado == EstadoSolicitud.PENDIENTE, solicitudes),
+        'solicitudes_aprobadas': filter(lambda x: x.estado == EstadoSolicitud.APROBADA, solicitudes),
+        'solicitudes_rechazadas': filter(lambda x: x.estado == EstadoSolicitud.RECHAZADA, solicitudes),
         'breadcrumb': {
-            'pagina_actual': 'Fases',
+            'pagina_actual': 'Solicitudes de Cambio',
             'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))}]
         }
     }
@@ -61,7 +63,8 @@ def solicitud_view(request, proyecto_id, solicitud_id):
         'breadcrumb': {
             'pagina_actual': f'Solicitud de Ruptura de {solicitud.linea_base}',
             'links': [{'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto_id,))},
-                      {'nombre': 'Solicitudes de Ruptura', 'url': reverse('solicitudes_de_cambio', args=(proyecto_id,))}]
+                      {'nombre': 'Solicitudes de Cambio',
+                       'url': reverse('solicitudes_de_cambio', args=(proyecto_id,))}]
         }
     }
     return render(request, 'gestion_de_solicitud/visualizar_solicitud.html', contexto)

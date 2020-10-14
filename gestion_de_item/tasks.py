@@ -46,7 +46,6 @@ def upload_and_save_file_item(id_atributos):
 @shared_task
 def notificar_solicitud_aprobacion_item(proyecto_id, fase_id, item_id, domain):
     """
-    #TODO Luis, cargar en planilla
     Función asincrona que construye un mensaje para ser enviado por correo utilizando la función utilitaria send_mail.
 
     Argumentos:
