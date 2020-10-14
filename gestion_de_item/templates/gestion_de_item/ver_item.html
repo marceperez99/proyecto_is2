@@ -5,18 +5,13 @@
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row">
-            <script>
-                $(function () {
-                     $('[data-toggle="tooltip"]').tooltip()
-                })
-            </script>
             {% include 'mensajes.html' %}
             {% if debe_ser_revisado %}
                 <div class="col-12 alert alert-warning">
                     <div class="row ">
                         <div class ="col-12 text-center mb-2 text-dark">Este item se encuentra En Revisión</div>
-                        <a href="{% url 'no_modificar' proyecto.id fase.id item.id %}" class ="col-auto ml-auto mr-2 btn btn btn-outline-info">Este Item no debe ser modificado</a>
-                        <a href="{% url 'debe_ser_modificado' proyecto.id fase.id item.id %}" class ="col-auto mr-auto ml-2 btn btn btn-outline-danger">Este Item debe ser modificado</a>
+                        <a href="{% url 'terminar_revision' proyecto.id fase.id item.id %}" class ="col-auto mx-auto btn btn btn-warning">Terminar revisión</a>
+
                     </div>
                 </div>
             {% endif %}
@@ -50,7 +45,7 @@
                         Desaprobar Item
                     </a>
                 {% endif %}
-                {% if se_puede_eliminar and 'pp_f_eliminar_item' in permisos %}
+                {% if se_puede_eliminar %}
                 <a href="{% url 'eliminar_item' proyecto.id fase.id item.id %}" class="btn btn-danger bg-color-danger border-0">
                     Eliminar Item
                 </a>
@@ -62,226 +57,45 @@
                     </a>
                 {% endif %}
             </div>
-            <hr class="col-12">
-            <div class="col-10 bg-white border rounded p-3 mx-auto">
-                <div class="row">
-                    <div class="col-4 h5 my-3">Codigo</div><div class="col-8 my-3">{{ item.codigo }}</div>
-                    <div class="col-4 h5 my-3">Nombre</div><div class="col-8 my-3">{{ item.version.nombre }}</div>
-                    <div class="col-4 h5 my-3">Descripcion</div><div class="col-8 my-3">{{ item.version.descripcion }}</div>
-                    <div class="col-4 h5 my-3">Estado</div><div class="col-8 my-3">{{ item.estado }}</div>
-                    {% if linea_base %}
-                        <div class="col-4 h5 my-3">Linea Base</div>
-                        <div class="col-8 my-3">
-                            {{ linea_base }}
-                        </div>
-                    {% endif %}
-                    <div class="col-4 h5 my-3">Peso</div><div class="col-8 my-3">{{ item.version.peso }}</div>
-                    <div class="col-4 h5 my-3">Version</div>
-                    <div class="col-8 my-3">{{ item.version.version }}</div>
-                    {% for atr in item.get_atributos_dinamicos %}
-                        <div class="col-4 h5 my-3 align-self-center">{{atr.plantilla.nombre}}</div>
-                        <div class="col-7 my-3  mr-1 p-2">
-                            {% if atr.getTipoAtributo == 'Archivo' %}
-                                <div class="row border rounded py-2">
-                                {% if atr.archivo_pendiente %}
-                                    <div class="col-12">
-                                        <i class="fas fa-circle text-warning"></i>&emsp; Subiendo archivo...
-                                    </div>
-                                {% else %}
-                                    {% if atr.archivo_subido %}
-                                        <div class="col-auto my-auto">
-                                                <i class="fas fa-circle text-success"></i>&emsp;{{ atr.valor }}
-                                            </div>
-                                        <div class="col-auto ml-auto">
-                                                <a href="{{ atr.valor.url }}"
-                                                   data-toggle="tooltip" data-placement="bottom" title="Descargar Archivo Adjunto"
-                                                   class="btn btn-primary border-0 bg-color-accent">
-                                                    <i class="fas fa-file-download"></i>
-                                                </a>
-                                            {% if not atr.plantilla.requerido and 'pp_f_modificar_item' in permisos and item.estado == 'No Aprobado' %}
-                                                <a href="{% url 'eliminar_archivo_item' proyecto.id fase.id item.id atr.id %}"
-                                                   data-toggle="tooltip" data-placement="bottom" title="Eliminar Archivo Adjunto"
-                                                   class="btn btn-danger bg-color-danger">
-                                                    <i class="far fa-trash-alt"></i>
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                    {% else %}
-                                        <div class="col-12">Aún no se subio un archivo.</div>
-                                    {% endif %}
-                                {% endif %}
-                                </div>
-                            {% else  %}
-                                {% if atr.valor != None %}
-                                    {% if atr.getTipoAtributo == 'Booleano' %}
-                                        {% if atr.valor %}
-                                            Si
-                                        {% else %}
-                                            No
-                                        {% endif %}
-                                    {% elif atr.getTipoAtributo == 'Numerico' %}
-                                        {{ atr.valor.normalize }}
-                                    {% else %}
-                                        {{ atr.valor }}
-                                    {% endif %}
-                                {% endif %}
+            <hr class="col-12 mx-auto">
+            <div class="col-12 ">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">
+                            Información del Item
+                        </a>
+                    </li>
+                    {% if item.estado != 'Eliminado' %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="impacto-tab" data-toggle="tab" href="#impacto" role="tab" aria-controls="impacto" aria-selected="false">
+                            Cálculo de Impacto
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="trazabilidad-tab"
 
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <hr class="col-11">
-                    <h5 class="col-12 my-3">Relaciones</h5>
-                    <div class="col-12">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="padres-tab" data-toggle="tab" href="#padres" role="tab" aria-controls="padres" aria-selected="true">Padres</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="hijos-tab" data-toggle="tab" href="#hijos" role="tab" aria-controls="hijos" aria-selected="false">Hijos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="antecesores-tab" data-toggle="tab" href="#antecesores" role="tab" aria-controls="antecesores" aria-selected="false">Antecesores</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="sucesores-tab" data-toggle="tab" href="#sucesores" role="tab" aria-controls="sucesores" aria-selected="false">Sucesores</a>
-                            </li>
-                            <li class="nav-item ml-auto">
-                                {% if item.estado == 'No Aprobado' and 'pp_f_relacionar_item' in permisos %}
-                                    <a href="{% url 'relacionar_item' proyecto.id fase.id item.id %}" class="btn btn-primary ml-auto border-0 bg-color-accent">Relacionar Item</a>
-                                {% endif %}
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="padres" role="tabpanel" aria-labelledby="padres-tab">
-                                <div class="row my-3">
-                                    <p class="col-10 mx-auto">Estos son los padres de este item</p>
-                                    <div class="col-10 mx-auto">
-                                        {% if item.get_padres %}
-                                            <table class="table tablet-responsive">
-                                                <thead>
-                                                    <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for padre in item.get_padres %}
-                                                        <tr>
-                                                            <td>{{ padre.codigo }}</td><td>{{ padre }}</td>
-                                                            <td class="text-right">
-                                                                <a href="{% url 'visualizar_item' proyecto.id fase.id padre.id %}" class="btn btn-primary border-0">
-                                                                    <i class="fas fa-eye"></i> Visualizar
-                                                                </a>
-                                                                {% if 'pp_f_eliminar_relacion_entre_items' in permisos and item.estado == 'No Aprobado' %}
-                                                                    <a href="{% url 'eliminar_relacion_item' proyecto.id fase.id item.id padre.id %}" class="btn btn-danger">
-                                                                         <i class="far fa-trash-alt"></i> Eliminar</a>
-                                                                {% endif %}
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                                </table>
-                                        {% else %}
-                                            <p class="lead">El item no tiene ningun padre aun.</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="antecesores" role="tabpanel" aria-labelledby="antecesores-tab">
-                                <div class="row my-3">
-                                      <p class="col-10 mx-auto">Estos son los Antecesores de este item</p>
-                                      <div class="col-10 mx-auto">
-                                            {% if item.get_antecesores %}
-                                                <table class="table tablet-responsive">
-                                                    <thead>
-                                                        <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for antecesor in item.get_antecesores %}
-                                                            <tr>
-                                                            <td>{{ antecesor.codigo }}</td><td>{{ antecesor }}</td>
-                                                            <td class="text-right">
-                                                                <a href="{% url 'visualizar_item' proyecto.id fase.id antecesor.id %}" class="btn btn-primary border-0">
-                                                                    <i class="fas fa-eye"></i> Visualizar
-                                                                </a>
-                                                                {% if 'pp_f_eliminar_relacion_entre_items' in permisos and item.estado == 'No Aprobado' %}
-                                                                    <a href="{% url 'eliminar_relacion_item' proyecto.id fase.id item.id antecesor.id %}" class="btn btn-danger">
-                                                                         <i class="far fa-trash-alt"></i> Eliminar</a>
-                                                                {% endif %}
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            {% else %}
-                                                <p class="lead">El item no tiene ningun antecesor.</p>
-                                            {% endif %}
-                                      </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="hijos" role="tabpanel" aria-labelledby="hijos-tab">
-                                <div class="row my-3">
-                                    <p class="col-10 mx-auto">Estos son los hijos de este item</p>
-                                    <div class="col-10 mx-auto">
-                                        {% if item.get_hijos %}
-                                            <table class="table tablet-responsive">
-                                                <thead>
-                                                    <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for hijo in item.get_hijos %}
-                                                        <tr>
-                                                            <td>{{ hijo.codigo }}</td><td>{{ hijo }}</td>
-                                                            <td class="text-right">
-                                                                <a href="{% url 'visualizar_item' proyecto.id fase.id hijo.id %}" class="btn btn-primary border-0">
-                                                                    <i class="fas fa-eye"></i> Visualizar
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        {% else %}
-                                            <p class="lead">El item no tiene ningun hijo aun.</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="sucesores" role="tabpanel" aria-labelledby="sucesores-tab">
-                                <div class="row my-3">
-                                    <p class="col-10 mx-auto">Estos son los Sucesores de este item</p>
-                                    <div class="col-10 mx-auto">
-                                        {% if item.get_sucesores %}
-                                            <table class="table tablet-responsive">
-                                                <thead>
-                                                    <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for sucesor in item.get_sucesores %}
-                                                        <tr>
-                                                            <td>{{ sucesor.codigo }}</td><td>{{ sucesor }}</td>
-                                                            <td class="text-right">
-                                                                <a href="{% url 'visualizar_item' proyecto.id fase.id sucesor.id %}" class="btn btn-primary border-0">
-                                                                    <i class="fas fa-eye"></i> Visualizar
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        {% else %}
-                                            <p class="lead">El item no tiene ningun sucesor aun.</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                           data-toggle="tab" href="#trazabilidad" role="tab" aria-controls="trazabilidad" aria-selected="false">
+                            Trazabilidad del Item
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                        {% include 'gestion_de_item/informacion_de_item.html' %}
                     </div>
-                    <hr class="col-11">
-                    <div class="col-auto ml-auto">
-                        {% if 'pp_f_ver_historial_de_item' in permisos %}
-                            <a href="{% url 'historial_item' proyecto.id fase.id item.id %}" class="btn ml-auto btn-primary bg-color-accent">Visualizar Historial de Cambios</a>
-                        {% endif %}
+                    {% if item.estado != 'Eliminado' %}
+                    <div class="tab-pane fade" id="trazabilidad" role="tabpanel" aria-labelledby="trazabilidad-tab">
+                        {% include 'gestion_de_item/grafo_de_item.html' %}
                     </div>
+                    <div class="tab-pane fade" id="impacto" role="tabpanel" aria-labelledby="impacto-tab">
+                        {% include 'gestion_de_item/calculo_de_impacto.html' %}
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
+
     </div>
 {% endblock %}

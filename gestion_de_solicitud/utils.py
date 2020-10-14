@@ -42,7 +42,6 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
     for item in linea_base.items.all():
         if item.estado == EstadoDeItem.EN_LINEA_BASE:
             item.solicitar_revision()
-            item.estado_anterior = EstadoDeItem.APROBADO
             item.save()
 
     solicitud.estado = EstadoSolicitud.APROBADA

@@ -6,9 +6,9 @@
     {% include 'breadcrumb.html' %}
     <div class="container mt-3">
         <div class="row bg-white p-3 border rounded">
-            <h3 class="col-12">Confirmar Modificación del item</h3>
+            <h3 class="col-12">Confirmar decisión</h3>
             <hr class="col-10 mx-auto">
-            <div class ="col-12  mb-2 text-dark">El item {{item.version.nombre}} será colocado en el estado <strong>A Modificar.</strong></div>
+            <div class ="col-12  mb-2 text-dark">{{mensaje|safe}}</div>
 
             {% if hay_items_afectados %}
             <div class ="col-12  mb-2 text-dark">Los siguientes items seran colocados <strong>En Revisión</strong>:</div>
