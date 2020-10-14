@@ -170,7 +170,6 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pu_ver_proyecto')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO)
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.

@@ -449,7 +449,7 @@ class Item(models.Model):
         for item in items:
             if item.estado != EstadoDeItem.ELIMINADO:
                 peso_total += item.version.peso
-        return round(acumulado / peso_total, 2) * 100
+        return round((acumulado / peso_total) * 100,2)
 
 
 class VersionItem(models.Model):
