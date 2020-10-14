@@ -15,7 +15,7 @@ read -r
 SCRIPT_PATH=$(pwd)
 echo $SCRIPT_PATH
 POSTGRES_USER="postgres"
-POSTGRES_PASS="p0stgre5q1"
+POSTGRES_PASS=""
 DB_NAME="proyecto_is2"
 DB_USER="proyecto_admin"
 DB_PASS="Pr0yect0Adm1n"
@@ -117,7 +117,7 @@ echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev
 echo "- Variables de Entorno guardadas";
 
 #Descarga de codigo fuente
-TAG='test'
+TAG="iteracion_5"
 read -rp "Ingrese el nombre del Tag del Release que desea montar [$TAG]: " input
 RELEASE_LINK="https://github.com/marzeperez99/proyecto_is2/archive/$TAG.zip"
 cd "django" || exit 1
