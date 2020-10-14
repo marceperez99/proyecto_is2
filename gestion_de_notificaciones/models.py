@@ -4,6 +4,9 @@ from django.utils import timezone
 
 
 class Notificacion(models.Model):
+    """
+    Modelo que guarda información de las notificaciones que se envian en el Sistema.
+    """
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=50)
     mensaje = models.CharField(max_length=800)
