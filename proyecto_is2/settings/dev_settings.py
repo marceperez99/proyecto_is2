@@ -15,7 +15,7 @@ SECRET_KEY = '$ce2p+5(x@x!)8f7sqd*bmq30(b@dr!kr!55_1oz2f%1x%but$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+TESTING = False
 ALLOWED_HOSTS = []
 
 # Database
