@@ -65,7 +65,7 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=" ../proyecto_is2/settings/gdriveaccess.json"
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE="gdriveaccess.json"
 read -rp "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
 echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE"
@@ -125,7 +125,7 @@ sudo wget "$RELEASE_LINK"
 sudo unzip "$TAG.zip"
 sudo mv "$PROYECT_NAME-$TAG" "$PROYECT_NAME"
 #sudo git clone $GIT_URL --quiet || exit 1
-echo "- Repositorio clonado"
+echo "- Proyecto Descargado"
 cd "$PROYECT_NAME" || exit 1
 
 #read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
