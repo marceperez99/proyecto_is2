@@ -1,0 +1,1 @@
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run celery -A proyecto_is2 worker -l INFONFO

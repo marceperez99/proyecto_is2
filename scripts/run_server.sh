@@ -17,12 +17,12 @@ while getopts pdt: flag
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py collectstatic
 
             #Ejecucion de pruebas unitarias
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings pytest
-            PYTEST_RESULT=$?
+            #DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings pytest
+            #PYTEST_RESULT=$?
             #Ejecucion del servidor
             sudo service apache2 restart
             echo "- Servidor Apache reiniciado"
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings celery -A proyecto_is2 worker -l info
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings celery -A proyecto_is2 worker -l INFO
 
 	          ;;
 	        d)
@@ -36,9 +36,8 @@ while getopts pdt: flag
             #Creacion de migraciones
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py migrate > /dev/null;
             #Ejecucion de pruebas unitarias
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run pytest
+            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.test_settings pipenv run pytest
             #Ejecucion del servidor
-            DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run celery -A proyecto_is2 worker -l info &
             DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings pipenv run python manage.py runserver
 
 	          ;;

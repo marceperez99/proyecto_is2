@@ -11,7 +11,7 @@ from gestion_de_notificaciones.utils import send_mail
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
 from gestion_de_proyecto.tasks import notificar_inicio_proyecto
-from gestion_de_solicitud.models import SolicitudDeCambio
+from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
 from .models import Proyecto, EstadoDeProyecto, Participante, Comite
@@ -170,7 +170,6 @@ def eliminar_participante_view(request, proyecto_id, participante_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pu_ver_proyecto')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION, EstadoDeProyecto.INICIADO)
 def visualizar_proyecto_view(request, proyecto_id):
     """
     Vista que muestra al usuario toda la informacion de un proyecto.
@@ -414,7 +413,7 @@ def pp_insuficientes(request, *args, **kwargs):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido('pg_asignar_comite')
-@estado_proyecto(EstadoDeProyecto.CONFIGURACION)
+@estado_proyecto(EstadoDeProyecto.CONFIGURACION,EstadoDeProyecto.INICIADO)
 def seleccionar_miembros_del_comite_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     comite = get_object_or_404(Comite, proyecto=proyecto)
@@ -426,6 +425,12 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
                                          {'nombre': 'Comite de Cambios', 'url': '#'}]
                                }
                 }
+    solicitudes = SolicitudDeCambio.objects.all()
+    #Si existe una solicitud pendiente con votos registrados
+    if any(solicitud.estado == EstadoSolicitud.PENDIENTE and solicitud.voto_set.count() > 0 and solicitud.linea_base.fase.proyecto.id == proyecto.id for solicitud in solicitudes):
+        messages.error(request,"No es posible cambiar el comite porque hay solicitudes de cambio pendientes con votos ya registrados.")
+        return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
+
     if request.method == 'POST':
         form = SeleccionarMiembrosDelComiteForm(proyecto, request.POST, instance=comite)
         if form.is_valid():
@@ -434,6 +439,8 @@ def seleccionar_miembros_del_comite_view(request, proyecto_id):
                 comite.miembros.add(participante)
             comite.save()
             return redirect('visualizar_proyecto', proyecto_id=proyecto_id)
+        else:
+            contexto['form'] = form
     return render(request, 'gestion_de_proyecto/seleccionar_miembros_del_comite.html', context=contexto)
 
 

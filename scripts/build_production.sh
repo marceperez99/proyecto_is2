@@ -15,7 +15,7 @@ read -r
 SCRIPT_PATH=$(pwd)
 echo $SCRIPT_PATH
 POSTGRES_USER="postgres"
-POSTGRES_PASS="p0stgre5q1"
+POSTGRES_PASS=""
 DB_NAME="proyecto_is2"
 DB_USER="proyecto_admin"
 DB_PASS="Pr0yect0Adm1n"
@@ -65,7 +65,7 @@ GOOGLE_OAUTH_CLIENT_ID=""
 read -rp "Ingrese el CLIENT ID del servicio de Google OAuth [$GOOGLE_OAUTH_CLIENT_ID]: " input
 GOOGLE_OAUTH_CLIENT_ID=${input:-$GOOGLE_OAUTH_CLIENT_ID}
 
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=" ../proyecto_is2/settings/gdriveaccess.json"
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE="gdriveaccess.json"
 read -rp "Ingrese la ruta del archivo el contenido de las credenciales proveidas para el uso de la plataforma de Google Drive [$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE]: " input
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=${input:-$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE}
 echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE"
@@ -107,7 +107,7 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE=\"$GDRIVE_JSON_PATH\"
 SECRET_KEY=\"$SECRET_KEY\"
 MEDIA_ROOT=\"$BASE_DIR/$PROYECT_NAME/media/\"
 MEDIA_URL=\"$BASE_DIR/$PROYECT_NAME/media/items/\"
-CELERY_BROKER_URL=\"redis://localhost\"
+CELERY_BROKER_URL=\"redis://localhost:6379\"
 EMAIL_HOST_USER=\"$EMAIL_HOST_USER\"
 EMAIL_HOST_PASSWORD=\"$EMAIL_HOST_PASSWORD\"
 EMAIL_USE_TLS=\"$EMAIL_USE_TLS\"
@@ -117,23 +117,27 @@ echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev
 echo "- Variables de Entorno guardadas";
 
 #Descarga de codigo fuente
+TAG="iteracion_5"
+read -rp "Ingrese el nombre del Tag del Release que desea montar [$TAG]: " input
+RELEASE_LINK="https://github.com/marzeperez99/proyecto_is2/archive/$TAG.zip"
 cd "django" || exit 1
-sudo git clone $GIT_URL --quiet || exit 1
-echo "Repositorio clonado"
+sudo wget "$RELEASE_LINK"
+sudo unzip "$TAG.zip"
+sudo mv "$PROYECT_NAME-$TAG" "$PROYECT_NAME"
+#sudo git clone $GIT_URL --quiet || exit 1
+echo "- Proyecto Descargado"
 cd "$PROYECT_NAME" || exit 1
 
-# Se obtiene el tag a cargar
-TAG='iteracion_3'
-read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
-TAG=${input:-$TAG}
+#read -rp "Ingrese el nombre tag que desea montar [$TAG]: " input
+#TAG=${input:-$TAG}
 
-sudo git checkout tags/"$TAG" -b "$TAG"
+#sudo git checkout tags/"$TAG" -b "$TAG"
 
 # Se configura apache
 read -p "Se sobreescribira el archvivo 000-default.conf de apache2 para incluir configuraciones del Sistema. Presione S para continuar, cualquier otra tecla para finalizar la instalacion" -n 1 -r
 #echo
 if [[  $REPLY =~ ^[Ss]$ ]]; then
-    scripts/data/apache_config.sh "$BASE_DIR" > "$APACHE_DIR"/000-default.conf
+    scripts/data/apache_config.sh | sudo tee "$APACHE_DIR"/000-default.conf
 fi
 
 # Se configura la Base de Datos
@@ -147,7 +151,7 @@ pip install -r "requirements.txt" > /dev/null;
 echo "- Dependencias instaladas"
 # Se corren migraciones de Django
 echo "- Aplicando Migraciones "
-python manage.py migrate > /dev/null
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py migrate > /dev/null
 echo "- Migraciones aplicadas"
 # Se cargan datos
 TEMP_DIR=$(mktemp -d)
@@ -155,11 +159,11 @@ SSO_KEYS="$TEMP_DIR/google_keys.json"
 
 scripts/data/sso_config.sh "$GOOGLE_OAUTH_CLIENT_ID" "$GOOGLE_OAUTH_SECRET_KEY" > "$SSO_KEYS"
 # Se cargan los datos del OAUTH
-python manage.py loaddata "$SSO_KEYS"
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py loaddata "$SSO_KEYS"
 rm "$SSO_KEYS"
 #echo "- Creado Rol de Administrador"
 # TODO Se carga datos de prueba
-python manage.py loaddata "$SCRIPT_PATH/data.json"
+DJANGO_SETTINGS_MODULE=proyecto_is2.settings.prod_settings python manage.py loaddata scripts/data/data.json
 echo "- Datos de prueba cargados"
 # Se corre el servidor
 scripts/run_server.sh -p;

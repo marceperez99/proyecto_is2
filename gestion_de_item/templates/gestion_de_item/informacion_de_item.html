@@ -100,12 +100,13 @@
                             {% if item.get_padres %}
                                 <table class="table tablet-responsive">
                                     <thead>
-                                        <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
+                                        <tr><th>Codigo</th><th>Nombre</th><th>Línea Base</th><th></th></tr>
                                     </thead>
                                     <tbody>
                                         {% for padre in item.get_padres %}
                                             <tr>
                                                 <td>{{ padre.codigo }}</td><td>{{ padre }}</td>
+                                                <td>{% if padre.get_linea_base is not None %}{{padre.get_linea_base}}{% endif %}</td>
                                                 <td class="text-right">
                                                     <a href="{% url 'visualizar_item' proyecto.id fase.id padre.id %}" class="btn btn-primary border-0">
                                                         <i class="fas fa-eye"></i> Visualizar
@@ -132,12 +133,13 @@
                                 {% if item.get_antecesores %}
                                     <table class="table tablet-responsive">
                                         <thead>
-                                            <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
+                                            <tr><th>Codigo</th><th>Nombre</th><th>Línea Base</th><th></th></tr>
                                         </thead>
                                         <tbody>
                                             {% for antecesor in item.get_antecesores %}
                                                 <tr>
                                                 <td>{{ antecesor.codigo }}</td><td>{{ antecesor }}</td>
+                                                <td>{% if antecesor.get_linea_base is not None %}{{antecesor.get_linea_base}}{% endif %}</td>
                                                 <td class="text-right">
                                                     <a href="{% url 'visualizar_item' proyecto.id fase.id antecesor.id %}" class="btn btn-primary border-0">
                                                         <i class="fas fa-eye"></i> Visualizar
@@ -164,12 +166,13 @@
                             {% if item.get_hijos %}
                                 <table class="table tablet-responsive">
                                     <thead>
-                                        <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
+                                        <tr><th>Codigo</th><th>Nombre</th><th>Línea Base</th><th></th></tr>
                                     </thead>
                                     <tbody>
                                         {% for hijo in item.get_hijos %}
                                             <tr>
                                                 <td>{{ hijo.codigo }}</td><td>{{ hijo }}</td>
+                                                <td>{% if hijo.get_linea_base is not None %}{{hijo.get_linea_base}}{% endif %}</td>
                                                 <td class="text-right">
                                                     <a href="{% url 'visualizar_item' proyecto.id fase.id hijo.id %}" class="btn btn-primary border-0">
                                                         <i class="fas fa-eye"></i> Visualizar
@@ -192,14 +195,15 @@
                             {% if item.get_sucesores %}
                                 <table class="table tablet-responsive">
                                     <thead>
-                                        <tr><th>Codigo</th><th>Nombre</th><th></th></tr>
+                                        <tr><th>Codigo</th><th>Nombre</th><th>Línea Base</th><th></th></tr>
                                     </thead>
                                     <tbody>
                                         {% for sucesor in item.get_sucesores %}
                                             <tr>
                                                 <td>{{ sucesor.codigo }}</td><td>{{ sucesor }}</td>
+                                                <td>{% if sucesor.get_linea_base is not None %}{{sucesor.get_linea_base}}{% endif %}</td>
                                                 <td class="text-right">
-                                                    <a href="{% url 'visualizar_item' proyecto.id fase.id sucesor.id %}" class="btn btn-primary border-0">
+                                                    <a href="{% url 'visualizar_item' proyecto.id sucesor.get_fase.id sucesor.id %}" class="btn btn-primary border-0">
                                                         <i class="fas fa-eye"></i> Visualizar
                                                     </a>
                                                 </td>

@@ -107,6 +107,18 @@ def upload_and_save_file_item_2(atributo, file, proyecto, fase, item):
 
 
 def trazar_item(proyecto: Proyecto, item: Item):
+    """
+    | Funcion utilitaria que toma un item de un proyecto y construye una representación
+    | del grafo conformado por el item, sus antecesores y padres, directos e indirectos.
+    | Este grafo es presentado en un formato JSON.
+
+    Argumentos:
+        - proyecto: Proyecto
+        - item: Item
+
+    Retorna:
+        - JSON
+    """
     items = [item]
     items_visitados = set()
     queue = []

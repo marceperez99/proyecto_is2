@@ -24,7 +24,7 @@ from .utils import get_atributos_forms, trazar_item
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def listar_items(request, proyecto_id, fase_id):
     """
     Vista que permite la visualizacion de los items creados dentro de la fase.
@@ -99,7 +99,7 @@ def listar_items_en_revision(request, proyecto_id, fase_id):
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def visualizar_item(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion de la informacion de un Item, en esta vista se presentan las opciones
@@ -125,15 +125,16 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(
             usuario, fase, 'pp_f_decidir_sobre_items_en_revision'),
-        'puede_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO and
-                                participante.tiene_pp_en_fase(fase, 'pp_f_eliminar_item'),
+        'se_puede_eliminar': item.estado == EstadoDeItem.NO_APROBADO and
+                             participante.tiene_pp_en_fase(fase, 'pp_f_eliminar_item'),
         "puede_pedir_modificacion": item.estado == EstadoDeItem.NO_APROBADO and
                                     participante.tiene_pp_en_fase(fase, 'pp_f_solicitar_aprobacion_item'),
 
         "puede_aprobar": item.estado == EstadoDeItem.A_APROBAR and
                          participante.tiene_pp_en_fase(fase, 'pp_f_aprobar_item'),
         "puede_desaprobar": item.estado == EstadoDeItem.APROBADO and
-                            participante.tiene_pp_en_fase(fase, 'pp_f_desaprobar_item'),
+                            participante.tiene_pp_en_fase(fase,
+                                                          'pp_f_desaprobar_item') and item.estado_anterior != EstadoDeItem.EN_LINEA_BASE,
         'puede_modificar': item.puede_modificar(proyecto.get_participante(request.user)),
         'puede_terminar_aprobacion': item.estado == EstadoDeItem.A_MODIFICAR and item.puede_modificar(
             proyecto.get_participante(request.user)),
@@ -143,7 +144,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
         'linea_base': item.get_linea_base() if item.estado == EstadoDeItem.EN_LINEA_BASE else "",
         'cambios': True,
         'trazabilidad': trazar_item(proyecto, item),
-        'impacto':item.calcular_impacto(),
+        'impacto': item.calcular_impacto(),
         'permisos': participante.get_permisos_de_proyecto_list() + participante.get_permisos_por_fase_list(fase),
         'breadcrumb': {'pagina_actual': item, 'links': [
             {'nombre': proyecto.nombre, 'url': reverse('visualizar_proyecto', args=(proyecto.id,))},
@@ -359,7 +360,7 @@ def eliminar_item_view(request, proyecto_id, fase_id, item_id):
 
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pp_f_ver_historial_de_item')
-@estado_proyecto(EstadoDeProyecto.INICIADO)
+@estado_proyecto(EstadoDeProyecto.INICIADO, EstadoDeProyecto.CANCELADO, EstadoDeProyecto.FINALIZADO)
 def ver_historial_item_view(request, proyecto_id, fase_id, item_id):
     """
     Vista que permite la visualizacion del Historial de Cambios de un Item.
@@ -775,7 +776,7 @@ def desaprobar_item_view(request, proyecto_id, fase_id, item_id):
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_desaprobar_item')
+@pp_requerido_en_fase('pp_f_eliminar_relacion_entre_items')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.A_MODIFICAR, EstadoDeItem.NO_APROBADO)
@@ -864,25 +865,19 @@ def eliminar_archivo_view(request, proyecto_id, fase_id, item_id, atributo_id):
 @fase_abierta()
 @estado_item(EstadoDeItem.EN_REVISION)
 def debe_modificar_view(request, proyecto_id, fase_id, item_id):
-    """
-    Vista que muestra dos  pantallas de confirmación para marcar un item como A modificar dependiendo de si este se encuentra en una linea base o no.
-
-    Argumentos:
-        -request: HttpRequest
-        -proyecto_id: int , id del proyecto.
-        -fase_id: int, id de la fase.
-        -item_id: int, id del item.
-    Retorna:
-        -HttpResponse
-    """
     item = get_object_or_404(Item, id=item_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
 
         if not item.esta_en_linea_base():
-            # Coloca el estado del item en A modificar.
-            item.solicitar_modificacion()
+            if item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+                # Coloca el estado del item en Aprobado
+                item.estado = EstadoDeItem.APROBADO
+                item.save()
+            else:
+                # Coloca el estado del item en A modificar.
+                item.solicitar_modificacion()
 
             hijos = item.get_hijos()
             sucesores = item.get_sucesores()
@@ -898,6 +893,16 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
             return redirect('solicitar_rompimiento', proyecto_id, fase_id, linea_base.id)
     else:
         if not item.esta_en_linea_base():
+            mensaje = ""
+            print(item.estado_anterior)
+            if item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+                mensaje = "El ítem \"" + item.version.nombre + "\" pertenecía a una línea base. Para poder modificarlo es necesaria una solicitud " \
+                                                               "de cambio. Si confirma su decisión el ítem será puesto en el estado Aprobado y deberá ser " \
+                                                               "incluido en una línea base para realizar la solicitud. Los ítems que dependan directamente " \
+                                                               "de este ítem y estén aprobados o en línea base serán colocados en revisión. "
+            else:
+
+                mensaje = "El item \"" + item.version.nombre + "\" será colocado en el estado <strong>A Modificar.</strong>"
             hijos = item.get_hijos()
             sucesores = item.get_sucesores()
             dependencias = list(hijos) + list(sucesores)
@@ -905,40 +910,34 @@ def debe_modificar_view(request, proyecto_id, fase_id, item_id):
                 filter(lambda dependencia: dependencia.estado in [EstadoDeItem.APROBADO, EstadoDeItem.EN_LINEA_BASE],
                        dependencias))
             contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'item_afectados': item_afectados,
-                        'hay_items_afectados': len(item_afectados) > 0}
+                        'hay_items_afectados': len(item_afectados) > 0, 'mensaje': mensaje}
             return render(request, 'gestion_de_item/confirmar_modificacion_no_linea_base.html', context=contexto)
-
         else:
             linea_base = item.get_linea_base()
-            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base}
+            contexto = {'item': item, 'fase': fase, 'proyecto': proyecto, 'linea_base': linea_base, }
             return render(request, 'gestion_de_item/confirmar_modificacion_linea_base.html', context=contexto)
 
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
-@pp_requerido_en_fase('pp_f_decidir_sobre_item_en_revision')
+@pp_requerido_en_fase('pp_f_decidir_sobre_items_en_revision')
 @estado_proyecto(EstadoDeProyecto.INICIADO)
 @fase_abierta()
 @estado_item(EstadoDeItem.EN_REVISION)
 def no_modificar_view(request, proyecto_id, fase_id, item_id):
-    """
-    Vista que muestra la pantallas de confirmación para volver al estado anterior de un item, ya que no se modificará
-
-    Argumentos:
-        -request: HttpRequest
-        -proyecto_id: int , id del proyecto.
-        -fase_id: int, id de la fase.
-        -item_id: int, id del item.
-    Retorna:
-        -HttpResponse
-    """
     item = get_object_or_404(Item, id=item_id)
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
-        estadoaux = item.estado
-        item.estado = item.estado_anterior
-        item.estado_anterior = estadoaux
+        if item.esta_en_linea_base():
+            item.estado = EstadoDeItem.EN_LINEA_BASE
+            item.estado_anterior = ""
+        else:
+            item.estado = EstadoDeItem.APROBADO
+            item.estado_anterior = ""
+        # estadoaux = item.estado
+        # item.estado = item.estado_anterior
+        # item.estado_anterior = estadoaux
         item.save()
 
         linea_base = item.get_linea_base() if item.esta_en_linea_base() else None
@@ -951,6 +950,59 @@ def no_modificar_view(request, proyecto_id, fase_id, item_id):
     else:
         contexto = {'item': item, 'fase': fase, 'proyecto': proyecto}
         return render(request, 'gestion_de_item/confirmar_no_modificacion_item.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido_en_fase('pp_f_decidir_sobre_items_en_revision')
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+@fase_abierta()
+@estado_item(EstadoDeItem.EN_REVISION)
+def terminar_revision_view(request, proyecto_id, fase_id, item_id):
+    """
+    Vista que informa al usuario lo que sucedera en caso de dar por terminada la revisión.
+
+    Argumentos:
+        - request: HttpRequest,
+        - proyecto_id: int, identificador único de un  proyecto.
+        - fase_id: int, identificador único de una fase.
+        - item_id: int, identificador único de un item.
+
+    Retorna:
+        - HttpResponse
+
+    """
+    item = get_object_or_404(Item, id=item_id)
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    fase = get_object_or_404(Fase, id=fase_id)
+    mensaje = ""
+    if request.method == "POST":
+        # Si estaba aprobado
+        if item.estado_anterior == EstadoDeItem.APROBADO:
+            item.estado = EstadoDeItem.APROBADO
+            item.estado_anterior = EstadoDeItem.EN_REVISION
+        elif item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+            # Si se encuentra en una linea base comprometida
+            if item.esta_en_linea_base():
+                item.estado = EstadoDeItem.EN_LINEA_BASE
+                item.estado_anterior = EstadoDeItem.EN_REVISION
+            else:
+                # Si se encontraba en una linea base rota.
+                item.estado = EstadoDeItem.APROBADO
+                item.estado_anterior = EstadoDeItem.EN_LINEA_BASE
+        item.save()
+        return redirect('visualizar_item', proyecto_id, fase_id, item_id)
+    else:
+        if item.estado_anterior == EstadoDeItem.APROBADO:
+            mensaje = f"El item \"{item.version.nombre}\" será colocado en el estado APROBADO. Si se desea modificar el item debera desaprobarse."
+        elif item.estado_anterior == EstadoDeItem.EN_LINEA_BASE:
+            if item.esta_en_linea_base():
+                mensaje = f"El item \"{item.version.nombre}\" se encuentra en una Linea Base comprometida. El item será colocado en el estado En linea Base. Si se desea modificar el item se debera realizar una solicitud de rompimiento " \
+                          f"especificando los motivos para modificar este item."
+            else:
+                mensaje = f"El item \"{item.version.nombre}\" pertenecía a una línea base. Para poder modificarlo es necesaria una solicitud de cambio. Si confirma su decisión el ítem será puesto en el estado Aprobado y deberá ser incluido en una línea base para realizar la solicitud de rompimiento."
+        contexto = {'item': item, 'proyecto': proyecto, 'fase': fase, 'mensaje': mensaje}
+        return render(request, 'gestion_de_item/terminar_revision.html', context=contexto)
 
 
 @login_required
@@ -990,5 +1042,3 @@ def restaurar_version_item_view(request, proyecto_id, fase_id, item_id, version_
 
     else:
         return render(request, 'gestion_de_item/restaurar_item.html')
-
-

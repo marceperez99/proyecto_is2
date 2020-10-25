@@ -44,7 +44,6 @@ class Fase(models.Model):
 
     def es_ultima_fase(self):
         """
-        #TODO Luis, cargar en planilla
         Metodo de la clase Fase, que dice si esta fase es la ultima del proyecto.
 
         Retorna:
@@ -78,7 +77,6 @@ class Fase(models.Model):
 
     def cerrar(self):
         """
-        TODO Luis, cargar en planilla
         Metodo que se encarga de verificar si una fase dentro del proyecto puede ser cerrada,
         para ello todos los item deben estar en una linea base cerrada, todos ellos deben ser trazables a la siguiente
         fase directa o indirectamente y la fase anterior debe estar con estado cerrada.

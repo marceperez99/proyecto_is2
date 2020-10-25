@@ -15,6 +15,7 @@
                     <tr class="text-center">
                         <th>Codigo</th>
                         <th>Nombre</th>
+                        <th>Línea Base</th>
                         <th class="text-center">Acción</th>
                     </tr>
                     </thead>
@@ -23,6 +24,7 @@
                             <tr class="item_{{ item.estado}}">
                                 <td>{{ item.codigo }}</td>
                                 <td>{{ item.version.nombre }}</td>
+                                <td>{% if item.get_linea_base is not None %}{{item.get_linea_base}}{% endif %}</td>
                                 <td class="text-center">
                                     <a href="{% url 'visualizar_item' proyecto.id fase.id item.id %}"
                                        class="btn btn-primary border-0 bg-color-accent">

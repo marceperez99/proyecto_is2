@@ -221,6 +221,7 @@ class Item(models.Model):
             Exception: si el item no esta en el estado A_APROBAR
         """
         if self.estado in [EstadoDeItem.A_APROBAR, EstadoDeItem.A_MODIFICAR]:
+            self.estado_anterior = self.estado
             self.estado = EstadoDeItem.APROBADO
             self.save()
         else:
@@ -448,7 +449,7 @@ class Item(models.Model):
         for item in items:
             if item.estado != EstadoDeItem.ELIMINADO:
                 peso_total += item.version.peso
-        return round(acumulado / peso_total, 2) * 100
+        return round((acumulado / peso_total) * 100,2)
 
 
 class VersionItem(models.Model):

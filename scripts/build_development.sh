@@ -25,7 +25,7 @@ EMAIL_HOST_USER=""
 EMAIL_HOST_PASSWORD=""
 EMAIL_USE_TLS="True"
 GIT_URL="https://github.com/marzeperez99/proyecto_is2.git"
-TAG="iteracion_3"
+BRANCH="Desarrollo"
 GDRIVE_JSON_PATH="proyecto_is2/settings/credenciales/gdriveaccess.json"
 ENV_VARIABLES_PATH="proyecto_is2/settings/credenciales/.env"
 
@@ -56,14 +56,14 @@ EMAIL_HOST_USER=${input:-$EMAIL_HOST_USER}
 read -rsp "Ingrese la contraseña de la cuenta de Gmail: " input
 EMAIL_HOST_PASSWORD=${input:-$EMAIL_HOST_PASSWORD}
 #Obtencion del codigo del repositorio remoto
-echo "- Clonando repositorio remoto"
+echo "\n- Clonando repositorio remoto"
 git clone $GIT_URL --quiet
 echo "- Proyecto clonado"
 cd proyecto_is2 || exit 1
-read -p "Ingrese el tag que desea cargar [$TAG]: " input
-TAG=${input:-$TAG}
+read -p "Ingrese el nombre de la rama a cargar [$BRANCH]: " input
+BRANCH=${input:-$BRANCH}
 # Se accede al tag correspondiente
-git checkout tags/"$TAG" -b "$TAG"
+git checkout -b "$BRANCH" "origin/$BRANCH"
 
 
 # Seteo de variables de entorno
@@ -84,6 +84,7 @@ echo "- Variables de entorno seteadas"
 scripts/build_database.sh "$DB_NAME" "$POSTGRES_USER" "$POSTGRES_PASS" "$DB_USER" "$DB_PASS"
 
 export DJANGO_SETTINGS_MODULE=proyecto_is2.settings.dev_settings
+echo "- Instalando Dependencias"
 pipenv run pipenv install > /dev/null
 echo "- Dependencias instaladas"
 pipenv run python manage.py migrate > /dev/null
@@ -96,5 +97,5 @@ echo "- SSO configurado"
 pipenv run python manage.py loaddata "$SSO_KEYS" > /dev/null
 echo "- Datos cargados"
 #pipenv run python manage.py shell < "scripts/create_admin.py" > /dev/null
-pipenv run python manage.py loaddata "$SCRIPT_PATH/data.json"
+pipenv run python manage.py loaddata scripts/data/data.json
 scripts/run_server.sh -d
