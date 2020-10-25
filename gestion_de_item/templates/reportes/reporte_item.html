@@ -1,0 +1,135 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<h1>Reporte de Item</h1>
+    <hr>
+    <table style="border: none">
+        <tr>
+            <td><b>Código</b></td><td>{{item.codigo}}</td><td><b>Tipo de Item</b></td>
+            <td>{{item.tipo_de_item.nombre}}</td>
+        </tr>
+        <tr>
+            <td><b>Estado</b></td><td>{{item.estado}}</td>
+            {% if item.estado == 'En Linea Base' %}
+            <td><b>Linea Base</b></td><td>{{item.get_linea_base}}</td>
+            {% endif %}
+        </tr>
+    </table>
+    <hr>
+    <h1>Atributos del Item</h1>
+
+    <table>
+    <tr><td><b>Version Actual</b></td><td>{{ item.version.version }}</td></tr>
+    <tr><td><b>Nombre</b></td><td>{{ item }}</td></tr>
+    <tr><td><b>Descripción</b></td><td>{{ item.version.descripcion }}</td></tr>
+    <tr><td><b>Peso</b></td><td>{{ item.version.peso }}</td></tr>
+    <tr><td><b>Impacto del Item</b></td><td>{{ item.calcular_impacto }} %</td></tr>
+    {% for atributo in item.get_atributos_dinamicos %}
+        <tr>
+            <td><b>{{ atributo.plantilla.nombre }}</b></td>
+            <td>
+                {% if atributo.getTipoAtributo == 'Archivo' %}
+                    {% if atributo.valor %}
+                        {{ atributo.valor.url }}
+                    {% else %}
+                        Aun no se ha subido un archivo
+                    {% endif %}
+                {% elif atributo.getTipoAtributo == 'Numerico' %}
+                    {{ atributo.valor.normalize }}
+                {% elif atributo.getTipoAtributo == 'Booleano' %}
+                    {% if atributo.valor %}
+                        Si
+                    {% else %}
+                        No
+                    {% endif %}
+                {% else %}
+                    {{ atributo.valor }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+    <h1>Relaciones</h1>
+    <table>
+        <tr><th colspan="2">Padres del Item</th></tr>
+        <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% for padre in item.get_padres %}
+            <tr>
+                <td>{{ padre.codigo }}</td>
+                <td>{{ padre.version.nombre }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="2" align="center">El item no tiene Padres</td></tr>
+        {% endfor %}
+
+        <tr><th colspan="2">Hijos del Item</th></tr>
+        <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% for hijo in item.get_hijos %}
+            <tr>
+                <td>{{ hijo.codigo }}</td>
+                <td>{{ hijo.version.nombre }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="2" align="center">El item no tiene Hijos</td></tr>
+        {% endfor %}
+
+        <tr><th colspan="2">Antecesores del Item</th></tr>
+        <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% for antecesor in item.get_antecesores %}
+            <tr>
+                <td>{{ antecesor.codigo }}</td>
+                <td>{{ antecesor.version.nombre }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="2" align="center">El item no tiene Antecesores</td></tr>
+        {% endfor %}
+
+        <tr><th colspan="2">Sucesores del Item</th></tr>
+        <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% for sucesor in item.get_sucesores %}
+            <tr>
+                <td>{{ sucesor.codigo }}</td>
+                <td>{{ sucesor.version.nombre }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="2" align="center">El item no tiene Sucesores</td></tr>
+        {% endfor %}
+   </table>
+    <pdf:nextpage />
+    <h1>Historial de Versiones</h1>
+    <hr>
+    {% for version in item.get_versiones|slice:"1:" %}
+        <h2>Version #{{ version.version }}</h2>
+        <table>
+            <tr><td><b>Nombre</b></td><td>{{ version.nombre }}</td></tr>
+            <tr><td><b>Descripción</b></td><td>{{ version.descripcion }}</td></tr>
+            <tr><td><b>Peso</b></td><td>{{ version.peso }}</td></tr>
+            {% for atributo in version.get_atributos_dinamicos %}
+                <tr>
+                    <td><b>{{ atributo.plantilla.nombre }}</b></td>
+                    <td>
+                        {% if atributo.getTipoAtributo == 'Archivo' %}
+                            {% if atributo.valor %}
+                                {{ atributo.valor.url }}
+                            {% else %}
+                                Aun no se ha subido un archivo
+                            {% endif %}
+                        {% elif atributo.getTipoAtributo == 'Numerico' %}
+                            {{ atributo.valor.normalize }}
+                        {% elif atributo.getTipoAtributo == 'Booleano' %}
+                            {% if atributo.valor %}
+                                Si
+                            {% else %}
+                                No
+                            {% endif %}
+                        {% else %}
+                            {{ atributo.valor }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% empty %}
+        <p>El item solo tiene una versión</p>
+    {% endfor %}
+
+{% endblock %}

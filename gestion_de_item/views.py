@@ -10,6 +10,7 @@ from gestion_de_fase.models import Fase
 from gestion_de_item.models import *
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
+from gestion_de_reportes.utils import make_report
 from gestion_de_tipo_de_item.models import *
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from gestion_linea_base.models import *
@@ -19,6 +20,11 @@ from .decorators import estado_item
 from .forms import *
 from .tasks import upload_and_save_file_item
 from .utils import get_atributos_forms, trazar_item
+
+
+def reporte_de_item_view(request, proyecto_id, fase_id, item_id):
+    item = Item.objects.get(id=item_id)
+    return make_report('reportes/reporte_item.html', context={'item': item})
 
 
 @login_required
