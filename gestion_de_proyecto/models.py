@@ -216,6 +216,23 @@ class Proyecto(models.Model):
             participante.rol = None
             participante.save()
 
+    def finalizar(self):
+        """
+        Metodo que finaliza un proyecto.
+        Para poder pasar al estado Finalizado todas las fases del proyecto deben estar cerradas.
+        :return:
+        """
+        fases = self.get_fases()
+        fases_no_cerradas = []
+        for fase in fases:
+            if not fase.fase_cerrada:
+                fases_no_cerradas.append(fase.nombre)
+
+        if len(fases_no_cerradas):
+            raise Exception(fases_no_cerradas)
+        else:
+            self.estado = EstadoDeProyecto.FINALIZADO
+
 
 class Participante(models.Model):
     """
@@ -397,6 +414,7 @@ class Participante(models.Model):
             else:
                 permisos_por_fase = []
         return [pp.codename for pp in permisos_por_fase]
+
 
 
 class Comite(models.Model):
