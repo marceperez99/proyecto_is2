@@ -1,7 +1,9 @@
+from django.contrib.sites.shortcuts import get_current_site
+
 from gestion_de_item.models import EstadoDeItem
 from gestion_de_solicitud.models import EstadoSolicitud, SolicitudDeCambio
 from gestion_linea_base.models import EstadoLineaBase
-
+from gestion_linea_base.tasks import notificar_solicitud_lb_cancelada, notificar_solicitud_lb_aceptada
 
 def cancelar_solicitud(solicitud):
     """
@@ -12,7 +14,7 @@ def cancelar_solicitud(solicitud):
     assert solicitud.estado == EstadoSolicitud.PENDIENTE
     solicitud.estado = EstadoSolicitud.RECHAZADA
     solicitud.save()
-    # TODO: notificar a solicitante que la solicitud fue cancelada
+    notificar_solicitud_lb_cancelada.delay(solicitud.id)
 
 
 def aprobar_solicitud(solicitud: SolicitudDeCambio):
@@ -52,4 +54,4 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
 
     linea_base.estado = EstadoLineaBase.ROTA
     linea_base.save()
-    # TODO notificar a usuarios de cambios
+    notificar_solicitud_lb_aceptada.delay(solicitud.id)
