@@ -17,12 +17,12 @@ urlpatterns = [
     path('<int:item_id>/aprobar/', views.aprobar_item_view, name='aprobar_item'),
     path('<int:item_id>/desaprobar/', views.desaprobar_item_view, name='desaprobar_item'),
     path('<int:item_id>/editar/', views.editar_item_view, name='editar_item'),
-    path('<int:item_id>/archivo/<int:atributo_id>/eliminar', views.eliminar_archivo_view,
+    path('<int:item_id>/archivo/<int:atributo'
+         '_id>/eliminar', views.eliminar_archivo_view,
          name='eliminar_archivo_item'),
     path('<int:item_id>/modificar/', views.debe_modificar_view, name='debe_ser_modificado'),
     path('<int:item_id>/no_modificar/', views.no_modificar_view, name='no_modificar'),
     path('<int:item_id>/restaurar/<int:version_id>/', views.restaurar_version_item_view, name='restaurar_item'),
-    path('<int:item_id>/terminar_revision',views.terminar_revision_view,name='terminar_revision'),
+    path('<int:item_id>/terminar_revision', views.terminar_revision_view, name='terminar_revision'),
+    path('<int:item_id>/reporte', views.reporte_de_item_view, name="reporte_de_item")
 ]
-
-

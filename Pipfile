@@ -18,6 +18,7 @@ python-dotenv = "*"
 django-googledrive-storage = "*"
 httplib2 = "==0.15.0"
 celery = {extras = ["redis"],version = "*"}
+xhtml2pdf = "*"
 
 [requires]
 python_version = "3.6"
