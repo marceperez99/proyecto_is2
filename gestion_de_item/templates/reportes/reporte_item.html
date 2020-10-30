@@ -1,6 +1,11 @@
 {% extends 'reportes/base.html' %}
 {% block content %}
-<h1>Reporte de Item</h1>
+<table style="border: none">
+ <tr>
+    <td><h1>Reporte de Ítem</h1></td>
+       <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+</table>
     <hr>
     <table style="border: none">
         <tr>
