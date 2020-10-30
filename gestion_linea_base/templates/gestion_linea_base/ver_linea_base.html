@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Items de la Fase{% endblock %}
+{% block title %}Linea Base{% endblock %}
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
@@ -77,9 +77,14 @@
                                 </div>
                             </div>
                         </div>
+                        <hr class="col-11">
+                        <div class="col-auto ml-auto float-right ">
+                             <a href="{% url 'reporte_linea_base' proyecto.id fase.id lineabase.id %}" class="btn ml-auto border-0 btn-primary bg-color-accent">Generar Reporte</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 {% endblock %}
