@@ -7,6 +7,7 @@ from django.utils import timezone
 from gestion_de_fase.decorators import fase_abierta
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Comite, Proyecto, EstadoDeProyecto
+from gestion_de_reportes.utils import make_report
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm, LineaBaseForm
 from gestion_linea_base.models import LineaBase, EstadoLineaBase
@@ -236,3 +237,19 @@ def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
                        }
     }
     return render(request, 'gestion_linea_base/ver_linea_base.html', contexto)
+
+
+def reporte_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
+    """
+    Vista que muestra el archivo pdf del reporte de una linea base
+
+    Argumentos:
+        - request: HttpRequest
+        - proyecto_id: int, id del proyecto
+        - fase_id: int, id de la fase
+        - linea_base_id: int, id de la linea base
+    Retorna:
+        - HttpResponse
+    """
+    linea_base = LineaBase.objects.get(id=linea_base_id)
+    return make_report('reportes/linea_base_reporte.html', context={'linea_base': linea_base})
