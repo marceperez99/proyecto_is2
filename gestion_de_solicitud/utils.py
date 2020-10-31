@@ -51,6 +51,7 @@ def aprobar_solicitud(solicitud: SolicitudDeCambio):
     for s in SolicitudDeCambio.objects.filter(linea_base=solicitud.linea_base, estado=EstadoSolicitud.PENDIENTE):
         s.estado = EstadoSolicitud.RECHAZADA
         s.save()
+        notificar_solicitud_lb_cancelada.delay(s.id)
 
     linea_base.estado = EstadoLineaBase.ROTA
     linea_base.save()
