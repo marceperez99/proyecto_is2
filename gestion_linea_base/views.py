@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -11,6 +12,7 @@ from gestion_de_reportes.utils import make_report
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud, Asignacion
 from gestion_linea_base.forms import AsignacionForm, SolicitudForm, LineaBaseForm
 from gestion_linea_base.models import LineaBase, EstadoLineaBase
+from gestion_linea_base.tasks import notificar_solicitud_de_rompimiento
 from roles_de_proyecto.decorators import pp_requerido_en_fase
 from gestion_de_fase.models import Fase
 from django.urls import reverse
@@ -77,7 +79,8 @@ def solicitar_rompimiento_view(request, proyecto_id, fase_id, linea_base_id):
                     asignacion.motivo = form.cleaned_data['motivo']
                     asignacion.save()
                 count = count + 1
-
+            notificar_solicitud_de_rompimiento.delay(proyecto_id, fase_id, linea_base_id, solicitud.id,
+                                                     get_current_site(request).domain)
             return redirect('visualizar_linea_base', proyecto_id, fase_id, linea_base_id)
     else:
         solicitud_form = SolicitudForm()
