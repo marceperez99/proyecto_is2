@@ -988,3 +988,19 @@ class TestVistasProyecto:
         comite.save()
         response = gerente_loggeado.get(reverse('info_proyecto', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
+
+    def test_finalizar_proyecto_view(self, gerente_loggeado, proyecto):
+        """
+        Prueba unitaria que comprueba el funcionamiento correcto de la vista de finalizacion de proyecto
+
+        Se espera:
+            HttpResponse OK
+
+        Mensaje de error:
+            Hubo un error al tratar de acceder a la URL de finalizacion de proyecto
+        """
+        proyecto.estado = EstadoDeProyecto.INICIADO
+        proyecto.save()
+        response = gerente_loggeado.get(reverse('finalizar_proyecto', args=(proyecto.id,)))
+        assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL ' \
+                                                      'de finalizacion de proyecto'

@@ -481,6 +481,8 @@ def info_proyecto_view(request, proyecto_id):
 
 
 @login_required
+@estado_proyecto(EstadoDeProyecto.INICIADO)
+@pp_requerido('pg_editar_proyecto')
 def finalizar_proyecto_view(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     if request.method == 'POST':
