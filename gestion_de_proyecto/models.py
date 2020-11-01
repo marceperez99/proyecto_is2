@@ -232,6 +232,7 @@ class Proyecto(models.Model):
             raise Exception(fases_no_cerradas)
         else:
             self.estado = EstadoDeProyecto.FINALIZADO
+            self.save()
 
 
 class Participante(models.Model):

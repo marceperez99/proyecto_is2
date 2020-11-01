@@ -1,0 +1,22 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% block title %}Finalizar Proyecto{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    <div class="container mt-3">
+        <div class="row">
+            <h3>Finalizar Proyecto</h3>
+            <hr class="col-12">
+            <form method="POST" class="col-12 col-md-10 mx-auto row">
+                {% csrf_token %}
+                <h2 class="mb-5">Seguro que quiere Finalizar el Proyecto "{{ proyecto }}"</h2>
+                <button type="submit" class="btn btn-primary bg-color-accent col-8 col-md-4 mx-auto">Aceptar</button>
+                {% if es_gerente %}
+                    <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="../">Cancelar</a>
+                {% else %}
+                    <a class="btn btn-danger bg-color-danger col-8 col-md-4 mx-auto" href="{% url 'panel_de_control' %}">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

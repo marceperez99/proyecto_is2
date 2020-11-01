@@ -27,9 +27,11 @@ def rs_admin():
 def usuario(rs_admin):
     return user_factory('usuario_test', 'password123', 'user@email.com', rs_admin.nombre)
 
+
 @pytest.fixture
 def usuario2(rs_admin):
     return user_factory('usuario2_test', 'password123', 'user2@email.com', rs_admin.nombre)
+
 
 @pytest.fixture
 def gerente(rs_admin):
@@ -428,6 +430,52 @@ class TestModeloProyecto:
         participante = proyecto.get_participante(usuario)
         assert participante is None, 'El participante no ha sido eliminado correctamente'
 
+    @pytest.mark.parametrize("fase1_cerrada,fase2_cerrada,fase3_cerrada, resultado",
+                             [(False, False, False, ['Analisis', 'Desarrollo', 'Pruebas']),
+                              (True, False, False, ['Desarrollo', 'Pruebas']),
+                              (True, True, False, ['Pruebas'])])
+    def test_finalizar_proyecto_fallo(self, proyecto, fase1_cerrada, fase2_cerrada, fase3_cerrada, resultado):
+        """
+        Prueba unitaria que comprueba el funcionamiento correcto del metodo encargado de finalizar
+        un proyecto en el caso de que no se pueda finalizar el proyecto
+        Se espera:
+            | Que el proyecto se mantenga en el estado "Iniciado" y el metodo lance una excepcion con
+            | las fases que no estan cerradas.
+
+        Mensaje de error:
+            El metodo deberia lanzar una excepcion con los siguientes valores
+        """
+        fases = proyecto.get_fases()
+        fases[0].fase_cerrada = fase1_cerrada
+        fases[0].save()
+        fases[1].fase_cerrada = fase2_cerrada
+        fases[1].save()
+        fases[2].fase_cerrada = fase3_cerrada
+        fases[2].save()
+        with pytest.raises(Exception) as excinfo:
+            proyecto.finalizar()
+        condicion = all(fase in resultado for fase in list(excinfo.value.args)[0]) and \
+                    all(fase in list(excinfo.value.args)[0] for fase in resultado)
+        assert condicion, f'El metodo deberia lanzar una excepcion con los siguientes valores:{resultado} pero lanzo: {list(excinfo.value.args)[0]}'
+
+    def test_finalizar_proyecto_exito(self, proyecto):
+        """
+        Prueba unitaria que comprueba el funcionamiento correcto del metodo encargado de finalizar
+        un proyecto
+        Se espera:
+            Que el proyecto quede en estado "Finalizado".
+
+        Mensaje de error:
+            El Proyecto no fue finalizado
+        """
+        for fase in proyecto.get_fases():
+            fase.fase_cerrada = True
+            fase.save()
+
+        proyecto.finalizar()
+        proyecto.refresh_from_db()
+        assert proyecto.estado == EstadoDeProyecto.FINALIZADO, f"El Proyecto no fue finalizado"
+
 
 @pytest.mark.django_db
 class TestModeloParticipante:
@@ -703,7 +751,6 @@ class TestVistasProyecto:
         client.login(username='gerente', password='password123')
         return client
 
-
     def test_nuevo_proyecto_view(self, gerente_loggeado):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de nuevo proyecto.
@@ -716,7 +763,6 @@ class TestVistasProyecto:
         """
         response = gerente_loggeado.get(reverse('nuevo_proyecto'))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
-
 
     def test_participantes_view(self, gerente_loggeado, proyecto):
         """
@@ -767,7 +813,7 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('eliminar_participante', args=(proyecto.id, participante.id)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL '
 
-    def test_editar_proyecto_view(self,  gerente_loggeado, proyecto):
+    def test_editar_proyecto_view(self, gerente_loggeado, proyecto):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de editar proyecto.
 
@@ -782,9 +828,9 @@ class TestVistasProyecto:
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
     @pytest.mark.parametrize('estado_proyecto', [EstadoDeProyecto.CONFIGURACION,
-                                                EstadoDeProyecto.INICIADO,
-                                                ])
-    def test_cancelar_proyecto_view(self,  gerente_loggeado, proyecto, estado_proyecto):
+                                                 EstadoDeProyecto.INICIADO,
+                                                 ])
+    def test_cancelar_proyecto_view(self, gerente_loggeado, proyecto, estado_proyecto):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de cancelar proyecto.
 
@@ -800,7 +846,7 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('cancelar_proyecto', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_iniciar_proyecto_view(self,  gerente_loggeado, proyecto):
+    def test_iniciar_proyecto_view(self, gerente_loggeado, proyecto):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de iniciar proyecto.
 
@@ -814,7 +860,7 @@ class TestVistasProyecto:
         response = gerente_loggeado.get(reverse('iniciar_proyecto', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
 
-    def test_visualizar_proyecto_view(self,  gerente_loggeado, gerente, usuario, usuario2):
+    def test_visualizar_proyecto_view(self, gerente_loggeado, gerente, usuario, usuario2):
         """
         Prueba unitaria que comprueba que no exista error al acceder a la URL de visualizar proyecto.
 
@@ -874,7 +920,7 @@ class TestVistasProyecto:
                     }
                 }
             ],
-        'comite_de_cambios': ['gerente', 'usuario_test', 'usuario2_test', ]
+            'comite_de_cambios': ['gerente', 'usuario_test', 'usuario2_test', ]
         })
         response = gerente_loggeado.get(reverse('visualizar_proyecto', args=(proyecto.id,)))
         assert response.status_code == HTTPStatus.OK, 'Hubo un error al tratar de acceder a la URL'
