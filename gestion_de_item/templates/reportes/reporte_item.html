@@ -67,6 +67,9 @@
         {% endfor %}
 
         <tr><th colspan="2">Hijos del Item</th></tr>
+        {% if item.get_hijos %}
+        
+        {% endif %} 
         <tr><th>Codigo</th><th>Nombre del Item</th></tr>
         {% for hijo in item.get_hijos %}
             <tr>

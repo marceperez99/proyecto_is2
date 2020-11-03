@@ -1,0 +1,65 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<table style="border: none">
+ <tr>
+    <td><h1>Reporte de Solicitudes de Ruptura de Linea Base</h1></td>
+       <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+</table>
+    <hr>
+    <table style="border: none">
+        <tr>
+            <td><b>Proyecto</b></td><td>{{proyecto.nombre}}</td>
+        </tr>
+    </table>
+    <hr>
+    Solicitudes de Ruptura de Lineas Base recibidas entre el
+    {{ fecha_inicial|date:"j \d\e F \d\e Y"  }} y el {{ fecha_final|date:"j \d\e F \d\e Y"  }}
+    {% for solicitud in solicitudes %}
+        <table>
+            <tr>
+                <th colspan="4">Solicitud #{{ forloop.counter }}</th>
+            </tr>
+            <tr>
+                <td><b>Linea Base</b></td><td>{{ solicitud.linea_base }}</td>
+                <td><b>Estado</b></td><td>{{ solicitud.estado }}</td>
+            </tr>
+            <tr>
+                <td><b>Fase</b></td><td>{{ solicitud.linea_base.fase }}</td>
+                <td><b>Fecha de Solicitud</b></td><td>{{ solicitud.fecha }}</td>
+            </tr>
+            <tr>
+                <td><b>Solicitante</b></td><td colspan="3">{{ solicitud.solicitante }}</td>
+            </tr>
+            <tr>
+                <td><b>Votos a Favor</b></td><td>{{ solicitud.get_votos_a_favor }}</td>
+                <td><b>Votos en Contra</b></td><td>{{ solicitud.get_votos_en_contra }}</td>
+            </tr>
+            <tr>
+                <th colspan="4">Cambios requeridos</th>
+            </tr>
+            <tr>
+                <th>Codigo</th><th>Item</th><th>Cambio necesario</th><th>Usuario Asignado</th>
+            </tr>
+            {% for cambio in solicitud.get_items_a_modificar %}
+                <tr>
+                    <td>{{ cambio.item.codigo }}</td>
+                    <td>{{ cambio.item }}</td>
+                    <td>{{ cambio.motivo }}</td>
+                    <td>{{ cambio.usuario.usuario.get_full_name }}</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+        <br><br>
+        {% empty %}
+        <hr>
+        <center>
+        No hay Solicitudes que cumplan con las condiciones especificadas
+        </center>
+    {% endfor %}
+
+
+    <pdf:nextpage />
+
+{% endblock %}
