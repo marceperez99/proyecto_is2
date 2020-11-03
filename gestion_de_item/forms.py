@@ -314,7 +314,9 @@ class RelacionAntecesorSucesorForm(forms.Form):
 
 
 class ReporteItemsForm(forms.Form):
-
+    """
+    Form que permite parametrizar el reporte de items de una fase.
+    """
     def __init__(self, *args, **kwargs):
         """
         Form que permite decidir con cuales items general el form

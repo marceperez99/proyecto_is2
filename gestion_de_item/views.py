@@ -28,6 +28,16 @@ def reporte_de_item_view(request, proyecto_id, fase_id, item_id):
 
 
 def reporte_de_items_view(request, proyecto_id, fase_id):
+    """
+        Vista que muestra las opciones de paramtrización del reporte de items de una fase.
+
+        Argumentos:
+           - request: HttpRequest
+           - proyecto_id: id de un proyecto
+           - fase_id: id de una fase del proyecto
+        Retorna:
+            - HttpResponse
+    """
     fase = Fase.objects.get(id=fase_id)
     form = ReporteItemsForm(request.POST or None)
     if request.method == "POST":
