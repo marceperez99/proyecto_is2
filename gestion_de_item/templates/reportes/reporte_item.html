@@ -34,7 +34,7 @@
             <td>
                 {% if atributo.getTipoAtributo == 'Archivo' %}
                     {% if atributo.valor %}
-                        {{ atributo.valor.url }}
+                        <a href="{{ atributo.valor.url }}">Link al Archivo</a>
                     {% else %}
                         Aun no se ha subido un archivo
                     {% endif %}
@@ -56,50 +56,58 @@
     <h1>Relaciones</h1>
     <table>
         <tr><th colspan="2">Padres del Item</th></tr>
-        <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+
+        {% if not item.get_padres %}
+            <tr><td colspan="2" align="center">El item no tiene Padres</td></tr>
+            {% else %}
+            <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% endif %}
         {% for padre in item.get_padres %}
             <tr>
                 <td>{{ padre.codigo }}</td>
                 <td>{{ padre.version.nombre }}</td>
             </tr>
-        {% empty %}
-            <tr><td colspan="2" align="center">El item no tiene Padres</td></tr>
         {% endfor %}
 
-        <tr><th colspan="2">Hijos del Item</th></tr>
-        {% if item.get_hijos %}
-        
-        {% endif %} 
+<tr><th colspan="2">Hijos del Item</th></tr>
+        {% if not item.get_hijos %}
+            <tr><td colspan="2" align="center">El item no tiene Hijos</td></tr>
+        {% else %}
         <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+        {% endif %} 
+
         {% for hijo in item.get_hijos %}
             <tr>
                 <td>{{ hijo.codigo }}</td>
                 <td>{{ hijo.version.nombre }}</td>
             </tr>
-        {% empty %}
-            <tr><td colspan="2" align="center">El item no tiene Hijos</td></tr>
         {% endfor %}
 
         <tr><th colspan="2">Antecesores del Item</th></tr>
+
+    {% if not item.get_antecesores %}
+        <tr><td colspan="2" align="center">El item no tiene Antecesores</td></tr>
+    {% else %}
         <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+    {% endif %}
         {% for antecesor in item.get_antecesores %}
             <tr>
                 <td>{{ antecesor.codigo }}</td>
                 <td>{{ antecesor.version.nombre }}</td>
             </tr>
-        {% empty %}
-            <tr><td colspan="2" align="center">El item no tiene Antecesores</td></tr>
         {% endfor %}
 
         <tr><th colspan="2">Sucesores del Item</th></tr>
+    {% if not item.get_sucesores %}
+        <tr><td colspan="2" align="center">El item no tiene Sucesores</td></tr>
+        {% else %}
         <tr><th>Codigo</th><th>Nombre del Item</th></tr>
+    {% endif %}
         {% for sucesor in item.get_sucesores %}
             <tr>
                 <td>{{ sucesor.codigo }}</td>
                 <td>{{ sucesor.version.nombre }}</td>
             </tr>
-        {% empty %}
-            <tr><td colspan="2" align="center">El item no tiene Sucesores</td></tr>
         {% endfor %}
    </table>
     <pdf:nextpage />
