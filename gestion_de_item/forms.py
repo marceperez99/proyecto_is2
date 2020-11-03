@@ -312,3 +312,17 @@ class RelacionAntecesorSucesorForm(forms.Form):
         else:
             return antecesor
 
+
+class ReporteItemsForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        """
+        Form que permite decidir con cuales items general el form
+        """
+        super(ReporteItemsForm, self).__init__(*args, **kwargs)
+        self.fields["Aprobado"] = forms.BooleanField(required=False)
+        self.fields["Eliminado"] = forms.BooleanField(required=False)
+        self.fields["En Linea Base"] = forms.BooleanField(required=False)
+        self.fields["No Aprobado"] = forms.BooleanField(required=False)
+        self.fields["A Modificar"] = forms.BooleanField(required=False)
+        self.fields["En Revisión"] = forms.BooleanField(required=False)

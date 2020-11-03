@@ -24,5 +24,6 @@ urlpatterns = [
     path('<int:item_id>/no_modificar/', views.no_modificar_view, name='no_modificar'),
     path('<int:item_id>/restaurar/<int:version_id>/', views.restaurar_version_item_view, name='restaurar_item'),
     path('<int:item_id>/terminar_revision', views.terminar_revision_view, name='terminar_revision'),
-    path('<int:item_id>/reporte', views.reporte_de_item_view, name="reporte_de_item")
+    path('<int:item_id>/reporte', views.reporte_de_item_view, name="reporte_de_item"),
+    path('reporte/', views.reporte_de_items_view, name='reporte_de_items'),
 ]
