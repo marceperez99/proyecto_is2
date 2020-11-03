@@ -1,6 +1,13 @@
+from datetime import datetime, timedelta
+
+import pytz
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
+
+from gestion_de_reportes.utils import make_report
+from gestion_de_solicitud.forms import GenerarReporteForm
 from gestion_de_solicitud.models import SolicitudDeCambio, Voto, EstadoSolicitud
 from django.shortcuts import get_object_or_404, redirect
 from gestion_de_proyecto.decorators import estado_proyecto
@@ -113,3 +120,47 @@ def solicitud_votacion_view(request, proyecto_id, solicitud_id):
                 'solicitud': solicitud,
                 }
     return render(request, 'gestion_de_solicitud/votar_solicitud.html', contexto)
+
+
+def generar_reporte(request, proyecto_id):
+    if request.method == 'POST':
+        form = GenerarReporteForm(request.POST)
+        if form.is_valid():
+            solicitudes = []
+            try:
+                fecha_inicial = datetime.combine(form.cleaned_data['fecha_inicial'], datetime.min.time())
+                fecha_inicial = timezone.make_aware(fecha_inicial, timezone.get_default_timezone())
+            except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
+                fecha_inicial = datetime.combine(form.cleaned_data['fecha_inicial'], datetime.min.time())
+                fecha_inicial = fecha_inicial + timedelta(hours=1)
+                fecha_inicial = timezone.make_aware(fecha_inicial, timezone.get_default_timezone())
+
+            try:
+                fecha_final = datetime.combine(form.cleaned_data['fecha_final'], datetime.min.time())
+                fecha_final = timezone.make_aware(fecha_final, timezone.get_default_timezone())
+            except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
+                fecha_final = datetime.combine(form.cleaned_data['fecha_final'], datetime.min.time())
+                fecha_final = fecha_final + timedelta(hours=1)
+                fecha_final = timezone.make_aware(fecha_final, timezone.get_default_timezone())
+
+            solicitudesFilter = SolicitudDeCambio.objects.filter(linea_base__fase__proyecto_id=proyecto_id) \
+                .filter(fecha__gte=fecha_inicial) \
+                .filter(fecha__lte=fecha_final)
+
+            if form.cleaned_data['solicitudesAprobadas']:
+                solicitudes += list(solicitudesFilter.filter(estado=EstadoSolicitud.APROBADA))
+            if form.cleaned_data['solicitudesPendientes']:
+                solicitudes += list(solicitudesFilter.filter(estado=EstadoSolicitud.PENDIENTE))
+            if form.cleaned_data['solicitudesRechazadas']:
+                solicitudes += list(solicitudesFilter.filter(estado=EstadoSolicitud.RECHAZADA))
+
+            proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+
+            return make_report('reportes/reporte_de_solicitudes.html',
+                               context={'solicitudes': solicitudes, 'proyecto': proyecto,
+                                        'fecha_inicial': fecha_inicial, 'fecha_final': fecha_final})
+    else:
+        form = GenerarReporteForm()
+    contexto = {'user': request.user, 'form': form}
+
+    return render(request, 'gestion_de_solicitud/generar_reporte.html', context=contexto)
