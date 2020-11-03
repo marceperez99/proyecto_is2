@@ -29,12 +29,13 @@ def reporte_de_item_view(request, proyecto_id, fase_id, item_id):
 
 def reporte_de_items_view(request, proyecto_id, fase_id):
     fase = Fase.objects.get(id=fase_id)
-    items = Item.objects.filter(tipo_de_item__fase=fase)
     form = ReporteItemsForm(request.POST or None)
     if request.method == "POST":
-        return make_report('reportes/reporte_items.html', context={'items': items,'fase':fase})
-    else:
-        return render(request, "gestion_de_item/visualizar_reporte.html", context={"form": form})
+        if form.is_valid():
+            # Consigue los items con los estados marcados.
+            items = fase.get_item_estado(*[key for key in form.cleaned_data if form.cleaned_data[key]])
+            return make_report('reportes/reporte_items.html', context={'items': items, 'fase': fase})
+    return render(request, "gestion_de_item/visualizar_reporte.html", context={"form": form})
 
 
 @login_required

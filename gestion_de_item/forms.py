@@ -326,3 +326,4 @@ class ReporteItemsForm(forms.Form):
         self.fields["No Aprobado"] = forms.BooleanField(required=False)
         self.fields["A Modificar"] = forms.BooleanField(required=False)
         self.fields["En Revisión"] = forms.BooleanField(required=False)
+        self.fields["Listo para su aprobación"] = forms.BooleanField(required=False)

@@ -5,10 +5,10 @@
 {% block content %}
     {% include 'navBar.html' %}
     {% include 'breadcrumb.html' %}
-Incluir los items con los siguientes estados:
+<b>Incluir los ítems con los siguientes estados:</b>
 <form method="post">
     {% csrf_token %}
     {{form | crispy}}
-    <input type="submit" value="Genera Reporte">
+    <input type="submit" class="btn btn-primary bg-color-accent col-4 mx-auto" value="Genera Reporte">
 </form>
 {% endblock %}
