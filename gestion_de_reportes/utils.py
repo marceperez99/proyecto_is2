@@ -6,7 +6,6 @@ from xhtml2pdf import pisa
 
 
 def make_report(template_name, context={}):
-    print(context)
     template = get_template(template_name)
     html = template.render(context)
     result = BytesIO()

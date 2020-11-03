@@ -27,6 +27,27 @@ def reporte_de_item_view(request, proyecto_id, fase_id, item_id):
     return make_report('reportes/reporte_item.html', context={'item': item})
 
 
+def reporte_de_items_view(request, proyecto_id, fase_id):
+    """
+        Vista que muestra las opciones de paramtrización del reporte de items de una fase.
+
+        Argumentos:
+           - request: HttpRequest
+           - proyecto_id: id de un proyecto
+           - fase_id: id de una fase del proyecto
+        Retorna:
+            - HttpResponse
+    """
+    fase = Fase.objects.get(id=fase_id)
+    form = ReporteItemsForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            # Consigue los items con los estados marcados.
+            items = fase.get_item_estado(*[key for key in form.cleaned_data if form.cleaned_data[key]])
+            return make_report('reportes/reporte_items.html', context={'items': items, 'fase': fase})
+    return render(request, "gestion_de_item/visualizar_reporte.html", context={"form": form})
+
+
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
 @pp_requerido_en_fase('pu_f_ver_fase')
