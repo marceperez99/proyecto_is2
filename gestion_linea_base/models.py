@@ -2,7 +2,6 @@ from django.db import models
 
 
 class EstadoLineaBase:
-    # TODO: Marcos, poner en planilla.
     """
         Clase que especifica todos los estados en los que se puede encontrar una Linea de Base
 
