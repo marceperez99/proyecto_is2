@@ -17,7 +17,6 @@ class EstadoLineaBase:
 
 
 class LineaBase(models.Model):
-    # TODO: Marcos, poner en planilla.
     """
         Modelo que representa a una Linea de Base en una Fase
 
