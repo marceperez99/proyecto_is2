@@ -1,0 +1,28 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<table style="border: none">
+    <tr>
+    <td><h1>Reporte de Usuarios</h1></td>
+       <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+</table>
+<hr>
+    <table>
+        <tr><td><b>Nombre</b></td><td><b>Correo</b></td><td><b>Rol de Sistema</b></td></tr>
+        {% for user in lista_usuarios %}
+        <tr>
+            <td>{{user.get_full_name}}</td><td>{{user.email}}</td>
+            <td>
+                {% if user.get_rol_de_sistema is not None %}
+                    {{ user.get_rol_de_sistema.nombre }}
+                {% else %}
+                    Sin Rol de Sistema.
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+
+{% endblock %}
