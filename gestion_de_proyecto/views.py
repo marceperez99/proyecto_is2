@@ -26,7 +26,6 @@ from .decorators import estado_proyecto
 @pp_requerido('pu_ver_proyecto')
 def reporte_de_proyecto_view(request, proyecto_id):
     """
-    #TODO Luis cargar en planilla
     Vista que permite visualizar el reporte de un proyecto.
     Se mostrara la informacion del proyecto, nombre, estado, gerente, fecha de creaion, asi tambien los participantes,
     el comite de cambios y las feses que poseecon sus respectivos esatdos.\n
