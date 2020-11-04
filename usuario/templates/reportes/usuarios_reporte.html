@@ -1,0 +1,32 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<table style="border: none">
+    <tr>
+    <td><h1>Reporte de Usuarios</h1></td>
+       <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+</table>
+<hr>
+    <table style="border: none">
+        <tr>
+        <td><b>Código:</b></td><td>{{linea_base.nombre}}</td><td><b>Fase:</b></td><td>{{linea_base.fase.nombre}}</td>
+        </tr>
+        <tr>
+            <td><b>Estado:</b></td><td> {{linea_base.estado}}</td>
+            <td><b>Proyecto:</b></td><td>{{linea_base.get_proyecto.nombre}}</td>
+        </tr>
+    </table >
+    <hr>
+    <h1>Ítems dentro de la linea base</h1>
+    <table>
+        <tr><td><b>Nombre</b></td><td><b>Correo</b></td><td><b>Rol de Sistema</b></td></tr>
+        {% for user in lista_usuario %}
+        <tr>
+            <td>{{user}}</td><td>{{user.email}}</td><td>user.get_rol_de_sistema</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+
+{% endblock %}
