@@ -11,6 +11,7 @@ from gestion_de_notificaciones.utils import send_mail
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
 from gestion_de_proyecto.tasks import notificar_inicio_proyecto
+from gestion_de_reportes.utils import make_report
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
@@ -19,6 +20,26 @@ from .decorators import estado_proyecto
 
 
 # Create your views here.
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@pp_requerido('pu_ver_proyecto')
+def reporte_de_proyecto_view(request, proyecto_id):
+    """
+    #TODO Luis cargar en planilla
+    Vista que permite visualizar el reporte de un proyecto.
+    Se mostrara la informacion del proyecto, nombre, estado, gerente, fecha de creaion, asi tambien los participantes,
+    el comite de cambios y las feses que poseecon sus respectivos esatdos.\n
+    Argumentos:
+        -request: HttpRequest
+        -proyecto_id: int, identificador unico de un proyecto
+
+    Retorna:
+        HttpResponse
+    """
+    proyecto = Proyecto.objects.get(id=proyecto_id)
+    return make_report('reportes/reporte_proyecto.html', context={'proyecto': proyecto})
+
 
 @login_required
 @permission_required('roles_de_sistema.pa_crear_proyecto', login_url='sin_permiso')
