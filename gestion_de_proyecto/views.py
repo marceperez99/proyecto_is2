@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from gestion_de_proyecto.forms import ProyectoForm, EditarProyectoForm, NuevoParticipanteForm, SeleccionarPermisosForm, \
     SeleccionarMiembrosDelComiteForm
-from gestion_de_proyecto.tasks import notificar_inicio_proyecto
+from gestion_de_proyecto.tasks import notificar_inicio_proyecto, notificar_fin_proyecto
 from gestion_de_solicitud.models import SolicitudDeCambio, EstadoSolicitud
 from roles_de_proyecto.decorators import pp_requerido
 from roles_de_proyecto.models import RolDeProyecto
@@ -489,6 +489,7 @@ def finalizar_proyecto_view(request, proyecto_id):
         try:
             proyecto.finalizar()
             messages.success(request, "Proyecto Finalizado correctamente")
+            notificar_fin_proyecto.delay(proyecto_id, get_current_site(request).domain)
         except Exception as e:
             mensaje = f"<ul>{''.join([f'<li>{fase}</li>' for fase in e.args[0]])}</ul>"
             mensaje = f"El Proyecto no puede ser finalizado porque las siguientes fases no estan cerradas:<br/>{mensaje}"
