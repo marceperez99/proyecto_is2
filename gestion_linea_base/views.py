@@ -213,7 +213,6 @@ def visualizar_linea_base_view(request, proyecto_id, fase_id, linea_base_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Marcos registrar en planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     lineabase = get_object_or_404(LineaBase, id=linea_base_id)
