@@ -7,22 +7,18 @@
     </tr>
 </table>
 <hr>
-    <table style="border: none">
-        <tr>
-        <td><b>Código:</b></td><td>{{linea_base.nombre}}</td><td><b>Fase:</b></td><td>{{linea_base.fase.nombre}}</td>
-        </tr>
-        <tr>
-            <td><b>Estado:</b></td><td> {{linea_base.estado}}</td>
-            <td><b>Proyecto:</b></td><td>{{linea_base.get_proyecto.nombre}}</td>
-        </tr>
-    </table >
-    <hr>
-    <h1>Ítems dentro de la linea base</h1>
     <table>
         <tr><td><b>Nombre</b></td><td><b>Correo</b></td><td><b>Rol de Sistema</b></td></tr>
-        {% for user in lista_usuario %}
+        {% for user in lista_usuarios %}
         <tr>
-            <td>{{user}}</td><td>{{user.email}}</td><td>user.get_rol_de_sistema</td>
+            <td>{{user.get_full_name}}</td><td>{{user.email}}</td>
+            <td>
+                {% if user.get_rol_de_sistema is not None %}
+                    {{ user.get_rol_de_sistema.nombre }}
+                {% else %}
+                    Sin Rol de Sistema.
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>

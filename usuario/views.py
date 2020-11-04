@@ -217,9 +217,6 @@ def usuarios_reporte_view(request):
     Require los siguientes permisos de sistema:
         Visualizar usuarios del sistema.
     """
-    lista_usuario = list(User.objects.all())
-    contexto = {'lista_usuario': lista_usuario, 'user': request.user,
-                'breadcrumb': {'pagina_actual': 'Usuarios',
-                               'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}]},
-                }
-    return make_report(request, 'usuario/usuarios_reporte.html', context=contexto)
+    lista_usuarios = list(Usuario.objects.all())
+    contexto = {'lista_usuarios': lista_usuarios}
+    return make_report('reportes/usuarios_reporte.html', context=contexto)
