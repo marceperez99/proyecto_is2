@@ -125,7 +125,6 @@ def nueva_linea_base_view(request, proyecto_id, fase_id):
     Retorna:
         - HttpResponse
     """
-    # TODO: Marcos incluir en la planilla
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(Fase, id=fase_id)
     if request.method == 'POST':
