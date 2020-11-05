@@ -382,7 +382,7 @@ class Item(models.Model):
             -Booleano
         """
         if self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).exists():
-
+            print(self.lineabase_set.filter(estado=EstadoLineaBase.CERRADA).all())
             return self.lineabase_set.get(estado=EstadoLineaBase.CERRADA)
 
         elif self.lineabase_set.filter(estado=EstadoLineaBase.COMPROMETIDA).exists():

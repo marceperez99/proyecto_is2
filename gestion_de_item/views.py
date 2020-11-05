@@ -10,6 +10,7 @@ from gestion_de_fase.models import Fase
 from gestion_de_item.models import *
 from gestion_de_proyecto.decorators import estado_proyecto
 from gestion_de_proyecto.models import Proyecto, EstadoDeProyecto
+from gestion_de_reportes.utils import make_report
 from gestion_de_tipo_de_item.models import *
 from gestion_de_tipo_de_item.utils import get_dict_tipo_de_item
 from gestion_linea_base.models import *
@@ -19,6 +20,32 @@ from .decorators import estado_item
 from .forms import *
 from .tasks import upload_and_save_file_item
 from .utils import get_atributos_forms, trazar_item
+
+
+def reporte_de_item_view(request, proyecto_id, fase_id, item_id):
+    item = Item.objects.get(id=item_id)
+    return make_report('reportes/reporte_item.html', context={'item': item})
+
+
+def reporte_de_items_view(request, proyecto_id, fase_id):
+    """
+        Vista que muestra las opciones de paramtrización del reporte de items de una fase.
+
+        Argumentos:
+           - request: HttpRequest
+           - proyecto_id: id de un proyecto
+           - fase_id: id de una fase del proyecto
+        Retorna:
+            - HttpResponse
+    """
+    fase = Fase.objects.get(id=fase_id)
+    form = ReporteItemsForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            # Consigue los items con los estados marcados.
+            items = fase.get_item_estado(*[key for key in form.cleaned_data if form.cleaned_data[key]])
+            return make_report('reportes/reporte_items.html', context={'items': items, 'fase': fase})
+    return render(request, "gestion_de_item/visualizar_reporte.html", context={"form": form})
 
 
 @login_required
@@ -121,6 +148,7 @@ def visualizar_item(request, proyecto_id, fase_id, item_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     fase = get_object_or_404(proyecto.fase_set, id=fase_id)
     item = get_object_or_404(Item, id=item_id)
+    print()
     participante = proyecto.get_participante(request.user)
     contexto = {
         'debe_ser_revisado': item.estado == EstadoDeItem.EN_REVISION and proyecto.tiene_permiso_de_proyecto_en_fase(

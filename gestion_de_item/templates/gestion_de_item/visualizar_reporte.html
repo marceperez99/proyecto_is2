@@ -1,0 +1,17 @@
+{% extends 'base.html'%}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Seleccionar Tipo De Item{%endblock title%}
+{% block content %}
+    {% include 'navBar.html' %}
+    {% include 'breadcrumb.html' %}
+<div class="container card mt-3 px-5 py-3">
+<b>Incluir los ítems con los siguientes estados</b>
+    <hr>
+<form method="post">
+    {% csrf_token %}
+    {{form | crispy}}
+    <input type="submit" class="btn btn-primary bg-color-accent col-2 mx-auto" value="Genera Reporte">
+</form>
+</div>
+{% endblock %}

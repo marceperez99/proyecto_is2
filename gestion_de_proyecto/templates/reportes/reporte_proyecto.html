@@ -1,0 +1,50 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+<table style="border: none">
+ <tr>
+    <td><h1>Reporte de Proyecto</h1></td>
+       <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+</table>
+    <hr>
+    <table style="border: none">
+        <tr>
+            <td><b>Nombre</b></td><td>{{proyecto.nombre}}</td>
+        </tr>
+        <tr>
+            <td><b>Estado</b></td><td>{{proyecto.estado}}</td>
+        </tr>
+        <tr>
+            <td><b>Gerente</b></td><td>{{proyecto.gerente.get_full_name}}</td>
+        </tr>
+        <tr>
+            <td><b>Fecha de creacion</b></td><td>{{proyecto.fecha_de_creacion}}</td>
+        </tr>
+    </table>
+    <hr>
+    <h1>Informacion del poryecto</h1>
+
+    <table>
+        <tr><th>Participantes</th><th>Rol de Proyecto Asignado</th></tr>
+        {% for participante in proyecto.get_participantes %}
+            <tr><td>{{ participante.usuario.get_full_name }}</td> <td>{{ participante.get_rol_nombre }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <table>
+        <tr><th>Comite de Cambios</th></tr>
+         {% for miembro_comite in proyecto.get_comite_de_cambios.miembros.all %}
+            <tr>
+                <td>{{ miembro_comite.usuario.get_full_name }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <table>
+        <tr><th> Fases </th><th> Estado </th></tr>
+        {% for fase in proyecto.get_fases %}
+            <tr><td>{{ fase.nombre }}</td><td> {% if fase.fase_cerrada is true %}Cerrada {% else %} Abierta {% endif %}</td></tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

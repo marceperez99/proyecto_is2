@@ -2,7 +2,6 @@ from gestion_linea_base.models import LineaBase
 
 
 def create_nombre_LB(proyecto, fase):
-    # TODO: Marcos, poner en planilla.
     """
     Función utilitaria que construye el nombre para la Línea de Base de tal forma que estos no se repitan,
     el patron de nonbre será "LB_<nro_fase>_<nro_lb>"

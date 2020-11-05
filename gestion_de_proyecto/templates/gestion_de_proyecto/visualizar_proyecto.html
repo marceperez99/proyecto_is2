@@ -14,6 +14,9 @@
                     <a href="{% url 'editar_proyecto' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Editar Proyecto</a>
                     <a href="{% url 'iniciar_proyecto' proyecto.id %}" class="btn btn-primary border-0 bg-color-accent">Iniciar Proyecto</a>
                 {% endif %}
+                {% if puede_finalizar %}
+                    <a href="{% url 'finalizar_proyecto' proyecto.id %}" class="btn btn-primary bg-color-accent border-0 ">Finalizar Proyecto</a>
+                {% endif %}
                 {% if 'pg_cancelar_proyecto' in permisos and proyecto.estado == 'En Configuración' or proyecto.estado == 'Iniciado' %}
                     <a href="{% url 'cancelar_proyecto' proyecto.id %}" class="btn btn-danger border-0 bg-color-danger">Cancelar Proyecto</a>
                 {% endif %}
