@@ -117,8 +117,9 @@ echo "$GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE" | sudo tee "$GDRIVE_JSON_PATH" > /dev
 echo "- Variables de Entorno guardadas";
 
 #Descarga de codigo fuente
-TAG="iteracion_5"
+TAG="iteracion_6"
 read -rp "Ingrese el nombre del Tag del Release que desea montar [$TAG]: " input
+TAG=${input:-$TAG}
 RELEASE_LINK="https://github.com/marzeperez99/proyecto_is2/archive/$TAG.zip"
 cd "django" || exit 1
 sudo wget "$RELEASE_LINK"
