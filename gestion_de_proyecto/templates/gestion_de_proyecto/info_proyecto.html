@@ -9,6 +9,7 @@
             <h3 class="col-6">Informacion del Proyecto</h3>
             <div class="col-6 text-right">
                 {% if participante is not None %}
+                    <a href="{% url 'reporte_de_proyecto' proyecto.id %}" class="btn btn-primary bg-color-accent border-0">Generar Reporte</a>
                     <a href="{% url 'visualizar_proyecto' proyecto.id %}" class="btn btn-primary bg-color-accent border-0">Visualizar Proyecto</a>
                 {% endif %}
             </div>

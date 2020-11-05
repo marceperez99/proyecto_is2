@@ -11,7 +11,6 @@ from gestion_de_solicitud.models import SolicitudDeCambio
 @shared_task
 def notificar_solicitud_lb_cancelada(solicitud_id):
     """
-    #TODO Luis, cargar en planilla
     Función asincrona que construye un mensaje para ser enviado por correo utilizando la función utilitaria send_mail.
 
     Argumentos:
@@ -26,7 +25,6 @@ def notificar_solicitud_lb_cancelada(solicitud_id):
 @shared_task
 def notificar_solicitud_lb_aceptada(solicitud_id):
     """
-    #TODO Luis, cargar en planilla
     Función asincrona que construye un mensaje para ser enviado por correo utilizando la función utilitaria send_mail.
 
     Argumentos:

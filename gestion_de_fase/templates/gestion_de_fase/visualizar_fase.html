@@ -17,7 +17,9 @@
                         <a href="{% url 'eliminar_fase' proyecto.id fase.id %}" class="btn btn-danger border-0 bg-color-danger">Eliminar Fase</a>
                     {% endif %}
                 {% elif proyecto.estado == 'Iniciado' %}
-                    <a href="{% url 'cerrar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Cerrar Fase</a>
+                    {% if fase.fase_cerrada is False %}
+                        <a href="{% url 'cerrar_fase' proyecto.id fase.id %}" class="btn btn-primary border-0 bg-color-accent">Cerrar Fase</a>
+                    {% endif%}
                 {% endif %}
             </div>
         </div>
