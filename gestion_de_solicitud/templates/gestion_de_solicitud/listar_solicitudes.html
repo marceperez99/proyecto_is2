@@ -6,6 +6,9 @@
     <div class="container card px-5 py-3 mt-3">
         <div class="row">
             <h3 class="col-auto">Solicitudes de Cambio</h3>
+              <div class="col-8 text-right">
+                <a href="{% url 'generar_reporte_de_solicitudes' proyecto.id%}" class="btn bg-color-accent border-0 btn-primary gb-color-accent">Generar Reporte</a>
+              </div>
             <hr class="col-11 mx-auto">
             <div class="col-12 ">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
