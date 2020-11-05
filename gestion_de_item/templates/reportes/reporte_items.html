@@ -1,0 +1,47 @@
+{% extends 'reportes/base.html' %}
+{% block content %}
+
+<table style="border: none">
+    <tr>
+        <td><h1>Reporte de Ítems</h1></td>
+        <td style="text-align: right">{% now "j \d\e F \d\e Y" %}</td>
+    </tr>
+
+</table>
+<hr>
+<table style="border: none">
+<tr style="text-align: left">
+        <td><b>Fase:</b></td><td>{{fase.nombre}}</td>
+        <td><b>Proyecto:</b></td><td>{{fase.proyecto.nombre}}</td>
+
+</tr>
+</table>
+<hr>
+
+<table style="text-align: center">
+    {% if items %}
+        <tr>
+            <td><b>Código</b></td>
+            <td><b>Nombre</b></td>
+            <td><b>Tipo de ítem</b></td>
+            <td><b>Estado</b></td>
+            <td><b>Peso</b></td>
+
+        </tr>
+        {% for item in items %}
+            <tr>
+                <td>{{item.codigo}}</td>
+                <td>{{item.version.nombre}}</td>
+                <td>{{item.tipo_de_item.nombre}}</td>
+                <td>{{item.estado}}</td>
+                <td>{{item.version.peso}}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <b>No hay ítems para mostrar.</b>
+    {% endif %}
+
+</table>
+
+
+{% endblock %}

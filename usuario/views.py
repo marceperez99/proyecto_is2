@@ -12,6 +12,7 @@ from roles_de_sistema.models import RolDeSistema
 from .forms import AsignarRolDeSistemaForm, ConfigCloudForm
 from .models import Usuario
 from .tasks import mail_for_new_rol
+from gestion_de_reportes.utils import make_report
 
 
 # Create your views here.
@@ -30,7 +31,6 @@ def usuarios_view(request):
                                'links': [{'nombre': 'Panel de Administracion', 'url': reverse('panel_de_control')}]},
                 }
     return render(request, 'usuario/usuarios.html', context=contexto)
-
 
 @login_required
 @permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
@@ -205,3 +205,18 @@ def mi_perfil_view(request):
     contexto = {'user': user, 'permisos': permisos, 'proyectos_activos': proyectos_activos,
                 'proyectos_no_activos': proyectos_no_activos}
     return render(request, 'usuario/mi_perfil.html', context=contexto)
+
+
+@login_required
+@permission_required('roles_de_sistema.pu_acceder_sistema', login_url='sin_permiso')
+@permission_required('roles_de_sistema.ps_ver_usuarios', login_url='sin_permiso')
+def usuarios_reporte_view(request):
+    """
+    Vista que muestra el reporte de la lista de usuarios del sistema.
+
+    Require los siguientes permisos de sistema:
+        Visualizar usuarios del sistema.
+    """
+    lista_usuarios = list(Usuario.objects.all())
+    contexto = {'lista_usuarios': lista_usuarios}
+    return make_report('reportes/usuarios_reporte.html', context=contexto)
